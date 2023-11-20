@@ -18,6 +18,6 @@
       .modal-footer
         %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
         = link_to 'Purge Items',
-                  admin_collection_destroy_all_items_path(@collection),
+                  admin_collection_delete_items_path(@collection),
                   method: 'delete',
                   class: 'btn btn-primary'

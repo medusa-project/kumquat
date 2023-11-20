@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Admin
 
   class AgentsController < ControlPanelController
@@ -5,15 +7,19 @@ module Admin
     PERMITTED_PARAMS = [:agent_rule_id, :agent_type_id, :description,
                         :name, :uri]
 
+    before_action :set_agent, except: [:create, :index]
+    before_action :authorize_agent, except: [:create, :index]
+
     ##
     # XHR only
     #
     def create
       @agent = Agent.new(sanitized_params)
+      authorize(@agent)
       begin
         ActiveRecord::Base.transaction do
           params[:agent_uris].select{ |k, v| v[:uri]&.present? }.each do |k, v|
-            @agent.agent_uris.build(uri: v[:uri],
+            @agent.agent_uris.build(uri:     v[:uri],
                                     primary: (v[:primary] == 'true'))
           end
           @agent.save!
@@ -36,31 +42,28 @@ module Admin
     end
 
     def destroy
-      agent = Agent.find(params[:id])
-      begin
-        ActiveRecord::Base.transaction { agent.destroy! }
-      rescue => e
-        handle_error(e)
-      else
-        flash['success'] = "Agent \"#{agent.name}\" deleted."
-      ensure
-        redirect_to admin_agents_path
-      end
+      ActiveRecord::Base.transaction { @agent.destroy! }
+    rescue => e
+      handle_error(e)
+    else
+      flash['success'] = "Agent \"#{@agent.name}\" deleted."
+    ensure
+      redirect_to admin_agents_path
     end
 
     ##
     # XHR only
     #
     def edit
-      agent = Agent.find(params[:id])
       render partial: 'admin/agents/form',
-             locals: { agent: agent }
+             locals:  { agent: @agent }
     end
 
     ##
     # Responds to GET /admin/agents
     #
     def index
+      authorize(Agent)
       @limit        = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
       @start        = params[:start] ? params[:start].to_i : 0
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
@@ -77,13 +80,13 @@ module Admin
       respond_to do |format|
         format.html do
           @agent_count = @agents.count
-          @agents = @agents.offset(@start).limit(@limit)
-          @new_agent = Agent.new
+          @agents      = @agents.offset(@start).limit(@limit)
+          @new_agent   = Agent.new
           @new_agent.agent_uris.build
         end
         format.js do
           @agent_count = @agents.count
-          @agents = @agents.offset(@start).limit(@limit)
+          @agents      = @agents.offset(@start).limit(@limit)
         end
         format.json do
           @agents = @agents.offset(0).limit(10)
@@ -96,7 +99,6 @@ module Admin
     # Responds to GET /admin/agents/:id
     #
     def show
-      @agent = Agent.find(params[:id])
       @new_agent = Agent.new
       @new_agent.agent_uris.build
       @new_agent_relation = @agent.agent_relations.build
@@ -114,36 +116,42 @@ module Admin
     # XHR only
     #
     def update
-      agent = Agent.find(params[:id])
-      begin
-        ActiveRecord::Base.transaction do
-          agent.agent_uris.destroy_all
-          params[:agent_uris].select{ |k, v| v[:uri]&.present? }.each do |k, v|
-            agent.agent_uris.build(uri: v[:uri],
-                                   primary: (v[:primary] == 'true'))
-          end
-          agent.update!(sanitized_params)
+      ActiveRecord::Base.transaction do
+        @agent.agent_uris.destroy_all
+        params[:agent_uris].select{ |k, v| v[:uri]&.present? }.each do |k, v|
+          @agent.agent_uris.build(uri:     v[:uri],
+                                  primary: (v[:primary] == 'true'))
         end
-      rescue ActiveRecord::RecordInvalid
-        response.headers['X-Kumquat-Result'] = 'error'
-        render partial: 'shared/validation_messages',
-               locals: { entity: agent }
-      rescue => e
-        response.headers['X-Kumquat-Result'] = 'error'
-        render partial: 'shared/validation_messages',
-               locals: { entity: e }
-      else
-        response.headers['X-Kumquat-Result'] = 'success'
-        flash['success'] = "Agent \"#{agent.name}\" updated."
-        keep_flash
-        render 'admin/shared/reload'
+        @agent.update!(sanitized_params)
       end
+    rescue ActiveRecord::RecordInvalid
+      response.headers['X-Kumquat-Result'] = 'error'
+      render partial: 'shared/validation_messages',
+             locals: { entity: @agent }
+    rescue => e
+      response.headers['X-Kumquat-Result'] = 'error'
+      render partial: 'shared/validation_messages',
+             locals: { entity: e }
+    else
+      response.headers['X-Kumquat-Result'] = 'success'
+      flash['success'] = "Agent \"#{@agent.name}\" updated."
+      keep_flash
+      render 'admin/shared/reload'
     end
+
 
     private
 
+    def authorize_agent
+      @agent ? authorize(@agent) : skip_authorization
+    end
+
     def sanitized_params
       params.require(:agent).permit(PERMITTED_PARAMS)
+    end
+
+    def set_agent
+      @agent = Agent.find(params[:id])
     end
 
   end

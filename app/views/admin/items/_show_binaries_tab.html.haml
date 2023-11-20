@@ -10,16 +10,18 @@
         %i.fa.fa-sitemap
         Child Items
       .dropdown-menu.dropdown-menu-right{'aria-labelledby': 'dl-child-items-button'}
-        = button_to(admin_collection_item_publicize_child_binaries_path(@item.collection, @item),
-                    class: 'dropdown-item',
-                    method: :post) do
-          %i.fa.fa-unlock
-          Publicize All Binaries
-        = button_to(admin_collection_item_unpublicize_child_binaries_path(@item.collection, @item),
-                    class: 'dropdown-item',
-                    method: :post) do
-          %i.fa.fa-lock
-          Unpublicize All Binaries
+        - if policy(@item).publicize_child_binaries?
+          = button_to(admin_collection_item_publicize_child_binaries_path(@item.collection, @item),
+                      class: 'dropdown-item',
+                      method: :post) do
+            %i.fa.fa-unlock
+            Publicize All Binaries
+        - if policy(@item).unpublicize_child_binaries?
+          = button_to(admin_collection_item_unpublicize_child_binaries_path(@item.collection, @item),
+                      class: 'dropdown-item',
+                      method: :post) do
+            %i.fa.fa-lock
+            Unpublicize All Binaries
 
 - if @item.items.count > 0
   %table.table
@@ -42,7 +44,7 @@
           = link_to(binary_object_path(bin), class: 'btn btn-sm btn-light') do
             %i.fa.fa-download
             Download
-          - if bin.master_type == Binary::MasterType::ACCESS
+          - if bin.master_type == Binary::MasterType::ACCESS && policy(@item).purge_cached_images?
             = link_to admin_collection_item_purge_cached_images_path(@item.collection, @item),
                           class: 'btn btn-sm  btn-light',
                           method: 'post' do

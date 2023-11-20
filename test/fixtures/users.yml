@@ -1,11 +1,22 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-admin:
-  username: admin
-  api_key: h6jkpC6YRRPVYPXhmfjQ1Q==
-  human: true
+medusa_super_admin:
+  username: medusa_super
+  api_key:  h6jkpC6YRRPVYPXhmfjQ1Q==
+  human:    true
 
+medusa_admin:
+  username: medusa_admin
+  api_key:  h6jkpC6YRRPVYPXhmfjQ1Q==
+  human:    true
+
+medusa_user:
+  username: medusa_user
+  api_key:  h6jkpC6YRRPVYPXhmfjQ1Q==
+  human:    true
+
+# A normal SSO user, not a member of any AD groups.
 normal:
   username: normal
-  api_key: h6jkpC6YRRPVYPXhmfjQ1Q==
-  human: true
+  api_key:  h6jkpC6YRRPVYPXhmfjQ1Q==
+  human:    true

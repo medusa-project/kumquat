@@ -6,18 +6,21 @@
                    { label: @host_group.name })
 
 .btn-group.float-right
-  -# Edit
-  = link_to edit_admin_host_group_path(@host_group), class: 'btn btn-light' do
-    = content_tag(:span, '', class: 'fas fa-pencil-alt')
-    Edit
-  -# Delete
-  = link_to admin_host_group_path(@host_group), method: 'delete',
-            class: 'btn btn-danger',
-            data: { confirm: 'Are you sure you want to delete this host group?' } do
-    = content_tag(:span, '', class: 'fa fa-trash')
-    Delete
+  - if policy(@host_group).edit?
+    -# Edit
+    = link_to edit_admin_host_group_path(@host_group), class: 'btn btn-light' do
+      = content_tag(:span, '', class: 'fas fa-pencil-alt')
+      Edit
+  - if policy(@host_group).destroy?
+    -# Delete
+    = link_to admin_host_group_path(@host_group), method: 'delete',
+              class: 'btn btn-danger',
+              data: { confirm: 'Are you sure you want to delete this host group?' } do
+      = content_tag(:span, '', class: 'fa fa-trash')
+      Delete
 
 %h1= @host_group.name
+
 .row
   .col-sm-6
     %h2 Host Patterns

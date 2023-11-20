@@ -5,23 +5,28 @@
 = admin_breadcrumb({ label: 'Home', url: admin_root_path },
                    { label: 'Metadata Profiles' })
 
-- if current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
-  .btn-group.float-right
+
+.btn-group.float-right
+  - if policy(MetadataProfile).new?
     %button.btn.btn-light{"data-target": "#dl-add-profile-modal",
                           "data-toggle": "modal",
                           type: "button"}
       %span.fa.fa-plus
       Add Profile
+  - if policy(MetadataProfile).import?
     -# Import button
     %button.btn.btn-light{"data-target": "#dl-import-modal",
                           "data-toggle": "modal",
                           type: "button"}
       %i.fa.fa-upload
       Import&hellip;
+
 %h1 Metadata Profiles
+
 .alert.alert-light
   %i.fas.fa-info-circle
   The default profile is used in cross-collection contexts.
+
 %table.table.table-striped.dl-predicates
   %thead
     %th{style: "min-width:5em"}
@@ -33,7 +38,7 @@
         %td.text-center
           - if profile.default
             %span.badge.badge-success Default
-          - elsif current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
+          - elsif policy(profile).edit?
             = button_to 'Set As Default',
                         admin_metadata_profile_path(profile, metadata_profile: { default: true }),
                         class: 'btn btn-light btn-sm',

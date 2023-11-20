@@ -1,59 +1,58 @@
+# frozen_string_literal: true
+
 module Admin
 
   class ItemSetsController < ControlPanelController
 
-    before_action :check_authorization, except: [:new, :create]
+    before_action :set_item_set, except: [:create, :new]
+    before_action :authorize_item_set, except: [:create, :new]
 
     ##
     # Responds to POST /admin/collections/:collection_id/item_sets
     #
     def create
-      begin
-        item_set = ItemSet.new(sanitized_params)
-        item_set.save!
-      rescue ActiveRecord::RecordInvalid
-        response.headers['X-Kumquat-Result'] = 'error'
-        render partial: 'shared/validation_messages',
-               locals: { entity: item_set }
-      rescue => e
-        handle_error(e)
-        keep_flash
-        render 'admin/shared/reload'
-      else
-        response.headers['X-Kumquat-Result'] = 'success'
-        flash['success'] = "Set \"#{item_set}\" created."
-        keep_flash
-        render 'admin/shared/reload'
-      end
+      item_set = ItemSet.new(sanitized_params)
+      authorize(item_set)
+      item_set.save!
+    rescue ActiveRecord::RecordInvalid
+      response.headers['X-Kumquat-Result'] = 'error'
+      render partial: 'shared/validation_messages',
+             locals: { entity: item_set }
+    rescue => e
+      handle_error(e)
+      keep_flash
+      render 'admin/shared/reload'
+    else
+      response.headers['X-Kumquat-Result'] = 'success'
+      flash['success'] = "Set \"#{item_set}\" created."
+      keep_flash
+      render 'admin/shared/reload'
     end
 
     ##
     # Responds to DELETE /admin/collections/:collection_id/item_sets/:id
     #
     def destroy
-      item_set = ItemSet.find(params[:id])
-      col      = item_set.collection
-      item_set.destroy!
+      collection = @item_set.collection
+      @item_set.destroy!
 
-      flash['success'] = "#{item_set} deleted."
-      redirect_to admin_collection_path(col)
+      flash['success'] = "#{@item_set} deleted."
+      redirect_to admin_collection_path(collection)
     end
 
     ##
     # Responds to GET /admin/collections/:collection_id/item_sets/:id/edit
     #
     def edit
-      item_set = ItemSet.find(params[:id])
-      render partial: 'form', locals: { collection: item_set.collection,
-                                        item_set: item_set }
+      render partial: 'form', locals: { collection: @item_set.collection,
+                                        item_set:   @item_set }
     end
 
     ##
     # Responds to GET /admin/collections/:collection_id/item_sets/:item_set_id/items
     #
     def items
-      @item_set = ItemSet.find(params[:item_set_id])
-      @items    = Item.search.
+      @items = Item.search.
           aggregations(false).
           include_unpublished(true).
           include_publicly_inaccessible(true).
@@ -62,7 +61,7 @@ module Admin
           order(Item::IndexFields::TITLE)
 
       headers['Content-Disposition'] = 'attachment; filename="items.tsv"'
-      headers['Content-Type'] = 'text/tab-separated-values'
+      headers['Content-Type']        = 'text/tab-separated-values'
       render plain: ItemTsvExporter.new.items_in_item_set(@item_set)
     end
 
@@ -74,6 +73,7 @@ module Admin
       raise ActiveRecord::RecordNotFound unless collection
 
       new_item_set = ItemSet.new
+      authorize(new_item_set)
       render partial: 'form', locals: { collection: collection,
                                         item_set: new_item_set }
     end
@@ -82,12 +82,11 @@ module Admin
     # Responds to DELETE /admin/collections/:collection_id/item_sets/:item_set_id/all-items
     #
     def remove_all_items
-      item_set = ItemSet.find(params[:item_set_id])
       ActiveRecord::Base.transaction do
-        item_set.items.destroy_all
+        @item_set.items.destroy_all
       end
 
-      flash['success'] = "Removed all items from #{item_set}."
+      flash['success'] = "Removed all items from #{@item_set}."
 
       redirect_back fallback_location: admin_collection_item_set_path(params[:collection_id],
                                                                       params[:item_set_id])
@@ -123,7 +122,6 @@ module Admin
     # Responds to GET /admin/collections/:collection_id/item_sets/:id
     #
     def show
-      @item_set     = ItemSet.find(params[:id])
       @start        = params[:start].to_i
       @limit        = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
@@ -144,42 +142,36 @@ module Admin
     # Responds to POST /admin/collections/:collection_id/item_sets/:id
     #
     def update
-      item_set = ItemSet.find(params[:id])
-      begin
-        item_set.update!(sanitized_params)
-      rescue ActiveRecord::RecordInvalid
-        response.headers['X-Kumquat-Result'] = 'error'
-        render partial: 'shared/validation_messages',
-               locals: { entity: item_set }
-      rescue => e
-        handle_error(e)
-        keep_flash
-        render 'admin/shared/reload'
-      else
-        response.headers['X-Kumquat-Result'] = 'success'
-        flash['success'] = "Set \"#{item_set}\" updated."
-        keep_flash
-        render 'admin/shared/reload'
-      end
+      @item_set.update!(sanitized_params)
+    rescue ActiveRecord::RecordInvalid
+      response.headers['X-Kumquat-Result'] = 'error'
+      render partial: 'shared/validation_messages',
+             locals: { entity: @item_set }
+    rescue => e
+      handle_error(e)
+      keep_flash
+      render 'admin/shared/reload'
+    else
+      response.headers['X-Kumquat-Result'] = 'success'
+      flash['success'] = "Set \"#{@item_set}\" updated."
+      keep_flash
+      render 'admin/shared/reload'
     end
+
 
     private
 
-    ##
-    # Checks whether a user is a member of the set, and redirects to the
-    # collection page if not.
-    #
-    def check_authorization
-      item_set = ItemSet.find(params[:id] || params[:item_set_id])
-      unless item_set.users.include?(current_user) or current_user.medusa_superuser?
-        flash['error'] = "You are not authorized to access #{item_set}."
-        redirect_to admin_collection_path(item_set.collection)
-      end
+    def authorize_item_set
+      @item_set ? authorize(@item_set) : skip_authorization
     end
 
     def sanitized_params
       params.require(:item_set).permit(:id, :collection_repository_id, :name,
                                        user_ids: [])
+    end
+
+    def set_item_set
+      @item_set = ItemSet.find(params[:id] || params[:item_set_id])
     end
 
   end

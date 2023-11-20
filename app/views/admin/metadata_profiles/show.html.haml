@@ -7,13 +7,14 @@
                    { label: @profile.name })
 
 .btn-group.float-right{role: "group"}
-  - if current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
+  - if policy(@profile).edit?
     -# Edit button
     %button.btn.btn-light{"data-target": "#dl-edit-profile-modal",
                           "data-toggle": "modal",
                           type: "button"}
       %i.fas.fa-pencil-alt
       Edit
+  - if policy(@profile).clone?
     -# Clone button
     = button_to admin_metadata_profile_clone_path(@profile),
                 method: :patch,
@@ -24,7 +25,7 @@
   = link_to @permitted_params.merge(format: 'json'), class: 'btn btn-light' do
     %i.fa.fa-download
     Export
-  - if current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
+  - if policy(@profile).destroy?
     -# Delete button
     = button_to admin_metadata_profile_path(@profile),
                 method: :delete,
@@ -60,7 +61,7 @@
   #dl-elements.tab-pane.fade.show.active{role:              "tabpanel",
                                          "aria-labelledby": "dl-elements-tab"}
     = form_tag(admin_metadata_profile_delete_elements_path(@profile), method: :post) do
-      - if current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
+      - if policy(MetadataProfileElement).new?
         .btn-group.float-right{role: "group"}
           %button.btn.btn-light{"data-target": "#dl-add-element-modal",
                                 "data-toggle": "modal",
@@ -89,13 +90,13 @@
             - @profile.elements.order(:index).each do |element|
               %tr
                 %td
-                  - if current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
+                  - if policy(@profile).edit?
                     .checkbox
                       %label
                         = check_box_tag('elements[]', element.id)
                         = element.index + 1
                 %td
-                  - if current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
+                  - if policy(element).edit?
                     %button.btn.btn-light.btn-sm.dl-edit-element{"data-element-id": "#{element.id}",
                                                                  "data-target": "#dl-edit-element-modal",
                                                                  "data-toggle": "modal",

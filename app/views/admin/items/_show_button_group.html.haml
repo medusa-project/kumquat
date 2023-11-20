@@ -8,12 +8,12 @@
     OCR
 
   -# Sets button
-  - if @item.collection.item_sets.count > 0
+  - if @item.collection.item_sets.count > 0 && policy(@item).add_items_to_item_set?
     .btn-group
       %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
                                             "aria-haspopup": "true",
-                                            "data-toggle": "dropdown",
-                                            type: "button"}
+                                            "data-toggle":   "dropdown",
+                                            type:            "button"}
         %i.fa.fa-plus
         Add To Set
         %span.caret
@@ -29,8 +29,8 @@
   .btn-group
     %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
                                           "aria-haspopup": "true",
-                                          "data-toggle": "dropdown",
-                                          type: "button"}
+                                          "data-toggle":   "dropdown",
+                                          type:            "button"}
       %i.fa.fa-external-link-alt
       Go
       %span.caret

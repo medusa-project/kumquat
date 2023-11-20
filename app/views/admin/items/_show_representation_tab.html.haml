@@ -1,4 +1,4 @@
-- if current_user.can?(Permissions::MODIFY_ITEMS)
+- if policy(@item).edit_representation?
   .btn-group.float-right.mb-3
     %button.btn.btn-light.dl-edit-representation{type: 'button',
                                                  'data-toggle': 'modal',

@@ -1,15 +1,28 @@
+# frozen_string_literal: true
+
 module Admin
 
   class CollectionsController < ControlPanelController
 
     PERMITTED_PARAMS = [:q, :public_in_medusa, :published_in_dls, :start]
 
-    before_action :load_collection, except: [:index, :items, :sync]
-    before_action :authorize_modify_collections, only: [:edit_access,
-                                                        :edit_info,
-                                                        :edit_representation,
-                                                        :update, :sync,
-                                                        :unwatch, :watch]
+    before_action :set_collection, except: [:index, :items, :sync]
+    before_action :authorize_collection, except: [:index, :items, :sync]
+
+    ##
+    # Responds to `DELETE /admin/collections/:collection_id/items`
+    #
+    def delete_items
+      PurgeItemsJob.perform_later(collection: @collection,
+                                  user:       current_user)
+    rescue => e
+      handle_error(e)
+    else
+      flash['success'] = 'Purging items in the background. '\
+        'This should take less than a minute.'
+    ensure
+      redirect_to admin_collection_items_path(@collection)
+    end
 
     ##
     # Responds to `GET /admin/collections/:id/edit-access` (XHR only).
@@ -57,6 +70,7 @@ module Admin
     # Responds to `GET /admin/collections`
     #
     def index
+      authorize(Collection)
       @limit = request.format == :tsv ?
                  999999 : Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
       @start = params[:start] ? params[:start].to_i : 0
@@ -98,6 +112,7 @@ module Admin
     # Responds to `GET /admin/collections/items`
     #
     def items
+      authorize(Collection)
       respond_to do |format|
         format.tsv do
           download = Download.create!(ip_address: request.remote_ip)
@@ -189,6 +204,7 @@ module Admin
     # Responds to `PATCH /admin/collections/sync`
     #
     def sync
+      authorize(Collection)
       SyncCollectionsJob.perform_later(user: current_user)
       flash['success'] = 'Indexing collections in the background.
         (This will take a minute.)'
@@ -224,6 +240,7 @@ module Admin
         else
           flash['success'] = "Watchers updated."
           keep_flash
+          redirect_to admin_collection_path(@collection)
         end
       else # all other input
         begin
@@ -269,14 +286,11 @@ module Admin
 
     private
 
-    def authorize_modify_collections
-      unless current_user.can?(Permissions::MODIFY_COLLECTIONS)
-        flash['error'] = 'You do not have permission to perform this action.'
-        redirect_to admin_collections_url
-      end
+    def authorize_collection
+      @collection ? authorize(@collection) : skip_authorization
     end
 
-    def load_collection
+    def set_collection
       @collection = Collection.find_by_repository_id(params[:id] || params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
     end

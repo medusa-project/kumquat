@@ -1,34 +1,32 @@
+# frozen_string_literal: true
+
 module Admin
 
   class MetadataProfilesController < ControlPanelController
 
     PERMITTED_PARAMS = [:default, :default_sortable_element_id, :name]
 
-    before_action :authorize_modify_metadata_profiles, only: [:clone, :create,
-                                                              :delete_elements,
-                                                              :destroy, :import,
-                                                              :update]
     before_action :set_permitted_params
+    before_action :set_profile, except: [:create, :import, :index]
+    before_action :authorize_profile, except: [:create, :import, :index]
 
     ##
     # Responds to PATCH /admin/metadata-profiles/:id/clone
     #
     def clone
-      profile = MetadataProfile.find(params[:metadata_profile_id])
-      begin
-        clone = profile.dup
-        clone.save!
-      rescue => e
-        handle_error(e)
-      else
-        flash['success'] = "Cloned #{profile.name} as \"#{clone.name}\"."
-      ensure
-        redirect_back fallback_location: admin_metadata_profile_path(clone)
-      end
+      clone = @profile.dup
+      clone.save!
+    rescue => e
+      handle_error(e)
+    else
+      flash['success'] = "Cloned #{@profile.name} as \"#{clone.name}\"."
+    ensure
+      redirect_back fallback_location: admin_metadata_profile_path(clone)
     end
 
     def create
       @profile = MetadataProfile.new(sanitized_params)
+      authorize(@profile)
       @profile.add_default_elements
       begin
         @profile.save!
@@ -52,38 +50,35 @@ module Admin
     # Responds to POST /metadata-profiles/:id/delete-elements
     #
     def delete_elements
-      profile = MetadataProfile.find(params[:metadata_profile_id])
       if params[:elements]&.respond_to?(:each)
         count = params[:elements].length
         if count > 0
           ActiveRecord::Base.transaction do
-            profile.elements.where(id: params[:elements]).destroy_all
+            @profile.elements.where(id: params[:elements]).destroy_all
           end
           flash['success'] = "Deleted #{count} element(s)."
         end
       else
         flash['error'] = 'No elements to delete (none checked).'
       end
-      redirect_back fallback_location: admin_metadata_profile_path(profile)
+      redirect_back fallback_location: admin_metadata_profile_path(@profile)
     end
 
     def destroy
-      profile = MetadataProfile.find(params[:id])
-      begin
-        profile.destroy!
-      rescue => e
-        handle_error(e)
-      else
-        flash['success'] = "Metadata profile \"#{profile.name}\" deleted."
-      ensure
-        redirect_to admin_metadata_profiles_url
-      end
+      @profile.destroy!
+    rescue => e
+      handle_error(e)
+    else
+      flash['success'] = "Metadata profile \"#{@profile.name}\" deleted."
+    ensure
+      redirect_to admin_metadata_profiles_path
     end
 
     ##
     # Responds to POST /admin/metadata-profiles/import
     #
     def import
+      authorize(MetadataProfile)
       begin
         raise 'No profile specified.' if params[:metadata_profile].blank?
 
@@ -100,8 +95,9 @@ module Admin
     end
 
     def index
-      @profiles = MetadataProfile.order(:name)
       @new_profile = MetadataProfile.new
+      authorize(@new_profile)
+      @profiles = MetadataProfile.order(:name)
     end
 
     ##
@@ -115,28 +111,24 @@ module Admin
     # Responds to POST /admin/metadata-profiles/:id/reindex-items
     #
     def reindex_items
-      profile = MetadataProfile.find(params[:metadata_profile_id])
-      begin
-        profile.collections.each do |col|
-          ReindexItemsJob.perform_later(collection: col,
-                                        user:       current_user)
-        end
-      rescue => e
-        handle_error(e)
-      else
-        flash['success'] = "Reindexing items in #{profile.collections.length} "\
-            "#{'collection'.pluralize(profile.collections.length)} in the "\
-            "background. This may take a while."
-      ensure
-        redirect_back fallback_location: admin_metadata_profile_path(profile)
+      @profile.collections.each do |col|
+        ReindexItemsJob.perform_later(collection: col,
+                                      user:       current_user)
       end
+    rescue => e
+      handle_error(e)
+    else
+      flash['success'] = "Reindexing items in #{@profile.collections.length} "\
+          "#{'collection'.pluralize(@profile.collections.length)} in the "\
+          "background. This may take a while."
+    ensure
+      redirect_back fallback_location: admin_metadata_profile_path(@profile)
     end
 
     ##
     # Responds to /admin/metadata-profiles/:id
     #
     def show
-      @profile = MetadataProfile.find(params[:id])
       respond_to do |format|
         format.html do
           @new_element = @profile.elements.build
@@ -152,7 +144,6 @@ module Admin
     end
 
     def update
-      @profile = MetadataProfile.find(params[:id])
       if request.xhr?
         begin
           @profile.update!(sanitized_params)
@@ -184,13 +175,15 @@ module Admin
       end
     end
 
+
     private
 
-    def authorize_modify_metadata_profiles
-      unless current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
-        flash['error'] = 'You do not have permission to perform this action.'
-        redirect_to admin_metadata_profiles_url
-      end
+    def authorize_profile
+      @profile ? authorize(@profile) : skip_authorization
+    end
+
+    def set_profile
+      @profile = MetadataProfile.find(params[:id] || params[:metadata_profile_id])
     end
 
     def set_permitted_params

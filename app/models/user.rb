@@ -18,13 +18,13 @@
 class User < ApplicationRecord
 
   # Username of a Medusa "user" in development & test environments.
-  DEVELOPMENT_USER_USERNAME      = 'user'
+  DEVELOPMENT_USER_USERNAMES      = %w[medusa_user user]
 
   # Username of a Medusa "admin" in development & test environments.
-  DEVELOPMENT_ADMIN_USERNAME     = 'admin'
+  DEVELOPMENT_ADMIN_USERNAMES     = %w[medusa_admin admin]
 
   # Username of a Medusa "super admin" in development & test environments.
-  DEVELOPMENT_SUPERUSER_USERNAME = 'super'
+  DEVELOPMENT_SUPERUSER_USERNAMES = %w[medusa_super super]
 
   LDAP_CACHE_TTL = 1.hour
 
@@ -45,30 +45,12 @@ class User < ApplicationRecord
   end
 
   ##
-  # @param key [String] One of the {Permissions} constant values.
-  # @return [Boolean]
-  #
-  def has_permission?(key)
-    config = Configuration.instance
-    if medusa_superuser?
-      return true
-    elsif medusa_admin?
-      return config.medusa_admins_group[:permissions].include?(key)
-    elsif medusa_user?
-      return config.medusa_users_group[:permissions].include?(key)
-    end
-    false
-  end
-
-  alias_method :can?, :has_permission?
-
-  ##
   # @return [Boolean]
   #
   def medusa_admin?
     if Rails.env.development? || Rails.env.test?
-      return [DEVELOPMENT_ADMIN_USERNAME,
-              DEVELOPMENT_SUPERUSER_USERNAME].include?(self.username)
+      return [DEVELOPMENT_ADMIN_USERNAMES,
+              DEVELOPMENT_SUPERUSER_USERNAMES].flatten.include?(self.username)
     end
     group = Configuration.instance.medusa_admins_group[:name]
     Rails.cache.fetch("user.#{username}.medusa_admin",
@@ -87,7 +69,7 @@ class User < ApplicationRecord
   #
   def medusa_superuser?
     if Rails.env.development? || Rails.env.test?
-      return self.username == DEVELOPMENT_SUPERUSER_USERNAME
+      return DEVELOPMENT_SUPERUSER_USERNAMES.include?(self.username)
     end
     group = Configuration.instance.medusa_superusers_group[:name]
     Rails.cache.fetch("user.#{username}.medusa_superuser",
@@ -106,8 +88,8 @@ class User < ApplicationRecord
   #
   def medusa_user?
     if Rails.env.development? || Rails.env.test?
-      return [DEVELOPMENT_USER_USERNAME, DEVELOPMENT_ADMIN_USERNAME,
-              DEVELOPMENT_SUPERUSER_USERNAME].include?(self.username)
+      return [DEVELOPMENT_USER_USERNAMES, DEVELOPMENT_ADMIN_USERNAMES,
+              DEVELOPMENT_SUPERUSER_USERNAMES].flatten.include?(self.username)
     end
     group = Configuration.instance.medusa_users_group[:name]
     Rails.cache.fetch("user.#{username}.medusa_user",

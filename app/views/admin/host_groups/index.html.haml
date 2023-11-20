@@ -5,11 +5,12 @@
 = admin_breadcrumb({ label: 'Home', url: admin_root_path },
                    { label: 'Host Groups' })
 
-.btn-group.float-right
-  -# New Host Group
-  = link_to new_admin_host_group_path, class: 'btn btn-light' do
-    %i.fa.fa-plus
-    New Host Group
+- if policy(HostGroup).new?
+  .btn-group.float-right
+    -# New Host Group
+    = link_to new_admin_host_group_path, class: 'btn btn-light' do
+      %i.fa.fa-plus
+      New Host Group
 
 %h1 Host Groups
 %ul

@@ -8,13 +8,14 @@
                    { label: 'Sets', url: admin_collection_path(@item_set.collection) },
                    { label: @item_set })
 .btn.btn-group.float-right
-  -# Edit button
-  %button.btn.btn-light.dl-edit-item-set{"data-item-set-id": "#{@item_set.id}",
-                                         "data-target": "#dl-edit-item-set-modal",
-                                         "data-toggle": "modal",
-                                         type: "button"}
-    %span.fas.fa-pencil-alt
-    Edit
+  - if policy(@item_set).edit?
+    -# Edit button
+    %button.btn.btn-light.dl-edit-item-set{"data-item-set-id": "#{@item_set.id}",
+                                           "data-target": "#dl-edit-item-set-modal",
+                                           "data-toggle": "modal",
+                                           type: "button"}
+      %span.fas.fa-pencil-alt
+      Edit
   -# Metadata button
   .btn-group
     %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
@@ -24,15 +25,17 @@
       Metadata
       %span.caret
     .dropdown-menu
-      = link_to 'Edit Items',
-                admin_collection_edit_all_items_path(@item_set.collection,
-                                                     item_set: @item_set.id),
-                id: 'dl-edit-result-set-metadata-link',
-                class: "dropdown-item #{@item_set.collection.metadata_profile ? '' : 'disabled' }"
+      - if policy(@item_set).edit?
+        = link_to 'Edit Items',
+                  admin_collection_items_edit_path(@item_set.collection,
+                                                   item_set: @item_set.id),
+                  id: 'dl-edit-result-set-metadata-link',
+                  class: "dropdown-item #{@item_set.collection.metadata_profile ? '' : 'disabled' }"
       .dropdown-divider
-      = link_to raw('Import From TSV&hellip;'), '',
-                class: "dropdown-item #{(@item_set.collection.package_profile and @item_set.collection.medusa_file_group) ? '' : 'disabled' }",
-                'data-toggle': 'modal', 'data-target': '#dl-import-tsv-modal'
+      - if policy(@item_set).edit?
+        = link_to raw('Import From TSV&hellip;'), '',
+                  class: "dropdown-item #{(@item_set.collection.package_profile and @item_set.collection.medusa_file_group) ? '' : 'disabled' }",
+                  'data-toggle': 'modal', 'data-target': '#dl-import-tsv-modal'
       = link_to raw('Export As TSV'),
                 admin_collection_item_set_items_path(@item_set.collection, @item_set, format: 'tsv'),
                 class: 'dropdown-item'
@@ -55,7 +58,7 @@
                   class: 'dropdown-item dl-remove-checked',
                   method: :delete
       = button_to 'Remove All',
-                  admin_collection_item_set_all_items_path(@item_set.collection, @item_set),
+                  admin_collection_item_set_items_path(@item_set.collection, @item_set),
                   method: :delete,
                   class: 'dropdown-item'
   -# Delete button

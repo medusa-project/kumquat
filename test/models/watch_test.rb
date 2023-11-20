@@ -6,7 +6,7 @@ class WatchTest < ActiveSupport::TestCase
 
   test 'save() raises an error for a record with a duplicate collection_id and
   user_id' do
-    user       = users(:admin)
+    user       = users(:medusa_admin)
     collection = collections(:compound_object)
     Watch.create!(user: user, collection: collection)
     assert_raises ActiveRecord::RecordNotUnique do
@@ -17,7 +17,7 @@ class WatchTest < ActiveSupport::TestCase
   # valid?()
 
   test 'valid?() returns false for a record with no collection_id' do
-    watch = Watch.new(user: users(:admin))
+    watch = Watch.new(user: users(:medusa_admin))
     assert !watch.valid?
   end
 
@@ -27,7 +27,7 @@ class WatchTest < ActiveSupport::TestCase
   end
 
   test 'valid?() returns false for a record with both an email and a user_id' do
-    watch = Watch.new(user:       users(:admin),
+    watch = Watch.new(user:       users(:medusa_admin),
                       email:      "somebody@example.org",
                       collection: collections(:compound_object))
     assert !watch.valid?
@@ -40,7 +40,7 @@ class WatchTest < ActiveSupport::TestCase
   end
 
   test 'valid?() returns true for a record with a user_id and a collection_id' do
-    watch = Watch.new(user:       users(:admin),
+    watch = Watch.new(user:       users(:medusa_admin),
                       collection: collections(:compound_object))
     assert watch.valid?
   end

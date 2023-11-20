@@ -16,7 +16,7 @@ class DownloadCollectionsTsvJobTest < ActiveSupport::TestCase
     collection_ids = [collections(:compound_object)].map(&:id)
     DownloadCollectionsTsvJob.perform_now(collection_ids: collection_ids,
                                           download:       @download,
-                                          user:           users(:admin))
+                                          user:           users(:medusa_admin))
 
     client   = KumquatS3Client.instance
     response = client.head_object(bucket: KumquatS3Client::BUCKET,
@@ -28,7 +28,7 @@ class DownloadCollectionsTsvJobTest < ActiveSupport::TestCase
     collection_ids = [collections(:compound_object)].map(&:id)
     DownloadCollectionsTsvJob.perform_now(collection_ids: collection_ids,
                                           download:       @download,
-                                          user:           users(:admin))
+                                          user:           users(:medusa_admin))
     @download.reload
     assert_equal Task::Status::SUCCEEDED, @download.task.status
   end

@@ -1,8 +1,6 @@
 ##
 # Contains constants for all permissions understood by the application.
 #
-# To check whether a user has a given permission, use {User#has_permission?}.
-#
 # N.B.: When a constant is added, removed, or modified, the application
 # configuration must be updated to reflect the change.
 #

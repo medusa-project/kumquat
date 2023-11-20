@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Admin
 
   class ItemsController < ControlPanelController
@@ -11,21 +13,25 @@ module Admin
                         denied_host_group_ids: [],
                         allowed_netids: [ :expires, :netid ]]
 
-    before_action :authorize_purge_items, only: :destroy_all
-    before_action :authorize_modify_items, only: [:batch_change_metadata,
-                                                  :destroy_all, :edit_access,
-                                                  :edit_all, :edit_info,
-                                                  :edit_metadata,
-                                                  :edit_representation,
-                                                  :import, :migrate_metadata,
-                                                  :replace_metadata, :sync,
-                                                  :update]
-    before_action :set_item, only: [:edit_access, :edit_info, :edit_metadata,
-                                    :edit_representation,
-                                    :publicize_child_binaries,
-                                    :purge_cached_images, :show,
-                                    :unpublicize_child_binaries, :update]
     before_action :set_permitted_params, only: [:index, :show]
+    before_action :set_item, except: [:add_items_to_item_set,
+                                      :add_query_to_item_set,
+                                      :batch_change_metadata,
+                                      :disable_full_text_search,
+                                      :edit_all, :enable_full_text_search,
+                                      :import, :index, :migrate_metadata,
+                                      :publish, :replace_metadata, :run_ocr,
+                                      :sync, :unpublish, :update_all]
+    before_action :authorize_item, except: [:add_items_to_item_set,
+                                            :add_query_to_item_set,
+                                            :batch_change_metadata,
+                                            :disable_full_text_search,
+                                            :edit_all,
+                                            :enable_full_text_search, :import,
+                                            :index, :migrate_metadata,
+                                            :publish, :replace_metadata,
+                                            :run_ocr, :sync, :unpublish,
+                                            :update_all]
 
     ##
     # Adds the items with the given IDs to the given item set.
@@ -34,6 +40,7 @@ module Admin
     # `POST /admin/collections/:collection_id/items/add-items-to-item-set`
     #
     def add_items_to_item_set
+      authorize(Item)
       item_ids = params[:items]
       if item_ids&.any?
         item_set = ItemSet.find(params[:item_set])
@@ -54,10 +61,11 @@ module Admin
     # Responds to `POST /admin/collections/:collection_id/items/add-query-to-item-set`
     #
     def add_query_to_item_set
+      authorize(Item)
       collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless collection
 
-      item_set = ItemSet.find(params[:item_set])
+      item_set = ItemSet.find(params[:item_set]) # TODO: return HTTP 400 instead of 404 if this is missing
       relation = querying_item_relation_for(collection)
       results  = relation.to_a
       count    = relation.count
@@ -75,11 +83,12 @@ module Admin
     end
 
     ##
-    # Batch-changes metadata elements.
+    # Changes metadata elements across multiple items.
     #
     # Responds to `POST /admin/collections/:collection_id/items/batch-change-metadata`
     #
     def batch_change_metadata
+      authorize(Item)
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
       begin
@@ -100,22 +109,11 @@ module Admin
     end
 
     ##
-    # Responds to `DELETE /admin/collections/:collection_id/items`
+    # Responds to `PATCH /admin/collections/:collection_id/items/disable-full-text-search`
     #
-    def destroy_all
-      col = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless col
-      begin
-        PurgeItemsJob.perform_later(collection: col,
-                                    user:       current_user)
-      rescue => e
-        handle_error(e)
-      else
-        flash['success'] = 'Purging items in the background. '\
-            'This should take less than a minute.'
-      ensure
-        redirect_to admin_collection_items_url(col)
-      end
+    def disable_full_text_search
+      authorize(Item)
+      enable_or_disable_full_text_search(false)
     end
 
     ##
@@ -132,6 +130,7 @@ module Admin
     # Responds to `GET /admin/collections/:collection_id/items/edit`
     #
     def edit_all
+      authorize(Item)
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
 
@@ -209,23 +208,18 @@ module Admin
     end
 
     ##
-    # Responds to `PATCH /admin/:collections/:collection_id/items/enable-full-text-search`
+    # Responds to `PATCH /admin/collections/:collection_id/items/enable-full-text-search`
     #
     def enable_full_text_search
+      authorize(Item)
       enable_or_disable_full_text_search(true)
-    end
-
-    ##
-    # Responds to `PATCH /admin/:collections/:collection_id/items/disable-full-text-search`
-    #
-    def disable_full_text_search
-      enable_or_disable_full_text_search(false)
     end
 
     ##
     # Responds to `GET /admin/collections/:collection_id/items`
     #
     def index
+      authorize(Item)
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
 
@@ -271,6 +265,7 @@ module Admin
     # Responds to `POST /admin/collections/:collection_id/items/import`
     #
     def import
+      authorize(Item)
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
 
@@ -293,7 +288,7 @@ module Admin
               tsv_original_filename: params[:tsv].original_filename,
               user:                  current_user)
           rescue => e
-            File.delete(tempfile)
+            File.delete(tempfile) if File.exist?(tempfile)
             handle_error(e)
             redirect_back fallback_location: admin_collection_items_url(col)
           else
@@ -312,6 +307,7 @@ module Admin
     # Responds to `POST /admin/collections/:collection_id/items/migrate-metadata`
     #
     def migrate_metadata
+      authorize(Item)
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
       begin
@@ -348,9 +344,10 @@ module Admin
     end
 
     ##
-    # Responds to `PATCH /admin/:collections/:collection_id/items/publish`
+    # Responds to `PATCH /admin/collections/:collection_id/items/publish`
     #
     def publish
+      authorize(Item)
       publish_or_unpublish(true)
     end
 
@@ -379,6 +376,7 @@ module Admin
     # Responds to `POST /admin/collections/:collection_id/items/replace-metadata`
     #
     def replace_metadata
+      authorize(Item)
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
       begin
@@ -412,6 +410,7 @@ module Admin
     #   whole collection, or selected items in a collection)
     #
     def run_ocr
+      authorize(Item)
       flash_msg = 'Running OCR in the background. This may take a while.'
       if params[:item_id] # single item
         begin
@@ -480,6 +479,7 @@ module Admin
     # Responds to `POST /admin/collections/:collection_id/items/sync`
     #
     def sync
+      authorize(Item)
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
 
@@ -518,70 +518,70 @@ module Admin
     end
 
     ##
-    # Responds to `PATCH /admin/:collections/:collection_id/items/unpublish`
+    # Responds to `PATCH /admin/collections/:collection_id/items/unpublish`
     #
     def unpublish
+      authorize(Item)
       publish_or_unpublish(false)
     end
 
     def update
-      begin
-        # If we are updating metadata, we will need to process the elements
-        # manually.
-        if params[:elements].respond_to?(:each)
-          ActiveRecord::Base.transaction do
-            @item.elements.destroy_all
-            params[:elements].each do |name, vocabs|
-              vocabs.each do |vocab_id, occurrences|
-                occurrences.each do |occurrence|
-                  if occurrence[:string].present? || occurrence[:uri].present?
-                    @item.elements.build(name:          name,
-                                         value:         occurrence[:string],
-                                         uri:           occurrence[:uri],
-                                         vocabulary_id: vocab_id)
-                  end
+      # If we are updating metadata, we will need to process the elements
+      # manually.
+      if params[:elements].respond_to?(:each)
+        ActiveRecord::Base.transaction do
+          @item.elements.destroy_all
+          params[:elements].each do |name, vocabs|
+            vocabs.each do |vocab_id, occurrences|
+              occurrences.each do |occurrence|
+                if occurrence[:string].present? || occurrence[:uri].present?
+                  @item.elements.build(name:          name,
+                                       value:         occurrence[:string],
+                                       uri:           occurrence[:uri],
+                                       vocabulary_id: vocab_id)
                 end
               end
             end
-            @item.save!
           end
+          @item.save!
         end
-
-        if params[:item]
-          ActiveRecord::Base.transaction do # trigger after_commit callbacks
-            # Process the image uploaded from the representative image form
-            image = params[:item][:representative_image_data]
-            if image
-              @item.upload_representative_image(io:       image.read,
-                                                filename: image.original_filename)
-              # Also activate it for convenience's sake (DLD-408)
-              @item.representation_type = Representation::Type::LOCAL_FILE
-            end
-            @item.update!(sanitized_params)
-
-            # We will also need to propagate various item properties (published
-            # status, allowed/denied host groups, etc.) to its child items. This
-            # will take some time, so we'll do it in the background.
-            PropagatePropertiesToChildrenJob.perform_later(item: @item,
-                                                           user: current_user)
-          end
-        end
-      rescue => e
-        handle_error(e)
-      else
-        flash['success'] = "Item \"#{@item.title}\" updated."
-      ensure
-        redirect_to admin_collection_item_path(@item.collection, @item)
       end
+
+      if params[:item]
+        ActiveRecord::Base.transaction do # trigger after_commit callbacks
+          # Process the image uploaded from the representative image form
+          image = params[:item][:representative_image_data]
+          if image
+            @item.upload_representative_image(io:       image.read,
+                                              filename: image.original_filename)
+            # Also activate it for convenience's sake (DLD-408)
+            @item.representation_type = Representation::Type::LOCAL_FILE
+          end
+          @item.update!(sanitized_params)
+
+          # We will also need to propagate various item properties (published
+          # status, allowed/denied host groups, etc.) to its child items. This
+          # will take some time, so we'll do it in the background.
+          PropagatePropertiesToChildrenJob.perform_later(item: @item,
+                                                         user: current_user)
+        end
+      end
+    rescue => e
+      handle_error(e)
+    else
+      flash['success'] = "Item \"#{@item.title}\" updated."
+    ensure
+      redirect_to admin_collection_item_path(@item.collection, @item)
     end
 
     ##
     # Responds to `POST /admin/items/update`
     #
     def update_all
+      authorize(Item)
       num_updated = 0
       ActiveRecord::Base.transaction do
-        params[:items].each do |id, element_params|
+        params[:items]&.each do |id, element_params|
           item = Item.find_by_repository_id(id)
           if item
             item.elements.destroy_all
@@ -607,13 +607,16 @@ module Admin
           end
         end
       end
-
       flash['success'] = "#{num_updated} items updated."
       redirect_back fallback_location: admin_collections_path
     end
 
 
     private
+
+    def authorize_item
+      @item ? authorize(@item) : skip_authorization
+    end
 
     def editing_item_relation_for(collection)
       Item.search.
@@ -643,11 +646,6 @@ module Admin
           order(params[:sort]).
           start(start).
           limit(limit)
-    end
-
-    def authorize_modify_items
-      redirect_to(admin_root_url) unless
-          current_user.can?(Permissions::MODIFY_ITEMS)
     end
 
     ##
@@ -702,13 +700,6 @@ module Admin
         flash['success'] = "#{publish ? 'P' : 'Unp'}ublished #{ids.length} items."
       ensure
         redirect_back fallback_location: admin_collection_items_path(col)
-      end
-    end
-
-    def authorize_purge_items
-      unless current_user.can?(Permissions::PURGE_ITEMS_FROM_COLLECTION)
-        flash['error'] = 'You do not have permission to perform this action.'
-        redirect_to admin_collection_url(params[:collection_id])
       end
     end
 

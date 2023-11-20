@@ -6,17 +6,19 @@
                    { label: 'Vocabularies' })
 
 .btn-group.float-right
-  %button.btn.btn-light{"data-target": "#dl-add-vocabulary-modal",
-                        "data-toggle": "modal",
-                        type: "button"}
-    %span.fa.fa-plus
-    Add Vocabulary
-  -# Import button
-  %button.btn.btn-light{"data-target": "#dl-import-modal",
-                        "data-toggle": "modal",
-                        type: "button"}
-    %i.fa.fa-upload
-    Import&hellip;
+  - if policy(Vocabulary).new?
+    %button.btn.btn-light{"data-target": "#dl-add-vocabulary-modal",
+                          "data-toggle": "modal",
+                          type: "button"}
+      %span.fa.fa-plus
+      Add Vocabulary
+  - if policy(Vocabulary).import?
+    -# Import button
+    %button.btn.btn-light{"data-target": "#dl-import-modal",
+                          "data-toggle": "modal",
+                          type: "button"}
+      %i.fa.fa-upload
+      Import&hellip;
 
 %h1 Vocabularies
 

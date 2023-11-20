@@ -6,25 +6,28 @@
                    { label: 'Vocabularies', url: admin_vocabularies_path },
                    { label: @vocabulary.name })
 
-- unless @vocabulary.readonly?
-  .btn-group.float-right
+
+.btn-group.float-right
+  - if policy(@vocabulary).edit?
     -# Edit button
     %button.btn.btn-light{"data-target": "#dl-edit-vocabulary-modal",
                           "data-toggle": "modal",
-                          type: "button"}
+                          type:          "button"}
       %i.fas.fa-pencil-alt
       Edit
-    -# Export button
-    = link_to @permitted_params.merge(format: 'json'), class: 'btn btn-light' do
-      %i.fa.fa-download
-      Export
+  -# Export button
+  = link_to @permitted_params.merge(format: 'json'), class: 'btn btn-light' do
+    %i.fa.fa-download
+    Export
+  - if policy(@vocabulary).destroy?
     -# Delete button
     = button_to admin_vocabulary_path(@vocabulary),
                 method: :delete,
-                class: 'btn btn-danger',
-                data: { confirm: 'Are you sure you want to delete this vocabulary?' } do
+                class:  'btn btn-danger',
+                data:   { confirm: 'Are you sure you want to delete this vocabulary?' } do
       %i.fa.fa-trash
       Delete
+
 %h1
   = @vocabulary.name
   %small
@@ -35,7 +38,7 @@
     .btn-group.float-right
       %button.btn.btn-light{"data-target": "#dl-add-term-modal",
                             "data-toggle": "modal",
-                            type: "button"}
+                            type:          "button"}
         %i.fa.fa-plus
         Add Term
       %button#dl-delete-checked.btn.btn-danger{type: "button"}
@@ -63,15 +66,17 @@
                   = check_box_tag('vocabulary_terms[]', term.id)
               %td{style: "width:1px"}
                 - unless @vocabulary.readonly?
-                  %button.btn.btn-light.btn-sm.dl-edit-term{"data-target": "#dl-edit-term-modal",
-                                                            "data-term-id": "#{term.id}",
-                                                            "data-toggle": "modal",
-                                                            type: "button"} Edit
+                  %button.btn.btn-light.btn-sm.dl-edit-term{"data-target":        "#dl-edit-term-modal",
+                                                            "data-vocabulary-id": @vocabulary.id,
+                                                            "data-term-id":       "#{term.id}",
+                                                            "data-toggle":        "modal",
+                                                            type:                 "button"}
+                    Edit
               %td= term.string
               %td= link_to term.uri, term.uri, target: '_blank'
 #dl-edit-vocabulary-modal.modal.fade{"aria-labelledby": "dl-edit-vocabulary-modal-label",
-                                     role: "dialog",
-                                     tabindex: "-1"}
+                                     role:              "dialog",
+                                     tabindex:          "-1"}
   .modal-dialog.modal-dialog-centered{role: "document"}
     .modal-content
       .modal-header
@@ -83,28 +88,28 @@
       .modal-body
         = render partial: 'form', locals: { vocabulary: @vocabulary }
 #dl-add-term-modal.modal.fade{"aria-labelledby": "dl-add-term-modal-label",
-                              role: "dialog",
-                              tabindex: "-1"}
+                              role:              "dialog",
+                              tabindex:          "-1"}
   .modal-dialog.modal-dialog-centered{role: "document"}
     .modal-content
       .modal-header
-        %button.close{"aria-label": "Close",
+        %button.close{"aria-label":   "Close",
                       "data-dismiss": "modal",
-                      type: "button"}
+                      type:           "button"}
           %span{"aria-hidden": "true"} ×
         %h4#dl-add-term-modal-label.modal-title Add Term
       .modal-body
         = render partial: 'admin/vocabulary_terms/form',
                  locals: { vocabulary_term: @new_vocabulary_term }
 #dl-edit-term-modal.modal.fade{"aria-labelledby": "dl-edit-term-modal-label",
-                               role: "dialog",
-                               tabindex: "-1"}
+                               role:              "dialog",
+                               tabindex:          "-1"}
   .modal-dialog.modal-dialog-centered{role: "document"}
     .modal-content
       .modal-header
-        %button.close{"aria-label": "Close",
+        %button.close{"aria-label":   "Close",
                       "data-dismiss": "modal",
-                      type: "button"}
+                      type:           "button"}
           %span{"aria-hidden": "true"} ×
         %h4#dl-edit-term-modal-label.modal-title Edit Term
       .modal-body

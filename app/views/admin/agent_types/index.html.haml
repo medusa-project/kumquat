@@ -5,41 +5,46 @@
 = admin_breadcrumb({ label: 'Home', url: admin_root_path },
                    { label: 'Agents', url: admin_agents_path },
                    { label: 'Agent Types' })
-.btn-group.float-right
-  -# Add Agent Type button
-  %button.btn.btn-light{"data-target": "#dl-add-agent-type-modal", "data-toggle": "modal", type: "button"}
-    %span.fa.fa-plus
-    Add Type
+- if policy(@new_agent_type).new?
+  .btn-group.float-right
+    -# Add Agent Type button
+    %button.btn.btn-light{"data-target": "#dl-add-agent-type-modal",
+                          "data-toggle": "modal",
+                          type:          "button"}
+      %span.fa.fa-plus
+      Add Type
 
 %h1 Agent Types
 
 #dl-agent-types
-  = render 'agent_types'
+  = render "agent_types"
 
 -# Add-agent-type modal
 #dl-add-agent-type-modal.modal.fade{"aria-labelledby": "dl-add-agent-type-modal-label",
-                                    role: "dialog",
-                                    tabindex: "-1"}
+                                    role:              "dialog",
+                                    tabindex:          "-1"}
   .modal-dialog.modal-dialog-centered{role: "document"}
     .modal-content
       .modal-header
         %h4#dl-add-agent-type-modal-label.modal-title Add Agent Type
-        %button.close{"aria-label": "Close", "data-dismiss": "modal", type: "button"}
+        %button.close{"aria-label":   "Close",
+                      "data-dismiss": "modal",
+                      type:           "button"}
           %span{"aria-hidden": "true"} ×
       .modal-body
         = render partial: 'form', locals: { agent_type: @new_agent_type }
 
 -# Edit-agent-type modal
 #dl-edit-agent-type-modal.modal.fade{"aria-labelledby": "dl-edit-agent-type-modal-label",
-                                     role: "dialog",
-                                     tabindex: "-1"}
+                                     role:              "dialog",
+                                     tabindex:          "-1"}
   .modal-dialog.modal-dialog-centered{role: "document"}
     .modal-content
       .modal-header
         %h4#dl-edit-agent-type-modal-label.modal-title Edit Agent Type
-        %button.close{"aria-label": "Close",
+        %button.close{"aria-label":   "Close",
                       "data-dismiss": "modal",
-                      type: "button"}
+                      type:           "button"}
           %span{"aria-hidden": "true"} ×
       .modal-body
         -# will be populated via XHR

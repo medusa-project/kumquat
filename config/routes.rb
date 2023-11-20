@@ -94,17 +94,17 @@ Rails.application.routes.draw do
       match '/edit-representation', to: 'collections#edit_representation', via: :get,
             constraints: lambda { |request| request.xhr? }
       resources :item_sets, except: :index do
-        match '/all-items', to: 'item_sets#remove_all_items', via: :delete
-        match '/items', to: 'item_sets#items', via: :get
-        match '/items', to: 'item_sets#remove_items', via: :delete
+        match '/all-items', to: 'item_sets#remove_all_items', via: :delete , as: "remove_all_items"
+        match '/items', to: 'item_sets#items', via: :get, as: "items"
+        match '/items', to: 'item_sets#remove_items', via: :delete, as: "remove_items"
       end
-      match '/items/edit', to: 'items#edit_all', via: :get, as: 'edit_all_items'
+      match '/items/edit', to: 'items#edit_all', via: :get
       match '/items/enable-full-text-search', to: 'items#enable_full_text_search',
             via: :patch
       match '/items/disable-full-text-search', to: 'items#disable_full_text_search',
             via: :patch
-      match '/items', to: 'items#destroy_all', via: :delete,
-            as: 'destroy_all_items'
+      match '/items', to: 'collections#delete_items', via: :delete,
+            as: 'delete_items'
       match '/items/publish', to: 'items#publish', via: :patch
       match '/items/run-ocr', to: 'items#run_ocr', via: :patch
       match '/items/unpublish', to: 'items#unpublish', via: :patch
@@ -167,12 +167,11 @@ Rails.application.routes.draw do
     resources :users, param: :username, except: [:edit, :update] do
       match '/reset-api-key', to: 'users#reset_api_key', via: :post, as: 'reset_api_key'
     end
-    resources :vocabulary_terms, except: :index, path: 'vocabulary-terms'
     resources :vocabularies do
+      resources :vocabulary_terms, path: "terms"
       match '/delete-vocabulary-terms',
             to: 'vocabularies#delete_vocabulary_terms',
             via: :post, as: 'delete_vocabulary_terms'
-      match '/terms', to: 'vocabularies#terms', via: :get
     end
     match '/vocabularies/import', to: 'vocabularies#import', via: :post,
           as: 'vocabulary_import'

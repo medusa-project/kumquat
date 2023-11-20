@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Admin
 
   class StatisticsController < ControlPanelController
@@ -5,6 +7,7 @@ module Admin
     LOGGER = CustomLogger.new(StatisticsController)
 
     def index
+      authorize(:statistic)
       # Collections section
       collections_time = measure_time do
         @num_collections        = Collection.count
@@ -53,12 +56,13 @@ module Admin
                    metadata_time.round(round))
     end
 
+
     private
 
     ##
     # @return [Float] Seconds.
     #
-    def measure_time(&block)
+    def measure_time
       start = Time.now
       yield
       Time.now - start

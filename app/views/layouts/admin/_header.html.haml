@@ -30,34 +30,64 @@
     %span.navbar-toggler-icon
   #dl-navbar2-collapse.collapse.navbar-collapse
     %ul.navbar-nav
-      %li.nav-item
-        = link_to 'Collections', admin_collections_path, class: 'nav-link'
-      %li#metadata-nav.nav-item.dropdown
-        %a.nav-link.dropdown-toggle{"data-toggle": "dropdown", href: "#"}
-          Metadata
-          %b.caret
-        .dropdown-menu
-          = link_to 'Elements', admin_elements_path, class: 'dropdown-item'
-          = link_to 'Vocabularies', admin_vocabularies_path, class: 'dropdown-item'
-          = link_to 'Profiles', admin_metadata_profiles_path, class: 'dropdown-item'
-          .dropdown-divider
-          = link_to 'Agents', admin_agents_path, class: 'dropdown-item'
-          = link_to 'Agent Relation Types', admin_agent_relation_types_path, class: 'dropdown-item'
-          = link_to 'Agent Rules', admin_agent_rules_path, class: 'dropdown-item'
-          = link_to 'Agent Types', admin_agent_types_path, class: 'dropdown-item'
+      - if policy(Collection).index?
+        %li.nav-item
+          = link_to 'Collections', admin_collections_path, class: 'nav-link'
+
+      -# Metadata menu
+      - show_elements             = policy(Element).index?
+      - show_vocabularies         = policy(Vocabulary).index?
+      - show_metadata_profiles    = policy(MetadataProfile).index?
+      - show_agents               = policy(Agent).index?
+      - show_agent_relation_types = policy(AgentRelationType).index?
+      - show_agent_rules          = policy(AgentRule).index?
+      - show_agent_types          = policy(AgentType).index?
+      - if show_elements || show_vocabularies || show_metadata_profiles || show_agents || show_agent_relation_types || show_agent_rules || show_agent_types
+        %li#metadata-nav.nav-item.dropdown
+          %a.nav-link.dropdown-toggle{"data-toggle": "dropdown", href: "#"}
+            Metadata
+            %b.caret
+          .dropdown-menu
+            - if show_elements
+              = link_to 'Elements', admin_elements_path, class: 'dropdown-item'
+            - if show_vocabularies
+              = link_to 'Vocabularies', admin_vocabularies_path, class: 'dropdown-item'
+            - if show_metadata_profiles
+              = link_to 'Metadata Profiles', admin_metadata_profiles_path, class: 'dropdown-item'
+            - if (show_elements || show_vocabularies || show_metadata_profiles) && (show_agents || show_agent_relation_types || show_agent_rules || show_agent_types)
+              .dropdown-divider
+            - if show_agents
+              = link_to 'Agents', admin_agents_path, class: 'dropdown-item'
+            - if show_agent_relation_types
+              = link_to 'Agent Relation Types', admin_agent_relation_types_path, class: 'dropdown-item'
+            - if show_agent_rules
+              = link_to 'Agent Rules', admin_agent_rules_path, class: 'dropdown-item'
+            - if show_agent_types
+              = link_to 'Agent Types', admin_agent_types_path, class: 'dropdown-item'
+
+      -# Server menu
+      - show_users       = policy(User).index?
+      - show_host_groups = policy(HostGroup).index?
+      - show_statistics  = policy(:statistic).index?
+      - show_tasks       = policy(Task).index?
+      - show_settings    = policy(Option).index?
       %li#server-nav.nav-item.dropdown
         %a.nav-link.dropdown-toggle{"data-toggle": "dropdown", href: "#"}
           Server
           %b.caret
         .dropdown-menu
-          - if current_user.can?(Permissions::VIEW_USERS)
+          - if show_users
             = link_to 'Users', admin_users_path, class: 'dropdown-item'
-          = link_to 'Host Groups', admin_host_groups_path, class: 'dropdown-item'
-          .dropdown-divider
+          - if show_host_groups
+            = link_to 'Host Groups', admin_host_groups_path, class: 'dropdown-item'
+          - if show_users || show_host_groups
+            .dropdown-divider
           = link_to 'Analytics', 'https://analytics.google.com/analytics/web/#/p383482182/reports/intelligenthome', class: 'dropdown-item'
-          = link_to 'Statistics', admin_statistics_path, class: 'dropdown-item'
-          = link_to 'Tasks', admin_tasks_path, class: 'dropdown-item'
-          - if current_user.can?(Permissions::MODIFY_SETTINGS)
+          - if show_statistics
+            = link_to 'Statistics', admin_statistics_path, class: 'dropdown-item'
+          - if show_tasks
+            = link_to 'Tasks', admin_tasks_path, class: 'dropdown-item'
+          - if show_settings
             .dropdown-divider
             = link_to 'Settings', admin_settings_path, class: 'dropdown-item'
     .navbar-nav.ml-md-auto

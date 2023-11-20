@@ -1,9 +1,10 @@
-.btn-group.float-right.mb-3
-  %button.btn.btn-light.dl-add-item-set{"data-target": "#dl-add-item-set-modal",
-                                          "data-toggle": "modal",
-                                          type: "button"}
-    %span.fa.fa-plus
-    Add Set
+- if policy(ItemSet).new?
+  .btn-group.float-right.mb-3
+    %button.btn.btn-light.dl-add-item-set{"data-target": "#dl-add-item-set-modal",
+                                            "data-toggle": "modal",
+                                            type: "button"}
+      %span.fa.fa-plus
+      Add Set
 
 %table.table
   - @collection.item_sets.order(:name).each do |set|

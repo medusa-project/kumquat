@@ -4,7 +4,7 @@ $('#dl-search-status').html('<%= j(search_status(@count, @start, @num_results_sh
 
 <% query = { q: params[:q], fq: params[:fq], df: params[:df] } %>
 $('#dl-edit-metadata-link').attr('href',
-    '<%= j(raw(admin_collection_edit_all_items_path(@collection, query))) %>');
+    '<%= j(raw(admin_collection_items_edit_path(@collection, query))) %>');
 $('#dl-publish-results-link').attr('href',
     '<%= j(raw(admin_collection_items_publish_path(@collection, query))) %>');
 $('#dl-unpublish-results-link').attr('href',

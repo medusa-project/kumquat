@@ -8,7 +8,7 @@
                      { label: @user.username })
 
 .btn-group.float-right{role: "group"}
-  - if @user == current_user
+  - if @user == current_user && policy(@user).reset_api_key?
     .btn-group
       -# Actions menu
       %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
@@ -23,7 +23,7 @@
                     class: 'dropdown-item' do
           %i.fa.fa-key
           Reset API Key
-  - if !@user.human && current_user.can?(Permissions::MODIFY_USERS)
+  - if !@user.human && policy(@user).destroy?
     -# Delete button
     = button_to admin_user_path(@user),
                 method: :delete,
@@ -58,15 +58,3 @@
   - unless @user.human
     %dt Account Created
     %dd= local_time_ago(@user.created_at)
-  %dt Permissions
-  %dd
-    %ul.dl-permissions
-      - Permissions.all.each do |p|
-        - if @user.has_permission?(p)
-          %li.plus
-            %span.text-success ✓
-            = Permissions.constants.find{ |c| p == Permissions.const_get(c) }&.to_s&.humanize
-        - else
-          %li.minus
-            %span.text-danger ×
-            = Permissions.constants.find{ |c| p == Permissions.const_get(c) }&.to_s&.humanize

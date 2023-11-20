@@ -37,7 +37,7 @@ class BinariesControllerTest < ActionDispatch::IntegrationTest
 
   test 'object() returns HTTP 307 to authenticated users for binaries set as
   public' do
-    sign_in_as(users(:admin))
+    sign_in_as(users(:medusa_admin))
     @binary.update!(public: false)
     get binary_object_path(@binary)
     assert_response :temporary_redirect
@@ -94,21 +94,21 @@ class BinariesControllerTest < ActionDispatch::IntegrationTest
 
   test 'stream() returns HTTP 200 to authenticated users for binaries set as
   public' do
-    sign_in_as(users(:admin))
+    sign_in_as(users(:medusa_admin))
     @binary.update!(public: false)
     get binary_stream_path(@binary)
     assert_response :ok
   end
 
   test 'stream() sets the Content-Disposition to attachment' do
-    sign_in_as(users(:admin))
+    sign_in_as(users(:medusa_admin))
     @binary.update!(public: false)
     get binary_stream_path(@binary)
     assert response.header['Content-Disposition'].start_with?("attachment")
   end
 
   test 'stream() supports overriding the Content-Disposition to inline' do
-    sign_in_as(users(:admin))
+    sign_in_as(users(:medusa_admin))
     @binary.update!(public: false)
     get binary_stream_path(@binary), params: {'content-disposition': "inline"}
     assert_equal "inline", response.header['Content-Disposition']

@@ -7,16 +7,18 @@
       %tr
         %td{style: "white-space: nowrap"}
           .btn-group
-            %button.btn.btn-light.btn-sm.dl-edit-agent-type{"data-agent-type-id": "#{type.id}",
-                                                            "data-target": "#dl-edit-agent-type-modal",
-                                                            "data-toggle": "modal",
-                                                            type: "button"}
-              %i.fas.fa-pencil-alt
-              Edit
-            = button_to(admin_agent_type_path(type),
-                        class: 'btn btn-danger btn-sm',
-                        method: :delete,
-                        data: { confirm: 'Are you sure you want to delete this agent type?' }) do
-              %i.fa.fa-trash
-              Delete
+            - if policy(type).edit?
+              %button.btn.btn-light.btn-sm.dl-edit-agent-type{"data-agent-type-id": "#{type.id}",
+                                                              "data-target": "#dl-edit-agent-type-modal",
+                                                              "data-toggle": "modal",
+                                                              type: "button"}
+                %i.fas.fa-pencil-alt
+                Edit
+            - if policy(type).destroy?
+              = button_to(admin_agent_type_path(type),
+                          class: 'btn btn-danger btn-sm',
+                          method: :delete,
+                          data: { confirm: 'Are you sure you want to delete this agent type?' }) do
+                %i.fa.fa-trash
+                Delete
         %td= type.name

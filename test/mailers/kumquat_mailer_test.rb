@@ -33,7 +33,7 @@ class KumquatMailerTest < ActionMailer::TestCase
   test 'new_items() sends the expected email to the user associated with the
   watch' do
     collection = collections(:compound_object)
-    user       = users(:admin)
+    user       = users(:medusa_admin)
     watch      = Watch.create!(collection: collection,
                                user:       user)
     tsv        = 'pretend this is some TSV'

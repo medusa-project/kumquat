@@ -34,7 +34,7 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'iiif_presentation() returns HTTP 403 for restricted collections for logged-in users' do
-    sign_in_as(users(:normal))
+    sign_in_as(users(:medusa_user))
     @collection.update!(restricted: true)
 
     get collection_iiif_presentation_path(@collection)
@@ -42,7 +42,7 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'iiif_presentation() returns HTTP 200 for restricted collections for administrators' do
-    sign_in_as(users(:admin))
+    sign_in_as(users(:medusa_admin))
     @collection.update!(restricted: true)
 
     get collection_iiif_presentation_path(@collection)
@@ -95,14 +95,14 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show() returns HTTP 403 for restricted collections for logged-in users' do
-    sign_in_as(users(:normal))
+    sign_in_as(users(:medusa_user))
     @collection.update!(restricted: true)
     get collection_path(@collection)
     assert_response :forbidden
   end
 
   test 'show() returns HTTP 200 for restricted collections for administrators' do
-    sign_in_as(users(:admin))
+    sign_in_as(users(:medusa_admin))
     @collection.update!(restricted: true)
     get collection_path(@collection)
     assert_response :ok

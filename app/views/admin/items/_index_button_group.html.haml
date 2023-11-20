@@ -17,7 +17,7 @@
       %span.caret
     .dropdown-menu
       = link_to 'Edit Result Set',
-                admin_collection_edit_all_items_path(@collection),
+                admin_collection_items_edit_path(@collection),
                 id: 'dl-edit-result-set-metadata-link',
                 class: "dropdown-item #{@collection.metadata_profile ? '' : 'disabled'}"
       .dropdown-divider
@@ -138,7 +138,7 @@
       Purge
       %span.caret
     .dropdown-menu.dropdown-menu-right
-      - if current_user.can?(Permissions::PURGE_ITEMS_FROM_COLLECTION)
+      - if policy(@collection).delete_items?
         = link_to raw('Items From Collection'), '',
                   'data-toggle': 'modal',
                   'data-target': '#dl-purge-items-modal',

@@ -3,13 +3,13 @@
     .card
       .card-body
         .btn.btn-group.float-right
-          - if current_user.watching?(@collection)
+          - if current_user.watching?(@collection) && policy(@collection).unwatch?
             = button_to(admin_collection_unwatch_path(@collection),
                         method: :patch,
                         class: 'btn btn-sm btn-light') do
               %i.fa.fa-eye-slash
               Unwatch
-          - else
+          - elsif policy(@collection).watch?
             = button_to(admin_collection_watch_path(@collection),
                         method: :patch,
                         class: 'btn btn-sm btn-light') do
@@ -25,12 +25,13 @@
   .col-sm-6
     .card
       .card-body
-        .btn.btn-group.float-right
-          %button.btn.btn-sm.btn-light.dl-edit-email-watchers{type: 'button',
-                                                                'data-toggle': 'modal',
-                                                                'data-target': '#dl-edit-email-watchers-modal'}
-            %i.fas.fa-pencil-alt
-            Edit&hellip;
+        - if policy(@collection).edit_email_watchers?
+          .btn.btn-group.float-right
+            %button.btn.btn-sm.btn-light.dl-edit-email-watchers{type: 'button',
+                                                                  'data-toggle': 'modal',
+                                                                  'data-target': '#dl-edit-email-watchers-modal'}
+              %i.fas.fa-pencil-alt
+              Edit&hellip;
 
         %h4.card-title Email Watchers
         %ul

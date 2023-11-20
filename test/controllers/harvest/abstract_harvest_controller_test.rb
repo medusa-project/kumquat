@@ -7,7 +7,7 @@ module Harvest
     protected
 
     def valid_headers
-      user = users(:admin)
+      user = users(:medusa_admin)
       creds = ActionController::HttpAuthentication::Basic.encode_credentials(
         user.username, user.api_key)
       {

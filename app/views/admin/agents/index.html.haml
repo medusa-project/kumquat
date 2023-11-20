@@ -4,14 +4,18 @@
 
 = admin_breadcrumb({ label: 'Home', url: admin_root_path },
                    { label: 'Agents' })
-.btn-group.float-right
-  -# Add Agent button
-  %button.btn.btn-light{"data-target": "#dl-add-agent-modal",
-                        "data-toggle": "modal",
-                        type: "button"}
-    %span.fa.fa-plus
-    Add Agent
+
+- if policy(Agent).new?
+  .btn-group.float-right
+    -# Add Agent button
+    %button.btn.btn-light{"data-target": "#dl-add-agent-modal",
+                          "data-toggle": "modal",
+                          type: "button"}
+      %span.fa.fa-plus
+      Add Agent
+
 %h1 Agents
+
 .card
   .card-body
     = form_tag admin_agents_path, method: 'get', class: 'dl-filter' do
@@ -20,6 +24,7 @@
                            class: 'form-control'
 #dl-agents
   = render 'agents'
+
 = render partial: 'add_modal', locals: { agent: @new_agent }
 
 -# Edit-agent modal

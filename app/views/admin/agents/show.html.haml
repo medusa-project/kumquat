@@ -7,12 +7,13 @@
                    { label: @agent.name })
 
 .btn-group.float-right{role: "group"}
-  -# Edit button
-  %button.btn.btn-light{"data-target": "#dl-edit-agent-modal",
-                        "data-toggle": "modal",
-                        type: "button"}
-    %i.fas.fa-pencil-alt
-    Edit
+  - if policy(@agent).edit?
+    -# Edit button
+    %button.btn.btn-light{"data-target": "#dl-edit-agent-modal",
+                          "data-toggle": "modal",
+                          type: "button"}
+      %i.fas.fa-pencil-alt
+      Edit
   -# View button
   .btn-group
     %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
@@ -31,14 +32,16 @@
         %i.fa.fa-globe
         Public View
 
-  -# Delete button
-  = button_to admin_agent_path(@agent), method: :delete,
-              class: 'btn btn-danger',
-              data: { confirm: 'Are you sure you want to delete this agent?' } do
-    %i.fa.fa-trash
-    Delete
+  - if policy(@agent).destroy?
+    -# Delete button
+    = button_to admin_agent_path(@agent), method: :delete,
+                class: 'btn btn-danger',
+                data: { confirm: 'Are you sure you want to delete this agent?' } do
+      %i.fa.fa-trash
+      Delete
 
 %h1= @agent.name
+
 %table.table
   %tr
     %td URIs
@@ -60,13 +63,14 @@
 
 %hr
 
-.btn-group.float-right
-  -# Add Referred Agent button
-  %button.btn.btn-light{"data-target": "#dl-relating-agent-modal",
-                        "data-toggle": "modal",
-                        type: "button"}
-    Add Referred Relationship
-    %span.fa.fa-arrow-right
+- if policy(AgentRelation).new?
+  .btn-group.float-right
+    -# Add Referred Agent button
+    %button.btn.btn-light{"data-target": "#dl-relating-agent-modal",
+                          "data-toggle": "modal",
+                          type: "button"}
+      Add Referred Relationship
+      %span.fa.fa-arrow-right
 
 %h2 Refers To
 - if @related_agents.count > 0
@@ -83,18 +87,20 @@
         %tr
           %td{style: "white-space: nowrap"}
             .btn-group
-              %button.btn.btn-light.btn-sm.dl-edit-agent-relation{"data-agent-relation-id": "#{relation.id}",
-                                                                  "data-target": "#dl-agent-relation-modal",
-                                                                  "data-toggle": "modal",
-                                                                  type: "button"}
-                %i.fas.fa-pencil-alt
-                Edit
-              = button_to admin_agent_relation_path(relation),
-                          class: 'btn btn-danger btn-sm',
-                          method: :delete,
-                          data: { confirm: 'Are you sure you want to remove this relationship?' } do
-                %i.fa.fa-trash
-                Delete
+              - if policy(relation).edit?
+                %button.btn.btn-light.btn-sm.dl-edit-agent-relation{"data-agent-relation-id": "#{relation.id}",
+                                                                    "data-target": "#dl-agent-relation-modal",
+                                                                    "data-toggle": "modal",
+                                                                    type: "button"}
+                  %i.fas.fa-pencil-alt
+                  Edit
+              - if policy(relation).destroy?
+                = button_to admin_agent_relation_path(relation),
+                            class: 'btn btn-danger btn-sm',
+                            method: :delete,
+                            data: { confirm: 'Are you sure you want to remove this relationship?' } do
+                  %i.fa.fa-trash
+                  Delete
           %td= @agent.name
           %td= relation.agent_relation_type&.name
           %td= link_to(relation.related_agent.name, admin_agent_path(relation.related_agent))
@@ -103,13 +109,15 @@
   %p Nothing
 
 %hr
-.btn-group.float-right
-  -# Add Referred Agent button
-  %button.btn.btn-light{"data-target": "#dl-related-agent-modal",
-                        "data-toggle": "modal",
-                        type: "button"}
-    %span.fa.fa-arrow-left
-    Add Referring Relationship
+
+- if policy(AgentRelation).new?
+  .btn-group.float-right
+    -# Add Referred Agent button
+    %button.btn.btn-light{"data-target": "#dl-related-agent-modal",
+                          "data-toggle": "modal",
+                          type: "button"}
+      %span.fa.fa-arrow-left
+      Add Referring Relationship
 
 %h2 Referred To By
 - if @relating_agents.count > 0
@@ -126,18 +134,20 @@
         %tr
           %td{style: "white-space: nowrap"}
             .btn-group
-              %button.btn.btn-light.btn-sm.dl-edit-agent-relation{"data-agent-relation-id": "#{relation.id}",
-                                                                  "data-target": "#dl-agent-relation-modal",
-                                                                  "data-toggle": "modal",
-                                                                  type: "button"}
-                %i.fas.fa-pencil-alt
-                Edit
-              = button_to admin_agent_relation_path(relation),
-                          class: 'btn btn-danger btn-sm',
-                          method: :delete,
-                          data: { confirm: 'Are you sure you want to remove this relationship?' } do
-                %i.fa.fa-trash
-                Delete
+              - if policy(relation).edit?
+                %button.btn.btn-light.btn-sm.dl-edit-agent-relation{"data-agent-relation-id": "#{relation.id}",
+                                                                    "data-target": "#dl-agent-relation-modal",
+                                                                    "data-toggle": "modal",
+                                                                    type: "button"}
+                  %i.fas.fa-pencil-alt
+                  Edit
+              - if policy(relation).destroy?
+                = button_to admin_agent_relation_path(relation),
+                            class: 'btn btn-danger btn-sm',
+                            method: :delete,
+                            data: { confirm: 'Are you sure you want to remove this relationship?' } do
+                  %i.fa.fa-trash
+                  Delete
           %td= link_to relation.agent.name, admin_agent_path(relation.agent)
           %td= relation.agent_relation_type&.name
           %td= @agent.name
@@ -148,6 +158,7 @@
 %hr
 
 %h2 References
+
 %table.table
   %tr
     %td Agents
@@ -158,6 +169,7 @@
   %tr
     %td Collections
     %td= @num_collection_references
+
 = render partial: 'admin/agent_relations/agent_relation_panel',
          locals: { agent_relation: @new_agent_relation }
 = render partial: 'admin/agent_relations/related_agent_panel',

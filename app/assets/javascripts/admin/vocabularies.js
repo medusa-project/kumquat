@@ -9,9 +9,11 @@ const DLAdminVocabularyView = function() {
         });
 
         $('button.dl-edit-term').on('click', function() {
-            var term_id = $(this).data('term-id');
-            var ROOT_URL = $('input[name="root_url"]').val();
-            var url = ROOT_URL + '/admin/vocabulary-terms/' + term_id + '/edit';
+            const ROOT_URL = $('input[name="root_url"]').val();
+            const vocab_id = $(this).data('vocabulary-id');
+            const term_id  = $(this).data('term-id');
+            const url      = ROOT_URL + '/admin/vocabularies/' + vocab_id +
+                '/terms/' + term_id + '/edit';
             $.get(url, function(data) {
                 $('#dl-edit-term-modal .modal-body').html(data);
             });

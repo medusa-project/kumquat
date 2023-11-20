@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Admin
 
   class TasksController < ControlPanelController
@@ -8,6 +10,7 @@ module Admin
     # Responds to GET /admin/tasks
     #
     def index
+      authorize(Task)
       @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
       @start = params[:start] ? params[:start].to_i : 0
       @start = 0 if @start < 0
@@ -40,6 +43,7 @@ module Admin
     #
     def show
       @task = Task.find(params[:id])
+      authorize(@task)
       render partial: 'show'
     end
 

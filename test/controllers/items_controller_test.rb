@@ -193,7 +193,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'index() returns HTTP 200 for JS' do
-    get items_path(q: 'query', format: :js)
+    get items_path(q: 'query'), xhr: true
     assert_response :ok
   end
 
@@ -225,8 +225,8 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   # show() access control
 
   test 'show() allows access to non-expired restricted items by the correct NetID' do
-    sign_in_as(users(:normal))
-    @item.allowed_netids = [{ netid: 'normal',
+    sign_in_as(users(:medusa_user))
+    @item.allowed_netids = [{ netid: 'medusa_user',
                               expires: Time.now.to_i + 1.day.to_i }]
     @item.save!
 
@@ -235,7 +235,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show() allows access to non-expired restricted items by logged-in administrators' do
-    sign_in_as(users(:admin))
+    sign_in_as(users(:medusa_admin))
     @item.allowed_netids = [{ netid: 'normal',
                               expires: Time.now.to_i + 1.day.to_i }]
     @item.save!
@@ -245,7 +245,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show() allows access to expired restricted items by logged-in administrators' do
-    sign_in_as(users(:admin))
+    sign_in_as(users(:medusa_admin))
     @item.allowed_netids = [{ netid: 'normal',
                               expires: Time.now.to_i - 1.day.to_i }]
     @item.save!
@@ -255,7 +255,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show() forbids access to expired restricted items by the correct NetID' do
-    sign_in_as(users(:normal))
+    sign_in_as(users(:medusa_user))
     @item.allowed_netids = [{ netid: 'normal',
                               expires: Time.now.to_i - 1.day.to_i }]
     @item.save!
@@ -265,7 +265,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show() forbids access to restricted items with an incorrect NetID' do
-    sign_in_as(users(:normal))
+    sign_in_as(users(:medusa_user))
     @item.allowed_netids = [{ netid: 'user',
                               expires: Time.now.to_i + 1.day.to_i }]
     @item.save!

@@ -1,4 +1,4 @@
-= form_for([:admin, vocabulary_term], remote: true) do |f|
+= form_for([:admin, vocabulary_term.vocabulary, vocabulary_term], remote: true) do |f|
   .dl-error-messages
     -# populated via ajax by shared/_validation_messages.js.erb
   .form-group
