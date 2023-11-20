@@ -1,6 +1,6 @@
 class AgentsController < WebsiteController
 
-  ITEMS_LIMIT = 30
+  ITEMS_LIMIT      = 30
   PERMITTED_PARAMS = []
 
   before_action :load_agent, only: [:items, :show]
@@ -12,9 +12,9 @@ class AgentsController < WebsiteController
   def items
     if request.xhr?
       set_items_ivars
-      render 'items'
+      render "items"
     else
-      render status: 406, text: 'Not Acceptable'
+      render plain: "Not Acceptable", status: :not_acceptable
     end
   end
 
@@ -45,15 +45,14 @@ class AgentsController < WebsiteController
   end
 
   def set_items_ivars
-    @start = params[:start] ? params[:start].to_i : 0
-    @limit = ITEMS_LIMIT
-    @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+    @start                = params[:start] ? params[:start].to_i : 0
+    @limit                = ITEMS_LIMIT
+    @current_page         = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     # TODO: respect authorization
-    @related_objects = @agent.related_objects
+    @related_objects      = @agent.related_objects
     @related_object_count = @related_objects.count
-    @related_objects = @related_objects.order(:repository_id).
+    @related_objects      = @related_objects.order(:repository_id).
         offset(@start).limit(@limit).to_a
-
   end
 
   def set_sanitized_params
