@@ -224,7 +224,7 @@ module Admin
       raise ActiveRecord::RecordNotFound unless @collection
 
       @start = params[:start] ? params[:start].to_i : 0
-      @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+      @limit = Setting::integer(Setting::Keys::DEFAULT_RESULT_WINDOW)
 
       relation           = querying_item_relation_for(@collection, @start, @limit)
       @items             = relation.to_a

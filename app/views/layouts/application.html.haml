@@ -5,9 +5,9 @@
     %title
       = yield :title
       |
-      \#{Option.string(Option::Keys::WEBSITE_NAME)}
+      \#{Setting.string(Setting::Keys::WEBSITE_NAME)}
     %meta{charset: "utf-8"}
-    %meta{content: "#{Option.string(Option::Keys::COPYRIGHT_STATEMENT)}", name: "copyright"}
+    %meta{content: "#{Setting.string(Setting::Keys::COPYRIGHT_STATEMENT)}", name: "copyright"}
     %meta{content: "width=device-width, initial-scale=1, shrink-to-fit=no", name: "viewport"}
     = csrf_meta_tags
     -# provided by scars-bootstrap-theme

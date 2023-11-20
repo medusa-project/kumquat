@@ -72,7 +72,7 @@ module Admin
     def index
       authorize(Collection)
       @limit = request.format == :tsv ?
-                 999999 : Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+                 999999 : Setting::integer(Setting::Keys::DEFAULT_RESULT_WINDOW)
       @start = params[:start] ? params[:start].to_i : 0
 
       relation = Collection.search.

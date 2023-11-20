@@ -185,7 +185,7 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
   test 'Identify returns correct information' do
     get '/oai-pmh', params: { verb: 'Identify' }
     assert_select 'Identify > repositoryName',
-                  Option::string(Option::Keys::WEBSITE_NAME)
+                  Setting::string(Setting::Keys::WEBSITE_NAME)
     assert_select 'Identify > baseURL', 'http://www.example.com/oai-pmh'
     assert_select 'Identify > protocolVersion', '2.0'
     items = Item.where(published: true).order(created_at: :desc).limit(1)
@@ -193,7 +193,7 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
     assert_select 'Identify > deletedRecord', 'no'
     assert_select 'Identify > granularity', 'YYYY-MM-DDThh:mm:ssZ'
     assert_select 'Identify > adminEmail',
-                  Option::string(Option::Keys::ADMINISTRATOR_EMAIL)
+                  Setting::string(Setting::Keys::ADMINISTRATOR_EMAIL)
   end
 
   test 'Identify returns errors when illegal arguments are provided' do

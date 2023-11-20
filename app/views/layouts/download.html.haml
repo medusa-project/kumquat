@@ -4,10 +4,10 @@
     %meta{content: "text/html; charset=UTF-8",
           "http-equiv": "Content-Type"}
     %title
-      Download File | #{Option.string(Option::Keys::WEBSITE_NAME)}
+      Download File | #{Setting.string(Setting::Keys::WEBSITE_NAME)}
     %meta{charset: "utf-8"}
     %meta{content: "IE=edge", "http-equiv": "X-UA-Compatible"}
-    %meta{content: "#{Option.string(Option::Keys::COPYRIGHT_STATEMENT)}", name: "copyright"}
+    %meta{content: "#{Setting.string(Setting::Keys::COPYRIGHT_STATEMENT)}", name: "copyright"}
     %meta{content: "width=device-width, initial-scale=1", name: "viewport"}
     = csrf_meta_tags
     -# provided by scars-bootstrap-theme

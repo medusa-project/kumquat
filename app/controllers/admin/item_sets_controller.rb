@@ -8,7 +8,7 @@ module Admin
     before_action :authorize_item_set, except: [:create, :new]
 
     ##
-    # Responds to POST /admin/collections/:collection_id/item_sets
+    # Responds to `POST /admin/collections/:collection_id/item_sets`
     #
     def create
       item_set = ItemSet.new(sanitized_params)
@@ -30,7 +30,7 @@ module Admin
     end
 
     ##
-    # Responds to DELETE /admin/collections/:collection_id/item_sets/:id
+    # Responds to `DELETE /admin/collections/:collection_id/item_sets/:id`
     #
     def destroy
       collection = @item_set.collection
@@ -41,7 +41,7 @@ module Admin
     end
 
     ##
-    # Responds to GET /admin/collections/:collection_id/item_sets/:id/edit
+    # Responds to `GET /admin/collections/:collection_id/item_sets/:id/edit`
     #
     def edit
       render partial: 'form', locals: { collection: @item_set.collection,
@@ -49,7 +49,7 @@ module Admin
     end
 
     ##
-    # Responds to GET /admin/collections/:collection_id/item_sets/:item_set_id/items
+    # Responds to `GET /admin/collections/:collection_id/item_sets/:item_set_id/items`
     #
     def items
       @items = Item.search.
@@ -66,7 +66,7 @@ module Admin
     end
 
     ##
-    # Responds to GET /admin/collections/:collection_id/item_sets/new
+    # Responds to `GET /admin/collections/:collection_id/item_sets/new`
     #
     def new
       collection = Collection.find_by_repository_id(params[:collection_id])
@@ -79,7 +79,7 @@ module Admin
     end
 
     ##
-    # Responds to DELETE /admin/collections/:collection_id/item_sets/:item_set_id/all-items
+    # Responds to `DELETE /admin/collections/:collection_id/item_sets/:item_set_id/all-items`
     #
     def remove_all_items
       ActiveRecord::Base.transaction do
@@ -93,7 +93,7 @@ module Admin
     end
 
     ##
-    # Responds to DELETE /admin/collections/:collection_id/item_sets/:item_set_id/items
+    # Responds to `DELETE /admin/collections/:collection_id/item_sets/:item_set_id/items`
     #
     def remove_items
       item_ids = params[:items]
@@ -119,11 +119,11 @@ module Admin
     end
 
     ##
-    # Responds to GET /admin/collections/:collection_id/item_sets/:id
+    # Responds to `GET /admin/collections/:collection_id/item_sets/:id`
     #
     def show
       @start        = params[:start].to_i
-      @limit        = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+      @limit        = Setting::integer(Setting::Keys::DEFAULT_RESULT_WINDOW)
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
 
       @items = Item.search.
@@ -139,7 +139,7 @@ module Admin
     end
 
     ##
-    # Responds to POST /admin/collections/:collection_id/item_sets/:id
+    # Responds to `POST /admin/collections/:collection_id/item_sets/:id`
     #
     def update
       @item_set.update!(sanitized_params)

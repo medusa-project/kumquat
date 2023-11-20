@@ -2,7 +2,7 @@
   .row
     .col-sm-12.text-line
       The Digital Collections are a product of the University Library.
-      \#{link_to 'Contact us', "mailto:#{Option::string(Option::Keys::ADMINISTRATOR_EMAIL)}"}
+      \#{link_to 'Contact us', "mailto:#{Setting::string(Setting::Keys::ADMINISTRATOR_EMAIL)}"}
       for questions and to provide feedback.
     .col-md-12.info-area
       .row
@@ -29,7 +29,7 @@
                         class: 'footer-library_i-mark',
                         alt: 'University of Illinois Logo'
           .footer-library_copyright.text-center
-            = Option::string(Option::Keys::COPYRIGHT_STATEMENT)
+            = Setting::string(Setting::Keys::COPYRIGHT_STATEMENT)
         .col-md-4
           %nav#ui-skip-73{tabindex: "-1"}
             %ul

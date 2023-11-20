@@ -1,13 +1,13 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 administrator_email:
-  key: <%= Option::Keys::ADMINISTRATOR_EMAIL %>
+  key: <%= Setting::Keys::ADMINISTRATOR_EMAIL %>
   value: '{"value" : "admin@example.org"}'
 
 default_result_window:
-  key: <%= Option::Keys::DEFAULT_RESULT_WINDOW %>
+  key: <%= Setting::Keys::DEFAULT_RESULT_WINDOW %>
   value: '{"value" : 20}'
 
 website_name:
-  key: <%= Option::Keys::WEBSITE_NAME %>
+  key: <%= Setting::Keys::WEBSITE_NAME %>
   value: '{"value" : "My Great Website"}'

@@ -10,45 +10,45 @@
 = form_tag(admin_settings_path, method: :patch) do
   %h2 General
   .form-group.row
-    = label_tag("options[#{Option::Keys::ORGANIZATION_NAME}]",
+    = label_tag("options[#{Setting::Keys::ORGANIZATION_NAME}]",
                 'Organization Name',
                 class: 'col-sm-3 col-form-label')
     .col-sm-9
-      = text_field_tag("options[#{Option::Keys::ORGANIZATION_NAME}]",
-                       Option::string(Option::Keys::ORGANIZATION_NAME),
+      = text_field_tag("options[#{Setting::Keys::ORGANIZATION_NAME}]",
+                       Setting::string(Setting::Keys::ORGANIZATION_NAME),
                        class: 'form-control')
   .form-group.row
-    = label_tag("options[#{Option::Keys::ADMINISTRATOR_EMAIL}]",
+    = label_tag("options[#{Setting::Keys::ADMINISTRATOR_EMAIL}]",
                 'Administrator Email',
                 class: 'col-sm-3 col-form-label')
     .col-sm-9
-      = text_field_tag("options[#{Option::Keys::ADMINISTRATOR_EMAIL}]",
-                       Option::string(Option::Keys::ADMINISTRATOR_EMAIL),
+      = text_field_tag("options[#{Setting::Keys::ADMINISTRATOR_EMAIL}]",
+                       Setting::string(Setting::Keys::ADMINISTRATOR_EMAIL),
                        class: 'form-control')
   .form-group.row
-    = label_tag("options[#{Option::Keys::COPYRIGHT_STATEMENT}]",
+    = label_tag("options[#{Setting::Keys::COPYRIGHT_STATEMENT}]",
                 'Copyright Statement',
                 class: 'col-sm-3 col-form-label')
     .col-sm-9
-      = text_field_tag("options[#{Option::Keys::COPYRIGHT_STATEMENT}]",
-                       Option::string(Option::Keys::COPYRIGHT_STATEMENT),
+      = text_field_tag("options[#{Setting::Keys::COPYRIGHT_STATEMENT}]",
+                       Setting::string(Setting::Keys::COPYRIGHT_STATEMENT),
                        class: 'form-control')
 
   %h2 Website
   .form-group.row
-    = label_tag("options[#{Option::Keys::WEBSITE_NAME}]", 'Name',
+    = label_tag("options[#{Setting::Keys::WEBSITE_NAME}]", 'Name',
                 class: 'col-sm-3 col-form-label')
     .col-sm-9
-      = text_field_tag("options[#{Option::Keys::WEBSITE_NAME}]",
-                       Option::string(Option::Keys::WEBSITE_NAME),
+      = text_field_tag("options[#{Setting::Keys::WEBSITE_NAME}]",
+                       Setting::string(Setting::Keys::WEBSITE_NAME),
                        class: 'form-control')
   .form-group.row
-    = label_tag("options[#{Option::Keys::DEFAULT_RESULT_WINDOW}]",
+    = label_tag("options[#{Setting::Keys::DEFAULT_RESULT_WINDOW}]",
                 'Results Per Page',
                 class: 'col-sm-3 col-form-label')
     .col-sm-9
-      = number_field_tag("options[#{Option::Keys::DEFAULT_RESULT_WINDOW}]",
-                         Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW),
+      = number_field_tag("options[#{Setting::Keys::DEFAULT_RESULT_WINDOW}]",
+                         Setting::integer(Setting::Keys::DEFAULT_RESULT_WINDOW),
                          class: 'form-control')
   .form-group.row
     .col-sm-3

@@ -5,25 +5,25 @@ module Admin
   ##
   # To add a new setting:
   #
-  # 1) Add it to {Option::Keys}
+  # 1) Add it to {Setting::Keys}
   # 2) Add it to seeds.rb if necessary
   # 3) Add it to `views/admin/settings/index.html`
   #
   class SettingsController < ControlPanelController
 
     def index
-      authorize(Option)
+      authorize(Setting)
     end
 
     ##
     # Responds to PATCH /admin/settings/update
     #
     def update
-      authorize(Option)
+      authorize(Setting)
       begin
         ActiveRecord::Base.transaction do
           params[:options].to_unsafe_hash.each_key do |key|
-            Option.set(key, params[:options][key])
+            Setting.set(key, params[:options][key])
           end
         end
       rescue => e

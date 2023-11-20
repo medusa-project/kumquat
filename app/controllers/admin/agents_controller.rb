@@ -64,7 +64,7 @@ module Admin
     #
     def index
       authorize(Agent)
-      @limit        = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+      @limit        = Setting::integer(Setting::Keys::DEFAULT_RESULT_WINDOW)
       @start        = params[:start] ? params[:start].to_i : 0
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
 

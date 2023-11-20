@@ -9,7 +9,7 @@ atom_feed do |feed|
     entry.content(@item.description, type: 'text')
 
     entry.author do |author|
-      author.name(Option::string(Option::Keys::ORGANIZATION_NAME))
+      author.name(Setting::string(Setting::Keys::ORGANIZATION_NAME))
     end
   end
 

@@ -192,7 +192,7 @@ class PdfGenerator
     doc.bounding_box([box_margin, doc.bounds.height * 0.23 + box_margin],
                      width: box_width, height: 44) do
       doc.transparent(0.5) { doc.stroke_bounds } if draw_boxes
-      doc.text(Option.string(Option::Keys::WEBSITE_NAME),
+      doc.text(Setting.string(Setting::Keys::WEBSITE_NAME),
                align:    :center,
                overflow: :shrink_to_fit,
                size:     18)
@@ -359,7 +359,7 @@ class PdfGenerator
             Author: item.element(:creator).to_s,
             #Subject: '',
             #Keywords: '',
-            Creator: Option::string(Option::Keys::WEBSITE_NAME),
+            Creator: Setting::string(Setting::Keys::WEBSITE_NAME),
             Producer: 'Prawn',
             CreationDate: Time.now
         })

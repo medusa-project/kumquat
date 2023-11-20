@@ -299,7 +299,7 @@ module ItemsHelper
         item.title,
         item_url(item),
         item.description,
-        Option::string(Option::Keys::WEBSITE_NAME))
+        Setting::string(Setting::Keys::WEBSITE_NAME))
 
     # N.B.: Minimum Facebook image size is 200x200, but they recommend at
     # least 1200x630. Images may be up to "8Mb".

@@ -148,7 +148,7 @@ module ApplicationHelper
     email      = collection&.medusa_repository&.email
     if email.present?
       # https://bugs.library.illinois.edu/browse/DLD-89
-      website_name = Option::string(Option::Keys::WEBSITE_NAME)
+      website_name = Setting::string(Setting::Keys::WEBSITE_NAME)
       subject      = sprintf('%s: %s', website_name, entity.title)
       body         = StringIO.new
       body         << "This email was sent to you from the #{website_name} "\
@@ -315,10 +315,10 @@ module ApplicationHelper
   end
 
   def feedback_link
-    subject = 'Feedback on ' + Option::string(Option::Keys::WEBSITE_NAME)
+    subject = 'Feedback on ' + Setting::string(Setting::Keys::WEBSITE_NAME)
     body = 'Page URL: ' + request.url
     url = sprintf('mailto:%s?subject=%s&body=%s',
-                  Option::string(Option::Keys::ADMINISTRATOR_EMAIL),
+                  Setting::string(Setting::Keys::ADMINISTRATOR_EMAIL),
                   subject,
                   body)
     link = link_to('Contact us', url)

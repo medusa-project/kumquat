@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 ##
-# Encapsulates a key-value option. Keys should be one of the {Option::Keys}
+# Encapsulates a key-value setting. Keys should be one of the {Setting::Keys}
 # constants. Values are stored as JSON internally. Simple values can be
 # accessed using the boolean, integer, or string class methods.
 #
-class Option < ApplicationRecord
+class Setting < ApplicationRecord
 
   class Keys
     ADMINISTRATOR_EMAIL   = 'website.administrator.email'
@@ -19,21 +21,27 @@ class Option < ApplicationRecord
   validates :key, presence: true, uniqueness: { case_sensitive: false }
 
   ##
+  # @param key [String]
+  # @param default [Boolean] Value to return if there is no value for the given
+  #                          key.
   # @return [Boolean] Value associated with the given key as a boolean, or nil
   #                   if there is no value associated with the given key.
   #
-  def self.boolean(key)
+  def self.boolean(key, default = nil)
     v = value_for(key)
-    v ? ['true', '1', true, 1].include?(v) : nil
+    v ? ['true', '1', true, 1].include?(v) : default
   end
 
   ##
+  # @param key [String]
+  # @param default [Boolean] Value to return if there is no value for the given
+  #                          key.
   # @return [Integer] Value associated with the given key as an integer, or nil
   #                   if there is no value associated with the given key.
   #
-  def self.integer(key)
+  def self.integer(key, default = nil)
     v = value_for(key)
-    v ? v.to_i : nil
+    v ? v.to_i : default
   end
 
   ##
@@ -42,24 +50,27 @@ class Option < ApplicationRecord
   # @return [Option]
   #
   def self.set(key, value)
-    option = Option.find_by_key(key)
-    if option # if the option already exists
-      if option.value != value # and it has a new value
-        option.update!(value: value)
+    setting = Setting.find_by_key(key)
+    if setting # if the option already exists
+      if setting.value != value # and it has a new value
+        setting.update!(value: value)
       end
     else # it doesn't exist, so create it
-      option = Option.create!(key: key, value: value)
+      setting = Setting.create!(key: key, value: value)
     end
-    option
+    setting
   end
 
   ##
+  # @param key [String]
+  # @param default [Boolean] Value to return if there is no value for the given
+  #                          key.
   # @return [String,nil] Value associated with the given key as a string, or nil
   #                      if there is no value associated with the given key.
   #
-  def self.string(key)
+  def self.string(key, default = nil)
     v = value_for(key)
-    v ? v.to_s : nil
+    v ? v.to_s : default
   end
 
   ##
@@ -80,7 +91,7 @@ class Option < ApplicationRecord
   private
 
   def self.value_for(key)
-    opt = Option.where(key: key).limit(1).first
+    opt = Setting.where(key: key).limit(1).first
     opt&.value
   end
 

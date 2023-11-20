@@ -11,7 +11,7 @@ module Admin
     #
     def index
       authorize(Task)
-      @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+      @limit = Setting::integer(Setting::Keys::DEFAULT_RESULT_WINDOW)
       @start = params[:start] ? params[:start].to_i : 0
       @start = 0 if @start < 0
 

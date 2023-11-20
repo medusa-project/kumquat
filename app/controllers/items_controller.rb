@@ -437,7 +437,7 @@ class ItemsController < WebsiteController
           if results_url.present?
             query = UrlUtils.parse_query(results_url).symbolize_keys
             query[:start] = session[:start].to_i if query[:start].blank?
-            limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+            limit = Setting::integer(Setting::Keys::DEFAULT_RESULT_WINDOW)
             if session[:first_result_id] == @root_item.repository_id
               query[:start] = query[:start].to_i - limit / 2.0
             elsif session[:last_result_id] == @root_item.repository_id
@@ -681,7 +681,7 @@ class ItemsController < WebsiteController
     session[:start]         = [0, query[:start].to_i].max
     session[:limit]         = query[:limit].to_i
     if session[:limit] < MIN_RESULT_WINDOW || session[:limit] > MAX_RESULT_WINDOW
-      session[:limit] = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+      session[:limit] = Setting::integer(Setting::Keys::DEFAULT_RESULT_WINDOW)
     end
 
     sort = session[:sort]

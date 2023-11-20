@@ -7,13 +7,13 @@
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
 # Options
-Option.set(Option::Keys::ADMINISTRATOR_EMAIL, 'admin@example.org')
-Option.set(Option::Keys::COPYRIGHT_STATEMENT,
-           'Copyright © 2015 My Great Organization. All rights reserved.')
-Option.set(Option::Keys::ORGANIZATION_NAME, 'My Great Organization')
-Option.set(Option::Keys::WEBSITE_NAME,
-               'My Great Organization Digital Collections')
-Option.set(Option::Keys::DEFAULT_RESULT_WINDOW, 30)
+Setting.set(Setting::Keys::ADMINISTRATOR_EMAIL, 'admin@example.org')
+Setting.set(Setting::Keys::COPYRIGHT_STATEMENT,
+            'Copyright © 2015 My Great Organization. All rights reserved.')
+Setting.set(Setting::Keys::ORGANIZATION_NAME, 'My Great Organization')
+Setting.set(Setting::Keys::WEBSITE_NAME,
+            'My Great Organization Digital Collections')
+Setting.set(Setting::Keys::DEFAULT_RESULT_WINDOW, 30)
 
 # Metadata profiles
 profiles = {}
@@ -46,16 +46,16 @@ if Rails.env.development?
 end
 
 # Overwrite some default options for internal demo purposes
-option = Option.find_by_key(Option::Keys::COPYRIGHT_STATEMENT)
-option.value = 'Copyright © 2015 The Board of Trustees at the '\
+setting = Setting.find_by_key(Setting::Keys::COPYRIGHT_STATEMENT)
+setting.value = 'Copyright © 2015 The Board of Trustees at the '\
 'University of Illinois. All rights reserved.'
-option.save!
+setting.save!
 
-option = Option.find_by_key(Option::Keys::ORGANIZATION_NAME)
-option.value = 'University of Illinois at Urbana-Champaign Library'
-option.save!
+setting = Setting.find_by_key(Setting::Keys::ORGANIZATION_NAME)
+setting.value = 'University of Illinois at Urbana-Champaign Library'
+setting.save!
 
-option = Option.find_by_key(Option::Keys::WEBSITE_NAME)
-option.value = 'University of Illinois at Urbana-Champaign Library Digital '\
+setting = Setting.find_by_key(Setting::Keys::WEBSITE_NAME)
+setting.value = 'University of Illinois at Urbana-Champaign Library Digital '\
 'Image Collections'
-option.save!
+setting.save!

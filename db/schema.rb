@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_11_10_165954) do
+ActiveRecord::Schema[7.1].define(version: 2023_11_20_211842) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -358,12 +358,12 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_10_165954) do
     t.index ["name"], name: "index_metadata_profiles_on_name"
   end
 
-  create_table "options", id: :serial, force: :cascade do |t|
+  create_table "settings", id: :serial, force: :cascade do |t|
     t.string "key"
     t.string "value"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.index ["key"], name: "index_options_on_key", unique: true
+    t.index ["key"], name: "index_settings_on_key", unique: true
   end
 
   create_table "tasks", id: :serial, force: :cascade do |t|
