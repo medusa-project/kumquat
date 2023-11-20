@@ -148,7 +148,6 @@ Rails.application.routes.draw do
     match '/elements/import', to: 'elements#import', via: :post,
           as: 'elements_import'
     resources :host_groups
-    match '/test-images', to: 'test#index', via: :get
     resources :metadata_profile_elements,
               only: [:create, :update, :destroy, :edit]
     resources :metadata_profiles, path: 'metadata-profiles' do

@@ -1,6 +1,0 @@
-- @images.each do |image|
-  - url = ImageServer.binary_image_v2_url(binary: image,
-                                          region: :square,
-                                          size:   180,
-                                          cache:  false)
-  = image_tag(url) if url
