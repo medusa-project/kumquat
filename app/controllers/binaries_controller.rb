@@ -92,6 +92,8 @@ class BinariesController < WebsiteController
     # These may be raised when the client closes the connection prematurely.
     # Rescue them or else Rails will log it at error level.
     LOGGER.debug('stream(): %s', e)
+  rescue Aws::S3::Errors::Http416Error
+    render plain: 'Range not satisfyable', status: :range_not_satisfiable
   rescue Aws::S3::Errors::NotFound
     render plain: 'Object does not exist in bucket', status: :not_found
   ensure
