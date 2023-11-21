@@ -4,6 +4,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   def setup
     @item = items(:free_form_dir1_dir1_file1)
+    setup_elasticsearch
   end
 
   # binary()

@@ -233,7 +233,12 @@ module Admin
     test "update() redirects upon success" do
       sign_in_as(users(:medusa_admin))
       profile = metadata_profiles(:default)
-      patch admin_metadata_profile_path(profile)
+      patch admin_metadata_profile_path(profile),
+            params: {
+              metadata_profile: {
+                name: 'cats'
+              }
+            }
       assert_redirected_to admin_metadata_profile_path(profile)
     end
 
