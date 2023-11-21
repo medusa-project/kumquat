@@ -1,199 +1,203 @@
 require 'test_helper'
 
-class ItemSetsControllerTest < ActionDispatch::IntegrationTest
+module Admin
 
-  setup do
-    @item_set   = item_sets(:one)
-    @collection = @item_set.collection
-    sign_out
-  end
+  class ItemSetsControllerTest < ActionDispatch::IntegrationTest
 
-  # create()
+    setup do
+      @item_set   = item_sets(:one)
+      @collection = @item_set.collection
+      sign_out
+    end
 
-  test "create() redirects to sign-in page for signed-out users" do
-    post admin_collection_item_sets_path(@collection)
-    assert_redirected_to signin_path
-  end
+    # create()
 
-  test "create() returns HTTP 403 for unauthorized users" do
-    sign_in_as(users(:normal))
-    post admin_collection_item_sets_path(@collection),
-         xhr: true,
-         params: {
-           item_set: {
-             name: "test"
+    test "create() redirects to sign-in page for signed-out users" do
+      post admin_collection_item_sets_path(@collection)
+      assert_redirected_to signin_path
+    end
+
+    test "create() returns HTTP 403 for unauthorized users" do
+      sign_in_as(users(:normal))
+      post admin_collection_item_sets_path(@collection),
+           xhr: true,
+           params: {
+             item_set: {
+               name: "test"
+             }
            }
-         }
-    assert_response :forbidden
-  end
+      assert_response :forbidden
+    end
 
-  test "create() returns HTTP 200 for authorized users" do
-    sign_in_as(users(:medusa_admin))
-    post admin_collection_item_sets_path(@collection), xhr: true,
-         params: {
-           item_set: {
-             name: "test"
+    test "create() returns HTTP 200 for authorized users" do
+      sign_in_as(users(:medusa_admin))
+      post admin_collection_item_sets_path(@collection), xhr: true,
+           params: {
+             item_set: {
+               name: "test"
+             }
            }
-         }
-    assert_response :ok
-  end
+      assert_response :ok
+    end
 
-  # destroy()
+    # destroy()
 
-  test "destroy() redirects to sign-in page for signed-out users" do
-    delete admin_collection_item_set_path(@collection, @item_set)
-    assert_redirected_to signin_path
-  end
+    test "destroy() redirects to sign-in page for signed-out users" do
+      delete admin_collection_item_set_path(@collection, @item_set)
+      assert_redirected_to signin_path
+    end
 
-  test "destroy() returns HTTP 403 for unauthorized users" do
-    sign_in_as(users(:normal))
-    delete admin_collection_item_set_path(@collection, @item_set)
-    assert_response :forbidden
-  end
+    test "destroy() returns HTTP 403 for unauthorized users" do
+      sign_in_as(users(:normal))
+      delete admin_collection_item_set_path(@collection, @item_set)
+      assert_response :forbidden
+    end
 
-  test "destroy() redirects for authorized users" do
-    sign_in_as(users(:medusa_super_admin))
-    delete admin_collection_item_set_path(@collection, @item_set)
-    assert_redirected_to admin_collection_path(@collection)
-  end
+    test "destroy() redirects for authorized users" do
+      sign_in_as(users(:medusa_super_admin))
+      delete admin_collection_item_set_path(@collection, @item_set)
+      assert_redirected_to admin_collection_path(@collection)
+    end
 
-  # edit()
+    # edit()
 
-  test "edit() redirects to sign-in page for signed-out users" do
-    get edit_admin_collection_item_set_path(@collection, @item_set), xhr: true
-    assert_redirected_to signin_path
-  end
+    test "edit() redirects to sign-in page for signed-out users" do
+      get edit_admin_collection_item_set_path(@collection, @item_set), xhr: true
+      assert_redirected_to signin_path
+    end
 
-  test "edit() returns HTTP 403 for unauthorized users" do
-    sign_in_as(users(:normal))
-    get edit_admin_collection_item_set_path(@collection, @item_set), xhr: true
-    assert_response :forbidden
-  end
+    test "edit() returns HTTP 403 for unauthorized users" do
+      sign_in_as(users(:normal))
+      get edit_admin_collection_item_set_path(@collection, @item_set), xhr: true
+      assert_response :forbidden
+    end
 
-  test "edit() returns HTTP 200 for authorized users" do
-    sign_in_as(users(:medusa_super_admin))
-    get edit_admin_collection_item_set_path(@collection, @item_set), xhr: true
-    assert_response :ok
-  end
+    test "edit() returns HTTP 200 for authorized users" do
+      sign_in_as(users(:medusa_super_admin))
+      get edit_admin_collection_item_set_path(@collection, @item_set), xhr: true
+      assert_response :ok
+    end
 
-  # items()
+    # items()
 
-  test "items() redirects to sign-in page for signed-out users" do
-    get admin_collection_item_set_items_path(@collection, @item_set)
-    assert_redirected_to signin_path
-  end
+    test "items() redirects to sign-in page for signed-out users" do
+      get admin_collection_item_set_items_path(@collection, @item_set)
+      assert_redirected_to signin_path
+    end
 
-  test "items() returns HTTP 403 for unauthorized users" do
-    sign_in_as(users(:normal))
-    get admin_collection_item_set_items_path(@collection, @item_set)
-    assert_response :forbidden
-  end
+    test "items() returns HTTP 403 for unauthorized users" do
+      sign_in_as(users(:normal))
+      get admin_collection_item_set_items_path(@collection, @item_set)
+      assert_response :forbidden
+    end
 
-  test "items() returns HTTP 200 for authorized users" do
-    sign_in_as(users(:medusa_super_admin))
-    get admin_collection_item_set_items_path(@collection, @item_set)
-    assert_response :ok
-  end
+    test "items() returns HTTP 200 for authorized users" do
+      sign_in_as(users(:medusa_super_admin))
+      get admin_collection_item_set_items_path(@collection, @item_set)
+      assert_response :ok
+    end
 
-  # new()
+    # new()
 
-  test "new() redirects to sign-in page for signed-out users" do
-    get new_admin_collection_item_set_path(@collection)
-    assert_redirected_to signin_path
-  end
+    test "new() redirects to sign-in page for signed-out users" do
+      get new_admin_collection_item_set_path(@collection)
+      assert_redirected_to signin_path
+    end
 
-  test "new() returns HTTP 403 for unauthorized users" do
-    sign_in_as(users(:normal))
-    get new_admin_collection_item_set_path(@collection)
-    assert_response :forbidden
-  end
+    test "new() returns HTTP 403 for unauthorized users" do
+      sign_in_as(users(:normal))
+      get new_admin_collection_item_set_path(@collection)
+      assert_response :forbidden
+    end
 
-  test "new() returns HTTP 200 for authorized users" do
-    sign_in_as(users(:medusa_admin))
-    get new_admin_collection_item_set_path(@collection)
-    assert_response :ok
-  end
+    test "new() returns HTTP 200 for authorized users" do
+      sign_in_as(users(:medusa_admin))
+      get new_admin_collection_item_set_path(@collection)
+      assert_response :ok
+    end
 
-  # remove_all_items()
+    # remove_all_items()
 
-  test "remove_all_items() redirects to sign-in page for signed-out users" do
-    delete admin_collection_item_set_remove_all_items_path(@collection, @item_set)
-    assert_redirected_to signin_path
-  end
+    test "remove_all_items() redirects to sign-in page for signed-out users" do
+      delete admin_collection_item_set_remove_all_items_path(@collection, @item_set)
+      assert_redirected_to signin_path
+    end
 
-  test "remove_all_items() returns HTTP 403 for unauthorized users" do
-    sign_in_as(users(:normal))
-    delete admin_collection_item_set_remove_all_items_path(@collection, @item_set)
-    assert_response :forbidden
-  end
+    test "remove_all_items() returns HTTP 403 for unauthorized users" do
+      sign_in_as(users(:normal))
+      delete admin_collection_item_set_remove_all_items_path(@collection, @item_set)
+      assert_response :forbidden
+    end
 
-  test "remove_all_items() redirects for authorized users" do
-    sign_in_as(users(:medusa_super_admin))
-    delete admin_collection_item_set_remove_all_items_path(@collection, @item_set)
-    assert_redirected_to admin_collection_item_set_path(@collection, @item_set)
-  end
+    test "remove_all_items() redirects for authorized users" do
+      sign_in_as(users(:medusa_super_admin))
+      delete admin_collection_item_set_remove_all_items_path(@collection, @item_set)
+      assert_redirected_to admin_collection_item_set_path(@collection, @item_set)
+    end
 
-  # remove_items()
+    # remove_items()
 
-  test "remove_items() redirects to sign-in page for signed-out users" do
-    delete admin_collection_item_set_remove_items_path(@collection, @item_set)
-    assert_redirected_to signin_path
-  end
+    test "remove_items() redirects to sign-in page for signed-out users" do
+      delete admin_collection_item_set_remove_items_path(@collection, @item_set)
+      assert_redirected_to signin_path
+    end
 
-  test "remove_items() returns HTTP 403 for unauthorized users" do
-    sign_in_as(users(:normal))
-    delete admin_collection_item_set_remove_items_path(@collection, @item_set)
-    assert_response :forbidden
-  end
+    test "remove_items() returns HTTP 403 for unauthorized users" do
+      sign_in_as(users(:normal))
+      delete admin_collection_item_set_remove_items_path(@collection, @item_set)
+      assert_response :forbidden
+    end
 
-  test "remove_items() redirects for authorized users" do
-    sign_in_as(users(:medusa_super_admin))
-    delete admin_collection_item_set_remove_items_path(@collection, @item_set)
-    assert_redirected_to admin_collection_item_set_path(@collection, @item_set)
-  end
+    test "remove_items() redirects for authorized users" do
+      sign_in_as(users(:medusa_super_admin))
+      delete admin_collection_item_set_remove_items_path(@collection, @item_set)
+      assert_redirected_to admin_collection_item_set_path(@collection, @item_set)
+    end
 
-  # show()
+    # show()
 
-  test "show() redirects to sign-in page for signed-out users" do
-    get admin_collection_item_set_path(@collection, @item_set)
-    assert_redirected_to signin_path
-  end
+    test "show() redirects to sign-in page for signed-out users" do
+      get admin_collection_item_set_path(@collection, @item_set)
+      assert_redirected_to signin_path
+    end
 
-  test "show() returns HTTP 403 for unauthorized users" do
-    sign_in_as(users(:normal))
-    get admin_collection_item_set_path(@collection, @item_set)
-    assert_response :forbidden
-  end
+    test "show() returns HTTP 403 for unauthorized users" do
+      sign_in_as(users(:normal))
+      get admin_collection_item_set_path(@collection, @item_set)
+      assert_response :forbidden
+    end
 
-  test "show() returns HTTP 200 for authorized users" do
-    sign_in_as(users(:medusa_super_admin))
-    get admin_collection_item_set_path(@collection, @item_set)
-    assert_response :ok
-  end
+    test "show() returns HTTP 200 for authorized users" do
+      sign_in_as(users(:medusa_super_admin))
+      get admin_collection_item_set_path(@collection, @item_set)
+      assert_response :ok
+    end
 
-  # update()
+    # update()
 
-  test "update() redirects to sign-in page for signed-out users" do
-    patch admin_collection_item_set_path(@collection, @item_set)
-    assert_redirected_to signin_path
-  end
+    test "update() redirects to sign-in page for signed-out users" do
+      patch admin_collection_item_set_path(@collection, @item_set)
+      assert_redirected_to signin_path
+    end
 
-  test "update() returns HTTP 403 for unauthorized users" do
-    sign_in_as(users(:normal))
-    patch admin_collection_item_set_path(@collection, @item_set)
-    assert_response :forbidden
-  end
+    test "update() returns HTTP 403 for unauthorized users" do
+      sign_in_as(users(:normal))
+      patch admin_collection_item_set_path(@collection, @item_set)
+      assert_response :forbidden
+    end
 
-  test "update() returns HTTP 200 for authorized users" do
-    sign_in_as(users(:medusa_super_admin))
-    patch admin_collection_item_set_path(@collection, @item_set),
-          xhr: true,
-          params: {
-            item_set: {
-              name: "New Name"
+    test "update() returns HTTP 200 for authorized users" do
+      sign_in_as(users(:medusa_super_admin))
+      patch admin_collection_item_set_path(@collection, @item_set),
+            xhr: true,
+            params: {
+              item_set: {
+                name: "New Name"
+              }
             }
-          }
-    assert_response :ok
+      assert_response :ok
+    end
+
   end
 
 end
