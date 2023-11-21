@@ -52,7 +52,7 @@ class User < ApplicationRecord
       return [DEVELOPMENT_ADMIN_USERNAMES,
               DEVELOPMENT_SUPERUSER_USERNAMES].flatten.include?(self.username)
     end
-    group = Configuration.instance.medusa_admins_group[:name]
+    group = Configuration.instance.medusa_admins_group
     Rails.cache.fetch("user.#{username}.medusa_admin",
                       expires_in: LDAP_CACHE_TTL) do
       begin
@@ -71,7 +71,7 @@ class User < ApplicationRecord
     if Rails.env.development? || Rails.env.test?
       return DEVELOPMENT_SUPERUSER_USERNAMES.include?(self.username)
     end
-    group = Configuration.instance.medusa_superusers_group[:name]
+    group = Configuration.instance.medusa_superusers_group
     Rails.cache.fetch("user.#{username}.medusa_superuser",
                       expires_in: LDAP_CACHE_TTL) do
       begin
@@ -91,7 +91,7 @@ class User < ApplicationRecord
       return [DEVELOPMENT_USER_USERNAMES, DEVELOPMENT_ADMIN_USERNAMES,
               DEVELOPMENT_SUPERUSER_USERNAMES].flatten.include?(self.username)
     end
-    group = Configuration.instance.medusa_users_group[:name]
+    group = Configuration.instance.medusa_users_group
     Rails.cache.fetch("user.#{username}.medusa_user",
                       expires_in: LDAP_CACHE_TTL) do
       begin
