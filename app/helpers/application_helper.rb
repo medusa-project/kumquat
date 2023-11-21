@@ -524,6 +524,26 @@ module ApplicationHelper
   end
 
   ##
+  # @param entity [Object] Object to authorize.
+  # @return [ApplicationPolicy] Policy class associated with the current
+  #                             controller.
+  #
+  def policy(entity)
+    if entity.is_a?(Symbol)
+      class_ = entity.to_s.camelize
+    elsif entity.is_a?(Class)
+      class_ = entity.to_s
+    else
+      class_ = entity.class.to_s
+    end
+    class_   += "Policy"
+    ctrl_path = controller_path.split("/")
+    namespace = (ctrl_path.length > 1) ? ctrl_path.first : ""
+    class_    = [namespace.camelize, class_].join("::")
+    class_.constantize.new(current_user, entity)
+  end
+
+  ##
   # @param term [VocabularyTerm, nil]
   # @param text [String, nil]
   # @return [String]

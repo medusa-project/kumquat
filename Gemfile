@@ -29,7 +29,6 @@ gem 'pg'
 # Used to generate PDFs of compound objects.
 gem 'prawn'
 gem 'puma'
-gem 'pundit'
 gem 'rails', '~> 7.0'
 gem 'rails_autolink'
 gem 'sassc'

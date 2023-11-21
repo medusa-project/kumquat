@@ -274,8 +274,6 @@ GEM
       stringio
     puma (6.4.0)
       nio4r (~> 2.0)
-    pundit (2.3.1)
-      activesupport (>= 3.0.0)
     raabro (1.4.0)
     racc (1.7.3)
     rack (2.2.8)
@@ -427,7 +425,6 @@ DEPENDENCIES
   pg
   prawn
   puma
-  pundit
   rails (~> 7.0)
   rails-erd
   rails_autolink
