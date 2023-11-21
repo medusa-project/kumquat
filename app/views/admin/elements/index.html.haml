@@ -20,7 +20,7 @@
       %i.fa.fa-upload
       Import&hellip;
   -# Export button
-  = link_to @permitted_params.merge(format: 'json'), role: 'button', class: 'btn btn-light' do
+  = link_to admin_elements_path(format: 'json'), role: 'button', class: 'btn btn-light' do
     %i.fa.fa-download
     Export
 

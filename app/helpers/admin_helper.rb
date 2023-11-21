@@ -420,7 +420,7 @@ module AdminHelper
   #
   def admin_paginate_collections(count, per_page, current_page, max_links = 9)
     do_paginate(count, per_page, current_page,
-                params.permit(Admin::CollectionsController::PERMITTED_PARAMS),
+                params.permit(Admin::CollectionsController::PERMITTED_SEARCH_PARAMS),
                 max_links)
   end
 

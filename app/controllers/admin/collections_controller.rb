@@ -4,7 +4,7 @@ module Admin
 
   class CollectionsController < ControlPanelController
 
-    PERMITTED_PARAMS = [:q, :public_in_medusa, :published_in_dls, :start]
+    PERMITTED_SEARCH_PARAMS = [:public_in_medusa, :published_in_dls, :q, :start]
 
     before_action :set_collection, except: [:index, :items, :sync]
     before_action :authorize_collection, except: [:index, :items, :sync]

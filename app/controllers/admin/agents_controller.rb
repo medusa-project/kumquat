@@ -4,8 +4,7 @@ module Admin
 
   class AgentsController < ControlPanelController
 
-    PERMITTED_PARAMS = [:agent_rule_id, :agent_type_id, :description,
-                        :name, :uri]
+    PERMITTED_SEARCH_PARAMS = [:q]
 
     before_action :set_agent, except: [:create, :index]
     before_action :authorize_agent, except: [:create, :index]
@@ -147,7 +146,8 @@ module Admin
     end
 
     def sanitized_params
-      params.require(:agent).permit(PERMITTED_PARAMS)
+      params.require(:agent).permit(:agent_rule_id, :agent_type_id,
+                                    :description, :name, :uri)
     end
 
     def set_agent

@@ -4,9 +4,6 @@ module Admin
 
   class MetadataProfilesController < ControlPanelController
 
-    PERMITTED_PARAMS = [:default, :default_sortable_element_id, :name]
-
-    before_action :set_permitted_params
     before_action :set_profile, except: [:create, :import, :index]
     before_action :authorize_profile, except: [:create, :import, :index]
 
@@ -186,12 +183,10 @@ module Admin
       @profile = MetadataProfile.find(params[:id] || params[:metadata_profile_id])
     end
 
-    def set_permitted_params
-      @permitted_params = params.permit(PERMITTED_PARAMS)
-    end
-
     def sanitized_params
-      params.require(:metadata_profile).permit(PERMITTED_PARAMS)
+      params.require(:metadata_profile).permit(:default,
+                                               :default_sortable_element_id,
+                                               :name)
     end
 
   end

@@ -1,5 +1,5 @@
 - page_links = paginate(@agent_count, @limit, @current_page,
-                        Admin::AgentsController::PERMITTED_PARAMS, true)
+                        Admin::AgentsController::PERMITTED_SEARCH_PARAMS, true)
 
 .text-center
   = page_links

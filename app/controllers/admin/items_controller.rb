@@ -4,16 +4,8 @@ module Admin
 
   class ItemsController < ControlPanelController
 
-    PERMITTED_PARAMS = [:id, :contentdm_alias, :contentdm_pointer, :df,
-                        :embed_tag, :'fq[]', :expose_full_text_search,
-                        :item_set, :page_number, :published, :q,
-                        :representation_type, :representative_medusa_file_id,
-                        :representative_image, :representative_item_id,
-                        :subpage_number, :variant, allowed_host_group_ids: [],
-                        denied_host_group_ids: [],
-                        allowed_netids: [ :expires, :netid ]]
+    PERMITTED_SEARCH_PARAMS = [:df, :fq, :q, :sort, :start]
 
-    before_action :set_permitted_params, only: [:index, :show]
     before_action :set_item, except: [:add_items_to_item_set,
                                       :add_query_to_item_set,
                                       :batch_change_metadata,
@@ -706,16 +698,22 @@ module Admin
     def sanitized_params
       # Metadata elements are not included here, as they are processed
       # separately.
-      params.require(:item).permit(PERMITTED_PARAMS)
+      params.require(:item).permit(:id, :contentdm_alias, :contentdm_pointer,
+                                   :embed_tag,  :expose_full_text_search,
+                                   :item_set, :page_number, :published,
+                                   :representation_type,
+                                   :representative_medusa_file_id,
+                                   :representative_image,
+                                   :representative_item_id,
+                                   :subpage_number, :variant,
+                                   allowed_host_group_ids: [],
+                                   denied_host_group_ids: [],
+                                   allowed_netids: [:expires, :netid])
     end
 
     def set_item
       @item = Item.find_by_repository_id(params[:item_id] || params[:id])
       raise ActiveRecord::RecordNotFound unless @item
-    end
-
-    def set_permitted_params
-      @permitted_params = params.permit(PERMITTED_PARAMS)
     end
 
   end

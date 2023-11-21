@@ -22,7 +22,7 @@
       %i.fa.fa-copy
       Clone
   -# Export button
-  = link_to @permitted_params.merge(format: 'json'), class: 'btn btn-light' do
+  = link_to admin_metadata_profile_path(format: 'json'), class: 'btn btn-light' do
     %i.fa.fa-download
     Export
   - if policy(@profile).destroy?

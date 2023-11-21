@@ -4,7 +4,7 @@ module Admin
 
   class TasksController < ControlPanelController
 
-    PERMITTED_PARAMS = [:q, :queue, :start, :status]
+    PERMITTED_SEARCH_PARAMS = [:q, :queue, :start, :status]
 
     ##
     # Responds to GET /admin/tasks
@@ -29,8 +29,8 @@ module Admin
       end
 
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-      @count = @tasks.count
-      @tasks = @tasks.offset(@start).limit(@limit)
+      @count        = @tasks.count
+      @tasks        = @tasks.offset(@start).limit(@limit)
 
       respond_to do |format|
         format.js

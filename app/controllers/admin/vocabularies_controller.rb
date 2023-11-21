@@ -4,9 +4,6 @@ module Admin
 
   class VocabulariesController < ControlPanelController
 
-    PERMITTED_PARAMS = [:key, :name]
-
-    before_action :set_permitted_params
     before_action :set_vocabulary, except: [:create, :import, :index]
     before_action :authorize_vocabulary, except: [:create, :import, :index]
 
@@ -144,11 +141,7 @@ module Admin
     end
 
     def sanitized_params
-      params.require(:vocabulary).permit(PERMITTED_PARAMS)
-    end
-
-    def set_permitted_params
-      @permitted_params = params.permit(PERMITTED_PARAMS)
+      params.require(:vocabulary).permit(:key, :name)
     end
 
     def set_vocabulary

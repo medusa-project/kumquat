@@ -11,9 +11,6 @@ module Admin
       REPLACE = 'replace'
     end
 
-    PERMITTED_PARAMS = [:description, :name]
-
-    before_action :set_permitted_params
     before_action :set_element, except: [:create, :import, :index]
     before_action :authorize_element, except: [:create, :import, :index]
 
@@ -168,16 +165,12 @@ module Admin
     end
 
     def sanitized_params
-      params.require(:element).permit(PERMITTED_PARAMS)
+      params.require(:element).permit(:description, :name)
     end
 
     def set_element
       @element = Element.find_by_name(params[:name] || params[:element_name])
       raise ActiveRecord::RecordNotFound unless @element
-    end
-
-    def set_permitted_params
-      @permitted_params = params.permit(PERMITTED_PARAMS)
     end
 
   end

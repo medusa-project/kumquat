@@ -1,5 +1,5 @@
 - page_links = paginate(@count, @limit, @current_page,
-                        Admin::TasksController::PERMITTED_PARAMS, true)
+                        Admin::TasksController::PERMITTED_SEARCH_PARAMS, true)
 - if @tasks.any?
   .row.justify-content-md-center
     .col-md-auto

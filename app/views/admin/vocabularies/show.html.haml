@@ -16,7 +16,7 @@
       %i.fas.fa-pencil-alt
       Edit
   -# Export button
-  = link_to @permitted_params.merge(format: 'json'), class: 'btn btn-light' do
+  = link_to admin_vocabulary_path(@vocabulary, format: 'json'), class: 'btn btn-light' do
     %i.fa.fa-download
     Export
   - if policy(@vocabulary).destroy?
