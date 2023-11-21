@@ -26,15 +26,7 @@ module Admin
     end
 
     def update?
-      config = ::Configuration.instance
-      if @user.medusa_superuser?
-        return true
-      elsif @user.medusa_admin?
-        return config.medusa_admins_group[:permissions].include?(Permissions::MODIFY_METADATA_PROFILES)
-      elsif @user.medusa_user?
-        return config.medusa_users_group[:permissions].include?(Permissions::MODIFY_METADATA_PROFILES)
-      end
-      false
+      @user.medusa_admin?
     end
 
   end

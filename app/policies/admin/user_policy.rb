@@ -10,15 +10,7 @@ module Admin
     end
 
     def create?
-      config = ::Configuration.instance
-      if @subject_user.medusa_superuser?
-        return true
-      elsif @subject_user.medusa_admin?
-        return config.medusa_admins_group[:permissions].include?(Permissions::MODIFY_USERS)
-      elsif @subject_user.medusa_user?
-        return config.medusa_users_group[:permissions].include?(Permissions::MODIFY_USERS)
-      end
-      false
+      @subject_user.medusa_superuser?
     end
 
     def destroy?
@@ -26,15 +18,7 @@ module Admin
     end
 
     def index?
-      config = ::Configuration.instance
-      if @subject_user.medusa_superuser?
-        return true
-      elsif @subject_user.medusa_admin?
-        return config.medusa_admins_group[:permissions].include?(Permissions::VIEW_USERS)
-      elsif @subject_user.medusa_user?
-        return config.medusa_users_group[:permissions].include?(Permissions::VIEW_USERS)
-      end
-      false
+      @subject_user.medusa_superuser?
     end
 
     def new?
@@ -46,16 +30,8 @@ module Admin
     end
 
     def show?
-      config = ::Configuration.instance
-      if @subject_user.medusa_superuser? ||
+      @subject_user.medusa_superuser? ||
         (@subject_user.medusa_user? && @subject_user == @object_user)
-        return true
-      elsif @subject_user.medusa_admin?
-        return config.medusa_admins_group[:permissions].include?(Permissions::VIEW_USERS)
-      elsif @subject_user.medusa_user?
-        return config.medusa_users_group[:permissions].include?(Permissions::VIEW_USERS)
-      end
-      false
     end
 
   end

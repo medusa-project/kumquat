@@ -82,7 +82,7 @@ module Admin
     end
 
     def show?
-      @user.medusa_user?
+      update?
     end
 
     def sync?
@@ -98,15 +98,7 @@ module Admin
     end
 
     def update?
-      config = ::Configuration.instance
-      if @user.medusa_superuser?
-        return true
-      elsif @user.medusa_admin?
-        return config.medusa_admins_group[:permissions].include?(Permissions::MODIFY_ITEMS)
-      elsif @user.medusa_user?
-        return config.medusa_users_group[:permissions].include?(Permissions::MODIFY_ITEMS)
-      end
-      false
+      @user.medusa_user?
     end
 
     def update_all?

@@ -10,8 +10,8 @@ module Admin
       assert SettingPolicy.new(users(:medusa_super_admin), nil).index?
     end
 
-    test "index?() authorizes Medusa admins" do
-      assert SettingPolicy.new(users(:medusa_admin), nil).index?
+    test "index?() does not authorize Medusa admins" do
+      assert !SettingPolicy.new(users(:medusa_admin), nil).index?
     end
 
     test "index?() does not authorize Medusa users" do
@@ -28,8 +28,8 @@ module Admin
       assert SettingPolicy.new(users(:medusa_super_admin), nil).update?
     end
 
-    test "update?() authorizes Medusa admins" do
-      assert SettingPolicy.new(users(:medusa_admin), nil).update?
+    test "update?() does not authorize Medusa admins" do
+      assert !SettingPolicy.new(users(:medusa_admin), nil).update?
     end
 
     test "update?() does not authorize Medusa users" do

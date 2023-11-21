@@ -10,15 +10,7 @@ module Admin
     end
 
     def delete_items?
-      config = ::Configuration.instance
-      if @user.medusa_superuser?
-        return true
-      elsif @user.medusa_admin?
-        return config.medusa_admins_group[:permissions].include?(Permissions::PURGE_ITEMS_FROM_COLLECTION)
-      elsif @user.medusa_user?
-        return config.medusa_users_group[:permissions].include?(Permissions::PURGE_ITEMS_FROM_COLLECTION)
-      end
-      false
+      @user.medusa_admin?
     end
 
     def edit_access?
@@ -66,19 +58,11 @@ module Admin
     end
 
     def update?
-      config = ::Configuration.instance
-      if @user.medusa_superuser?
-        return true
-      elsif @user.medusa_admin?
-        return config.medusa_admins_group[:permissions].include?(Permissions::MODIFY_COLLECTIONS)
-      elsif @user.medusa_user?
-        return config.medusa_users_group[:permissions].include?(Permissions::MODIFY_COLLECTIONS)
-      end
-      false
+      @user.medusa_user?
     end
 
     def watch?
-      @user.medusa_user?
+      update?
     end
 
   end

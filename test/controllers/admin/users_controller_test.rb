@@ -29,7 +29,7 @@ module Admin
     end
 
     test "create() redirects upon success" do
-      sign_in_as(users(:medusa_admin))
+      sign_in_as(users(:medusa_super_admin))
       post admin_users_path,
            params: {
              user: {
@@ -54,13 +54,13 @@ module Admin
     end
 
     test "destroy() redirects upon success" do
-      sign_in_as(users(:medusa_admin))
+      sign_in_as(users(:medusa_super_admin))
       delete admin_user_path(@user)
       assert_redirected_to admin_users_path
     end
 
     test "destroy() destroys the instance" do
-      sign_in_as(users(:medusa_admin))
+      sign_in_as(users(:medusa_super_admin))
       delete admin_user_path(@user)
       assert_raises ActiveRecord::RecordNotFound do
         @user.reload
@@ -119,14 +119,14 @@ module Admin
     end
 
     test "reset_api_key() redirects upon success" do
-      sign_in_as(users(:medusa_admin))
+      sign_in_as(users(:medusa_super_admin))
       post admin_user_reset_api_key_path(@user)
       assert_redirected_to admin_user_path(@user)
     end
 
     test "reset_api_key() resets the user's API key" do
       initial_key = @user.api_key
-      sign_in_as(users(:medusa_admin))
+      sign_in_as(users(:medusa_super_admin))
       post admin_user_reset_api_key_path(@user)
 
       @user.reload
@@ -147,7 +147,7 @@ module Admin
     end
 
     test "show() returns HTTP 200" do
-      sign_in_as(users(:medusa_admin))
+      sign_in_as(users(:medusa_super_admin))
       get admin_user_path(@user)
       assert_response :ok
     end

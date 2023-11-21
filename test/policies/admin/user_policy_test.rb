@@ -10,8 +10,8 @@ module Admin
       assert UserPolicy.new(users(:medusa_super_admin), User).create?
     end
 
-    test "create?() authorizes Medusa admins" do
-      assert UserPolicy.new(users(:medusa_admin), User).create?
+    test "create?() does not authorize Medusa admins" do
+      assert !UserPolicy.new(users(:medusa_admin), User).create?
     end
 
     test "create?() does not authorize Medusa users" do
@@ -29,9 +29,9 @@ module Admin
                             users(:medusa_user)).destroy?
     end
 
-    test "destroy?() authorizes Medusa admins" do
-      assert UserPolicy.new(users(:medusa_admin),
-                            users(:medusa_user)).destroy?
+    test "destroy?() does not authorize Medusa admins" do
+      assert !UserPolicy.new(users(:medusa_admin),
+                             users(:medusa_user)).destroy?
     end
 
     test "destroy?() does not authorize Medusa users" do
@@ -50,8 +50,8 @@ module Admin
       assert UserPolicy.new(users(:medusa_super_admin), User).index?
     end
 
-    test "index?() authorizes Medusa admins" do
-      assert UserPolicy.new(users(:medusa_admin), User).index?
+    test "index?() does not authorize Medusa admins" do
+      assert !UserPolicy.new(users(:medusa_admin), User).index?
     end
 
     test "index?() does not authorize Medusa users" do
@@ -68,8 +68,8 @@ module Admin
       assert UserPolicy.new(users(:medusa_super_admin), User).new?
     end
 
-    test "new?() authorizes Medusa admins" do
-      assert UserPolicy.new(users(:medusa_admin), User).new?
+    test "new?() does not authorize Medusa admins" do
+      assert !UserPolicy.new(users(:medusa_admin), User).new?
     end
 
     test "new?() does not authorize Medusa users" do
@@ -87,12 +87,12 @@ module Admin
                             users(:medusa_user)).reset_api_key?
     end
 
-    test "reset_api_key?() authorizes Medusa admins" do
-      assert UserPolicy.new(users(:medusa_admin),
-                            users(:medusa_user)).reset_api_key?
+    test "reset_api_key?() does not authorize Medusa admins" do
+      assert !UserPolicy.new(users(:medusa_admin),
+                             users(:medusa_user)).reset_api_key?
     end
 
-    test "reset_api_key?() authorizes Medusa users" do
+    test "reset_api_key?() authorizes the same Medusa user" do
       assert UserPolicy.new(users(:medusa_user),
                             users(:medusa_user)).reset_api_key?
     end
@@ -109,9 +109,9 @@ module Admin
                             users(:medusa_user)).show?
     end
 
-    test "show?() authorizes Medusa admins" do
-      assert UserPolicy.new(users(:medusa_admin),
-                            users(:medusa_user)).show?
+    test "show?() does not authorize Medusa admins" do
+      assert !UserPolicy.new(users(:medusa_admin),
+                             users(:medusa_user)).show?
     end
 
     test "show?() does not authorize different normal users" do

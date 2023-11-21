@@ -18,7 +18,7 @@ module Admin
     end
 
     test "index() returns HTTP 200" do
-      sign_in_as(users(:medusa_admin))
+      sign_in_as(users(:medusa_super_admin))
       get admin_settings_path
       assert_response :ok
     end
@@ -37,7 +37,7 @@ module Admin
     end
 
     test "update() redirects upon success" do
-      sign_in_as(users(:medusa_admin))
+      sign_in_as(users(:medusa_super_admin))
       patch admin_settings_path,
             params: {
               options: {
@@ -48,7 +48,7 @@ module Admin
     end
 
     test "update() updates settings" do
-      sign_in_as(users(:medusa_admin))
+      sign_in_as(users(:medusa_super_admin))
       patch admin_settings_path,
             params: {
               options: {
