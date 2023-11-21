@@ -549,7 +549,7 @@ module Admin
             # Also activate it for convenience's sake (DLD-408)
             @item.representation_type = Representation::Type::LOCAL_FILE
           end
-          @item.update!(sanitized_params)
+          @item.update!(permitted_params)
 
           # We will also need to propagate various item properties (published
           # status, allowed/denied host groups, etc.) to its child items. This
@@ -695,7 +695,7 @@ module Admin
       end
     end
 
-    def sanitized_params
+    def permitted_params
       # Metadata elements are not included here, as they are processed
       # separately.
       params.require(:item).permit(:id, :contentdm_alias, :contentdm_pointer,

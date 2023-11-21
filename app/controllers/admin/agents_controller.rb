@@ -13,7 +13,7 @@ module Admin
     # XHR only
     #
     def create
-      @agent = Agent.new(sanitized_params)
+      @agent = Agent.new(permitted_params)
       authorize(@agent)
       begin
         ActiveRecord::Base.transaction do
@@ -124,7 +124,7 @@ module Admin
                                     primary: (v[:primary] == 'true'))
           end
         end
-        @agent.update!(sanitized_params)
+        @agent.update!(permitted_params)
       end
     rescue ActiveRecord::RecordInvalid
       response.headers['X-Kumquat-Result'] = 'error'
@@ -148,7 +148,7 @@ module Admin
       @agent ? authorize(@agent) : skip_authorization
     end
 
-    def sanitized_params
+    def permitted_params
       params.require(:agent).permit(:agent_rule_id, :agent_type_id,
                                     :description, :name, :uri)
     end

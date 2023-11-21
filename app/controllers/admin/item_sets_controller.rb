@@ -11,7 +11,7 @@ module Admin
     # Responds to `POST /admin/collections/:collection_id/item_sets`
     #
     def create
-      item_set = ItemSet.new(sanitized_params)
+      item_set = ItemSet.new(permitted_params)
       authorize(item_set)
       item_set.save!
     rescue ActiveRecord::RecordInvalid
@@ -142,7 +142,7 @@ module Admin
     # Responds to `POST /admin/collections/:collection_id/item_sets/:id`
     #
     def update
-      @item_set.update!(sanitized_params)
+      @item_set.update!(permitted_params)
     rescue ActiveRecord::RecordInvalid
       response.headers['X-Kumquat-Result'] = 'error'
       render partial: 'shared/validation_messages',
@@ -165,7 +165,7 @@ module Admin
       @item_set ? authorize(@item_set) : skip_authorization
     end
 
-    def sanitized_params
+    def permitted_params
       params.require(:item_set).permit(:id, :collection_repository_id, :name,
                                        user_ids: [])
     end

@@ -22,7 +22,7 @@ module Admin
     end
 
     def create
-      @profile = MetadataProfile.new(sanitized_params)
+      @profile = MetadataProfile.new(permitted_params)
       authorize(@profile)
       @profile.add_default_elements
       begin
@@ -143,7 +143,7 @@ module Admin
     def update
       if request.xhr?
         begin
-          @profile.update!(sanitized_params)
+          @profile.update!(permitted_params)
         rescue ActiveRecord::RecordInvalid
           response.headers['X-Kumquat-Result'] = 'error'
           render partial: 'shared/validation_messages',
@@ -160,7 +160,7 @@ module Admin
         end
       else
         begin
-          @profile.update!(sanitized_params)
+          @profile.update!(permitted_params)
         rescue => e
           handle_error(e)
         else
@@ -183,7 +183,7 @@ module Admin
       @profile = MetadataProfile.find(params[:id] || params[:metadata_profile_id])
     end
 
-    def sanitized_params
+    def permitted_params
       params.require(:metadata_profile).permit(:default,
                                                :default_sortable_element_id,
                                                :name)

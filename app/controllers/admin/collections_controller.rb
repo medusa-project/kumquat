@@ -253,7 +253,7 @@ module Admin
               # Also activate it for convenience's sake (DLD-408)
               @collection.representation_type = Representation::Type::LOCAL_FILE
             end
-            @collection.update!(sanitized_params)
+            @collection.update!(permitted_params)
             # We will also need to propagate various collection properties
             # (published status, allowed/denied host groups, etc.) to the items
             # contained within the collection. This will take some time, so
@@ -295,7 +295,7 @@ module Admin
       raise ActiveRecord::RecordNotFound unless @collection
     end
 
-    def sanitized_params
+    def permitted_params
       params.require(:collection).permit(:id, :contentdm_alias,
                                          :descriptive_element_id,
                                          :harvestable, :harvestable_by_idhh,

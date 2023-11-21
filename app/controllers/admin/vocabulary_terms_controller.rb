@@ -11,7 +11,7 @@ module Admin
     # XHR only
     #
     def create
-      @term = VocabularyTerm.new(sanitized_params)
+      @term = VocabularyTerm.new(permitted_params)
       authorize(@term)
       @term.save!
     rescue ActiveRecord::RecordInvalid
@@ -74,7 +74,7 @@ module Admin
     # XHR only
     #
     def update
-      @term.update!(sanitized_params)
+      @term.update!(permitted_params)
     rescue ActiveRecord::RecordInvalid
       response.headers['X-Kumquat-Result'] = 'error'
       render partial: 'shared/validation_messages',
@@ -97,7 +97,7 @@ module Admin
       @term ? authorize(@term) : skip_authorization
     end
 
-    def sanitized_params
+    def permitted_params
       params.require(:vocabulary_term).permit(:string, :uri, :vocabulary_id)
     end
 

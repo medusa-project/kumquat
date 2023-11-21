@@ -11,7 +11,7 @@ module Admin
     # XHR only
     #
     def create
-      @type = AgentRelationType.new(sanitized_params)
+      @type = AgentRelationType.new(permitted_params)
       authorize(@type)
       begin
         @type.save!
@@ -63,7 +63,7 @@ module Admin
     # XHR only
     #
     def update
-      @type.update!(sanitized_params)
+      @type.update!(permitted_params)
     rescue ActiveRecord::RecordInvalid
       response.headers['X-Kumquat-Result'] = 'error'
       render partial: 'shared/validation_messages',
@@ -87,7 +87,7 @@ module Admin
       @type ? authorize(@type) : skip_authorization
     end
 
-    def sanitized_params
+    def permitted_params
       params.require(:agent_relation_type).permit(:description, :name, :uri)
     end
 

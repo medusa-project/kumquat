@@ -8,7 +8,7 @@ module Admin
     before_action :authorize_user, except: [:create, :index, :new]
 
     def create
-      user = User.new(sanitized_params)
+      user = User.new(permitted_params)
       authorize(user)
       begin
         user.save!
@@ -70,7 +70,7 @@ module Admin
       @user ? authorize(@user) : skip_authorization
     end
 
-    def sanitized_params
+    def permitted_params
       params.require(:user).permit(:human, :username, role_ids: [])
     end
 

@@ -8,7 +8,7 @@ module Admin
     before_action :authorize_vocabulary, except: [:create, :import, :index]
 
     def create
-      @vocabulary = Vocabulary.new(sanitized_params)
+      @vocabulary = Vocabulary.new(permitted_params)
       authorize(@vocabulary)
       begin
         @vocabulary.save!
@@ -101,7 +101,7 @@ module Admin
     def update
       if request.xhr?
         begin
-          @vocabulary.update!(sanitized_params)
+          @vocabulary.update!(permitted_params)
         rescue ActiveRecord::RecordInvalid
           response.headers['X-Kumquat-Result'] = 'error'
           render partial: 'shared/validation_messages',
@@ -118,7 +118,7 @@ module Admin
         end
       else
         begin
-          @vocabulary.update!(sanitized_params)
+          @vocabulary.update!(permitted_params)
         rescue ActiveRecord::RecordInvalid
           response.headers['X-Kumquat-Result'] = 'error'
           render 'show'
@@ -140,7 +140,7 @@ module Admin
       @vocabulary ? authorize(@vocabulary) : skip_authorization
     end
 
-    def sanitized_params
+    def permitted_params
       params.require(:vocabulary).permit(:key, :name)
     end
 

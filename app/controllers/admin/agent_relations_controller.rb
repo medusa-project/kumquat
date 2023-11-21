@@ -11,7 +11,7 @@ module Admin
     # XHR only
     #
     def create
-      p = sanitized_params
+      p = permitted_params
       if p[:agent_id].present?
         p[:agent_id] = Agent.find_by_name(p[:agent_id])&.id
       end
@@ -60,7 +60,7 @@ module Admin
     # XHR only
     #
     def update
-      p = sanitized_params
+      p = permitted_params
       if p[:agent_id].present?
         p[:agent_id] = Agent.find_by_name(p[:agent_id])&.id
       end
@@ -90,7 +90,7 @@ module Admin
       @agent_relation ? authorize(@agent_relation) : skip_authorization
     end
 
-    def sanitized_params
+    def permitted_params
       params.require(:agent_relation).permit(:agent_id, :agent_relation_type_id,
                                              :dates, :description,
                                              :related_agent_id)

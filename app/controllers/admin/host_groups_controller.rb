@@ -8,7 +8,7 @@ module Admin
     before_action :authorize_host_group, except: [:create, :index, :new]
 
     def create
-      @host_group = HostGroup.new(sanitized_params)
+      @host_group = HostGroup.new(permitted_params)
       authorize(@host_group)
       begin
         @host_group.save!
@@ -48,7 +48,7 @@ module Admin
     end
 
     def update
-      @host_group.update!(sanitized_params)
+      @host_group.update!(permitted_params)
     rescue => e
       flash['error'] = "#{e}"
       render 'edit'
@@ -64,7 +64,7 @@ module Admin
       @host_group ? authorize(@host_group) : skip_authorization
     end
 
-    def sanitized_params
+    def permitted_params
       params.require(:host_group).permit(:key, :name, :pattern)
     end
 

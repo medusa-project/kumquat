@@ -11,7 +11,7 @@ module Admin
     # XHR only
     #
     def create
-      @element = MetadataProfileElement.new(sanitized_params)
+      @element = MetadataProfileElement.new(permitted_params)
       authorize(@element)
       begin
         @element.save!
@@ -54,7 +54,7 @@ module Admin
     # XHR only
     #
     def update
-      @element.update!(sanitized_params)
+      @element.update!(permitted_params)
     rescue ActiveRecord::RecordInvalid
       response.headers['X-Kumquat-Result'] = 'error'
       render partial: 'shared/validation_messages',
@@ -77,7 +77,7 @@ module Admin
       @element ? authorize(@element) : skip_authorization
     end
 
-    def sanitized_params
+    def permitted_params
       params.require(:metadata_profile_element).permit(
           :data_type, :dc_map, :dcterms_map, :facetable, :index, :indexed,
           :label, :metadata_profile_id, :name, :searchable, :sortable,

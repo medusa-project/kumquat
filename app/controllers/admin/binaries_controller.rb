@@ -40,7 +40,7 @@ module Admin
     # Responds to `POST /admin/binaries/:id` (XHR only)
     #
     def update
-      @binary.update!(sanitized_params)
+      @binary.update!(permitted_params)
     rescue ActiveRecord::RecordInvalid
       response.headers['X-Kumquat-Result'] = 'error'
       render partial: 'shared/validation_messages',
@@ -62,7 +62,7 @@ module Admin
       @binary ? authorize(@binary) : skip_authorization
     end
 
-    def sanitized_params
+    def permitted_params
       params.require(:binary).permit(:public)
     end
 

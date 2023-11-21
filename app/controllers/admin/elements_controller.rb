@@ -18,7 +18,7 @@ module Admin
     # XHR only
     #
     def create
-      @element = Element.new(sanitized_params)
+      @element = Element.new(permitted_params)
       authorize(@element)
       begin
         @element.save!
@@ -123,7 +123,7 @@ module Admin
     # XHR only
     #
     def update
-      @element.update!(sanitized_params)
+      @element.update!(permitted_params)
     rescue ActiveRecord::RecordInvalid
       response.headers['X-Kumquat-Result'] = 'error'
       render partial: 'shared/validation_messages',
@@ -164,7 +164,7 @@ module Admin
       @element ? authorize(@element) : skip_authorization
     end
 
-    def sanitized_params
+    def permitted_params
       params.require(:element).permit(:description, :name)
     end
 
