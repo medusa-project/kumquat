@@ -6,6 +6,8 @@ class ApplicationController < ActionController::Base
   include ActionController::Live
   include SessionsHelper
 
+  LOGGER = CustomLogger.new(ApplicationController)
+
   # N.B.: these must be listed in order of most generic to most specific.
   rescue_from StandardError, with: :rescue_internal_server_error
   rescue_from ActionController::InvalidAuthenticityToken, with: :rescue_invalid_auth_token
@@ -16,17 +18,15 @@ class ApplicationController < ActionController::Base
   rescue_from ActionView::Template::Error, with: :rescue_template_error
   rescue_from ActiveRecord::RecordNotFound, with: :rescue_not_found
 
-  before_action :setup
-  after_action :log_execution_time
-
-  LOGGER = CustomLogger.new(ApplicationController)
-
-  def setup
-    @start_time = Time.now
-  end
-
-
   protected
+
+  ##
+  # @return [Set<HostGroup>] Set of {HostGroup}s associated with the request
+  #         hostname/IP address.
+  #
+  def client_host_groups
+    HostGroup.all_matching_hostname_or_ip(request.host, request.remote_ip)
+  end
 
   ##
   # Logs the given error and sets the flash to it.
@@ -47,14 +47,6 @@ class ApplicationController < ActionController::Base
   #
   def keep_flash
     @keep_flash = true
-  end
-
-  ##
-  # @return [Set<HostGroup>] Set of {HostGroup}s associated with the request
-  #         hostname/IP address.
-  #
-  def client_host_groups
-    HostGroup.all_matching_hostname_or_ip(request.host, request.remote_ip)
   end
 
   ##
@@ -91,13 +83,6 @@ class ApplicationController < ActionController::Base
           flash['success'].blank?
       flash.clear unless @keep_flash
     end
-  end
-
-  def log_execution_time
-    LOGGER.info('%sController.%s(): executed in %d ms',
-                controller_name.capitalize,
-                action_name,
-                (Time.now - @start_time) * 1000)
   end
 
   def rescue_internal_server_error(exception)
