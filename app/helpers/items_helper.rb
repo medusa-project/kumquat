@@ -532,7 +532,7 @@ module ItemsHelper
   #
   def paginate_items(count, per_page, current_page, max_links = 9)
     do_paginate(count, per_page, current_page,
-                params.permit(ItemsController::PERMITTED_PARAMS +
+                params.permit(ItemsController::PERMITTED_SEARCH_PARAMS +
                     Admin::ItemsController::PERMITTED_SEARCH_PARAMS),
                 max_links)
   end

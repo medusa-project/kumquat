@@ -1,13 +1,13 @@
 class CollectionsController < WebsiteController
 
-  LOGGER = CustomLogger.new(CollectionsController)
-  PERMITTED_PARAMS = [:_, :fq, :id, :q, :utf8]
+  LOGGER                  = CustomLogger.new(CollectionsController)
+  PERMITTED_SEARCH_PARAMS = [:fq, :id, :q]
 
-  before_action :load_collection, only: [:iiif_presentation, :show]
+  before_action :set_collection, only: [:iiif_presentation, :show]
   before_action :authorize_collection, only: [:iiif_presentation, :show]
   before_action :check_publicly_accessible, only: [:iiif_presentation, :show]
   before_action :enable_cors, only: :iiif_presentation
-  before_action :set_sanitized_params, only: :show
+  before_action :set_permitted_params, only: :show
 
   rescue_from AuthorizationError, with: :rescue_unauthorized
   rescue_from UnpublishedError, with: :rescue_unpublished
@@ -111,6 +111,7 @@ class CollectionsController < WebsiteController
     redirect_to col
   end
 
+
   private
 
   def authorize_collection
@@ -119,11 +120,6 @@ class CollectionsController < WebsiteController
 
   def check_publicly_accessible
     raise UnpublishedError unless @collection.publicly_accessible?
-  end
-
-  def load_collection
-    @collection = Collection.find_by_repository_id(params[:collection_id] || params[:id])
-    raise ActiveRecord::RecordNotFound unless @collection
   end
 
   def rescue_unauthorized
@@ -144,8 +140,13 @@ class CollectionsController < WebsiteController
     end
   end
 
-  def set_sanitized_params
-    @permitted_params = params.permit(PERMITTED_PARAMS)
+  def set_collection
+    @collection = Collection.find_by_repository_id(params[:collection_id] || params[:id])
+    raise ActiveRecord::RecordNotFound unless @collection
+  end
+
+  def set_permitted_params
+    @permitted_params = params.permit(PERMITTED_SEARCH_PARAMS)
   end
 
 end

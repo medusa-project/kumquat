@@ -8,9 +8,9 @@ class ItemsController < WebsiteController
     SEARCHING           = 2
   end
 
-  PERMITTED_PARAMS = [:_, :collection_id, :df, :display, :download_start,
-                      { fq: [] }, :field, :format, :id, :limit, :q, :sort,
-                      :start, :utf8]
+  PERMITTED_SEARCH_PARAMS = [:collection_id, :df, :display, :download_start,
+                             { fq: [] }, :field, :format, :id, :limit, :q,
+                             :sort, :start]
 
   before_action :enable_cors, only: [:iiif_annotation_list, :iiif_canvas,
                                      :iiif_image_resource, :iiif_layer,
@@ -20,7 +20,7 @@ class ItemsController < WebsiteController
   before_action :authorize_item, except: [:index, :tree, :tree_data]
   before_action :check_publicly_accessible, except: [:index, :tree, :tree_data]
   before_action :set_browse_context, only: :index
-  before_action :set_sanitized_params, only: [:index, :show, :tree]
+  before_action :set_permitted_params, only: [:index, :show, :tree]
 
   rescue_from AuthorizationError, with: :rescue_unauthorized
   rescue_from UnpublishedError, with: :rescue_unpublished
@@ -770,8 +770,8 @@ class ItemsController < WebsiteController
     end
   end
 
-  def set_sanitized_params
-    @permitted_params = params.permit(PERMITTED_PARAMS)
+  def set_permitted_params
+    @permitted_params = params.permit(PERMITTED_SEARCH_PARAMS)
   end
 
 end

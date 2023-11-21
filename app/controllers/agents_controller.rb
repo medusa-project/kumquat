@@ -1,10 +1,9 @@
 class AgentsController < WebsiteController
 
-  ITEMS_LIMIT      = 30
-  PERMITTED_PARAMS = []
+  ITEMS_LIMIT = 30
 
-  before_action :load_agent, only: [:items, :show]
-  before_action :set_sanitized_params
+  before_action :set_agent, only: [:items, :show]
+  before_action :set_permitted_params, only: :show
 
   ##
   # Responds to GET /agent/:id/items (XHR only)
@@ -37,9 +36,10 @@ class AgentsController < WebsiteController
     end
   end
 
+
   private
 
-  def load_agent
+  def set_agent
     @agent = Agent.find(params[:agent_id] || params[:id])
     raise ActiveRecord::RecordNotFound unless @agent
   end
@@ -55,8 +55,8 @@ class AgentsController < WebsiteController
         offset(@start).limit(@limit).to_a
   end
 
-  def set_sanitized_params
-    @permitted_params = params.permit(PERMITTED_PARAMS)
+  def set_permitted_params
+    @permitted_params = params.permit([])
   end
 
 end
