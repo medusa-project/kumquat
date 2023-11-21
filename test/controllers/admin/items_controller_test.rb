@@ -69,7 +69,19 @@ module Admin
 
     test "batch_change_metadata() redirects for authorized users" do
       sign_in_as(users(:medusa_admin))
-      post admin_collection_items_batch_change_metadata_path(@collection)
+      post admin_collection_items_batch_change_metadata_path(@collection),
+           params: {
+             item_ids: [
+               Item.all.first.repository_id
+             ],
+             element: "title",
+             replace_values: [
+               {
+                 string: "cats",
+                 uri:    "http://example.org/cats"
+               }
+             ]
+           }
       assert_redirected_to admin_collection_items_path(@collection)
     end
 

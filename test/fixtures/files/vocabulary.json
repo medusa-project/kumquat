@@ -1,0 +1,10 @@
+{
+  "key":  "new",
+  "name": "New Vocabulary",
+  "vocabulary_terms": [
+    {
+      "string": "term",
+      "uri":    "http://example.org/term"
+    }
+  ]
+}

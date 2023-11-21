@@ -14,13 +14,15 @@
   Items
   %small= @collection.title
 
-= form_tag(params.permit(Admin::ItemsController::PERMITTED_SEARCH_PARAMS).reject{ |k, v| k == 'start' }, method: :get, class: 'dl-filter') do
+- permitted_params = params.permit(Admin::ItemsController::PERMITTED_SEARCH_PARAMS).reject{ |k, v| k == 'start' }
+
+= form_tag(permitted_params, method: :get, class: 'dl-filter') do
   .row
     .col-sm-4.col-lg-3.col-xl-2.dl-facets.dl-card-facets
       = render partial: 'facets'
 
     .col-sm-8.col-lg-9.col-xl-10
-      - @permitted_params.reject{ |k, v| k == 'start' }.each do |k, v|
+      - permitted_params.each do |k, v|
         = hidden_field_tag(k, v)
 
       .form-inline.dl-filter

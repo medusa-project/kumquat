@@ -36,10 +36,27 @@ module Admin
       assert_response :forbidden
     end
 
-    test "update() returns HTTP 200" do
+    test "update() redirects upon success" do
       sign_in_as(users(:medusa_admin))
-      patch admin_settings_path
-      assert_response :ok
+      patch admin_settings_path,
+            params: {
+              options: {
+                cats: "dogs"
+              }
+            }
+      assert_redirected_to admin_settings_path
+    end
+
+    test "update() updates settings" do
+      sign_in_as(users(:medusa_admin))
+      patch admin_settings_path,
+            params: {
+              options: {
+                cats: "dogs"
+              }
+            }
+      assert_equal "dogs", Setting.string("cats")
+      assert_redirected_to admin_settings_path
     end
 
   end

@@ -17,12 +17,13 @@ module Admin
       authorize(@agent)
       begin
         ActiveRecord::Base.transaction do
-          params[:agent_uris].select{ |k, v| v[:uri]&.present? }.each do |k, v|
-            @agent.agent_uris.build(uri:     v[:uri],
-                                    primary: (v[:primary] == 'true'))
+          if params[:agent_uris]
+            params[:agent_uris].select{ |k, v| v[:uri]&.present? }.each do |k, v|
+              @agent.agent_uris.build(uri:     v[:uri],
+                                      primary: (v[:primary] == 'true'))
+            end
           end
           @agent.save!
-
         end
       rescue ActiveRecord::RecordInvalid
         response.headers['X-Kumquat-Result'] = 'error'
@@ -117,9 +118,11 @@ module Admin
     def update
       ActiveRecord::Base.transaction do
         @agent.agent_uris.destroy_all
-        params[:agent_uris].select{ |k, v| v[:uri]&.present? }.each do |k, v|
-          @agent.agent_uris.build(uri:     v[:uri],
-                                  primary: (v[:primary] == 'true'))
+        if params[:agent_uris]
+          params[:agent_uris].select{ |k, v| v[:uri]&.present? }.each do |k, v|
+            @agent.agent_uris.build(uri:     v[:uri],
+                                    primary: (v[:primary] == 'true'))
+          end
         end
         @agent.update!(sanitized_params)
       end

@@ -5,7 +5,7 @@ module Admin
   class ElementsControllerTest < ActionDispatch::IntegrationTest
 
     setup do
-      @element = elements(:title)
+      @element = elements(:unused)
       sign_out
     end
 
@@ -92,8 +92,21 @@ module Admin
 
     test "import() redirects for authorized users" do
       sign_in_as(users(:medusa_admin))
-      post admin_elements_import_path(@element), xhr: true
+      post admin_elements_import_path(@element),
+           params: {
+             elements: file_fixture_upload(file_fixture("elements.json"))
+           }
       assert_redirected_to admin_elements_path
+    end
+
+    test "import() imports elements" do
+      sign_in_as(users(:medusa_admin))
+      assert_difference "Element.count" do
+        post admin_elements_import_path(@element),
+             params: {
+               elements: file_fixture_upload(file_fixture("elements.json"))
+             }
+      end
     end
 
     # index()

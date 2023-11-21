@@ -117,8 +117,21 @@ module Admin
 
     test "import() redirects upon success" do
       sign_in_as(users(:medusa_admin))
-      post admin_vocabulary_import_path(@vocabulary)
+      post admin_vocabulary_import_path(@vocabulary),
+           params: {
+             vocabulary: file_fixture_upload(file_fixture("vocabulary.json"))
+           }
       assert_redirected_to admin_vocabularies_path
+    end
+
+    test "import() imports a vocabulary" do
+      sign_in_as(users(:medusa_admin))
+      assert_difference "Vocabulary.count" do
+        post admin_vocabulary_import_path(@vocabulary),
+             params: {
+               vocabulary: file_fixture_upload(file_fixture("vocabulary.json"))
+             }
+      end
     end
 
     # index()

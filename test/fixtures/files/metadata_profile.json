@@ -1,0 +1,22 @@
+{
+  "name": "New Metadata Profile",
+  "elements": [
+    {
+      "name": "title",
+      "label": "Title",
+      "index": 0,
+      "searchable": true,
+      "facetable": false,
+      "visible": true,
+      "sortable": true,
+      "indexed": true,
+      "dc_map": "title",
+      "dcterms_map": "title",
+      "vocabularies": [
+        {
+          "key": "uncontrolled"
+        }
+      ]
+    }
+  ]
+}

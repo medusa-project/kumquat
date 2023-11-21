@@ -11,7 +11,7 @@ class MetadataProfileTest < ActiveSupport::TestCase
 
   test 'default_elements() returns correct elements' do
     elements = MetadataProfile.default_elements
-    assert_equal 10, elements.length
+    assert_equal Element.count, elements.length
 
     # Check an uncontrolled element.
     elem = elements.find{ |e| e.name == "title" }

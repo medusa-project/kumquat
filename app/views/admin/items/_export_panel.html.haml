@@ -1,14 +1,14 @@
 #dl-export-modal.modal.fade{"aria-labelledby": "dl-export-modal-label",
-                            role: "dialog",
-                            tabindex: "-1"}
+                            role:              "dialog",
+                            tabindex:          "-1"}
   .modal-dialog.modal-dialog-centered{role: "document"}
     .modal-content
-      = form_tag(@permitted_params.merge(format: 'tsv'), method: :get) do
+      = form_tag(params.permit(Admin::ItemsController::PERMITTED_SEARCH_PARAMS).reject{ |k, v| k == 'start' }.merge(format: 'tsv'), method: :get) do
         .modal-header
           %h4#dl-export-modal-label.modal-title Export TSV
-          %button.close{"aria-label": "Close",
+          %button.close{"aria-label":   "Close",
                         "data-dismiss": "modal",
-                        type: "button"}
+                        type:           "button"}
             %span{"aria-hidden": "true"} ×
         .modal-body
           = render partial: "admin/items/excel_tsv_warning"

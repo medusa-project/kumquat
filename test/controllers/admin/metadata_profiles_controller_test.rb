@@ -24,7 +24,7 @@ module Admin
       profile = metadata_profiles(:unused)
       patch admin_metadata_profile_clone_path(profile)
       assert_redirected_to admin_metadata_profile_path(
-                               MetadataProfile.find_by_name("Clone of #{profile.name}"))
+                             MetadataProfile.find_by_name("Clone of #{profile.name}"))
     end
 
     test "clone() clones the profile" do
@@ -139,19 +139,13 @@ module Admin
     # import()
 
     test "import() redirects to sign-in page for signed-out users" do
-      post admin_metadata_profile_import_path,
-           params: {
-             metadata_profile: nil
-           }
+      post admin_metadata_profile_import_path
       assert_redirected_to signin_path
     end
 
     test 'import() returns HTTP 403 for insufficient privileges' do
       sign_in_as(users(:medusa_user))
-      post admin_metadata_profile_import_path,
-           params: {
-             metadata_profile: nil
-           }
+      post admin_metadata_profile_import_path
       assert_response :forbidden
     end
 
@@ -159,14 +153,19 @@ module Admin
       sign_in_as(users(:medusa_admin))
       post admin_metadata_profile_import_path,
            params: {
-             metadata_profile: nil
+             metadata_profile: file_fixture_upload(file_fixture("metadata_profile.json"))
            }
       assert_redirected_to admin_metadata_profiles_path
     end
 
     test "import() imports a profile" do
-      skip # TODO: write this
       sign_in_as(users(:medusa_admin))
+      assert_difference "MetadataProfile.count" do
+        post admin_metadata_profile_import_path,
+             params: {
+               metadata_profile: file_fixture_upload(file_fixture("metadata_profile.json"))
+             }
+      end
     end
 
     # index()
