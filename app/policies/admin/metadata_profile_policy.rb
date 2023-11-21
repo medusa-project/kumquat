@@ -34,7 +34,7 @@ module Admin
     end
 
     def index?
-      update?
+      @user.medusa_user?
     end
 
     def new?
@@ -46,7 +46,7 @@ module Admin
     end
 
     def show?
-      update?
+      index?
     end
 
     def update?

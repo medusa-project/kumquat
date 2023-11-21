@@ -76,8 +76,8 @@ module Admin
       assert AgentPolicy.new(users(:medusa_admin), Agent).index?
     end
 
-    test "index?() does not authorize Medusa users" do
-      assert !AgentPolicy.new(users(:medusa_user), Agent).index?
+    test "index?() authorizes Medusa users" do
+      assert AgentPolicy.new(users(:medusa_user), Agent).index?
     end
 
     test "index?() does not authorize normal users" do
@@ -105,23 +105,19 @@ module Admin
     # show?()
 
     test "show?() authorizes Medusa super admins" do
-      assert AgentPolicy.new(users(:medusa_super_admin),
-                             agents(:one)).show?
+      assert AgentPolicy.new(users(:medusa_super_admin), agents(:one)).show?
     end
 
     test "show?() authorizes Medusa admins" do
-      assert AgentPolicy.new(users(:medusa_admin),
-                             agents(:one)).show?
+      assert AgentPolicy.new(users(:medusa_admin), agents(:one)).show?
     end
 
-    test "show?() does not authorize Medusa users" do
-      assert !AgentPolicy.new(users(:medusa_user),
-                              agents(:one)).show?
+    test "show?() authorizes Medusa users" do
+      assert AgentPolicy.new(users(:medusa_user), agents(:one)).show?
     end
 
     test "show?() does not authorize normal users" do
-      assert !AgentPolicy.new(users(:normal),
-                              agents(:one)).show?
+      assert !AgentPolicy.new(users(:normal), agents(:one)).show?
     end
 
     # update?()

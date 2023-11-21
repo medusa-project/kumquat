@@ -82,9 +82,9 @@ module Admin
                                   VocabularyTerm).index?
     end
 
-    test "index?() does not authorize Medusa users" do
-      assert !VocabularyPolicy.new(users(:medusa_user),
-                                   VocabularyTerm).index?
+    test "index?() authorizes Medusa users" do
+      assert VocabularyPolicy.new(users(:medusa_user),
+                                  VocabularyTerm).index?
     end
 
     test "index?() does not authorize normal users" do

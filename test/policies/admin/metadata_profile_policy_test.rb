@@ -148,9 +148,9 @@ module Admin
                                        MetadataProfile).index?
     end
 
-    test "index?() does not authorize Medusa users" do
-      assert !MetadataProfilePolicy.new(users(:medusa_user),
-                                        MetadataProfile).index?
+    test "index?() authorizes Medusa users" do
+      assert MetadataProfilePolicy.new(users(:medusa_user),
+                                       MetadataProfile).index?
     end
 
     test "index?() does not authorize normal users" do
@@ -214,9 +214,9 @@ module Admin
                                        metadata_profiles(:default)).show?
     end
 
-    test "show?() does not authorize Medusa users" do
-      assert !MetadataProfilePolicy.new(users(:medusa_user),
-                                        metadata_profiles(:default)).show?
+    test "show?() authorizes Medusa users" do
+      assert MetadataProfilePolicy.new(users(:medusa_user),
+                                       metadata_profiles(:default)).show?
     end
 
     test "show?() does not authorize normal users" do

@@ -76,8 +76,8 @@ module Admin
       assert AgentRulePolicy.new(users(:medusa_admin), AgentRule).index?
     end
 
-    test "index?() does not authorize Medusa users" do
-      assert !AgentRulePolicy.new(users(:medusa_user), AgentRule).index?
+    test "index?() authorizes Medusa users" do
+      assert AgentRulePolicy.new(users(:medusa_user), AgentRule).index?
     end
 
     test "index?() does not authorize normal users" do

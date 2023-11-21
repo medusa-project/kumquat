@@ -82,9 +82,9 @@ module Admin
                                          AgentRelationType).index?
     end
 
-    test "index?() does not authorize Medusa users" do
-      assert !AgentRelationTypePolicy.new(users(:medusa_user),
-                                          AgentRelationType).index?
+    test "index?() authorizes Medusa users" do
+      assert AgentRelationTypePolicy.new(users(:medusa_user),
+                                         AgentRelationType).index?
     end
 
     test "index?() does not authorize normal users" do

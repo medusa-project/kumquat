@@ -176,7 +176,7 @@ module Admin
     end
 
     test "index() returns HTTP 403 for insufficient privileges" do
-      sign_in_as(users(:medusa_user))
+      sign_in_as(users(:normal))
       get admin_metadata_profiles_path
       assert_response :forbidden
     end
@@ -196,7 +196,7 @@ module Admin
     end
 
     test 'show() returns HTTP 403 for insufficient privileges' do
-      sign_in_as(users(:medusa_user))
+      sign_in_as(users(:normal))
       profile = metadata_profiles(:default)
       get admin_metadata_profile_path(profile)
       assert_response :forbidden

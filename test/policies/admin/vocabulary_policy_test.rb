@@ -131,8 +131,8 @@ module Admin
       assert VocabularyPolicy.new(users(:medusa_admin), Vocabulary).index?
     end
 
-    test "index?() does not authorize Medusa users" do
-      assert !VocabularyPolicy.new(users(:medusa_user), Vocabulary).index?
+    test "index?() authorizes Medusa users" do
+      assert VocabularyPolicy.new(users(:medusa_user), Vocabulary).index?
     end
 
     test "index?() does not authorize normal users" do
@@ -169,9 +169,9 @@ module Admin
                                   vocabularies(:uncontrolled)).show?
     end
 
-    test "show?() does not authorize Medusa users" do
-      assert !VocabularyPolicy.new(users(:medusa_user),
-                                   vocabularies(:uncontrolled)).show?
+    test "show?() authorizes Medusa users" do
+      assert VocabularyPolicy.new(users(:medusa_user),
+                                  vocabularies(:uncontrolled)).show?
     end
 
     test "show?() does not authorize normal users" do

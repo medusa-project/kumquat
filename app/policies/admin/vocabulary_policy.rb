@@ -30,15 +30,15 @@ module Admin
     end
 
     def index?
-      show?
+      @user.medusa_user?
     end
 
     def new?
-      show?
+      create?
     end
 
     def show?
-      @user.medusa_admin?
+      index?
     end
 
     def update?

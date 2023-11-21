@@ -22,7 +22,7 @@ module Admin
     end
 
     def index?
-      update?
+      @user.medusa_user?
     end
 
     def new?
