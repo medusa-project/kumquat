@@ -1,6 +1,6 @@
 class AgentType < ApplicationRecord
 
-  has_many :agents, inverse_of: :agent_types
+  has_many :agents
 
   validates_presence_of :name
 

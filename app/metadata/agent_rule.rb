@@ -1,6 +1,6 @@
 class AgentRule < ApplicationRecord
 
-  has_many :agents, inverse_of: :agent_rules
+  has_many :agents
 
   validates_presence_of :name
 

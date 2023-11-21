@@ -21,8 +21,8 @@ class Agent < ApplicationRecord
     SEARCH_ALL                         = ElasticsearchIndex::StandardFields::SEARCH_ALL
   end
 
-  belongs_to :agent_rule, inverse_of: :agents
-  belongs_to :agent_type, inverse_of: :agents
+  belongs_to :agent_rule
+  belongs_to :agent_type
 
   has_many :agent_relations, class_name: 'AgentRelation',
            foreign_key: :agent_id, dependent: :destroy
