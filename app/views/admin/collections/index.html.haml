@@ -5,45 +5,10 @@
 = admin_breadcrumb({ label: 'Home', url: admin_root_path },
                    { label: 'Collections' })
 
-.btn-group.float-right{role: "group"}
-  -# Index button
-  = button_to admin_collections_sync_path, method: 'patch', class: 'btn btn-light' do
-    %i.fas.fa-sync-alt
-    Index Collections Metadata From Medusa
-  -# Metadata menu
-  .btn-group{role: "group"}
-    %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
-                                          "aria-haspopup": "true",
-                                          "data-toggle": "dropdown",
-                                          type: "button"}
-      %i.fa.fa-download
-      Export
-      %span.caret
-    .dropdown-menu
-      = link_to 'Items As TSV',
-                admin_collections_items_path(format: 'tsv'),
-                target: '_blank',
-                class: 'dropdown-item'
-      = link_to 'Collections As TSV',
-                admin_collections_path(format: 'tsv'),
-                target: '_blank',
-                class: 'dropdown-item'
-  -# Go menu
-  .btn-group
-    %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
-                                          "aria-haspopup": "true",
-                                          "data-toggle": "dropdown",
-                                          type: "button"}
-      %i.fa.fa-external-link-alt
-      Go
-      %span.caret
-    .dropdown-menu.dropdown-menu-right
-      = link_to Configuration.instance.medusa_url + '/collections',
-                target: '_blank', class: 'dropdown-item' do
-        %i.fa.fa-database
-        Medusa
+= render partial: "index_button_group"
 
 %h1 Collections
+
 .card
   .card-body
     = form_tag admin_collections_path, method: 'get', class: 'dl-filter' do
