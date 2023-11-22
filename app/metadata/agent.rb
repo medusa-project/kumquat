@@ -47,7 +47,7 @@ class Agent < ApplicationRecord
   #
   # @return [Hash] Indexable JSON representation of the instance.
   #
-  def as_indexed_json(options = {})
+  def as_indexed_json
     doc = {}
     doc[IndexFields::CLASS]               = self.class.to_s
     doc[IndexFields::DESCRIPTION]         = self.description.to_s

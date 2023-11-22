@@ -1286,15 +1286,14 @@ class Item < ApplicationRecord
   # Transactionally updates an instance's metadata elements from the metadata
   # embedded within its preservation or access master binary.
   #
-  # @param options [Hash<Symbol,Object>]
-  # @option options [Boolean] `:include_date_created`
+  # @param include_date_created [Boolean]
   # @raises [IOError]
   #
-  def update_from_embedded_metadata(options = {})
+  def update_from_embedded_metadata(include_date_created: false)
     return unless self.binaries.any?
     transaction do
       self.elements.destroy_all
-      self.elements += elements_from_embedded_metadata(options)
+      self.elements += elements_from_embedded_metadata(include_date_created: include_date_created)
       # Add a title (because it's required) in case the embedded metadata
       # didn't contain one.
       unless self.element(:title)
@@ -1497,11 +1496,10 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @param options [Hash<Symbol,Object>]
-  # @option options [Boolean] :include_date_created
+  # @param include_date_created [Boolean]
   # @return [Enumerable<ItemElement>]
   #
-  def elements_from_embedded_metadata(options = {})
+  def elements_from_embedded_metadata(include_date_created: false)
     elements = []
 
     # Get the binary from which the metadata will be extracted.
@@ -1546,7 +1544,7 @@ class Item < ApplicationRecord
     elements += elements_for_value(title[:value], 'title') if title
 
     # Date Created
-    if options[:include_date_created].to_s != 'false'
+    if include_date_created
       elements += elements_for_iim_value('Date', 'dateCreated', metadata)
     end
 
