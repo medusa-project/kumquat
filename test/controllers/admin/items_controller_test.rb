@@ -362,6 +362,25 @@ module Admin
       assert_redirected_to admin_collection_items_path(@collection)
     end
 
+    # import_embedded_file_metadata()
+
+    test "import_embedded_file_metadata() redirects to sign-in page for signed-out users" do
+      post admin_collection_items_import_embedded_file_metadata_path(@collection)
+      assert_redirected_to signin_path
+    end
+
+    test "import_embedded_file_metadata() returns HTTP 403 for unauthorized users" do
+      sign_in_as(users(:normal))
+      post admin_collection_items_import_embedded_file_metadata_path(@collection)
+      assert_response :forbidden
+    end
+
+    test "import_embedded_file_metadata() redirects for authorized users" do
+      sign_in_as(users(:medusa_admin))
+      post admin_collection_items_import_embedded_file_metadata_path(@collection)
+      assert_redirected_to admin_collection_items_path(@collection)
+    end
+
     # migrate_metadata()
 
     test "migrate_metadata() redirects to sign-in page for signed-out users" do

@@ -6,20 +6,30 @@ module Admin
 
     PERMITTED_SEARCH_PARAMS = [:df, :fq, :q, :sort, :start]
 
+    before_action :set_collection, only: [:add_query_to_item_set,
+                                          :batch_change_metadata, :edit_all,
+                                          :enable_full_text_search,
+                                          :disable_full_text_search,
+                                          :import,
+                                          :import_embedded_file_metadata,
+                                          :index, :migrate_metadata, :publish,
+                                          :replace_metadata, :sync, :unpublish]
     before_action :set_item, except: [:add_items_to_item_set,
                                       :add_query_to_item_set,
                                       :batch_change_metadata,
                                       :disable_full_text_search,
                                       :edit_all, :enable_full_text_search,
-                                      :import, :index, :migrate_metadata,
-                                      :publish, :replace_metadata, :run_ocr,
-                                      :sync, :unpublish, :update_all]
+                                      :import, :import_embedded_file_metadata,
+                                      :index, :migrate_metadata, :publish,
+                                      :replace_metadata, :run_ocr, :sync,
+                                      :unpublish, :update_all]
     before_action :authorize_item, except: [:add_items_to_item_set,
                                             :add_query_to_item_set,
                                             :batch_change_metadata,
                                             :disable_full_text_search,
                                             :edit_all,
                                             :enable_full_text_search, :import,
+                                            :import_embedded_file_metadata,
                                             :index, :migrate_metadata,
                                             :publish, :replace_metadata,
                                             :run_ocr, :sync, :unpublish,
@@ -54,11 +64,8 @@ module Admin
     #
     def add_query_to_item_set
       authorize(Item)
-      collection = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless collection
-
       item_set = ItemSet.find(params[:item_set]) # TODO: return HTTP 400 instead of 404 if this is missing
-      relation = querying_item_relation_for(collection)
+      relation = querying_item_relation_for(@collection)
       results  = relation.to_a
       count    = relation.count
       begin
@@ -70,7 +77,7 @@ module Admin
       else
         flash['success'] = "Added #{count} items to #{item_set}."
       ensure
-        redirect_back fallback_location: admin_collection_items_path(collection)
+        redirect_back fallback_location: admin_collection_items_path(@collection)
       end
     end
 
@@ -81,10 +88,8 @@ module Admin
     #
     def batch_change_metadata
       authorize(Item)
-      col = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless col
       begin
-        relation = editing_item_relation_for(col)
+        relation = editing_item_relation_for(@collection)
         BatchChangeItemMetadataJob.perform_later(
           item_ids:           relation.to_id_a,
           element_name:       params[:element].to_s,
@@ -96,7 +101,7 @@ module Admin
         flash['success'] = 'Batch-changing metadata values in the background. '\
         'This should take less than a minute.'
       ensure
-        redirect_back fallback_location: admin_collection_items_path(col)
+        redirect_back fallback_location: admin_collection_items_path(@collection)
       end
     end
 
@@ -123,9 +128,6 @@ module Admin
     #
     def edit_all
       authorize(Item)
-      @collection = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless @collection
-
       @metadata_profile = @collection.effective_metadata_profile
       @item_set         = nil
       @start            = params[:start].to_i
@@ -208,16 +210,73 @@ module Admin
     end
 
     ##
+    # Imports item metadata from TSV.
+    #
+    # Responds to `POST /admin/collections/:collection_id/items/import`
+    #
+    def import
+      authorize(Item)
+      respond_to do |format|
+        format.tsv do
+          # Can't pass an uploaded file to an ActiveJob, so it will be saved
+          # to this temporary file, whose pathname gets passed to the job.
+          tempfile = File.join(Dir.tmpdir,
+                               "uploaded-items-#{Time.now.strftime("%Y%m%d-%H%m%s")}.tsv")
+          begin
+            raise 'No TSV content specified.' if params[:tsv].blank?
+            tsv = params[:tsv].read.force_encoding('UTF-8')
+            File.open(tempfile, "wb") do |file|
+              file.write(tsv)
+            end
+            ItemUpdater.new.validate_tsv(pathname:         tempfile,
+                                         metadata_profile: @collection.effective_metadata_profile)
+            UpdateItemsFromTsvJob.perform_later(
+              tsv_pathname:          tempfile,
+              tsv_original_filename: params[:tsv].original_filename,
+              user:                  current_user)
+          rescue => e
+            File.delete(tempfile) if File.exist?(tempfile)
+            handle_error(e)
+            redirect_back fallback_location: admin_collection_items_url(@collection)
+          else
+            flash['success'] = 'Updating items in the background. This '\
+              'may take a while.'
+            redirect_back fallback_location: admin_collection_items_url(@collection)
+          end
+        end
+      end
+    end
+
+    ##
+    # Imports metadata an item's binaries' embedded metadata.
+    #
+    # Responds to `POST /admin/collections/:collection_id/items/import-embedded-file-metadata`
+    #
+    def import_embedded_file_metadata
+      authorize(Item)
+      begin
+        params[:options] = {} unless params[:options].kind_of?(Hash)
+        UpdateItemsFromEmbeddedMetadataJob.perform_later(
+          collection:           @collection,
+          include_date_created: StringUtils.to_b(params[:include_date_created]),
+          user:                 current_user)
+      rescue => e
+        handle_error(e)
+      else
+        flash['success'] = 'Importing item metadata in the background. This '\
+          'may take a while.'
+      ensure
+        redirect_to admin_collection_items_url(@collection)
+      end
+    end
+
+    ##
     # Responds to `GET /admin/collections/:collection_id/items`
     #
     def index
       authorize(Item)
-      @collection = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless @collection
-
-      @start = params[:start] ? params[:start].to_i : 0
-      @limit = Setting::integer(Setting::Keys::DEFAULT_RESULT_WINDOW)
-
+      @start             = params[:start] ? params[:start].to_i : 0
+      @limit             = Setting::integer(Setting::Keys::DEFAULT_RESULT_WINDOW)
       relation           = querying_item_relation_for(@collection, @start, @limit)
       @items             = relation.to_a
       @facets            = relation.facets
@@ -252,47 +311,6 @@ module Admin
     end
 
     ##
-    # Imports item metadata from TSV.
-    #
-    # Responds to `POST /admin/collections/:collection_id/items/import`
-    #
-    def import
-      authorize(Item)
-      col = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless col
-
-      respond_to do |format|
-        format.tsv do
-          # Can't pass an uploaded file to an ActiveJob, so it will be saved
-          # to this temporary file, whose pathname gets passed to the job.
-          tempfile = File.join(Dir.tmpdir,
-                               "uploaded-items-#{Time.now.strftime("%Y%m%d-%H%m%s")}.tsv")
-          begin
-            raise 'No TSV content specified.' if params[:tsv].blank?
-            tsv = params[:tsv].read.force_encoding('UTF-8')
-            File.open(tempfile, "wb") do |file|
-              file.write(tsv)
-            end
-            ItemUpdater.new.validate_tsv(pathname:         tempfile,
-                                         metadata_profile: col.effective_metadata_profile)
-            UpdateItemsFromTsvJob.perform_later(
-              tsv_pathname:          tempfile,
-              tsv_original_filename: params[:tsv].original_filename,
-              user:                  current_user)
-          rescue => e
-            File.delete(tempfile) if File.exist?(tempfile)
-            handle_error(e)
-            redirect_back fallback_location: admin_collection_items_url(col)
-          else
-            flash['success'] = 'Updating items in the background. This '\
-            'may take a while.'
-            redirect_back fallback_location: admin_collection_items_url(col)
-          end
-        end
-      end
-    end
-
-    ##
     # Migrates values from elements of one name to elements of a different
     # name.
     #
@@ -300,10 +318,8 @@ module Admin
     #
     def migrate_metadata
       authorize(Item)
-      col = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless col
       begin
-        relation = editing_item_relation_for(col)
+        relation = editing_item_relation_for(@collection)
         MigrateItemMetadataJob.perform_later(item_ids:       relation.to_id_a,
                                              source_element: params[:source_element],
                                              dest_element:   params[:dest_element],
@@ -314,7 +330,7 @@ module Admin
         flash['success'] = 'Migrating metadata elements in the background. '\
         'This should take less than a minute.'
       ensure
-        redirect_back fallback_location: admin_collection_items_path(col)
+        redirect_back fallback_location: admin_collection_items_path(@collection)
       end
     end
 
@@ -322,17 +338,15 @@ module Admin
     # Responds to `POST /admin/collections/:collection_id/items/:item_id/publicize-child-binaries`
     #
     def publicize_child_binaries
-      begin
-        @item.all_children.each do |child|
-          child.binaries.update_all(public: true)
-        end
-      rescue => e
-        handle_error(e)
-      else
-        flash['success'] = 'All binaries attached to all child items have been publicized.'
-      ensure
-        redirect_back fallback_location: admin_collection_item_path(@item.collection, @item)
+      @item.all_children.each do |child|
+        child.binaries.update_all(public: true)
       end
+    rescue => e
+      handle_error(e)
+    else
+      flash['success'] = 'All binaries attached to all child items have been publicized.'
+    ensure
+      redirect_back fallback_location: admin_collection_item_path(@item.collection, @item)
     end
 
     ##
@@ -348,18 +362,16 @@ module Admin
     # `POST /admin/collections/:collection_id/items/:item_id/purge-cached-images`
     #
     def purge_cached_images
-      begin
-        ImageServer.instance.purge_item_images_from_cache(@item)
-      rescue => e
-        handle_error(e)
-      else
-        flash['success'] = 'All images relating to this item have been purged '\
-        'from the image server cache. You may need to clear your browser '\
-        'cache to see any changes take effect.'
-      ensure
-        redirect_back fallback_location:
-                        admin_collection_item_path(@item.collection, @item)
-      end
+      ImageServer.instance.purge_item_images_from_cache(@item)
+    rescue => e
+      handle_error(e)
+    else
+      flash['success'] = 'All images relating to this item have been purged '\
+      'from the image server cache. You may need to clear your browser '\
+      'cache to see any changes take effect.'
+    ensure
+      redirect_back fallback_location:
+                      admin_collection_item_path(@item.collection, @item)
     end
 
     ##
@@ -369,10 +381,8 @@ module Admin
     #
     def replace_metadata
       authorize(Item)
-      col = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless col
       begin
-        relation = editing_item_relation_for(col)
+        relation = editing_item_relation_for(@collection)
         ReplaceItemMetadataJob.perform_later(item_ids:      relation.to_id_a,
                                              matching_mode: params[:matching_mode],
                                              find_value:    params[:find_value],
@@ -386,7 +396,7 @@ module Admin
         flash['success'] = 'Replacing metadata values in the background. '\
         'This should take less than a minute.'
       ensure
-        redirect_back fallback_location: admin_collection_items_path(col)
+        redirect_back fallback_location: admin_collection_items_path(@collection)
       end
     end
 
@@ -401,7 +411,7 @@ module Admin
     # * `PATCH /admin/collections/:collection_id/items/run-ocr` (for OCRing a
     #   whole collection, or selected items in a collection)
     #
-    def run_ocr
+    def run_ocr # TODO: split this into 2 methods
       authorize(Item)
       flash_msg = 'Running OCR in the background. This may take a while.'
       if params[:item_id] # single item
@@ -472,12 +482,9 @@ module Admin
     #
     def sync
       authorize(Item)
-      col = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless col
-
       begin
         params[:options] = {} unless params[:options].kind_of?(Hash)
-        SyncItemsJob.perform_later(collection:  col,
+        SyncItemsJob.perform_later(collection:  @collection,
                                    ingest_mode: params[:ingest_mode],
                                    options:     params[:options].to_unsafe_hash,
                                    user:        current_user)
@@ -487,7 +494,7 @@ module Admin
         flash['success'] = 'Importing items in the background. This '\
         'may take a while.'
       ensure
-        redirect_to admin_collection_items_url(col)
+        redirect_to admin_collection_items_url(@collection)
       end
     end
 
@@ -496,17 +503,15 @@ module Admin
     # `POST /admin/collections/:collection_id/items/:item_id/unpublicize-child-binaries`
     #
     def unpublicize_child_binaries
-      begin
-        @item.all_children.each do |child|
-          child.binaries.update_all(public: false)
-        end
-      rescue => e
-        handle_error(e)
-      else
-        flash['success'] = 'All binaries attached to all child items have been unpublicized.'
-      ensure
-        redirect_back fallback_location: admin_collection_item_path(@item.collection, @item)
+      @item.all_children.each do |child|
+        child.binaries.update_all(public: false)
       end
+    rescue => e
+      handle_error(e)
+    else
+      flash['success'] = 'All binaries attached to all child items have been unpublicized.'
+    ensure
+      redirect_back fallback_location: admin_collection_item_path(@item.collection, @item)
     end
 
     ##
@@ -644,55 +649,47 @@ module Admin
     # @param enable [Boolean]
     #
     def enable_or_disable_full_text_search(enable)
-      col = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless col
-      begin
-        # If we are (un)publishing only checked items, params[:id] will be set.
-        if params[:id].respond_to?(:any?) and params[:id].any?
-          ids = params[:id]
-        else
-          relation = editing_item_relation_for(col)
-          relation.include_children_in_results(true)
-          items    = relation.to_a.select(&:present?)
-          ids      = items.map(&:repository_id)
-        end
-        Item.where('repository_id IN (?)', ids)
-            .update_all(expose_full_text_search: enable)
-      rescue => e
-        handle_error(e)
+      # If we are (un)publishing only checked items, params[:id] will be set.
+      if params[:id].respond_to?(:any?) && params[:id].any?
+        ids = params[:id]
       else
-        flash['success'] = "#{enable ? 'En' : 'Dis'}abled "\
-                           "full text search for #{ids.length} items."
-      ensure
-        redirect_back fallback_location: admin_collection_items_path(col)
+        relation = editing_item_relation_for(@collection)
+        relation.include_children_in_results(true)
+        items    = relation.to_a.select(&:present?)
+        ids      = items.map(&:repository_id)
       end
+      Item.where('repository_id IN (?)', ids)
+          .update_all(expose_full_text_search: enable)
+    rescue => e
+      handle_error(e)
+    else
+      flash['success'] = "#{enable ? 'En' : 'Dis'}abled "\
+                         "full text search for #{ids.length} items."
+    ensure
+      redirect_back fallback_location: admin_collection_items_path(@collection)
     end
 
     ##
     # @param publish [Boolean]
     #
     def publish_or_unpublish(publish)
-      col = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless col
-      begin
-        # If we are (un)publishing only checked items, params[:id] will be set.
-        if params[:id].respond_to?(:any?) and params[:id].any?
-          ids = params[:id]
-        else
-          relation = editing_item_relation_for(col)
-          relation.include_children_in_results(true)
-          items    = relation.to_a.select(&:present?)
-          ids      = items.map(&:repository_id)
-        end
-        Item.where('repository_id IN (?)', ids)
-            .update_all(published: publish)
-      rescue => e
-        handle_error(e)
+      # If we are (un)publishing only checked items, params[:id] will be set.
+      if params[:id].respond_to?(:any?) && params[:id].any?
+        ids = params[:id]
       else
-        flash['success'] = "#{publish ? 'P' : 'Unp'}ublished #{ids.length} items."
-      ensure
-        redirect_back fallback_location: admin_collection_items_path(col)
+        relation = editing_item_relation_for(@collection)
+        relation.include_children_in_results(true)
+        items    = relation.to_a.select(&:present?)
+        ids      = items.map(&:repository_id)
       end
+      Item.where('repository_id IN (?)', ids)
+          .update_all(published: publish)
+    rescue => e
+      handle_error(e)
+    else
+      flash['success'] = "#{publish ? 'P' : 'Unp'}ublished #{ids.length} items."
+    ensure
+      redirect_back fallback_location: admin_collection_items_path(@collection)
     end
 
     def permitted_params
@@ -708,6 +705,11 @@ module Admin
                                    :subpage_number, :variant,
                                    allowed_host_group_ids: [],
                                    allowed_netids: [:expires, :netid])
+    end
+
+    def set_collection
+      @collection = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless @collection
     end
 
     def set_item

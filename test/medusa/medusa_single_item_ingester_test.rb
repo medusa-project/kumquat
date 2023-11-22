@@ -68,42 +68,6 @@ class MedusaSingleItemIngesterTest < ActiveSupport::TestCase
                  binary.object_key
   end
 
-  test 'create_items() extracts metadata when told to' do
-    # Run the ingest.
-    @ingester.create_items(@collection, extract_metadata: true)
-
-    # Inspect the first item.
-    item = Item.find_by_repository_id('cbbc845c-167a-60df-df6e-41a249a43b7c')
-    assert_equal 'Escher Lego', item.title
-  end
-
-  test 'create_items() does not extract metadata when told not to' do
-    # Run the ingest.
-    @ingester.create_items(@collection, extract_metadata: false)
-
-    # Inspect an item.
-    item = Item.find_by_repository_id('cbbc845c-167a-60df-df6e-41a249a43b7c')
-    assert_equal '001.tif', item.title
-  end
-
-  test 'create_items() does not modify existing items' do
-    # Ingest the items (without extracting metdaata).
-    @ingester.create_items(@collection)
-
-    # Record initial conditions.
-    assert_equal 2, Item.count
-    item = Item.find_by_repository_id('cbbc845c-167a-60df-df6e-41a249a43b7c')
-    assert_equal '001.tif', item.title
-
-    # Ingest again, extracting metadata.
-    @ingester.create_items(@collection, extract_metadata: true)
-    assert_equal 2, Item.count
-
-    # Assert that the item's title hasn't changed.
-    item.reload
-    assert_equal '001.tif', item.title
-  end
-
   # delete_missing_items()
 
   test 'delete_missing_items() with collection file group not set raises an error' do

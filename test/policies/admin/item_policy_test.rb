@@ -242,6 +242,24 @@ module Admin
       assert !ItemPolicy.new(users(:normal), Item).import?
     end
 
+    # import_embedded_file_metadata?()
+
+    test "import_embedded_file_metadata?() authorizes Medusa super admins" do
+      assert ItemPolicy.new(users(:medusa_super_admin), Item).import_embedded_file_metadata?
+    end
+
+    test "import_embedded_file_metadata?() authorizes Medusa admins" do
+      assert ItemPolicy.new(users(:medusa_admin), Item).import_embedded_file_metadata?
+    end
+
+    test "import_embedded_file_metadata?() authorizes Medusa users" do
+      assert ItemPolicy.new(users(:medusa_user), Item).import_embedded_file_metadata?
+    end
+
+    test "import_embedded_file_metadata?() does not authorize normal users" do
+      assert !ItemPolicy.new(users(:normal), Item).import_embedded_file_metadata?
+    end
+
     # index?()
 
     test "index?() authorizes Medusa super admins" do

@@ -151,17 +151,6 @@ const DLAdminItemsView = function() {
             $('#dl-export-modal').modal('hide');
         });
 
-        // Enable certain checkboxes in the import panel only when the "create"
-        // radio is selected.
-        const extract_metadata_checkbox = $('input[name="options[extract_metadata]"]');
-        const extract_creation_checkbox = $('input[name="options[include_date_created]"]');
-        $('input[name="ingest_mode"]').on('change', function() {
-            extract_metadata_checkbox.prop('disabled',
-                !$('input[value="create_only"]').prop('checked'));
-            extract_creation_checkbox.prop('disabled',
-                !$('input[value="create_only"]').prop('checked'));
-        });
-
         // When the run-OCR or add-checked-items-to-set modals are shown, copy
         // the selected item IDs in the results into hidden inputs in the modal
         // form.

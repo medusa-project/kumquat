@@ -91,30 +91,6 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
                  bin.object_key
   end
 
-  test 'create_items() extracts metadata when told to' do
-    skip if ENV['CI'] == '1' # this doesn't work in CI, maybe because of the way content is moved
-    # Run the ingest.
-    @ingester.create_items(@collection, extract_metadata: true)
-
-    # Assert that the metadata was extracted.
-    item = Item.find_by_repository_id('39582239-4307-1cc6-c9c6-074516fd7635') # free_form_dir1_image
-    assert item.elements.select{ |e| e.name == 'title' }.map(&:value).
-        include?('Escher Lego')
-    assert item.elements.select{ |e| e.name == 'creator' }.map(&:value).
-        include?('Lego Enthusiast')
-  end
-
-  test 'create_items() does not extract metadata when told not to' do
-    skip if ENV['CI'] == '1' # this doesn't work in CI, maybe because of the way content is moved
-    # Run the ingest.
-    @ingester.create_items(@collection, extract_metadata: false)
-
-    # Assert that metadata was not extracted.
-    item = Item.find_by_repository_id('39582239-4307-1cc6-c9c6-074516fd7635') # free_form_dir1_image
-    assert_equal 'image1.jpg', item.title
-    assert item.elements.select{ |e| e.name == 'creator' }.empty?
-  end
-
   # delete_missing_items()
 
   test 'delete_missing_items() with collection file group not set raises an

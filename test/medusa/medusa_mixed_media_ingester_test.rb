@@ -139,15 +139,6 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
                  bin.object_key
   end
 
-  test 'create_items() extracts metadata when told to' do
-    # Run the ingest.
-    @ingester.create_items(@collection, extract_metadata: true)
-
-    # Inspect a child item.
-    item = Item.find_by_repository_id('a6ff394a-475b-4ea4-5558-795e9ef0f98e')
-    assert_equal 'Escher Lego', item.title
-  end
-
   # delete_missing()
 
   test 'delete_missing_items() with collection file group not set raises an error' do

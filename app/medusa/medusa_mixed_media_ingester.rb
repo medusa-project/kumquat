@@ -56,8 +56,6 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
   #
   # @param collection [Collection]
   # @param options [Hash] Options hash.
-  # @option options [Boolean] :extract_metadata
-  # @option options [Boolean] :include_date_created
   # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with `:num_created`, `:num_updated`,
   #                                and `:num_skipped` keys.
@@ -145,9 +143,6 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                         else
                           child.variant = Item::Variants::PAGE
                         end
-
-                        child.update_from_embedded_metadata(options) if
-                            options[:extract_metadata]
                       end
                     end
                   else

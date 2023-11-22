@@ -222,6 +222,40 @@ class ItemUpdaterTest < ActiveSupport::TestCase
     assert_equal 'ZZZlions', item.element(:cat).value
   end
 
+  # update_from_embedded_metadata()
+
+  test 'update_from_embedded_metadata() updates items from embedded metadata' do
+    skip # TODO: add an image with embedded metadata into Mockdusa
+    collection = collections(:free_form)
+    @instance.update_from_embedded_metadata(collection: collection)
+    item_count    = 0
+    element_count = 0
+    collection.items.each do |item|
+      item_count    += 1
+      element_count += item.elements.count
+    end
+    assert element_count > item_count
+  end
+
+  test 'update_from_embedded_metadata() respects the include_date_created
+  argument' do
+    skip # TODO: add an image with embedded metadata into Mockdusa
+    collection = collections(:compound_object)
+    @instance.update_from_embedded_metadata(collection: collection)
+    count_without_date = 0
+    collection.items.each do |item|
+      count_without_date += item.elements.count
+    end
+
+    @instance.update_from_embedded_metadata(collection:           collection,
+                                            include_date_created: true)
+    count_with_date = 0
+    collection.items.each do |item|
+      count_with_date += item.elements.count
+    end
+    assert count_with_date > count_without_date
+  end
+
   # update_from_tsv()
 
   test 'update_from_tsv() updates items from valid TSV' do

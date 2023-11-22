@@ -2,44 +2,48 @@
   -# Import button
   %button.btn.btn-light{"data-target": "#dl-import-modal",
                         "data-toggle": "modal",
-                        type: "button",
+                        type:          "button",
                         disabled: (!@collection.package_profile || !@collection.medusa_file_group) }
     %i.fas.fa-sync-alt
-    Import
+    Import&hellip;
 
   -# Metadata
   .btn-group
     %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
-                                          "data-toggle": "dropdown",
-                                          type: "button"}
+                                          "data-toggle":   "dropdown",
+                                          type:            "button"}
       %i.fa.fa-list
       Metadata
       %span.caret
     .dropdown-menu
       = link_to 'Edit Result Set',
                 admin_collection_items_edit_path(@collection),
-                id: 'dl-edit-result-set-metadata-link',
-                class: "dropdown-item #{@collection.metadata_profile ? '' : 'disabled'}"
+                id:            'dl-edit-result-set-metadata-link',
+                class:         "dropdown-item #{@collection.metadata_profile ? '' : 'disabled'}"
       .dropdown-divider
       = link_to raw('Batch Change&hellip;'), '',
                 'data-toggle': 'modal',
                 'data-target': '#dl-batch-change-modal',
-                class: "dropdown-item #{@collection.metadata_profile ? '' : 'disabled'}"
+                class:         "dropdown-item #{@collection.metadata_profile ? '' : 'disabled'}"
       = link_to raw('Find and Replace&hellip;'), '',
                 'data-toggle': 'modal',
                 'data-target': '#dl-find-replace-modal',
-                class: "dropdown-item #{@collection.metadata_profile ? '' : 'disabled'}"
+                class:         "dropdown-item #{@collection.metadata_profile ? '' : 'disabled'}"
       = link_to raw('Migrate Element Values&hellip;'), '',
                 'data-toggle': 'modal',
                 'data-target': '#dl-migrate-modal',
-                class: "dropdown-item #{@collection.metadata_profile ? '' : 'disabled'}"
+                class:         "dropdown-item #{@collection.metadata_profile ? '' : 'disabled'}"
+      = link_to raw('Import Embedded File Metadata&hellip;'), '',
+                'data-toggle': 'modal',
+                'data-target': '#dl-import-embedded-file-metadata-modal',
+                class:         "dropdown-item"
       .dropdown-divider
       = link_to raw('Import TSV&hellip;'), '',
                 'data-toggle': 'modal',
                 'data-target': '#dl-import-tsv-modal',
-                class: "dropdown-item #{(@collection.package_profile and @collection.medusa_file_group) ? '' : 'disabled'}"
+                class:         "dropdown-item #{(@collection.package_profile && @collection.medusa_file_group) ? '' : 'disabled'}"
       = link_to raw('Export TSV&hellip;'), '',
-                class: 'dropdown-item',
+                class:         'dropdown-item',
                 'data-toggle': 'modal',
                 'data-target': '#dl-export-modal'
 
@@ -53,46 +57,46 @@
       %span.caret
     .dropdown-menu
       = link_to raw('Run OCR&hellip;'), '',
-                class: 'dropdown-item',
+                class:         'dropdown-item',
                 'data-toggle': 'modal',
                 'data-target': '#dl-ocr-modal'
       .dropdown-divider
       = button_to 'Enable Full Text Search for All Results',
                   admin_collection_items_enable_full_text_search_path(@collection),
                   method: :patch,
-                  id: 'dl-enable-fts-link',
-                  class: 'dropdown-item'
+                  id:     'dl-enable-fts-link',
+                  class:  'dropdown-item'
       = button_to 'Disable Full Text Search for All Results',
                   admin_collection_items_disable_full_text_search_path(@collection),
                   method: :patch,
-                  id: 'dl-disable-fts-link',
-                  class: 'dropdown-item'
+                  id:     'dl-disable-fts-link',
+                  class:  'dropdown-item'
       = button_to 'Enable Full Text Search for Checked Results',
                   admin_collection_items_enable_full_text_search_path(@collection),
                   method: :patch,
-                  id: 'dl-enable-checked-fts-link',
-                  class: 'dropdown-item'
+                  id:     'dl-enable-checked-fts-link',
+                  class:  'dropdown-item'
       = button_to 'Disable Full Text Search for Checked Results',
                   admin_collection_items_disable_full_text_search_path(@collection),
                   method: :patch,
-                  id: 'dl-disable-checked-fts-link',
-                  class: 'dropdown-item'
+                  id:     'dl-disable-checked-fts-link',
+                  class:  'dropdown-item'
 
   -# Sets button
   .btn-group
     %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
-                                          "data-toggle": "dropdown",
-                                          type: "button"}
+                                          "data-toggle":   "dropdown",
+                                          type:            "button"}
       = icon_for(ItemSet)
       Sets
       %span.caret
     .dropdown-menu
       = link_to raw('Add All Results&hellip;'), '',
-                class: 'dropdown-item',
+                class:         'dropdown-item',
                 'data-toggle': 'modal',
                 'data-target': '#dl-add-all-results-to-set-modal'
       = link_to raw('Add Checked Results&hellip;'), '',
-                class: 'dropdown-item',
+                class:         'dropdown-item',
                 'data-toggle': 'modal',
                 'data-target': '#dl-add-checked-items-to-set-modal'
       - if @collection.item_sets.count  0
@@ -102,8 +106,8 @@
   -# Access button
   .btn-group
     %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
-                                          "data-toggle": "dropdown",
-                                          type: "button"}
+                                          "data-toggle":   "dropdown",
+                                          type:            "button"}
       %i.fa.fa-lock
       Access
       %span.caret
@@ -111,29 +115,29 @@
       = link_to 'Publish All Results',
                 admin_collection_items_publish_path(@collection),
                 method: :patch,
-                id: 'dl-publish-results-link',
-                class: 'dropdown-item'
+                id:     'dl-publish-results-link',
+                class:  'dropdown-item'
       = link_to 'Publish Checked Results',
                 admin_collection_items_publish_path(@collection),
                 method: :patch,
-                id: 'dl-publish-checked-results-link',
-                class: 'dropdown-item'
+                id:     'dl-publish-checked-results-link',
+                class:  'dropdown-item'
       .dropdown-divider
       = link_to 'Unpublish All Results',
                 admin_collection_items_unpublish_path(@collection),
                 method: :patch,
-                id: 'dl-unpublish-results-link',
-                class: 'dropdown-item'
+                id:     'dl-unpublish-results-link',
+                class:  'dropdown-item'
       = link_to 'Unpublish Checked Results',
                 admin_collection_items_unpublish_path(@collection),
                 method: :patch,
-                id: 'dl-unpublish-checked-results-link',
-                class: 'dropdown-item'
+                id:     'dl-unpublish-checked-results-link',
+                class:  'dropdown-item'
   -# Purge button
   .btn-group
     %button.btn.btn-danger.dropdown-toggle{"aria-expanded": "false",
-                                           "data-toggle": "dropdown",
-                                           type: "button"}
+                                           "data-toggle":   "dropdown",
+                                           type:            "button"}
       %i.fa.fa-trash
       Purge
       %span.caret
@@ -142,13 +146,14 @@
         = link_to raw('Items From Collection'), '',
                   'data-toggle': 'modal',
                   'data-target': '#dl-purge-items-modal',
-                  class: 'dropdown-item'
+                  class:         'dropdown-item'
       = link_to 'Cached Images From Image Server',
                 admin_collection_purge_cached_images_path(@collection),
                 method: 'post',
-                class: 'dropdown-item'
+                class:  'dropdown-item'
   -# Public view button
   = link_to(collection_items_path(@collection),
-            class: "btn btn-light", role: "button") do
+            class: "btn btn-light",
+            role:  "button") do
     %i.fas.fa-external-link-alt
     Public View

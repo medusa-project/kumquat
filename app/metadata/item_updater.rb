@@ -54,7 +54,7 @@ class ItemUpdater
                     source_element, dest_element, item)
         item.migrate_elements(source_element, dest_element)
 
-        if task and index % 10 == 0
+        if task && index % 10 == 0
           task.update(percent_complete: index / items.length.to_f)
         end
       end
@@ -123,11 +123,39 @@ class ItemUpdater
                 element.save!
               end
           end
-          if task and index % 10 == 0
+          if task && index % 10 == 0
             task.update(percent_complete: index / items.length.to_f)
           end
         end
       end
+    end
+  end
+
+  ##
+  # @param collection [Collection]
+  # @param include_date_created [Boolean]
+  # @param task [Task]
+  #
+  def update_from_embedded_metadata(collection:,
+                                    include_date_created: false,
+                                    task:                 nil)
+    items = collection.items
+    count = items.count
+    Item.uncached do
+      items.find_each.with_index do |item, index|
+        initial_title = item.title
+        item.update_from_embedded_metadata(include_date_created: include_date_created)
+        # If there is no title present in the new metadata, restore the initial
+        # title.
+        unless item.elements.find{ |e| e.name == 'title' }
+          item.elements.build(name: 'title', value: initial_title).save!
+        end
+        if task && index % 10 == 0
+          task.update(status_text:      "Updating #{count} items from embedded metadata",
+                      percent_complete: index / count.to_f)
+        end
+      end
+      task&.succeeded
     end
   end
 
@@ -149,7 +177,7 @@ class ItemUpdater
     File.foreach(pathname) do
       num_rows += 1
     end
-    status   = "Importing metadata for #{num_rows} items from TSV (#{filename})"
+    status = "Importing metadata for #{num_rows} items from TSV (#{filename})"
     task&.update(status_text: status)
     LOGGER.info("update_from_tsv(): %s", status)
 
@@ -174,7 +202,7 @@ class ItemUpdater
                       struct['uuid'], progress)
         end
 
-        if task and row_num % 10 == 0
+        if task && row_num % 10 == 0
           task.update(percent_complete: row_num / num_rows.to_f)
         end
         row_num += 1

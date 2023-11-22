@@ -142,42 +142,6 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
                  bin.object_key
   end
 
-  test 'create_items() extracts metadata when told to' do
-    # Run the ingest.
-    @ingester.create_items(@collection, extract_metadata: true)
-
-    # Inspect the first top-level item.
-    item = Item.find_by_repository_id('21353276-887c-0f2b-25a0-ed444003303f')
-    assert_equal 'Escher Lego', item.title
-  end
-
-  test 'create_items() does not extract metadata when told not to' do
-    # Run the ingest.
-    @ingester.create_items(@collection, extract_metadata: false)
-
-    # Inspect the first top-level item.
-    item = Item.find_by_repository_id('21353276-887c-0f2b-25a0-ed444003303f')
-    assert_equal '1001', item.title
-  end
-
-  test 'create_items() does not modify existing items' do
-    # Run the ingest (without extracting metadata).
-    @ingester.create_items(@collection)
-
-    # Record initial conditions.
-    assert_equal 5, Item.count
-    item = Item.find_by_repository_id('21353276-887c-0f2b-25a0-ed444003303f')
-    assert_equal '1001', item.title
-
-    # Ingest again, extracting metadata.
-    @ingester.create_items(@collection, extract_metadata: true)
-    assert_equal 5, Item.count
-
-    # Assert that the item's title hasn't changed.
-    item.reload
-    assert_equal '1001', item.title
-  end
-
   # delete_missing_items()
 
   test 'delete_missing_items() with collection file group not set raises an error' do
