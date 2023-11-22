@@ -16,14 +16,10 @@ class ItemsController < WebsiteController
                                      :iiif_image_resource, :iiif_layer,
                                      :iiif_manifest, :iiif_media_sequence,
                                      :iiif_range, :iiif_search, :iiif_sequence]
-  before_action :load_item, except: [:index, :tree, :tree_data]
+  before_action :set_item, except: [:index, :tree, :tree_data]
   before_action :authorize_item, except: [:index, :tree, :tree_data]
-  before_action :check_publicly_accessible, except: [:index, :tree, :tree_data]
   before_action :set_browse_context, only: :index
   before_action :set_permitted_params, only: [:index, :show, :tree]
-
-  rescue_from AuthorizationError, with: :rescue_unauthorized
-  rescue_from UnpublishedError, with: :rescue_unpublished
 
   ##
   # Retrieves a binary by its filename.
@@ -235,6 +231,7 @@ class ItemsController < WebsiteController
   # argument is present.
   #
   def index
+    authorize(Item)
     if params[:collection_id]
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
@@ -242,8 +239,9 @@ class ItemsController < WebsiteController
       # If the collection is unauthorized, redirect to the show-collection
       # page, which will contain an explanation.
       begin
-        authorize(@collection)
-      rescue AuthorizationError
+        authorize(@collection, policy_class:  CollectionPolicy,
+                               policy_method: :show?)
+      rescue NotAuthorizedError
         redirect_to @collection and return
       end
     elsif params[:q].blank?
@@ -303,12 +301,12 @@ class ItemsController < WebsiteController
       format.js
       format.json do
         render json: {
-            start: @start,
-            limit: @limit,
+            start:      @start,
+            limit:      @limit,
             numResults: @count,
-            results: @items.map { |item|
+            results:    @items.map { |item|
               {
-                  id: item.repository_id,
+                  id:  item.repository_id,
                   uri: item_url(item, format: :json)
               }
             }
@@ -558,6 +556,7 @@ class ItemsController < WebsiteController
     if params[:collection_id]
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
+      authorize(@collection)
     end
     respond_to do |format|
       format.html do
@@ -626,19 +625,18 @@ class ItemsController < WebsiteController
   private
 
   def authorize_item
-    authorize_host_group(@item.collection)
-    authorize(@item)
+    @item ? authorize(@item) && authorize(@item.collection) : skip_authorization
   end
 
   def item_tree_hash(item)
     num_subitems = item.items.count
     {
-        id: item.repository_id,
-        text: item.title,
+        id:       item.repository_id,
+        text:     item.title,
         children: (num_subitems > 0),
-        icon: (num_subitems == 0) ? 'jstree-file' : nil,
+        icon:     (num_subitems == 0) ? 'jstree-file' : nil,
         a_attr: {
-            href: item_path(item),
+            href:  item_path(item),
             class: item.directory? ? 'directory_node Item' : 'file_node Item',
             title: item.title
         }
@@ -646,21 +644,17 @@ class ItemsController < WebsiteController
   end
 
   def create_tree_root(tree_hash_array, collection)
-    node_hash = Hash.new
-    node_hash['id'] = collection.repository_id
-    node_hash['text'] = collection.title
-    node_hash['state'] = {opened: true, selected: true}
+    node_hash             = {}
+    node_hash['id']       = collection.repository_id
+    node_hash['text']     = collection.title
+    node_hash['state']    = {opened: true, selected: true}
     # We will check the class in JS to determine what URL to route to
     # (/collections/:id or /items/:id).
-    node_hash['a_attr'] = {name: 'root-collection-node',
-                           class: 'root-collection-node Collection',
-                           title: node_hash['text']}
+    node_hash['a_attr']   = {name: 'root-collection-node',
+                             class: 'root-collection-node Collection',
+                             title: node_hash['text']}
     node_hash['children'] = tree_hash_array
     node_hash
-  end
-
-  def check_publicly_accessible
-    raise UnpublishedError if !@item.publicly_accessible? && !@item.restricted
   end
 
   ##
@@ -720,38 +714,9 @@ class ItemsController < WebsiteController
     relation
   end
 
-  def load_item
+  def set_item
     @item = Item.find_by_repository_id(params[:item_id] || params[:id])
     raise ActiveRecord::RecordNotFound unless @item
-  end
-
-  def rescue_unauthorized
-    message = "You are not authorized to access this item."
-    respond_to do |format|
-      format.html do
-        if current_user || !@item.restricted
-          render "unauthorized", status: :forbidden
-        else
-          store_location
-          redirect_to signin_path
-        end
-      end
-      format.json do
-        render "errors/error", status: :forbidden, locals: { message: message }
-      end
-      format.all do
-        render plain: message, status: :forbidden, content_type: "text/plain"
-      end
-    end
-  end
-
-  def rescue_unpublished
-    message = "This item is unpublished."
-    respond_to do |format|
-      format.html { render "unpublished", status: :forbidden }
-      format.json { render "errors/error", status: :forbidden, locals: { message: message } }
-      format.all { render plain: message, status: :forbidden, content_type: "text/plain" }
-    end
   end
 
   ##

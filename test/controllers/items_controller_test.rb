@@ -3,7 +3,7 @@ require 'test_helper'
 class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   def setup
-    @item = items(:free_form_dir1_dir1_file1)
+    @item = items(:compound_object_1001)
     setup_elasticsearch
   end
 
@@ -146,7 +146,8 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :ok
   end
 
-  test 'iiif_sequence() returns HTTP 404 for a valid parent item and invalid sequence name' do
+  test 'iiif_sequence() returns HTTP 404 for a valid parent item and invalid
+  sequence name' do
     @item = items(:compound_object_1002)
     get item_iiif_sequence_path(@item, 'bogus')
     assert_response :not_found
@@ -275,20 +276,17 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  test 'show() redirects to the sign-in route for restricted items for not-logged-in users' do
-    @item.allowed_netids = [{ netid: 'user',
+  test 'show() returns HTTP 403 for restricted items for not-logged-in users' do
+    @item.allowed_netids = [{ netid:   'user',
                               expires: Time.now.to_i + 1.day.to_i }]
     @item.save!
 
     get item_path(@item)
-    assert_redirected_to signin_path
+    assert_response :forbidden
   end
 
   test 'show() restricts access to host group-restricted items' do
-    # N.B.: Rails sets request.host to this pattern
-    group = HostGroup.create!(key: 'test', name: 'Test',
-                              pattern: 'www.example.com')
-    @item.denied_host_groups << group
+    @item.denied_host_groups << host_groups(:localhost)
     @item.save!
 
     get item_path(@item)
@@ -298,6 +296,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   # show() with file- and directory-variants
 
   test 'show() does not allow access to file variants via non-XHR requests' do
+    @item = items(:free_form_dir1_dir1_file1)
     get item_path(@item)
     assert_response :found
     assert_redirected_to collection_tree_path(@item.collection,
@@ -314,6 +313,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   test 'show() returns HTTP 400 for requests for file variants that are missing
   the tree-node-type argument' do
+    @item = items(:free_form_dir1_dir1_file1)
     get item_path(@item), xhr: true
     assert_response :bad_request
   end

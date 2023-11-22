@@ -2,8 +2,9 @@ class AgentsController < WebsiteController
 
   ITEMS_LIMIT = 30
 
-  before_action :set_agent, only: [:items, :show]
   before_action :set_permitted_params, only: :show
+  before_action :set_agent
+  before_action :authorize_agent
 
   ##
   # Responds to GET /agent/:id/items (XHR only)
@@ -38,6 +39,10 @@ class AgentsController < WebsiteController
 
 
   private
+
+  def authorize_agent
+    @agent ? authorize(@agent) : skip_authorization
+  end
 
   def set_agent
     @agent = Agent.find(params[:agent_id] || params[:id])

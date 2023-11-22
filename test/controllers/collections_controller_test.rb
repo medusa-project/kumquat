@@ -5,6 +5,7 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
   setup do
     setup_elasticsearch
     @collection = collections(:compound_object)
+    sign_out
   end
 
   # iiif_presentation()
@@ -15,11 +16,7 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'iiif_presentation() returns HTTP 403 for host group-restricted collections' do
-    # N.B.: Rails sets request.host to this pattern
-    group = HostGroup.create!(key: 'test',
-                              name: 'Test',
-                              pattern: 'www.example.com')
-    @collection.denied_host_groups << group
+    @collection.denied_host_groups << host_groups(:localhost)
     @collection.save!
 
     get collection_iiif_presentation_path(@collection)
@@ -77,11 +74,7 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show() returns HTTP 403 for host group-restricted collections' do
-    # N.B.: Rails sets request.host to this pattern
-    group = HostGroup.create!(key: 'test',
-                              name: 'Test',
-                              pattern: 'www.example.com')
-    @collection.denied_host_groups << group
+    @collection.denied_host_groups << host_groups(:localhost)
     @collection.save!
 
     get collection_path(@collection)
