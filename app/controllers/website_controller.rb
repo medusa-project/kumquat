@@ -45,7 +45,6 @@ class WebsiteController < ApplicationController
         message = "Incorrect response. Please try again."
       end
     end
-
     unless success
       response.status                       = :bad_request
       response.headers['X-Kumquat-Result']  = "error"
@@ -54,28 +53,6 @@ class WebsiteController < ApplicationController
       return false
     end
     true
-  end
-
-  ##
-  # @return [Collection,nil], Collection in the current context, or nil if
-  #                           there is <> 1
-  #
-  def collection
-    id = nil
-    if controller_name == 'collections'
-      id = params[:id]
-    elsif controller_name == 'items'
-      if params[:collection_id]
-        id = params[:collection_id]
-      elsif params[:id]
-        item = Item.find_by_repository_id(params[:id])
-        id   = item&.collection&.repository_id
-      end
-    end
-    if id
-      return Collection.find_by_repository_id(id)
-    end
-    nil
   end
 
   def enable_cors
