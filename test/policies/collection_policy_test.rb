@@ -24,7 +24,7 @@ class CollectionPolicyTest < ActiveSupport::TestCase
 
   test "iiif_presentation?() does not authorize non-Medusa admins to host group-restricted
   collections" do
-    @collection.denied_host_groups << host_groups(:localhost)
+    @collection.allowed_host_groups << host_groups(:yellow)
     @collection.save!
     assert !CollectionPolicy.new(@context, @collection).iiif_presentation?
   end
@@ -61,7 +61,7 @@ class CollectionPolicyTest < ActiveSupport::TestCase
 
   test "show?() does not authorize non-Medusa admins to host group-restricted
   collections" do
-    @collection.denied_host_groups << host_groups(:localhost)
+    @collection.allowed_host_groups << host_groups(:yellow)
     @collection.save!
     assert !CollectionPolicy.new(@context, @collection).show?
   end

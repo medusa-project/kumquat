@@ -298,17 +298,8 @@ class ItemRelation < AbstractRelation
             j.minimum_should_match 1
           end
 
-          if @host_groups.any? || @exclude_variants.any? || !@search_children
+          if @exclude_variants.any? || (!@include_children_in_results && !@search_children)
             j.must_not do
-              if @host_groups.any?
-                j.child! do
-                  j.terms do
-                    j.set! Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUPS,
-                           @host_groups
-                  end
-                end
-              end
-
               if @exclude_variants.any?
                 j.child! do
                   j.terms do

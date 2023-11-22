@@ -115,18 +115,10 @@ class CollectionTest < ActiveSupport::TestCase
                  doc[Collection::IndexFields::ALLOWED_HOST_GROUP_COUNT]
     assert_equal 'Collection',
                  doc[Collection::IndexFields::CLASS]
-    assert_equal @collection.denied_host_groups.pluck(:key).sort,
-                 doc[Collection::IndexFields::DENIED_HOST_GROUPS].sort
-    assert_equal @collection.denied_host_groups.pluck(:key).length,
-                 doc[Collection::IndexFields::DENIED_HOST_GROUP_COUNT]
     assert_equal @collection.allowed_host_groups.pluck(:key),
                  doc[Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS]
     assert_equal @collection.allowed_host_groups.pluck(:key).length,
                  doc[Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUP_COUNT]
-    assert_equal @collection.denied_host_groups.pluck(:key),
-                 doc[Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUPS]
-    assert_equal @collection.denied_host_groups.pluck(:key).length,
-                 doc[Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUP_COUNT]
     assert_equal @collection.external_id,
                  doc[Collection::IndexFields::EXTERNAL_ID]
     assert_equal @collection.harvestable,
@@ -426,21 +418,16 @@ class CollectionTest < ActiveSupport::TestCase
   test 'propagate_heritable_properties() propagates host groups to items' do
     # Clear all host groups on the collection and its items.
     @collection.allowed_host_groups.destroy_all
-    @collection.denied_host_groups.destroy_all
     @collection.save!
 
     @collection.items.each do |it|
       it.allowed_host_groups.destroy_all
-      it.denied_host_groups.destroy_all
       it.save!
-
       assert_equal 0, it.effective_allowed_host_groups.count
-      assert_equal 0, it.effective_denied_host_groups.count
     end
 
     # Add host groups to the collection.
     @collection.allowed_host_groups << host_groups(:red)
-    @collection.denied_host_groups << host_groups(:blue)
 
     # Propagate heritable properties.
     @collection.propagate_heritable_properties
@@ -449,9 +436,6 @@ class CollectionTest < ActiveSupport::TestCase
     @collection.items.each do |it|
       assert_equal 1, it.effective_allowed_host_groups.count
       assert it.effective_allowed_host_groups.include?(host_groups(:red))
-
-      assert_equal 1, it.effective_denied_host_groups.count
-      assert it.effective_denied_host_groups.include?(host_groups(:blue))
     end
   end
 

@@ -286,7 +286,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show() restricts access to host group-restricted items' do
-    @item.denied_host_groups << host_groups(:localhost)
+    @item.allowed_host_groups << host_groups(:yellow)
     @item.save!
 
     get item_path(@item)

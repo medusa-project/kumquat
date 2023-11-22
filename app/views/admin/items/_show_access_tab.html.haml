@@ -65,22 +65,3 @@
             %li= link_to(group.name, admin_host_group_path(group))
       - else
         Any
-  %tr
-    %td Denied Host Groups (directly assigned)
-    %td
-      - if @item.denied_host_groups.any?
-        %ul
-          - @item.denied_host_groups.each do |group|
-            %li= link_to(group.name, admin_host_group_path(group))
-      - else
-        None
-  %tr
-    %td Denied Host Groups (effective)
-    - effective_denied_host_groups = @item.effective_denied_host_groups
-    %td
-      - if effective_denied_host_groups.any?
-        %ul
-          - effective_denied_host_groups.each do |group|
-            %li= link_to(group.name, admin_host_group_path(group))
-      - else
-        None

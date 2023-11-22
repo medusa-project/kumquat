@@ -122,9 +122,9 @@
 #
 # Attribute Propagation
 #
-# Changes to some of a collection's properties, such as {allowed_host_groups}
-# and {denied_host_groups}, must be propagated to all of its [Item]s. This can
-# be done using {propagate_heritable_properties}.
+# Changes to some of a collection's properties, such as {allowed_host_groups},
+# must be propagated to all of its [Item]s. This can be done using
+# {propagate_heritable_properties}.
 #
 class Collection < ApplicationRecord
 
@@ -143,13 +143,9 @@ class Collection < ApplicationRecord
     ALLOWED_HOST_GROUP_COUNT           = 'sys_i_allowed_host_group_count'
     ALLOWED_HOST_GROUPS                = 'sys_k_allowed_host_groups'
     CLASS                              = ElasticsearchIndex::StandardFields::CLASS
-    DENIED_HOST_GROUP_COUNT            = 'sys_i_denied_host_group_count'
-    DENIED_HOST_GROUPS                 = 'sys_k_denied_host_groups'
     DESCRIPTION                        = CollectionElement.new(name: 'description').indexed_field
     EFFECTIVE_ALLOWED_HOST_GROUP_COUNT = 'sys_i_effective_allowed_host_group_count'
     EFFECTIVE_ALLOWED_HOST_GROUPS      = 'sys_k_effective_allowed_host_groups'
-    EFFECTIVE_DENIED_HOST_GROUP_COUNT  = 'sys_i_effective_denied_host_group_count'
-    EFFECTIVE_DENIED_HOST_GROUPS       = 'sys_k_effective_denied_host_groups'
     EXTERNAL_ID                        = 'sys_k_external_id'
     HARVESTABLE                        = 'sys_b_harvestable'
     HARVESTABLE_BY_IDHH                = 'sys_b_harvestable_by_idhh'
@@ -197,8 +193,6 @@ class Collection < ApplicationRecord
 
   has_and_belongs_to_many :allowed_host_groups, class_name: 'HostGroup',
                           association_foreign_key: :allowed_host_group_id
-  has_and_belongs_to_many :denied_host_groups, class_name: 'HostGroup',
-                          association_foreign_key: :denied_host_group_id
 
   validates_format_of :repository_id,
                       with: StringUtils::UUID_REGEX,
@@ -337,17 +331,10 @@ harvestableByPrimo)
     doc[IndexFields::ALLOWED_HOST_GROUP_COUNT] =
         doc[IndexFields::ALLOWED_HOST_GROUPS].length
     doc[IndexFields::CLASS]                    = self.class.to_s
-    doc[IndexFields::DENIED_HOST_GROUPS]       = self.denied_host_groups.pluck(:key)
-    doc[IndexFields::DENIED_HOST_GROUP_COUNT]  =
-        doc[IndexFields::DENIED_HOST_GROUPS].length
     doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS] =
         doc[IndexFields::ALLOWED_HOST_GROUPS]
     doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUP_COUNT] =
         doc[IndexFields::ALLOWED_HOST_GROUP_COUNT]
-    doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUPS] =
-        doc[IndexFields::DENIED_HOST_GROUPS]
-    doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUP_COUNT] =
-        doc[IndexFields::DENIED_HOST_GROUP_COUNT]
     doc[IndexFields::EXTERNAL_ID]          = self.external_id
     doc[IndexFields::HARVESTABLE]          = self.harvestable
     doc[IndexFields::HARVESTABLE_BY_IDHH]  = self.harvestable_by_idhh
@@ -387,11 +374,6 @@ harvestableByPrimo)
   # Satisfies the AuthorizableByHost module contract.
   #
   alias_method :effective_allowed_host_groups, :allowed_host_groups
-
-  ##
-  # Satisfies the AuthorizableByHost module contract.
-  #
-  alias_method :effective_denied_host_groups, :denied_host_groups
 
   ##
   # Deletes indexed documents whose corresponding Items no longer exist in the
@@ -678,8 +660,8 @@ harvestableByPrimo)
   end
 
   ##
-  # Propagates allowed and denied {HostGroup}s from the instance to all of its
-  # items. This is an O(n) operation.
+  # Propagates allowed {HostGroup}s from the instance to all of its items. This
+  # is an O(n) operation.
   #
   # @param task [Task] Supply to receive progress updates.
   # @return [void]

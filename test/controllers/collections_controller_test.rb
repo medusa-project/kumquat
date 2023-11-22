@@ -16,7 +16,7 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'iiif_presentation() returns HTTP 403 for host group-restricted collections' do
-    @collection.denied_host_groups << host_groups(:localhost)
+    @collection.allowed_host_groups << host_groups(:yellow)
     @collection.save!
 
     get collection_iiif_presentation_path(@collection)
@@ -74,7 +74,7 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show() returns HTTP 403 for host group-restricted collections' do
-    @collection.denied_host_groups << host_groups(:localhost)
+    @collection.allowed_host_groups << host_groups(:yellow)
     @collection.save!
 
     get collection_path(@collection)

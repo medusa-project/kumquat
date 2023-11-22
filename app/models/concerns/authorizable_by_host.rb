@@ -21,9 +21,7 @@ module AuthorizableByHost
   # @return [Boolean]
   #
   def authorized_by_host_group?(host_group)
-    if self.effective_denied_host_groups.where(key: host_group.key).count > 0
-      return false
-    elsif self.effective_allowed_host_groups.any? and
+    if self.effective_allowed_host_groups.any? &&
         self.effective_allowed_host_groups.where(key: host_group.key).count == 0
       return false
     end
@@ -37,16 +35,6 @@ module AuthorizableByHost
   #         inherited from ancestors, if applicable.
   #
   def effective_allowed_host_groups
-    super
-  end
-
-  ##
-  # Stub implementation that calls super.
-  #
-  # @return [Enumerable<HostGroup>] Denied host groups, including any inherited
-  #         from ancestors, if applicable.
-  #
-  def effective_denied_host_groups
     super
   end
 

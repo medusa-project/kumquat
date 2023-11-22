@@ -33,24 +33,10 @@
           %li= link_to col.title, admin_collection_path(col)
     - else
       %p None
-    %h2 Denying Collections
-    - if @host_group.denying_collections.any?
-      %ul
-        - @host_group.denying_collections.each do |col|
-          %li= link_to col.title, admin_collection_path(col)
-    - else
-      %p None
     %h2 Allowing Items
     - if @host_group.allowing_items.any?
       %ul
         - @host_group.allowing_items.each do |item|
-          %li= link_to item.title, admin_collection_item_path(item.collection, item)
-    - else
-      %p None
-    %h2 Denying Items
-    - if @host_group.denying_items.any?
-      %ul
-        - @host_group.denying_items.each do |item|
           %li= link_to item.title, admin_collection_item_path(item.collection, item)
     - else
       %p None

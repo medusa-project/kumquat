@@ -45,12 +45,3 @@
               %li= link_to group.name, admin_host_group_path(group)
         - else
           Any
-    %tr
-      %td Denied Host Groups
-      %td
-        - if @collection.denied_host_groups.any?
-          %ul
-            - @collection.denied_host_groups.each do |group|
-              %li= link_to group.name, admin_host_group_path(group)
-        - else
-          None

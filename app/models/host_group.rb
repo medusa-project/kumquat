@@ -25,12 +25,8 @@ class HostGroup < ApplicationRecord
 
   has_and_belongs_to_many :allowing_collections, class_name: 'Collection',
                           foreign_key: :allowed_host_group_id
-  has_and_belongs_to_many :denying_collections, class_name: 'Collection',
-                          foreign_key: :denied_host_group_id
   has_and_belongs_to_many :allowing_items, class_name: 'Item',
                           foreign_key: :allowed_host_group_id
-  has_and_belongs_to_many :denying_items, class_name: 'Item',
-                          foreign_key: :denied_host_group_id
 
   validates :key, presence: true, length: { maximum: 30 },
             uniqueness: { case_sensitive: false }

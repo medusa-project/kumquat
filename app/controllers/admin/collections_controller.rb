@@ -255,7 +255,7 @@ module Admin
             end
             @collection.update!(permitted_params)
             # We will also need to propagate various collection properties
-            # (published status, allowed/denied host groups, etc.) to the items
+            # (published status, allowed host groups, etc.) to the items
             # contained within the collection. This will take some time, so
             # we'll do it in the background.
             PropagatePropertiesToItemsJob.perform_later(collection: @collection,
@@ -310,8 +310,7 @@ module Admin
                                          :representative_item_id,
                                          :representative_medusa_file_id,
                                          :restricted, :rights_term_uri,
-                                         allowed_host_group_ids: [],
-                                         denied_host_group_ids: [])
+                                         allowed_host_group_ids: [])
     end
 
   end

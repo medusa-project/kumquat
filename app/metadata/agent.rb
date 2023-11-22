@@ -12,8 +12,6 @@ class Agent < ApplicationRecord
     DESCRIPTION                        = 'sys_t_description'
     EFFECTIVE_ALLOWED_HOST_GROUP_COUNT = 'sys_i_effective_allowed_host_group_count'
     EFFECTIVE_ALLOWED_HOST_GROUPS      = 'sys_k_effective_allowed_host_groups'
-    EFFECTIVE_DENIED_HOST_GROUP_COUNT  = 'sys_i_effective_denied_host_group_count'
-    EFFECTIVE_DENIED_HOST_GROUPS       = 'sys_k_effective_denied_host_groups'
     LAST_INDEXED                       = ElasticsearchIndex::StandardFields::LAST_INDEXED
     LAST_MODIFIED                      = ElasticsearchIndex::StandardFields::LAST_MODIFIED
     NAME                               = 'sys_t_name'
@@ -51,17 +49,15 @@ class Agent < ApplicationRecord
   #
   def as_indexed_json(options = {})
     doc = {}
-    doc[IndexFields::CLASS] = self.class.to_s
-    doc[IndexFields::DESCRIPTION] = self.description.to_s
-    doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS] = []
+    doc[IndexFields::CLASS]               = self.class.to_s
+    doc[IndexFields::DESCRIPTION]         = self.description.to_s
+    doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS]      = []
     doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUP_COUNT] = 0
-    doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUPS] = []
-    doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUP_COUNT] = 0
-    doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
-    doc[IndexFields::LAST_MODIFIED] = self.updated_at.utc.iso8601
-    doc[IndexFields::NAME] = self.name.to_s
+    doc[IndexFields::LAST_INDEXED]        = Time.now.utc.iso8601
+    doc[IndexFields::LAST_MODIFIED]       = self.updated_at.utc.iso8601
+    doc[IndexFields::NAME]                = self.name.to_s
     doc[IndexFields::PUBLICLY_ACCESSIBLE] = true
-    doc[IndexFields::SEARCH_ALL] = [
+    doc[IndexFields::SEARCH_ALL]          = [
         doc[IndexFields::NAME],
         doc[IndexFields::DESCRIPTION]
     ].join(' ')

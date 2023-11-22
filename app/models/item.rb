@@ -186,10 +186,10 @@
 #
 # ## Attribute Propagation
 #
-# Some item properties, such as {allowed_hosts} and {denied_hosts}, propagate
-# to child items in the item tree. The inherited counterparts of these
-# properties are {effective_allowed_hosts} and {effective_denied_hosts}. An
-# item's subtree can be updated using {propagate_heritable_properties}.
+# Some item properties, such as {allowed_hosts}, propagate to child items in
+# the item tree. The inherited counterparts of these properties are
+# {effective_allowed_hosts}. An item's subtree can be updated using
+# {propagate_heritable_properties}.
 #
 class Item < ApplicationRecord
 
@@ -210,8 +210,6 @@ class Item < ApplicationRecord
     DESCRIBED                          = 'sys_b_described'
     EFFECTIVE_ALLOWED_HOST_GROUP_COUNT = 'sys_i_effective_allowed_host_group_count'
     EFFECTIVE_ALLOWED_HOST_GROUPS      = 'sys_k_effective_allowed_host_groups'
-    EFFECTIVE_DENIED_HOST_GROUP_COUNT  = 'sys_i_effective_denied_host_group_count'
-    EFFECTIVE_DENIED_HOST_GROUPS       = 'sys_k_effective_denied_host_groups'
     FULL_TEXT                          = 'sys_t_full_text'
     ITEM_SETS                          = 'sys_i_item_sets'
     LAST_INDEXED                       = ElasticsearchIndex::StandardFields::LAST_INDEXED
@@ -290,15 +288,9 @@ class Item < ApplicationRecord
   has_and_belongs_to_many :allowed_host_groups,
                           class_name: 'HostGroup',
                           association_foreign_key: :allowed_host_group_id
-  has_and_belongs_to_many :denied_host_groups,
-                          class_name: 'HostGroup',
-                          association_foreign_key: :denied_host_group_id
   has_and_belongs_to_many :effective_allowed_host_groups,
                           class_name: 'HostGroup',
                           association_foreign_key: :effective_allowed_host_group_id
-  has_and_belongs_to_many :effective_denied_host_groups,
-                          class_name: 'HostGroup',
-                          association_foreign_key: :effective_denied_host_group_id
   has_and_belongs_to_many :item_sets
 
   has_many :binaries, inverse_of: :item, dependent: :destroy
@@ -567,10 +559,6 @@ class Item < ApplicationRecord
         self.effective_allowed_host_groups.pluck(:key)
     doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUP_COUNT] =
         doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS].length
-    doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUPS] =
-        self.effective_denied_host_groups.pluck(:key)
-    doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUP_COUNT] =
-        doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUPS].length
     doc[IndexFields::FULL_TEXT]               = self.full_text
     doc[IndexFields::ITEM_SETS]               = self.item_sets.pluck(:id)
     doc[IndexFields::LAST_INDEXED]            = Time.now.utc.iso8601
@@ -1618,28 +1606,21 @@ class Item < ApplicationRecord
   #
   def inherit_host_groups
     allowed_hgs = []
-    denied_hgs  = []
     # Try to inherit from an ancestor.
     p = self.parent
-    while p && allowed_hgs.empty? && denied_hgs.empty?
+    while p && allowed_hgs.empty?
       allowed_hgs = p.allowed_host_groups
-      denied_hgs  = p.denied_host_groups
       p = p.parent
     end
     # If no ancestor has any host groups, inherit from the collection.
-    if allowed_hgs.empty? && denied_hgs.empty? && self.collection
+    if allowed_hgs.empty? && self.collection
       allowed_hgs = self.collection.allowed_host_groups
-      denied_hgs  = self.collection.denied_host_groups
     end
 
     transaction do
       self.effective_allowed_host_groups.destroy_all
-      self.effective_denied_host_groups.destroy_all
       allowed_hgs.each do |group|
         self.effective_allowed_host_groups << group
-      end
-      denied_hgs.each do |group|
-        self.effective_denied_host_groups << group
       end
     end
   end
@@ -1688,23 +1669,17 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Populates {effective_allowed_host_groups} and
-  # {effective_denied_host_groups}.
+  # Populates {effective_allowed_host_groups}.
   #
   # @return [void]
   #
   def set_effective_host_groups
     allowed_hgs = self.allowed_host_groups
-    denied_hgs  = self.denied_host_groups
-    if allowed_hgs.any? or denied_hgs.any?
+    if allowed_hgs.any?
       transaction do
         self.effective_allowed_host_groups.destroy_all
-        self.effective_denied_host_groups.destroy_all
         allowed_hgs.each do |group|
           self.effective_allowed_host_groups << group
-        end
-        denied_hgs.each do |group|
-          self.effective_denied_host_groups << group
         end
       end
     else

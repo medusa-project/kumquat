@@ -552,8 +552,8 @@ module Admin
           @item.update!(permitted_params)
 
           # We will also need to propagate various item properties (published
-          # status, allowed/denied host groups, etc.) to its child items. This
-          # will take some time, so we'll do it in the background.
+          # status, allowed host groups, etc.) to its child items. This will
+          # take some time, so we'll do it in the background.
           PropagatePropertiesToChildrenJob.perform_later(item: @item,
                                                          user: current_user)
         end
@@ -707,7 +707,6 @@ module Admin
                                    :representative_item_id,
                                    :subpage_number, :variant,
                                    allowed_host_group_ids: [],
-                                   denied_host_group_ids: [],
                                    allowed_netids: [:expires, :netid])
     end
 

@@ -32,7 +32,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "binary?() does not authorize items that are not allowing any of the
   client's host groups" do
-    @item.denied_host_groups << host_groups(:localhost)
+    @item.allowed_host_groups << host_groups(:yellow)
     @item.save!
     assert !ItemPolicy.new(@context, @item).binary?
   end
@@ -88,7 +88,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_annotation_list?() does not authorize items that are not allowing any of the
   client's host groups" do
-    @item.denied_host_groups << host_groups(:localhost)
+    @item.allowed_host_groups << host_groups(:yellow)
     @item.save!
     assert !ItemPolicy.new(@context, @item).iiif_annotation_list?
   end
@@ -144,7 +144,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_canvas?() does not authorize items that are not allowing any of the
   client's host groups" do
-    @item.denied_host_groups << host_groups(:localhost)
+    @item.allowed_host_groups << host_groups(:yellow)
     @item.save!
     assert !ItemPolicy.new(@context, @item).iiif_canvas?
   end
@@ -200,7 +200,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_image_resource?() does not authorize items that are not allowing any of the
   client's host groups" do
-    @item.denied_host_groups << host_groups(:localhost)
+    @item.allowed_host_groups << host_groups(:yellow)
     @item.save!
     assert !ItemPolicy.new(@context, @item).iiif_image_resource?
   end
@@ -256,7 +256,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_layer?() does not authorize items that are not allowing any of the
   client's host groups" do
-    @item.denied_host_groups << host_groups(:localhost)
+    @item.allowed_host_groups << host_groups(:yellow)
     @item.save!
     assert !ItemPolicy.new(@context, @item).iiif_layer?
   end
@@ -312,7 +312,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_manifest?() does not authorize items that are not allowing any of the
   client's host groups" do
-    @item.denied_host_groups << host_groups(:localhost)
+    @item.allowed_host_groups << host_groups(:yellow)
     @item.save!
     assert !ItemPolicy.new(@context, @item).iiif_manifest?
   end
@@ -368,7 +368,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_media_sequence?() does not authorize items that are not allowing any of the
   client's host groups" do
-    @item.denied_host_groups << host_groups(:localhost)
+    @item.allowed_host_groups << host_groups(:yellow)
     @item.save!
     assert !ItemPolicy.new(@context, @item).iiif_media_sequence?
   end
@@ -424,7 +424,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_range?() does not authorize items that are not allowing any of the
   client's host groups" do
-    @item.denied_host_groups << host_groups(:localhost)
+    @item.allowed_host_groups << host_groups(:yellow)
     @item.save!
     assert !ItemPolicy.new(@context, @item).iiif_range?
   end
@@ -480,7 +480,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_search?() does not authorize items that are not allowing any of the
   client's host groups" do
-    @item.denied_host_groups << host_groups(:localhost)
+    @item.allowed_host_groups << host_groups(:yellow)
     @item.save!
     assert !ItemPolicy.new(@context, @item).iiif_search?
   end
@@ -536,7 +536,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_sequence?() does not authorize items that are not allowing any of the
   client's host groups" do
-    @item.denied_host_groups << host_groups(:localhost)
+    @item.allowed_host_groups << host_groups(:yellow)
     @item.save!
     assert !ItemPolicy.new(@context, @item).iiif_sequence?
   end
@@ -598,7 +598,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "item_tree_node?() does not authorize items that are not allowing any of the
   client's host groups" do
-    @item.denied_host_groups << host_groups(:localhost)
+    @item.allowed_host_groups << host_groups(:yellow)
     @item.save!
     assert !ItemPolicy.new(@context, @item).item_tree_node?
   end
@@ -654,7 +654,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "show?() does not authorize items that are not allowing any of the
   client's host groups" do
-    @item.denied_host_groups << host_groups(:localhost)
+    @item.allowed_host_groups << host_groups(:yellow)
     @item.save!
     assert !ItemPolicy.new(@context, @item).show?
   end

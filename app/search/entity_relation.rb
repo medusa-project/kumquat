@@ -216,8 +216,7 @@ class EntityRelation < AbstractRelation
           unless @bypass_authorization
             # Results must either have an effective allowed host group (EAHG)
             # matching one of the client's host groups, or no EAHGs, indicating
-            # that they are public, effective denied host groups
-            # notwithstanding.
+            # that they are unrestricted.
             j.should do
               if @host_groups.any?
                 j.child! do
@@ -238,22 +237,11 @@ class EntityRelation < AbstractRelation
             j.minimum_should_match 1
           end
 
-          if @host_groups.any? || @exclude_item_variants.any?
+          if @exclude_item_variants.any?
             j.must_not do
-              if @host_groups.any?
-                j.child! do
-                  j.terms do
-                    j.set! Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUPS,
-                           @host_groups
-                  end
-                end
-              end
-
-              if @exclude_item_variants.any?
-                j.child! do
-                  j.terms do
-                    j.set! Item::IndexFields::VARIANT, @exclude_item_variants
-                  end
+              j.child! do
+                j.terms do
+                  j.set! Item::IndexFields::VARIANT, @exclude_item_variants
                 end
               end
             end

@@ -14,8 +14,6 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal @agent.description, doc[Agent::IndexFields::DESCRIPTION]
     assert_equal [], doc[Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS]
     assert_equal 0, doc[Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUP_COUNT]
-    assert_equal [], doc[Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUPS]
-    assert_equal 0, doc[Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUP_COUNT]
     assert_equal @agent.updated_at.utc.iso8601,
                  doc[Agent::IndexFields::LAST_MODIFIED]
     assert_equal @agent.name, doc[Agent::IndexFields::NAME]

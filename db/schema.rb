@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_11_20_211842) do
+ActiveRecord::Schema[7.1].define(version: 2023_11_22_190757) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -160,12 +160,10 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_20_211842) do
   create_table "collections_host_groups", force: :cascade do |t|
     t.integer "collection_id"
     t.integer "allowed_host_group_id"
-    t.integer "denied_host_group_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["allowed_host_group_id"], name: "index_collections_host_groups_on_allowed_host_group_id"
     t.index ["collection_id"], name: "index_collections_host_groups_on_collection_id"
-    t.index ["denied_host_group_id"], name: "index_collections_host_groups_on_denied_host_group_id"
   end
 
   create_table "downloads", id: :serial, force: :cascade do |t|
@@ -251,15 +249,11 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_20_211842) do
   create_table "host_groups_items", force: :cascade do |t|
     t.integer "item_id"
     t.integer "allowed_host_group_id"
-    t.integer "denied_host_group_id"
     t.integer "effective_allowed_host_group_id"
-    t.integer "effective_denied_host_group_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["allowed_host_group_id"], name: "index_host_groups_items_on_allowed_host_group_id"
-    t.index ["denied_host_group_id"], name: "index_host_groups_items_on_denied_host_group_id"
     t.index ["effective_allowed_host_group_id"], name: "index_host_groups_items_on_effective_allowed_host_group_id"
-    t.index ["effective_denied_host_group_id"], name: "index_host_groups_items_on_effective_denied_host_group_id"
     t.index ["item_id"], name: "index_host_groups_items_on_item_id"
   end
 
@@ -438,14 +432,11 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_20_211842) do
   add_foreign_key "collections", "metadata_profile_elements", column: "descriptive_element_id", on_update: :cascade, on_delete: :nullify
   add_foreign_key "collections_host_groups", "collections", on_update: :cascade, on_delete: :cascade
   add_foreign_key "collections_host_groups", "host_groups", column: "allowed_host_group_id", on_update: :cascade, on_delete: :restrict
-  add_foreign_key "collections_host_groups", "host_groups", column: "denied_host_group_id", on_update: :cascade, on_delete: :restrict
   add_foreign_key "entity_elements", "collections", on_update: :cascade, on_delete: :cascade
   add_foreign_key "entity_elements", "items", on_delete: :cascade
   add_foreign_key "entity_elements", "vocabularies", on_delete: :restrict
   add_foreign_key "host_groups_items", "host_groups", column: "allowed_host_group_id", on_update: :cascade, on_delete: :restrict
-  add_foreign_key "host_groups_items", "host_groups", column: "denied_host_group_id", on_update: :cascade, on_delete: :restrict
   add_foreign_key "host_groups_items", "host_groups", column: "effective_allowed_host_group_id", on_update: :cascade, on_delete: :restrict
-  add_foreign_key "host_groups_items", "host_groups", column: "effective_denied_host_group_id", on_update: :cascade, on_delete: :restrict
   add_foreign_key "host_groups_items", "items", on_update: :cascade, on_delete: :cascade
   add_foreign_key "item_sets_items", "item_sets", on_update: :cascade, on_delete: :cascade
   add_foreign_key "item_sets_items", "items", on_update: :cascade, on_delete: :cascade
