@@ -7,6 +7,7 @@ module Admin
     setup do
       @item       = items(:compound_object_1002)
       @collection = @item.collection
+      setup_elasticsearch
       sign_out
     end
 
