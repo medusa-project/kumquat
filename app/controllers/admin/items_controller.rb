@@ -463,9 +463,9 @@ module Admin
     #
     def show
       @pages = @item.parent ? @item.parent.items : @item.items
-      @current_elasticsearch_document =
+      @current_opensearch_document =
         JSON.pretty_generate(@item.indexed_document)
-      @expected_elasticsearch_document =
+      @expected_opensearch_document =
         JSON.pretty_generate(@item.as_indexed_json)
     end
 
@@ -630,7 +630,7 @@ module Admin
 
     def querying_item_relation_for(collection,
                                    start = 0,
-                                   limit = ElasticsearchClient::MAX_RESULT_WINDOW)
+                                   limit = OpensearchClient::MAX_RESULT_WINDOW)
       Item.search.
           collection(collection).
           query(params[:df], params[:q]).

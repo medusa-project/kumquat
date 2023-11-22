@@ -15,7 +15,7 @@
 # content is structured in Medusa in terms of its file/directory layout, which
 # in turn influences the kinds of {Item}s it contains.
 #
-# Collections are searchable via ActiveRecord as well as via Elasticsearch (see
+# Collections are searchable via ActiveRecord as well as via OpenSearch (see
 # below).
 #
 # # Representations
@@ -25,13 +25,13 @@
 # # Indexing
 #
 # Instances are automatically indexed in ES (see {as_indexed_json}) in an
-# `after_commit` callback. A low-level interface to Elasticsearch is provided
-# by ElasticsearchClient, but in most cases, it's better to use the
-# higher-level query interface provided by {CollectionRelation}, which is
-# easier to use, and takes authorization, public visibility, etc. into account.
-# (An instance can be obtained from {search}.)
+# `after_commit` callback. A low-level interface to OpenSearch is provided by
+# OpensearchClient, but in most cases, it's better to use the higher-level
+# query interface provided by {CollectionRelation}, which is easier to use, and
+# takes authorization, public visibility, etc. into account. (An instance can
+# be obtained from {search}.)
 #
-# **IMPORTANT**: Instances are automatically indexed in Elasticsearch (see
+# **IMPORTANT**: Instances are automatically indexed in OpenSearch (see
 # {as_indexed_json}) upon transaction commit. They are **not** indexed on save.
 # For this reason, **instances should always be created, updated, and deleted
 # within transactions.**
@@ -142,7 +142,7 @@ class Collection < ApplicationRecord
     ACCESS_URL                         = 'sys_k_access_url'
     ALLOWED_HOST_GROUP_COUNT           = 'sys_i_allowed_host_group_count'
     ALLOWED_HOST_GROUPS                = 'sys_k_allowed_host_groups'
-    CLASS                              = ElasticsearchIndex::StandardFields::CLASS
+    CLASS                              = OpensearchIndex::StandardFields::CLASS
     DESCRIPTION                        = CollectionElement.new(name: 'description').indexed_field
     EFFECTIVE_ALLOWED_HOST_GROUP_COUNT = 'sys_i_effective_allowed_host_group_count'
     EFFECTIVE_ALLOWED_HOST_GROUPS      = 'sys_k_effective_allowed_host_groups'
@@ -150,19 +150,19 @@ class Collection < ApplicationRecord
     HARVESTABLE                        = 'sys_b_harvestable'
     HARVESTABLE_BY_IDHH                = 'sys_b_harvestable_by_idhh'
     HARVESTABLE_BY_PRIMO               = 'sys_b_harvestable_by_primo'
-    LAST_INDEXED                       = ElasticsearchIndex::StandardFields::LAST_INDEXED
-    LAST_MODIFIED                      = ElasticsearchIndex::StandardFields::LAST_MODIFIED
+    LAST_INDEXED                       = OpensearchIndex::StandardFields::LAST_INDEXED
+    LAST_MODIFIED                      = OpensearchIndex::StandardFields::LAST_MODIFIED
     NATIVE                             = 'sys_b_native'
     PARENT_COLLECTIONS                 = 'sys_k_parent_collections'
     PUBLIC_IN_MEDUSA                   = 'sys_b_public_in_medusa'
-    PUBLICLY_ACCESSIBLE                = ElasticsearchIndex::StandardFields::PUBLICLY_ACCESSIBLE
+    PUBLICLY_ACCESSIBLE                = OpensearchIndex::StandardFields::PUBLICLY_ACCESSIBLE
     PUBLISHED_IN_DLS                   = 'sys_b_published_in_dls'
     REPOSITORY_ID                      = 'sys_k_repository_id'
     REPOSITORY_TITLE                   = 'sys_k_repository_title'
     REPRESENTATIVE_ITEM                = 'sys_k_representative_item'
     RESOURCE_TYPES                     = 'sys_k_resource_types'
-    RESTRICTED                         = ElasticsearchIndex::StandardFields::RESTRICTED
-    SEARCH_ALL                         = ElasticsearchIndex::StandardFields::SEARCH_ALL
+    RESTRICTED                         = OpensearchIndex::StandardFields::RESTRICTED
+    SEARCH_ALL                         = OpensearchIndex::StandardFields::SEARCH_ALL
     TITLE                              = CollectionElement.new(name: 'title').indexed_field
   end
 
@@ -272,7 +272,7 @@ harvestableByPrimo)
       j.from 0
       j.size 999999
     end
-    result = ElasticsearchClient.instance.query(json)
+    result = OpensearchClient.instance.query(json)
     struct = JSON.parse(result)
     struct['hits']['hits'].map{ |r| r['_source'][Item::IndexFields::REPOSITORY_ID] }
   end
@@ -364,7 +364,7 @@ harvestableByPrimo)
         doc[element.indexed_field] = []
       end
       doc[element.indexed_field] <<
-          StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
+          StringUtils.strip_leading_articles(element.value)[0..OpensearchClient::MAX_KEYWORD_FIELD_LENGTH]
     end
 
     doc
@@ -400,7 +400,7 @@ harvestableByPrimo)
           end
         end
       end
-      ElasticsearchClient.instance.delete_by_query(query)
+      OpensearchClient.instance.delete_by_query(query)
     end
   end
 

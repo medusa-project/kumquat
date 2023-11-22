@@ -3,7 +3,7 @@ require 'test_helper'
 class ItemUpdaterTest < ActiveSupport::TestCase
 
   setup do
-    setup_elasticsearch
+    setup_opensearch
     @instance = ItemUpdater.new
   end
 

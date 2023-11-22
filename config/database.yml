@@ -69,9 +69,9 @@ demo: &demo
   #
   # It would be tempting to crank up the connection count into the hundreds,
   # but in the context of these OCR jobs, we are limited further by the rate at
-  # which our Elasticsearch instance/cluster is able to process document
-  # changes. 50 DB connections (25 OCR threads) is probably a safe number for
-  # a t3.small.
+  # which our OpenSearch instance/cluster is able to process document changes.
+  # 50 DB connections (25 OCR threads) is probably a safe number for a
+  # t3.small.
   pool: <%= delayed_job ? 50 : ENV.fetch("RAILS_MAX_THREADS") { 5 }.to_i %>
 
 demo_2:

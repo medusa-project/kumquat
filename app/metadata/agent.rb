@@ -8,15 +8,15 @@ class Agent < ApplicationRecord
   include Representable
 
   class IndexFields
-    CLASS                              = ElasticsearchIndex::StandardFields::CLASS
+    CLASS                              = OpensearchIndex::StandardFields::CLASS
     DESCRIPTION                        = 'sys_t_description'
     EFFECTIVE_ALLOWED_HOST_GROUP_COUNT = 'sys_i_effective_allowed_host_group_count'
     EFFECTIVE_ALLOWED_HOST_GROUPS      = 'sys_k_effective_allowed_host_groups'
-    LAST_INDEXED                       = ElasticsearchIndex::StandardFields::LAST_INDEXED
-    LAST_MODIFIED                      = ElasticsearchIndex::StandardFields::LAST_MODIFIED
+    LAST_INDEXED                       = OpensearchIndex::StandardFields::LAST_INDEXED
+    LAST_MODIFIED                      = OpensearchIndex::StandardFields::LAST_MODIFIED
     NAME                               = 'sys_t_name'
-    PUBLICLY_ACCESSIBLE                = ElasticsearchIndex::StandardFields::PUBLICLY_ACCESSIBLE
-    SEARCH_ALL                         = ElasticsearchIndex::StandardFields::SEARCH_ALL
+    PUBLICLY_ACCESSIBLE                = OpensearchIndex::StandardFields::PUBLICLY_ACCESSIBLE
+    SEARCH_ALL                         = OpensearchIndex::StandardFields::SEARCH_ALL
   end
 
   belongs_to :agent_rule

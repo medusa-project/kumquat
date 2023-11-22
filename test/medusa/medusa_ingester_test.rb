@@ -4,7 +4,7 @@ class MedusaIngesterTest < ActiveSupport::TestCase
 
   setup do
     @instance = MedusaIngester.new
-    setup_elasticsearch
+    setup_opensearch
   end
 
   # create_items() is tested in the package profile-specific implementations

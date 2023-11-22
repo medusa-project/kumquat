@@ -6,9 +6,9 @@ class CreatePdfJobTest < ActiveSupport::TestCase
     @item     = items(:compound_object_1002)
     @download = Download.create
 
-    setup_elasticsearch
+    setup_opensearch
     Item.reindex_all
-    refresh_elasticsearch
+    refresh_opensearch
   end
 
   teardown do

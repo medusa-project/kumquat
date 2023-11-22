@@ -1,11 +1,11 @@
 ##
-# High-level Elasticsearch client.
+# High-level OpenSearch client.
 #
-class ElasticsearchClient
+class OpensearchClient
 
   include Singleton
 
-  LOGGER = CustomLogger.new(ElasticsearchClient)
+  LOGGER = CustomLogger.new(OpensearchClient)
 
   CONTENT_TYPE = 'application/json'
 
@@ -35,9 +35,9 @@ class ElasticsearchClient
   def create_index(index_name)
     LOGGER.info('create_index(): creating %s...', index_name)
     url = sprintf('%s/%s',
-                  Configuration.instance.elasticsearch_endpoint,
+                  Configuration.instance.opensearch_endpoint,
                   index_name)
-    body = JSON.pretty_generate(ElasticsearchIndex::SCHEMA)
+    body = JSON.pretty_generate(OpensearchIndex::SCHEMA)
     response = @http_client.put(url, body, 'Content-Type': CONTENT_TYPE)
     if response.status == 200
       LOGGER.info('create_index(): created %s', index_name)
@@ -54,7 +54,7 @@ class ElasticsearchClient
   # @return [void]
   #
   def create_index_alias(index_name, alias_name)
-    url = sprintf('%s/_aliases', Configuration.instance.elasticsearch_endpoint)
+    url = sprintf('%s/_aliases', Configuration.instance.opensearch_endpoint)
     body = JSON.generate({
         actions: [
             {
@@ -82,8 +82,8 @@ class ElasticsearchClient
   def delete_by_query(query)
     config = Configuration.instance
     url = sprintf('%s/%s/_delete_by_query?pretty&conflicts=proceed&refresh',
-                  config.elasticsearch_endpoint,
-                  config.elasticsearch_index)
+                  config.opensearch_endpoint,
+                  config.opensearch_index)
     LOGGER.debug('delete_by_query(): %s', query)
 
     response = @http_client.post(url, query,
@@ -104,7 +104,7 @@ class ElasticsearchClient
   def delete_index(index_name, raise_on_not_found = true)
     LOGGER.info('delete_index(): deleting %s...', index_name)
     url = sprintf('%s/%s',
-                  Configuration.instance.elasticsearch_endpoint,
+                  Configuration.instance.opensearch_endpoint,
                   index_name)
     response = @http_client.delete(url, nil,
                                    'Content-Type': CONTENT_TYPE)
@@ -123,7 +123,7 @@ class ElasticsearchClient
   def delete_index_alias(index_name, alias_name)
     LOGGER.info('delete_index_alias(): deleting %s...', alias_name)
     url = sprintf('%s/%s/_alias/%s',
-                  Configuration.instance.elasticsearch_endpoint,
+                  Configuration.instance.opensearch_endpoint,
                   index_name,
                   alias_name)
     response = @http_client.delete(url, nil,
@@ -142,7 +142,7 @@ class ElasticsearchClient
   #
   def delete_task(id)
     url = sprintf('%s/_tasks/%s',
-                  Configuration.instance.elasticsearch_endpoint,
+                  Configuration.instance.opensearch_endpoint,
                   id)
     response = @http_client.delete(url, nil, 'Content-Type': CONTENT_TYPE)
     if response.status == 200
@@ -159,7 +159,7 @@ class ElasticsearchClient
   #
   def get_document(index_name, id)
     url = sprintf('%s/%s/_doc/%s',
-                  Configuration.instance.elasticsearch_endpoint,
+                  Configuration.instance.opensearch_endpoint,
                   index_name, id)
     response = @http_client.get(url, nil, 'Content-Type': CONTENT_TYPE)
     case response.status
@@ -178,7 +178,7 @@ class ElasticsearchClient
   #
   def get_task(id)
     url = sprintf('%s/_tasks/%s?pretty',
-                  Configuration.instance.elasticsearch_endpoint,
+                  Configuration.instance.opensearch_endpoint,
                   id)
     response = @http_client.get(url, nil, 'Content-Type': CONTENT_TYPE)
     case response.status
@@ -196,11 +196,11 @@ class ElasticsearchClient
   # @param id [String]    Document ID.
   # @param doc [Hash]     Hash to serialize as JSON.
   # @return [void]
-  # @raises [IOError]     If Elasticsearch returns an error response.
+  # @raises [IOError]     If OpenSearch returns an error response.
   #
   def index_document(index, id, doc)
     url = sprintf('%s/%s/_doc/%s',
-                  Configuration.instance.elasticsearch_endpoint,
+                  Configuration.instance.opensearch_endpoint,
                   index, id)
     response = @http_client.put(url,
                                 JSON.generate(doc),
@@ -216,7 +216,7 @@ class ElasticsearchClient
   #
   def index_exists?(name)
     url = sprintf('%s/%s',
-                  Configuration.instance.elasticsearch_endpoint,
+                  Configuration.instance.opensearch_endpoint,
                   name)
     response = @http_client.head(url, nil, 'Content-Type': CONTENT_TYPE)
     response.status == 200
@@ -224,11 +224,11 @@ class ElasticsearchClient
 
   ##
   # @return [String] Summary of all indexes in the node, as reported by
-  #                  Elasticsearch.
+  #                  OpenSearch.
   #
   def indexes
     url = sprintf('%s/_aliases?pretty',
-                  Configuration.instance.elasticsearch_endpoint)
+                  Configuration.instance.opensearch_endpoint)
     response = @http_client.get(url, nil, 'Content-Type': CONTENT_TYPE)
     response.body
   end
@@ -249,8 +249,8 @@ class ElasticsearchClient
   def query(query)
     config = Configuration.instance
     url = sprintf('%s/%s/_search',
-                  config.elasticsearch_endpoint,
-                  config.elasticsearch_index)
+                  config.opensearch_endpoint,
+                  config.opensearch_index)
     body = query.force_encoding('UTF-8')
     response = @http_client.post(url, body, 'Content-Type': CONTENT_TYPE)
 
@@ -268,7 +268,7 @@ class ElasticsearchClient
   #
   def reindex(from_index, to_index, async: false)
     url = sprintf("%s/_reindex?wait_for_completion=#{!async}&pretty",
-                  Configuration.instance.elasticsearch_endpoint)
+                  Configuration.instance.opensearch_endpoint)
     body = JSON.generate({
         source: {
             index: from_index
@@ -295,7 +295,7 @@ class ElasticsearchClient
     config = Configuration.instance
     index ||= config.elasticsearch_index
     url = sprintf('%s/%s/_refresh',
-                  Configuration.instance.elasticsearch_endpoint,
+                  Configuration.instance.opensearch_endpoint,
                   index)
     response = @http_client.post(url, nil, 'Content-Type': CONTENT_TYPE)
 

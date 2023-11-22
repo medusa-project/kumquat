@@ -4,7 +4,7 @@ class ItemTest < ActiveSupport::TestCase
 
   setup do
     ActionMailer::Base.deliveries.clear
-    setup_elasticsearch
+    setup_opensearch
     @item = items(:compound_object_1002)
   end
 
@@ -12,16 +12,16 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'delete_document() deletes a document' do
     Item.reindex_all
-    refresh_elasticsearch
+    refresh_opensearch
 
-    index = Configuration.instance.elasticsearch_index
+    index = Configuration.instance.opensearch_index
     item  = items(:compound_object_1002_page1)
-    assert_not_nil ElasticsearchClient.instance.get_document(index,
+    assert_not_nil OpensearchClient.instance.get_document(index,
                                                              item.index_id)
 
     Item.delete_document(item.index_id)
-    refresh_elasticsearch
-    assert_nil ElasticsearchClient.instance.get_document(index,
+    refresh_opensearch
+    assert_nil OpensearchClient.instance.get_document(index,
                                                          item.index_id)
   end
 
@@ -31,12 +31,12 @@ class ItemTest < ActiveSupport::TestCase
     items = Item.all
     items.each(&:reindex)
     count = items.count
-    refresh_elasticsearch
+    refresh_opensearch
 
     items.first.destroy! # outside of a transaction!
 
     Item.delete_orphaned_documents
-    refresh_elasticsearch
+    refresh_opensearch
 
     assert_equal count - 1, Item.search.include_children_in_results(true).count
   end
@@ -45,7 +45,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'num_free_form_files() returns a correct count' do
     Item.reindex_all
-    refresh_elasticsearch
+    refresh_opensearch
     assert_equal Item.where(variant: Item::Variants::FILE).count,
                  Item.num_free_form_files
   end
@@ -54,7 +54,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'num_free_form_items() returns a correct count' do
     Item.reindex_all
-    refresh_elasticsearch
+    refresh_opensearch
     assert_equal Item.where(variant: [Item::Variants::FILE, Item::Variants::DIRECTORY]).count,
                  Item.num_free_form_items
   end
@@ -63,7 +63,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'num_objects() returns a correct count' do
     Item.reindex_all
-    refresh_elasticsearch
+    refresh_opensearch
     assert_equal Item.where('variant = ? OR variant IS NULL',
                             Item::Variants::FILE).count,
                  Item.num_objects
@@ -74,7 +74,7 @@ class ItemTest < ActiveSupport::TestCase
   test 'reindex_all() reindexes all items' do
     assert_equal 0, Item.search.count
     Item.reindex_all
-    refresh_elasticsearch
+    refresh_opensearch
     assert Item.search.count > 0
   end
 

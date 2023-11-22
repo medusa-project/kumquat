@@ -315,7 +315,7 @@ class ItemsController < WebsiteController
       format.zip do
         return unless check_captcha
         download_relation.limit((params[:limit].to_i > 0) ?
-                                  params[:limit].to_i : ElasticsearchClient::MAX_RESULT_WINDOW)
+                                  params[:limit].to_i : OpensearchClient::MAX_RESULT_WINDOW)
         # Use the Medusa Downloader to generate a zip of items from
         # download_relation. It takes the downloader time to generate the zip
         # file manifest, which would block the web server if we did it here,
@@ -700,7 +700,7 @@ class ItemsController < WebsiteController
       relation.search_children(@collection&.package_profile != PackageProfile::FREE_FORM_PROFILE).
         exclude_variants(*Item::Variants::non_filesystem_variants).
         limit(@collection&.free_form? ?
-                ElasticsearchClient::MAX_RESULT_WINDOW : session[:limit])
+                OpensearchClient::MAX_RESULT_WINDOW : session[:limit])
     end
 
     # `field` is present when searching for identical values in the same

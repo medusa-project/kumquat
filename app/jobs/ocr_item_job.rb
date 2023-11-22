@@ -13,7 +13,7 @@ class OcrItemJob < Job # TODO: replace this with OcrItemsJob
   #
   # 1. The AWS Lambda concurrent invocation limit (which is in the thousands)
   # 2. The database connection pool size (probably a lot smaller than #1)
-  # 3. Indexing performance of Elasticsearch
+  # 3. Indexing performance of OpenSearch
   #
   # As the way the production environment is currently configured, the greatest
   # limiter is #3, followed by #2.

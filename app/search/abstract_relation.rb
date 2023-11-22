@@ -1,6 +1,6 @@
 ##
 # Abstract base class for type-specific "relations," which are objects that
-# simplify Elasticsearch queries (which can be pretty complex & awkward) using
+# simplify OpenSearch queries (which can be pretty complex & awkward) using
 # the Builder pattern, similar to {ActiveRecord::Relation}.
 #
 class AbstractRelation
@@ -13,14 +13,14 @@ class AbstractRelation
   attr_reader :request_json, :response_json
 
   def initialize
-    @client = ElasticsearchClient.instance
+    @client = OpensearchClient.instance
 
     @aggregations = true
     @bucket_limit = AGGREGATION_TERM_LIMIT
     @exact_match  = false
     @filters      = {} # Hash<String,Object>
     @host_groups  = []
-    @limit        = ElasticsearchClient::MAX_RESULT_WINDOW
+    @limit        = OpensearchClient::MAX_RESULT_WINDOW
     @orders       = [] # Array<Hash<Symbol,String>> with :field and :direction keys
     @query        = nil # Hash<Symbol,String> Hash with :field and :query keys
     @start        = 0
@@ -167,7 +167,7 @@ class AbstractRelation
   # @return [self]
   #
   def query_all(query)
-    query(ElasticsearchIndex::StandardFields::SEARCH_ALL, query)
+    query(OpensearchIndex::StandardFields::SEARCH_ALL, query)
     self
   end
 

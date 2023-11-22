@@ -988,7 +988,7 @@ module ItemsHelper
   ##
   # @param count [Integer] Total number of items to paginate through. This will
   #                        be limited internally to
-  #                        {ElasticsearchClient#MAX_RESULT_WINDOW}.
+  #                        {OpensearchClient#MAX_RESULT_WINDOW}.
   # @param per_page [Integer]
   # @param current_page [Integer]
   # @param permitted_params [ActionController::Parameters]
@@ -1000,7 +1000,7 @@ module ItemsHelper
   def do_paginate(count, per_page, current_page, permitted_params,
                   max_links = ApplicationHelper::MAX_PAGINATION_LINKS,
                   owning_entity = nil, item_variant = nil)
-    count = [count, ElasticsearchClient::MAX_RESULT_WINDOW].min
+    count = [count, OpensearchClient::MAX_RESULT_WINDOW].min
     return '' if count <= per_page
     num_pages      = (count / per_page.to_f).ceil
     first_page     = [1, current_page - (max_links / 2.0).floor].max

@@ -6,7 +6,7 @@ module Harvest
   class HarvestControllerTest < AbstractHarvestControllerTest
 
     setup do
-      setup_elasticsearch
+      setup_opensearch
     end
 
     # index()

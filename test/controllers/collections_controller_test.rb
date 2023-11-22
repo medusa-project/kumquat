@@ -3,7 +3,7 @@ require 'test_helper'
 class CollectionsControllerTest < ActionDispatch::IntegrationTest
 
   setup do
-    setup_elasticsearch
+    setup_opensearch
     @collection = collections(:compound_object)
     sign_out
   end

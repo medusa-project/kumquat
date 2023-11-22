@@ -101,14 +101,14 @@
 #
 # # Indexing
 #
-# Items are searchable via ActiveRecord as well as via Elasticsearch. A low-
-# level interface to Elasticsearch is provided by ElasticsearchClient, but
-# in most cases, it's better to use the higher-level query interface provided
-# by {ItemRelation}, which is easier to use, and takes authorization, public
+# Items are searchable via ActiveRecord as well as via OpenSearch. A low-level
+# interface to OpenSearch is provided by OpensearchClient, but in most cases,
+# it's better to use the higher-level query interface provided by
+# {ItemRelation}, which is easier to use, and takes authorization, public
 # visibility, etc. into account. (An instance of {ItemRelation} can be obtained
 # from {search}.)
 #
-# **IMPORTANT**: Instances are automatically indexed in Elasticsearch (see
+# **IMPORTANT**: Instances are automatically indexed in OpenSearch (see
 # `as_indexed_json()`) upon transaction commit. They are **not** indexed on
 # save. For this reason, **instances should always be created, updated, and
 # deleted within transactions.**
@@ -116,7 +116,7 @@
 # # Sorting
 #
 # The indexed document contains a {IndexFields::STRUCTURAL_SORT} key that
-# assists in sorting item documents retrieved from Elasticsearch by their
+# assists in sorting item documents retrieved from OpenSearch by their
 # structure. For example, for a compound object, the {Variants::FRONT_COVER
 # front cover} will appear first, then the {Variants::PAGE pages} in page
 # order, then the {Variants::BACK_COVER back cover}.
@@ -203,7 +203,7 @@ class Item < ApplicationRecord
   # metadata fields may also be present.
   #
   class IndexFields
-    CLASS                              = ElasticsearchIndex::StandardFields::CLASS
+    CLASS                              = OpensearchIndex::StandardFields::CLASS
     COLLECTION                         = 'sys_k_collection'
     CREATED                            = 'sys_d_created'
     DATE                               = 'sys_d_date'
@@ -212,8 +212,8 @@ class Item < ApplicationRecord
     EFFECTIVE_ALLOWED_HOST_GROUPS      = 'sys_k_effective_allowed_host_groups'
     FULL_TEXT                          = 'sys_t_full_text'
     ITEM_SETS                          = 'sys_i_item_sets'
-    LAST_INDEXED                       = ElasticsearchIndex::StandardFields::LAST_INDEXED
-    LAST_MODIFIED                      = ElasticsearchIndex::StandardFields::LAST_MODIFIED
+    LAST_INDEXED                       = OpensearchIndex::StandardFields::LAST_INDEXED
+    LAST_MODIFIED                      = OpensearchIndex::StandardFields::LAST_MODIFIED
     LAT_LONG                           = 'sys_p_lat_long'
     # Repository ID of the item, or its parent item, if a child within a
     # compound object.
@@ -223,14 +223,14 @@ class Item < ApplicationRecord
     PRIMARY_MEDIA_CATEGORY             = 'sys_k_primary_media_category'
     # N.B.: An item might be published but its collection might not be, making
     # it still effectively unpublished. This will take that into account.
-    PUBLICLY_ACCESSIBLE                = ElasticsearchIndex::StandardFields::PUBLICLY_ACCESSIBLE
+    PUBLICLY_ACCESSIBLE                = OpensearchIndex::StandardFields::PUBLICLY_ACCESSIBLE
     PUBLISHED                          = 'sys_b_published'
     PUBLISHED_AT                       = 'sys_d_published'
     REPOSITORY_ID                      = 'sys_k_repository_id'
     REPRESENTATIVE_FILENAME            = 'sys_k_representative_filename'
     REPRESENTATIVE_ITEM                = 'sys_k_representative_item_id'
-    RESTRICTED                         = ElasticsearchIndex::StandardFields::RESTRICTED
-    SEARCH_ALL                         = ElasticsearchIndex::StandardFields::SEARCH_ALL
+    RESTRICTED                         = OpensearchIndex::StandardFields::RESTRICTED
+    SEARCH_ALL                         = OpensearchIndex::StandardFields::SEARCH_ALL
     # Concatenation of various compound object page components or path
     # components (see as_indexed_json()) used for sorting items grouped
     # structurally.
@@ -550,7 +550,7 @@ class Item < ApplicationRecord
     doc = {}
     doc[IndexFields::CLASS]                   = self.class.to_s
     doc[IndexFields::COLLECTION]              = self.collection_repository_id
-    # Elasticsearch date fields don't support >4-digit years.
+    # OpenSearch date fields don't support >4-digit years.
     if self.date && self.date.year < 10000
       doc[IndexFields::DATE]                  = self.date.utc.iso8601
     end
@@ -599,7 +599,7 @@ class Item < ApplicationRecord
           doc[element.indexed_field] = []
         end
         doc[element.indexed_field] <<
-            StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
+            StringUtils.strip_leading_articles(element.value)[0..OpensearchClient::MAX_KEYWORD_FIELD_LENGTH]
       end
     end
 
@@ -613,7 +613,7 @@ class Item < ApplicationRecord
             doc[element.parent_indexed_field] = []
           end
           doc[element.parent_indexed_field] <<
-              StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
+              StringUtils.strip_leading_articles(element.value)[0..OpensearchClient::MAX_KEYWORD_FIELD_LENGTH]
         end
       end
     end
@@ -1788,7 +1788,7 @@ class Item < ApplicationRecord
               self.subpage_number.present? ? zero_pad_numbers(self.subpage_number) : sort_last_token,
               self.title.present? ? zero_pad_numbers(self.title.downcase) : sort_last_token)
     end
-    key[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
+    key[0..OpensearchClient::MAX_KEYWORD_FIELD_LENGTH]
   end
 
   def walk(item, index, &block)

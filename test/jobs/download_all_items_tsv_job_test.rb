@@ -5,9 +5,9 @@ class DownloadAllItemsTsvJobTest < ActiveSupport::TestCase
   setup do
     @download = Download.create
 
-    setup_elasticsearch
+    setup_opensearch
     Item.reindex_all
-    refresh_elasticsearch
+    refresh_opensearch
   end
 
   teardown do

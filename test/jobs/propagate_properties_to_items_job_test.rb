@@ -6,7 +6,7 @@ class PropagatePropertiesToItemsJobTest < ActiveSupport::TestCase
     @collection = collections(:free_form)
     @collection.reindex
     @collection.items.each(&:reindex)
-    refresh_elasticsearch
+    refresh_opensearch
   end
 
   # perform()

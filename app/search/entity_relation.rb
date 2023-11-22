@@ -102,7 +102,7 @@ class EntityRelation < AbstractRelation
     load
     if @response_json['hits']
       return @response_json['hits']['hits'].map { |r|
-        case r['_source'][ElasticsearchIndex::StandardFields::CLASS].downcase
+        case r['_source'][OpensearchIndex::StandardFields::CLASS].downcase
         when 'agent'
           id    = r['_id']
           agent = Agent.find_by_id(id)
@@ -183,7 +183,7 @@ class EntityRelation < AbstractRelation
               unless @include_restricted
                 j.child! do
                   j.term do
-                    j.set! ElasticsearchIndex::StandardFields::RESTRICTED, false
+                    j.set! OpensearchIndex::StandardFields::RESTRICTED, false
                   end
                 end
               end
@@ -191,7 +191,7 @@ class EntityRelation < AbstractRelation
               unless @include_unpublished
                 j.child! do
                   j.term do
-                    j.set! ElasticsearchIndex::StandardFields::PUBLICLY_ACCESSIBLE, true
+                    j.set! OpensearchIndex::StandardFields::PUBLICLY_ACCESSIBLE, true
                   end
                 end
               end

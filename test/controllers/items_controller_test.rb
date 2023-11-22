@@ -4,7 +4,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   def setup
     @item = items(:compound_object_1001)
-    setup_elasticsearch
+    setup_opensearch
   end
 
   # binary()

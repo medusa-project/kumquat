@@ -3,9 +3,9 @@ require 'test_helper'
 class PdfGeneratorTest < ActiveSupport::TestCase
 
   setup do
-    setup_elasticsearch
+    setup_opensearch
     Item.reindex_all
-    refresh_elasticsearch
+    refresh_opensearch
     @instance = PdfGenerator.new
   end
 
