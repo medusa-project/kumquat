@@ -712,6 +712,12 @@ const DLTreeBrowserView = function() {
         return url;
     }
 
+    const updateItemViewHeight = function() {
+        const lastElem = treeView.children().filter(':visible').filter(':last');
+        const height   = lastElem.offset().top + lastElem.height() - 200;
+        $('#dl-free-form-split-pane').css('height', height);
+    }
+
     const setItemViewHTML = function(result) {
         //reset flag used by embed.js
         window.embedScriptIncluded = false;
@@ -720,11 +726,7 @@ const DLTreeBrowserView = function() {
         Application.init();
         Application.view = new DLItemView();
         Application.view.init();
-
-        // Update the height of the tree browser to fit.
-        const lastElem = treeView.children().filter(':visible').filter(':last');
-        const height   = lastElem.offset().top + lastElem.height() - 200;
-        $('#dl-free-form-split-pane').css('height', height);
+        updateItemViewHeight();
     };
 
     const getRootTreeDataURL = function() {
