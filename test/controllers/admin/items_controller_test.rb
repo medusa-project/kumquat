@@ -7,6 +7,7 @@ module Admin
     setup do
       @item       = items(:compound_object_1002)
       @collection = @item.collection
+      setup_opensearch
       sign_out
     end
 
@@ -118,7 +119,7 @@ module Admin
           item.update!(expose_full_text_search: true)
         end
       end
-      refresh_elasticsearch
+      refresh_opensearch
 
       ids = items.map(&:repository_id)
       patch admin_collection_items_disable_full_text_search_path(items[0].collection),
@@ -141,7 +142,7 @@ module Admin
           item.update!(expose_full_text_search: true)
         end
       end
-      refresh_elasticsearch
+      refresh_opensearch
 
       patch admin_collection_items_disable_full_text_search_path(@item.collection)
 
@@ -290,7 +291,7 @@ module Admin
           item.update!(expose_full_text_search: false)
         end
       end
-      refresh_elasticsearch
+      refresh_opensearch
 
       ids = items.map(&:repository_id)
       patch admin_collection_items_enable_full_text_search_path(items[0].collection),
@@ -313,7 +314,7 @@ module Admin
           item.update!(expose_full_text_search: false)
         end
       end
-      refresh_elasticsearch
+      refresh_opensearch
 
       patch admin_collection_items_enable_full_text_search_path(@item.collection)
 
@@ -358,6 +359,25 @@ module Admin
     test "import() redirects for authorized users" do
       sign_in_as(users(:medusa_admin))
       post admin_collection_items_import_path(@collection, format: :tsv)
+      assert_redirected_to admin_collection_items_path(@collection)
+    end
+
+    # import_embedded_file_metadata()
+
+    test "import_embedded_file_metadata() redirects to sign-in page for signed-out users" do
+      post admin_collection_items_import_embedded_file_metadata_path(@collection)
+      assert_redirected_to signin_path
+    end
+
+    test "import_embedded_file_metadata() returns HTTP 403 for unauthorized users" do
+      sign_in_as(users(:normal))
+      post admin_collection_items_import_embedded_file_metadata_path(@collection)
+      assert_response :forbidden
+    end
+
+    test "import_embedded_file_metadata() redirects for authorized users" do
+      sign_in_as(users(:medusa_admin))
+      post admin_collection_items_import_embedded_file_metadata_path(@collection)
       assert_redirected_to admin_collection_items_path(@collection)
     end
 
@@ -446,7 +466,7 @@ module Admin
           item.update!(published: false)
         end
       end
-      refresh_elasticsearch
+      refresh_opensearch
 
       ids = items.map(&:repository_id)
       patch admin_collection_items_publish_path(items[0].collection),
@@ -468,7 +488,7 @@ module Admin
           item.update!(published: false)
         end
       end
-      refresh_elasticsearch
+      refresh_opensearch
 
       patch admin_collection_items_publish_path(@item.collection)
 
@@ -646,7 +666,7 @@ module Admin
           item.update!(published: true)
         end
       end
-      refresh_elasticsearch
+      refresh_opensearch
 
       ids = items.map(&:repository_id)
       patch admin_collection_items_unpublish_path(items[0].collection),
@@ -669,7 +689,7 @@ module Admin
           item.update!(published: true)
         end
       end
-      refresh_elasticsearch
+      refresh_opensearch
 
       patch admin_collection_items_unpublish_path(@item.collection)
 

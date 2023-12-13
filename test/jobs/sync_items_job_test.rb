@@ -3,7 +3,7 @@ require 'test_helper'
 class SyncItemsJobTest < ActiveSupport::TestCase
 
   setup do
-    setup_elasticsearch
+    setup_opensearch
   end
 
   # perform()

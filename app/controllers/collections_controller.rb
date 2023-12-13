@@ -1,16 +1,14 @@
+# frozen_string_literal: true
+
 class CollectionsController < WebsiteController
 
   LOGGER                  = CustomLogger.new(CollectionsController)
   PERMITTED_SEARCH_PARAMS = [:fq, :id, :q]
 
+  before_action :set_permitted_params, only: :show
+  before_action :enable_cors, only: :iiif_presentation
   before_action :set_collection, only: [:iiif_presentation, :show]
   before_action :authorize_collection, only: [:iiif_presentation, :show]
-  before_action :check_publicly_accessible, only: [:iiif_presentation, :show]
-  before_action :enable_cors, only: :iiif_presentation
-  before_action :set_permitted_params, only: :show
-
-  rescue_from AuthorizationError, with: :rescue_unauthorized
-  rescue_from UnpublishedError, with: :rescue_unpublished
 
   ##
   # Serves IIIF Presentation API 2.1 collections.
@@ -32,6 +30,7 @@ class CollectionsController < WebsiteController
   # Responds to `GET /collections/iiif`
   #
   def iiif_presentation_list
+    authorize(Collection)
     @collections = Collection.search.
         host_groups(client_host_groups).
         order(CollectionElement.new(name: 'title').indexed_sort_field)
@@ -43,11 +42,12 @@ class CollectionsController < WebsiteController
 
   ##
   # This is a legacy route that used to be served by this application, but now
-  # the Metadata Gateway serves it instead.
+  # the Metadata Gateway, or whatever it's called, serves it instead.
   #
   # Responds to `GET /collections`
   #
   def index
+    authorize(Collection)
     redirect_to ::Configuration.instance.metadata_gateway_url + '/collections',
                 status:           301,
                 allow_other_host: true
@@ -60,13 +60,7 @@ class CollectionsController < WebsiteController
   # residing in them are NOT.
   #
   def show
-    begin
-      @uofi_user = true
-      authorize_host_group(@collection)
-    rescue AuthorizationError
-      @uofi_user = false
-    end
-
+    @uofi_user = @collection.authorized_by_any_host_groups?(request_context.client_host_groups)
     respond_to do |format|
       format.html do
         @children = []
@@ -115,29 +109,7 @@ class CollectionsController < WebsiteController
   private
 
   def authorize_collection
-    authorize(@collection)
-  end
-
-  def check_publicly_accessible
-    raise UnpublishedError unless @collection.publicly_accessible?
-  end
-
-  def rescue_unauthorized
-    message = "You are not authorized to access this collection."
-    respond_to do |format|
-      format.html { render "unauthorized", status: :forbidden }
-      format.json { render "errors/error", status: :forbidden, locals: { message: message } }
-      format.all { render plain: message, status: :forbidden, content_type: "text/plain" }
-    end
-  end
-
-  def rescue_unpublished
-    message = "This collection is unpublished."
-    respond_to do |format|
-      format.html { render "unpublished", status: :forbidden }
-      format.json { render "errors/error", status: :forbidden, locals: { message: message } }
-      format.all { render plain: message, status: :forbidden, content_type: "text/plain" }
-    end
+    @collection ? authorize(@collection) : skip_authorization
   end
 
   def set_collection

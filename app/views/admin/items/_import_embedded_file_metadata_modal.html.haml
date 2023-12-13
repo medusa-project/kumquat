@@ -1,0 +1,28 @@
+-# Import Embedded File Metadata modal panel
+
+#dl-import-embedded-file-metadata-modal.modal.fade{"aria-labelledby": "dl-import-embedded-file-metadata-modal-label",
+                                                   role:              "dialog",
+                                                   tabindex:          "-1"}
+  .modal-dialog.modal-dialog-centered{role: "document"}
+    .modal-content
+      = form_tag(admin_collection_items_import_embedded_file_metadata_path(@collection)) do
+        .modal-header
+          %h4#dl-import-embedded-file-metadata-modal-label.modal-title Import Embedded File Metadata
+          %button.close{"aria-label":   "Close",
+                        "data-dismiss": "modal",
+                        type:           "button"}
+            %span{"aria-hidden": "true"} ×
+        .modal-body
+          .alert.alert-danger
+            %i.fa.fa-exclamation-triangle
+            Any existing item metadata will be permanently replaced with
+            metadata extracted from attached binaries.
+
+          .checkbox{style: "padding-left: 1.5em"}
+            %label
+              = check_box_tag('include_date_created', 'true', false)
+              Extract creation date from embedded file metadata
+
+        .modal-footer
+          %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+          %button.btn.btn-primary{type: "submit"} Import

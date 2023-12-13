@@ -6,13 +6,13 @@ class ActiveSupport::TestCase
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
   fixtures :all
 
-  def refresh_elasticsearch
-    ElasticsearchClient.instance.refresh
+  def refresh_opensearch
+    OpensearchClient.instance.refresh
   end
 
-  def setup_elasticsearch
-    index  = Configuration.instance.elasticsearch_index
-    client = ElasticsearchClient.instance
+  def setup_opensearch
+    index  = Configuration.instance.opensearch_index
+    client = OpensearchClient.instance
     client.delete_index(index) if client.index_exists?(index)
     client.create_index(index)
   end

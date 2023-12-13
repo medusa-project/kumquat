@@ -3,7 +3,7 @@ require 'test_helper'
 class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
 
   setup do
-    setup_elasticsearch
+    setup_opensearch
     @ingester   = MedusaMixedMediaIngester.new
     @collection = collections(:mixed_media)
     # These will only get in the way.
@@ -137,15 +137,6 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
     assert_equal 'repositories/1/collections/4/file_groups/4/root/1002/001/access/images/1002_001.jp2',
                  bin.object_key
-  end
-
-  test 'create_items() extracts metadata when told to' do
-    # Run the ingest.
-    @ingester.create_items(@collection, extract_metadata: true)
-
-    # Inspect a child item.
-    item = Item.find_by_repository_id('a6ff394a-475b-4ea4-5558-795e9ef0f98e')
-    assert_equal 'Escher Lego', item.title
   end
 
   # delete_missing()

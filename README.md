@@ -15,7 +15,7 @@ This is a getting-started guide for developers.
 * PostgreSQL >= 9.x
 * An S3 bucket ([MinIO Server](https://min.io/download) will work in
   development & test)
-* Elasticsearch 7
+* OpenSearch >= 1.0
     * The [ICU Analysis Plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-icu.html)
       must also be installed.
 * Cantaloupe 5.0+
@@ -57,11 +57,11 @@ $ gem install bundler
 $ bundle install
 ```
 
-## Create the Elasticsearch index
+## Create the OpenSearch index
 
 ```sh
-$ bin/rails elasticsearch:indexes:create[my_index]
-$ bin/rails elasticsearch:indexes:create_alias[my_index,my_index_alias]
+$ bin/rails opensearch:indexes:create[my_index]
+$ bin/rails opensearch:indexes:create_alias[my_index,my_index_alias]
 ```
 
 ## Configure the application
@@ -71,7 +71,7 @@ $ cd config/credentials
 $ cp template.yml development.yml
 $ cp template.yml test.yml
 ```
-Edit both as necessary. In particular, set `elasticsearch_index` to
+Edit both as necessary. In particular, set `opensearch_index` to
 `my_index_alias` that you created above.
 
 See the "Configuration" section later in this file for more information about
@@ -148,19 +148,19 @@ collection.)
 $ bin/rails db:migrate
 ```
 
-## Update the Elasticsearch schema
+## Update the OpenSearch schema
 
 Once created, index schemas can only be modified to a limited extent. To
 migrate to an incompatible schema, the procedure would be:
 
 1. Update the index schema in `app/search/index_schema.yml`
 2. Create a new index with the new schema:
-   `rails elasticsearch:indexes:create[new_index]`
+   `rails opensearch:indexes:create[new_index]`
 3. Populate the new index with documents. There are a couple of ways to do
    this:
     1. If the schema change was backwards-compatible with the source documents
        added to the index, invoke
-       `rails elasticsearch:indexes:reindex[current_index,new_index]`.
+       `rails opensearch:indexes:reindex[current_index,new_index]`.
        This will reindex all source documents from the current index into the
        new index.
     2. Otherwise, reindex all database content:
@@ -175,7 +175,7 @@ migrate to an incompatible schema, the procedure would be:
 There are several dependent services:
 
 * PostgreSQL
-* Elasticsearch
+* OpenSearch
 * A working [Medusa Collection Registry](https://medusa.library.illinois.edu).
   There are a lot of tests that rely on fixture data within Medusa.
   Unfortunately, production Medusa data is not stable enough to test against
@@ -189,8 +189,8 @@ There are several dependent services:
     3. One containing Medusa repository data. The content exposed by
        Mockdusa, above, should be available in this bucket.
 
-Because getting all of this running locally can be a real hassle, there is also
-a `docker-compose.yml` file that will spin up all of the required services and
+Because getting all of this running locally can be a hassle, there is also a
+`docker-compose.yml` file that will spin up all of the required services and
 run the tests within a containerized environment:
 
 ```sh

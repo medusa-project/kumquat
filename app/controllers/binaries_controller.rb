@@ -2,9 +2,8 @@ class BinariesController < WebsiteController
 
   include ActionController::Streaming
 
-  before_action :load_binary, :authorize_collection, :authorize_item, :authorize_binary
-
-  rescue_from AuthorizationError, with: :rescue_unauthorized
+  before_action :set_binary
+  before_action :authorize_binary
 
   LOGGER = CustomLogger.new(BinariesController)
 
@@ -104,23 +103,7 @@ class BinariesController < WebsiteController
   private
 
   def authorize_binary
-    unless @binary.public? || current_user&.medusa_user?
-      raise AuthorizationError, "Binary is not public"
-    end
-  end
-
-  def authorize_collection
-    item = @binary.item
-    if item
-      return unless authorize(item.collection)
-    end
-  end
-
-  def authorize_item
-    item = @binary.item
-    if item
-      return unless authorize(item)
-    end
+    @binary ? authorize(@binary) : skip_authorization
   end
 
   def content_disposition
@@ -132,14 +115,9 @@ class BinariesController < WebsiteController
         "filename*=UTF-8''#{ERB::Util.url_encode(utf8_filename)}"
   end
 
-  def load_binary
+  def set_binary
     @binary = Binary.find_by_medusa_uuid(params[:id] || params[:binary_id])
     raise ActiveRecord::RecordNotFound unless @binary
-  end
-
-  def rescue_unauthorized
-    render plain: 'You are not authorized to access this binary.',
-           status: :forbidden
   end
 
 end

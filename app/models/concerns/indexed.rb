@@ -1,18 +1,18 @@
 ##
-# Concern to be included by models that get indexed in Elasticsearch. Provides
+# Concern to be included by models that get indexed in OpenSearch. Provides
 # almost all of the functionality they need except for {as_indexed_json}, which
 # must be overridden.
 #
 # # Querying
 #
-# A low-level interface to Elasticsearch is provided by {ElasticsearchClient},
+# A low-level interface to OpenSearch is provided by {OpensearchClient},
 # but in most cases, it's better to use the higher-level query interface
 # provided by the various {AbstractRelation} subclasses, which are easier to
 # use, and take public accessibility etc. into account.
 #
 # # Persistence Callbacks
 #
-# **IMPORTANT NOTE**: Instances are automatically indexed in Elasticsearch (see
+# **IMPORTANT NOTE**: Instances are automatically indexed in OpenSearch (see
 # {as_indexed_json}) upon transaction commit. They are **not** indexed on
 # save or destroy. Whenever creating, updating, or deleting outside of a
 # transaction, you must {reindex reindex} or {delete_document delete} the
@@ -34,14 +34,14 @@ module Indexed
             filter: [
               {
                 term: {
-                  ElasticsearchIndex::StandardFields::ID => id
+                  OpensearchIndex::StandardFields::ID => id
                 }
               }
             ]
           }
         }
       }
-      ElasticsearchClient.instance.delete_by_query(JSON.generate(query))
+      OpensearchClient.instance.delete_by_query(JSON.generate(query))
     end
 
     ##
@@ -86,7 +86,7 @@ module Indexed
     ##
     # Reindexes all of the class' indexed documents. Multi-threaded indexing is
     # supported to potentially make this go a lot faster, but care must be
-    # taken not to overwhelm the Elasticsearch cluster.
+    # taken not to overwhelm the OpenSearch cluster.
     #
     # N.B. 1: Cursory testing suggests that benefit diminishes rapidly beyond 2
     # threads.
@@ -140,8 +140,8 @@ module Indexed
     # @return [Hash]
     #
     def indexed_document
-      ElasticsearchClient.instance.get_document(
-        ::Configuration.instance.elasticsearch_index,
+      OpensearchClient.instance.get_document(
+        ::Configuration.instance.opensearch_index,
         self.index_id)
     end
 
@@ -150,10 +150,10 @@ module Indexed
     # @return [void]
     #
     def reindex(index = nil)
-      index ||= Configuration.instance.elasticsearch_index
-      ElasticsearchClient.instance.index_document(index,
-                                                  self.index_id,
-                                                  self.as_indexed_json)
+      index ||= Configuration.instance.opensearch_index
+      OpensearchClient.instance.index_document(index,
+                                               self.index_id,
+                                               self.as_indexed_json)
     end
   end
 

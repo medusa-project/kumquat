@@ -3,7 +3,7 @@ require 'test_helper'
 class CollectionTest < ActiveSupport::TestCase
 
   setup do
-    setup_elasticsearch
+    setup_opensearch
     @collection = collections(:compound_object)
   end
 
@@ -12,12 +12,12 @@ class CollectionTest < ActiveSupport::TestCase
   test 'delete_document() deletes a document' do
     collections = Collection.all.limit(5)
     collections.each(&:reindex)
-    refresh_elasticsearch
+    refresh_opensearch
     count = Collection.search.count
     assert count > 0
 
     Collection.delete_document(collections.first.index_id)
-    refresh_elasticsearch
+    refresh_opensearch
     assert_equal count - 1, Collection.search.count
   end
 
@@ -27,12 +27,12 @@ class CollectionTest < ActiveSupport::TestCase
     collections = Collection.all
     collections.each(&:reindex)
     count = collections.count
-    refresh_elasticsearch
+    refresh_opensearch
 
     collections.first.destroy! # outside of a transaction!
 
     Collection.delete_orphaned_documents
-    refresh_elasticsearch
+    refresh_opensearch
 
     assert_equal count - 1, Collection.search.count
   end
@@ -57,7 +57,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   test 'reindex_all() reindexes all collections' do
     Collection.reindex_all
-    refresh_elasticsearch
+    refresh_opensearch
 
     actual = Collection.search.
         include_unpublished(true).
@@ -71,7 +71,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   test 'all_indexed_item_ids() returns all indexed item IDs' do
     @collection.items.each(&:reindex)
-    refresh_elasticsearch
+    refresh_opensearch
     assert_equal Set.new(['21353276-887c-0f2b-25a0-ed444003303f',
                   '6bc86d3b-e321-1a63-5172-fbf9a6e1aaab',
                   '9dc25346-b83a-eb8a-ac2a-bdde98b5a374',
@@ -115,18 +115,10 @@ class CollectionTest < ActiveSupport::TestCase
                  doc[Collection::IndexFields::ALLOWED_HOST_GROUP_COUNT]
     assert_equal 'Collection',
                  doc[Collection::IndexFields::CLASS]
-    assert_equal @collection.denied_host_groups.pluck(:key).sort,
-                 doc[Collection::IndexFields::DENIED_HOST_GROUPS].sort
-    assert_equal @collection.denied_host_groups.pluck(:key).length,
-                 doc[Collection::IndexFields::DENIED_HOST_GROUP_COUNT]
     assert_equal @collection.allowed_host_groups.pluck(:key),
                  doc[Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS]
     assert_equal @collection.allowed_host_groups.pluck(:key).length,
                  doc[Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUP_COUNT]
-    assert_equal @collection.denied_host_groups.pluck(:key),
-                 doc[Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUPS]
-    assert_equal @collection.denied_host_groups.pluck(:key).length,
-                 doc[Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUP_COUNT]
     assert_equal @collection.external_id,
                  doc[Collection::IndexFields::EXTERNAL_ID]
     assert_equal @collection.harvestable,
@@ -163,7 +155,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   test 'delete_orphaned_item_documents() works' do
     @collection.items.each(&:reindex)
-    refresh_elasticsearch
+    refresh_opensearch
     assert_equal 5, Item.search.
         include_unpublished(true).
         include_restricted(true).
@@ -173,7 +165,7 @@ class CollectionTest < ActiveSupport::TestCase
 
     @collection.items.first.destroy! # delete outside of a transaction
     @collection.delete_orphaned_item_documents
-    refresh_elasticsearch
+    refresh_opensearch
 
     assert_equal 4, Item.search.
         include_unpublished(true).
@@ -362,7 +354,7 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal 5, items.length
 
     items.each(&:reindex)
-    refresh_elasticsearch
+    refresh_opensearch
 
     assert_equal 5, @collection.num_items
   end
@@ -372,13 +364,13 @@ class CollectionTest < ActiveSupport::TestCase
   test 'num_objects() works with free-form collections' do
     @collection = collections(:free_form)
     @collection.items.each(&:reindex)
-    refresh_elasticsearch
+    refresh_opensearch
     assert_equal 4, @collection.num_objects
   end
 
   test 'num_objects() works with non-free-form collections' do
     @collection.items.each(&:reindex)
-    refresh_elasticsearch
+    refresh_opensearch
     assert_equal 2, @collection.num_objects
   end
 
@@ -391,7 +383,7 @@ class CollectionTest < ActiveSupport::TestCase
       item.elements.build(name: 'title', value: 'Cats')
       item.reindex
     end
-    refresh_elasticsearch
+    refresh_opensearch
     assert_equal 4, @collection.num_public_objects
   end
 
@@ -401,7 +393,7 @@ class CollectionTest < ActiveSupport::TestCase
       item.elements.build(name: 'subject', value: 'Cats')
       item.reindex
     end
-    refresh_elasticsearch
+    refresh_opensearch
     assert_equal 2, @collection.num_public_objects
   end
 
@@ -426,21 +418,16 @@ class CollectionTest < ActiveSupport::TestCase
   test 'propagate_heritable_properties() propagates host groups to items' do
     # Clear all host groups on the collection and its items.
     @collection.allowed_host_groups.destroy_all
-    @collection.denied_host_groups.destroy_all
     @collection.save!
 
     @collection.items.each do |it|
       it.allowed_host_groups.destroy_all
-      it.denied_host_groups.destroy_all
       it.save!
-
       assert_equal 0, it.effective_allowed_host_groups.count
-      assert_equal 0, it.effective_denied_host_groups.count
     end
 
     # Add host groups to the collection.
     @collection.allowed_host_groups << host_groups(:red)
-    @collection.denied_host_groups << host_groups(:blue)
 
     # Propagate heritable properties.
     @collection.propagate_heritable_properties
@@ -449,9 +436,6 @@ class CollectionTest < ActiveSupport::TestCase
     @collection.items.each do |it|
       assert_equal 1, it.effective_allowed_host_groups.count
       assert it.effective_allowed_host_groups.include?(host_groups(:red))
-
-      assert_equal 1, it.effective_denied_host_groups.count
-      assert it.effective_denied_host_groups.include?(host_groups(:blue))
     end
   end
 
@@ -500,7 +484,7 @@ class CollectionTest < ActiveSupport::TestCase
         filter(Collection::IndexFields::REPOSITORY_ID, @collection.repository_id).count
 
     @collection.reindex
-    refresh_elasticsearch
+    refresh_opensearch
 
     assert_equal 1, Collection.search.
         filter(Collection::IndexFields::REPOSITORY_ID, @collection.repository_id).count
@@ -517,7 +501,7 @@ class CollectionTest < ActiveSupport::TestCase
         count
 
     @collection.reindex_items
-    refresh_elasticsearch
+    refresh_opensearch
 
     assert_equal 5, Item.search.
         collection(@collection).

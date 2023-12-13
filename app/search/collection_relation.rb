@@ -164,20 +164,11 @@ class CollectionRelation < AbstractRelation
             end
           end
 
-          if @host_groups.any? or !@search_children
+          unless @search_children
             j.must_not do
-              if @host_groups.any?
-                j.child! do
-                  j.terms do
-                    j.set! Collection::IndexFields::DENIED_HOST_GROUPS, @host_groups
-                  end
-                end
-              end
-              unless @search_children
-                j.child! do
-                  j.exists do
-                    j.field Collection::IndexFields::PARENT_COLLECTIONS
-                  end
+              j.child! do
+                j.exists do
+                  j.field Collection::IndexFields::PARENT_COLLECTIONS
                 end
               end
             end

@@ -67,8 +67,7 @@ namespace :items do
   task :sync, [:collection_uuid, :mode] => :environment do |task, args|
     collection = Collection.find_by_repository_id(args[:collection_uuid])
     SyncItemsJob.new(collection:  collection,
-                     ingest_mode: args[:mode],
-                     options:     { extract_metadata: false }).perform_in_foreground
+                     ingest_mode: args[:mode]).perform_in_foreground
   end
 
   desc 'Update items from a TSV file'

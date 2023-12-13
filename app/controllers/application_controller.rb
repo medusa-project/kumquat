@@ -17,8 +17,24 @@ class ApplicationController < ActionController::Base
   rescue_from ActionDispatch::Http::Parameters::ParseError, with: :rescue_parse_error
   rescue_from ActionView::Template::Error, with: :rescue_template_error
   rescue_from ActiveRecord::RecordNotFound, with: :rescue_not_found
+  rescue_from NotAuthorizedError, with: :rescue_unauthorized
 
   protected
+
+  ##
+  # @param entity [Class] Model or any other object to which access can be
+  #               authorized.
+  # @param policy_class [ApplicationPolicy] Alternative policy class to use.
+  # @param policy_method [Symbol] Alternative policy method to use.
+  # @raises [NotAuthorizedError]
+  #
+  def authorize(entity, policy_class: nil, policy_method: nil)
+    class_name     = controller_path.split("/").map(&:singularize).map(&:camelize).join("::")
+    policy_class ||= "#{class_name}Policy".constantize
+    instance       = policy_class.new(request_context, entity)
+    result         = instance.send(policy_method&.to_sym || "#{action_name}?".to_sym)
+    raise NotAuthorizedError.new unless result
+  end
 
   ##
   # @return [Set<HostGroup>] Set of {HostGroup}s associated with the request
@@ -47,6 +63,10 @@ class ApplicationController < ActionController::Base
   #
   def keep_flash
     @keep_flash = true
+  end
+
+  def skip_authorization
+    # not entirely sure why we need this method, but here it is anyway
   end
 
   ##
@@ -111,6 +131,20 @@ class ApplicationController < ActionController::Base
   end
 
   ##
+  # @return [RequestContext]
+  #
+  def request_context
+    begin
+      hostname = Resolv.getname(request.remote_ip)
+    rescue Resolv::ResolvError
+      hostname = nil
+    end
+    RequestContext.new(client_ip:       request.remote_ip,
+                       client_hostname: hostname,
+                       user:            current_user)
+  end
+
+  ##
   # By default, Rails logs {ActionController::InvalidAuthenticityToken}s at
   # error level. This only bloats the logs, so we handle it differently.
   #
@@ -162,6 +196,28 @@ class ApplicationController < ActionController::Base
       render plain: '400 Bad Request', status: :bad_request
     else
       raise exception
+    end
+  end
+
+  def rescue_unauthorized
+    message = 'You are not authorized to access this page.'
+    respond_to do |format|
+      format.html do
+        render 'errors/error', status: :forbidden, locals: {
+          status_code:    403,
+          status_message: 'Forbidden',
+          message:        message
+        }
+      end
+      format.json do
+        render 'errors/error', status: :forbidden,
+               locals: { message: message }
+      end
+      format.all do
+        render plain:        "403 Forbidden",
+               status:       :forbidden,
+               content_type: "text/plain"
+      end
     end
   end
 

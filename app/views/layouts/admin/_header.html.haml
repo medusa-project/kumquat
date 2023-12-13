@@ -65,9 +65,20 @@
             - if show_agent_types
               = link_to 'Agent Types', admin_agent_types_path, class: 'dropdown-item'
 
-      -# Server menu
+      -# Access menu
       - show_users       = policy(User).index?
       - show_host_groups = policy(HostGroup).index?
+      %li#access-nav.nav-item.dropdown
+        %a.nav-link.dropdown-toggle{"data-toggle": "dropdown", href: "#"}
+          Access
+          %b.caret
+        .dropdown-menu
+          - if show_users
+            = link_to 'Users', admin_users_path, class: 'dropdown-item'
+          - if show_host_groups
+            = link_to 'Host Groups', admin_host_groups_path, class: 'dropdown-item'
+
+      -# Server menu
       - show_statistics  = policy(:statistic).index?
       - show_tasks       = policy(Task).index?
       - show_settings    = policy(Setting).index?
@@ -76,12 +87,6 @@
           Server
           %b.caret
         .dropdown-menu
-          - if show_users
-            = link_to 'Users', admin_users_path, class: 'dropdown-item'
-          - if show_host_groups
-            = link_to 'Host Groups', admin_host_groups_path, class: 'dropdown-item'
-          - if show_users || show_host_groups
-            .dropdown-divider
           = link_to 'Analytics', 'https://analytics.google.com/analytics/web/#/p383482182/reports/intelligenthome', class: 'dropdown-item'
           - if show_statistics
             = link_to 'Statistics', admin_statistics_path, class: 'dropdown-item'
@@ -90,6 +95,7 @@
           - if show_settings
             .dropdown-divider
             = link_to 'Settings', admin_settings_path, class: 'dropdown-item'
+
     .navbar-nav.ml-md-auto
       %ul.navbar-nav
         %li.nav-item

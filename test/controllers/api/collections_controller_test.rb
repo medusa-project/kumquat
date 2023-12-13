@@ -22,7 +22,7 @@ module Api
 
     test 'index() with valid credentials should return 200' do
       Collection.all.each(&:reindex)
-      refresh_elasticsearch
+      refresh_opensearch
 
       get '/api/collections', headers: valid_headers
       assert_response :success

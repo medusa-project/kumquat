@@ -458,7 +458,7 @@ module ApplicationHelper
   # @param total_entities [Integer] Total number of entities/results to
   #                                 paginate through. This will be limited
   #                                 internally to
-  #                                 {ElasticsearchClient#MAX_RESULT_WINDOW}.
+  #                                 {OpensearchClient#MAX_RESULT_WINDOW}.
   # @param per_page [Integer]
   # @param current_page [Integer]
   # @param permitted_params [ActionController::Parameters,Enumerable<Symbol>]
@@ -467,7 +467,7 @@ module ApplicationHelper
   #
   def paginate(total_entities, per_page, current_page, permitted_params,
                remote = false, max_links = MAX_PAGINATION_LINKS)
-    total_entities = [total_entities, ElasticsearchClient::MAX_RESULT_WINDOW].min
+    total_entities = [total_entities, OpensearchClient::MAX_RESULT_WINDOW].min
     return '' if total_entities <= per_page
     num_pages  = (total_entities / per_page.to_f).ceil
     first_page = [1, current_page - (max_links / 2.0).floor].max

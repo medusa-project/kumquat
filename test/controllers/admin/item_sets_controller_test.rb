@@ -168,7 +168,7 @@ module Admin
     end
 
     test "show() returns HTTP 200 for authorized users" do
-      setup_elasticsearch
+      setup_opensearch
       sign_in_as(users(:medusa_super_admin))
       get admin_collection_item_set_path(@collection, @item_set)
       assert_response :ok

@@ -54,21 +54,4 @@ class MedusaAbstractIngester
         collection.effective_medusa_directory
   end
 
-  ##
-  # Populates an item's metadata from its embedded binary metadata.
-  #
-  # @param item [Item]
-  # @param options [Hash]
-  # @option options [Boolean] :include_date_created
-  #
-  def update_item_from_embedded_metadata(item, options = {})
-    initial_title = item.title
-    item.update_from_embedded_metadata(options)
-    # If there is no title present in the new metadata, restore the initial
-    # title.
-    unless item.elements.find{ |e| e.name == 'title' }
-      item.elements.build(name: 'title', value: initial_title)
-    end
-  end
-
 end

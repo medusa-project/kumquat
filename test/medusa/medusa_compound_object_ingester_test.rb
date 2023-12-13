@@ -3,7 +3,7 @@ require 'test_helper'
 class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
 
   setup do
-    setup_elasticsearch
+    setup_opensearch
     @collection = collections(:compound_object)
     @ingester = MedusaCompoundObjectIngester.new
     # These will only get in the way.
@@ -140,42 +140,6 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     assert_equal Binary::MediaCategory::TEXT, bin.media_category
     assert_equal 'repositories/1/collections/3/file_groups/3/root/1002/supplementary/text.txt',
                  bin.object_key
-  end
-
-  test 'create_items() extracts metadata when told to' do
-    # Run the ingest.
-    @ingester.create_items(@collection, extract_metadata: true)
-
-    # Inspect the first top-level item.
-    item = Item.find_by_repository_id('21353276-887c-0f2b-25a0-ed444003303f')
-    assert_equal 'Escher Lego', item.title
-  end
-
-  test 'create_items() does not extract metadata when told not to' do
-    # Run the ingest.
-    @ingester.create_items(@collection, extract_metadata: false)
-
-    # Inspect the first top-level item.
-    item = Item.find_by_repository_id('21353276-887c-0f2b-25a0-ed444003303f')
-    assert_equal '1001', item.title
-  end
-
-  test 'create_items() does not modify existing items' do
-    # Run the ingest (without extracting metadata).
-    @ingester.create_items(@collection)
-
-    # Record initial conditions.
-    assert_equal 5, Item.count
-    item = Item.find_by_repository_id('21353276-887c-0f2b-25a0-ed444003303f')
-    assert_equal '1001', item.title
-
-    # Ingest again, extracting metadata.
-    @ingester.create_items(@collection, extract_metadata: true)
-    assert_equal 5, Item.count
-
-    # Assert that the item's title hasn't changed.
-    item.reload
-    assert_equal '1001', item.title
   end
 
   # delete_missing_items()

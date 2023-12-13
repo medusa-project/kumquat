@@ -23,8 +23,6 @@ class MedusaIngester
   #
   # @param collection [Collection]
   # @param options [Hash] Options hash.
-  # @option options [Boolean] :extract_metadata
-  # @option options [Boolean] :include_date_created
   # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with `:num_created`, `:num_skipped`,
   #                                and `:num_walked` keys.
@@ -133,8 +131,6 @@ class MedusaIngester
   # @param collection [Collection]
   # @param sync_mode [Symbol] Value of one of the {IngestMode} constants.
   # @param options [Hash] Options hash.
-  # @option options [Boolean] :extract_metadata
-  # @option options [Boolean] :include_date_created
   # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with `:num_created`, `:num_skipped`,
   #                                and `:num_walked` keys.

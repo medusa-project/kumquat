@@ -46,8 +46,6 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
   #
   # @param collection [Collection]
   # @param options [Hash] Options hash.
-  # @option options [Boolean] :extract_metadata
-  # @option options [Boolean] :include_date_created
   # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with `:num_created`, `:num_updated`,
   #                                and `:num_skipped` keys.
@@ -128,9 +126,6 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                     LOGGER.warn('create_items(): %s', e)
                   end
 
-                  child.update_from_embedded_metadata(options) if
-                      options[:extract_metadata]
-
                   child.save!
 
                   stats[:num_created] += 1
@@ -149,9 +144,6 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
               rescue IllegalContentError => e
                 LOGGER.warn('create_items(): %s', e)
               end
-
-              item.update_from_embedded_metadata(options) if
-                  options[:extract_metadata]
             else
               LOGGER.warn('create_items(): preservation directory %s is empty.',
                           pres_dir.uuid)

@@ -3,7 +3,7 @@ require 'test_helper'
 class MedusaSingleItemIngesterTest < ActiveSupport::TestCase
 
   setup do
-    setup_elasticsearch
+    setup_opensearch
     @ingester = MedusaSingleItemIngester.new
     @collection = collections(:single_item_object)
     # These will only get in the way.
@@ -66,42 +66,6 @@ class MedusaSingleItemIngesterTest < ActiveSupport::TestCase
     assert_equal 18836, binary.byte_size
     assert_equal 'repositories/1/collections/2/file_groups/2/root/access/001.jp2',
                  binary.object_key
-  end
-
-  test 'create_items() extracts metadata when told to' do
-    # Run the ingest.
-    @ingester.create_items(@collection, extract_metadata: true)
-
-    # Inspect the first item.
-    item = Item.find_by_repository_id('cbbc845c-167a-60df-df6e-41a249a43b7c')
-    assert_equal 'Escher Lego', item.title
-  end
-
-  test 'create_items() does not extract metadata when told not to' do
-    # Run the ingest.
-    @ingester.create_items(@collection, extract_metadata: false)
-
-    # Inspect an item.
-    item = Item.find_by_repository_id('cbbc845c-167a-60df-df6e-41a249a43b7c')
-    assert_equal '001.tif', item.title
-  end
-
-  test 'create_items() does not modify existing items' do
-    # Ingest the items (without extracting metdaata).
-    @ingester.create_items(@collection)
-
-    # Record initial conditions.
-    assert_equal 2, Item.count
-    item = Item.find_by_repository_id('cbbc845c-167a-60df-df6e-41a249a43b7c')
-    assert_equal '001.tif', item.title
-
-    # Ingest again, extracting metadata.
-    @ingester.create_items(@collection, extract_metadata: true)
-    assert_equal 2, Item.count
-
-    # Assert that the item's title hasn't changed.
-    item.reload
-    assert_equal '001.tif', item.title
   end
 
   # delete_missing_items()

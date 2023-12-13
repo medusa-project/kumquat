@@ -146,9 +146,9 @@ module Admin
           @collection.medusa_file_group : nil
       @can_reindex = (@collection.published_in_dls &&
           @collection.medusa_file_group)
-      @current_elasticsearch_document =
+      @current_opensearch_document =
         JSON.pretty_generate(@collection.indexed_document)
-      @expected_elasticsearch_document =
+      @expected_opensearch_document =
         JSON.pretty_generate(@collection.as_indexed_json)
     end
 
@@ -199,7 +199,7 @@ module Admin
     # keep referring to it internally as "syncing" because that is a better
     # description of what's happening, and also because "index" has a
     # particular meaning that is already being used to describe indexing in
-    # Elasticsearch. -- @adolski
+    # OpenSearch. -- @adolski
     #
     # Responds to `PATCH /admin/collections/sync`
     #
@@ -255,7 +255,7 @@ module Admin
             end
             @collection.update!(permitted_params)
             # We will also need to propagate various collection properties
-            # (published status, allowed/denied host groups, etc.) to the items
+            # (published status, allowed host groups, etc.) to the items
             # contained within the collection. This will take some time, so
             # we'll do it in the background.
             PropagatePropertiesToItemsJob.perform_later(collection: @collection,
@@ -310,8 +310,7 @@ module Admin
                                          :representative_item_id,
                                          :representative_medusa_file_id,
                                          :restricted, :rights_term_uri,
-                                         allowed_host_group_ids: [],
-                                         denied_host_group_ids: [])
+                                         allowed_host_group_ids: [])
     end
 
   end

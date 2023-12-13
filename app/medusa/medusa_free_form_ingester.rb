@@ -41,8 +41,6 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   #
   # @param collection [Collection]
   # @param options [Hash] Options hash.
-  # @option options [Boolean] :extract_metadata
-  # @option options [Boolean] :include_date_created
   # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with `:num_created`, `:num_skipped`,
   #                                and `:num_walked` keys.
@@ -160,8 +158,6 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   # @param cfs_dir [Medusa::Directory]
   # @param top_cfs_dir [Medusa::Directory]
   # @param options [Hash]
-  # @option options [Boolean] :extract_metadata
-  # @option options [Boolean] :include_date_created
   # @param status [Hash]
   # @param task [Task] Supply to receive status updates.
   # @param num_nodes [Integer]
@@ -212,12 +208,7 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
         # Create its corresponding binary.
         bin = Binary.from_medusa_file(file:        file,
                                       master_type: Binary::MasterType::ACCESS)
-        bin.item = item
-        bin.save!
-
-        update_item_from_embedded_metadata(item, options) if
-            options[:extract_metadata]
-
+        item.binaries << bin
         item.save!
         status[:num_created] += 1
       end

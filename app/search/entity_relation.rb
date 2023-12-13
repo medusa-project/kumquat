@@ -102,7 +102,7 @@ class EntityRelation < AbstractRelation
     load
     if @response_json['hits']
       return @response_json['hits']['hits'].map { |r|
-        case r['_source'][ElasticsearchIndex::StandardFields::CLASS].downcase
+        case r['_source'][OpensearchIndex::StandardFields::CLASS].downcase
         when 'agent'
           id    = r['_id']
           agent = Agent.find_by_id(id)
@@ -183,7 +183,7 @@ class EntityRelation < AbstractRelation
               unless @include_restricted
                 j.child! do
                   j.term do
-                    j.set! ElasticsearchIndex::StandardFields::RESTRICTED, false
+                    j.set! OpensearchIndex::StandardFields::RESTRICTED, false
                   end
                 end
               end
@@ -191,7 +191,7 @@ class EntityRelation < AbstractRelation
               unless @include_unpublished
                 j.child! do
                   j.term do
-                    j.set! ElasticsearchIndex::StandardFields::PUBLICLY_ACCESSIBLE, true
+                    j.set! OpensearchIndex::StandardFields::PUBLICLY_ACCESSIBLE, true
                   end
                 end
               end
@@ -216,8 +216,7 @@ class EntityRelation < AbstractRelation
           unless @bypass_authorization
             # Results must either have an effective allowed host group (EAHG)
             # matching one of the client's host groups, or no EAHGs, indicating
-            # that they are public, effective denied host groups
-            # notwithstanding.
+            # that they are unrestricted.
             j.should do
               if @host_groups.any?
                 j.child! do
@@ -238,22 +237,11 @@ class EntityRelation < AbstractRelation
             j.minimum_should_match 1
           end
 
-          if @host_groups.any? || @exclude_item_variants.any?
+          if @exclude_item_variants.any?
             j.must_not do
-              if @host_groups.any?
-                j.child! do
-                  j.terms do
-                    j.set! Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUPS,
-                           @host_groups
-                  end
-                end
-              end
-
-              if @exclude_item_variants.any?
-                j.child! do
-                  j.terms do
-                    j.set! Item::IndexFields::VARIANT, @exclude_item_variants
-                  end
+              j.child! do
+                j.terms do
+                  j.set! Item::IndexFields::VARIANT, @exclude_item_variants
                 end
               end
             end

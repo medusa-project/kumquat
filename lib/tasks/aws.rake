@@ -12,8 +12,8 @@ namespace :dls do
       key: "162/2204/6713580/access/6713580_02.jp2")
     print "OK\n"
 
-    print "Checking access to Elasticsearch... "
-    ElasticsearchClient.instance.indexes
+    print "Checking access to OpenSearch... "
+    OpensearchClient.instance.indexes
     print "OK\n"
 
     print "Checking access to Lambda... "

@@ -3,7 +3,7 @@ require 'test_helper'
 class ImageServerTest < ActiveSupport::TestCase
 
   setup do
-    setup_elasticsearch
+    setup_opensearch
     @instance = ImageServer.instance
   end
 

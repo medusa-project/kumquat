@@ -53,6 +53,10 @@ module Admin
       update?
     end
 
+    def import_embedded_file_metadata?
+      import?
+    end
+
     def index?
       show?
     end

@@ -4,14 +4,14 @@ module Admin
 
   class ControlPanelController < ApplicationController
 
-    rescue_from NotAuthorizedError, with: :rescue_unauthorized
-
     layout 'admin/application'
 
     before_action :ensure_logged_in
     after_action :flash_in_response_headers
 
     ##
+    # Overrides parent.
+    #
     # @param entity [Class] Model or any other object to which access can be
     #               authorized.
     # @param policy_class [ApplicationPolicy] Alternative policy class to use.
@@ -31,28 +31,6 @@ module Admin
         redirect_to signin_path
       elsif !current_user.medusa_user?
         raise NotAuthorizedError
-      end
-    end
-
-    def rescue_unauthorized
-      message = 'You are not authorized to access this page.'
-      respond_to do |format|
-        format.html do
-          render 'errors/error', status: :forbidden, locals: {
-            status_code:    403,
-            status_message: 'Forbidden',
-            message:        message
-          }
-        end
-        format.json do
-          render 'errors/error', status: :forbidden,
-                 locals: { message: message }
-        end
-        format.all do
-          render plain:        "403 Forbidden",
-                 status:       :forbidden,
-                 content_type: "text/plain"
-        end
       end
     end
 

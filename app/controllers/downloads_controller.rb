@@ -5,8 +5,7 @@ class DownloadsController < ApplicationController
   layout 'download'
 
   before_action :set_download
-
-  rescue_from AuthorizationError, with: :rescue_unauthorized
+  before_action :authorize_download
 
   ##
   # Responds to `GET /downloads/:download_key/file`
@@ -14,8 +13,7 @@ class DownloadsController < ApplicationController
   def file
     if @download.expired
       render plain: 'This download is expired.', status: :gone
-    elsif @download.ip_address != request.remote_ip
-      raise AuthorizationError
+      return
     elsif @download.filename.present?
       # Generate a pre-signed URL to redirect to.
       signer = Aws::S3::Presigner.new(client: KumquatS3Client.instance)
@@ -50,6 +48,10 @@ class DownloadsController < ApplicationController
 
   private
 
+  def authorize_download
+    @download ? authorize(@download) : skip_authorization
+  end
+
   def content_disposition(filename) # TODO: BinariesController has a similar method
     utf8_filename  = filename
     ascii_filename = utf8_filename.gsub(/[^[:ascii:]]*/, '')
@@ -57,11 +59,6 @@ class DownloadsController < ApplicationController
     # literally.
     "attachment; filename=\"#{ascii_filename.gsub('"', "\"")}\"; "\
         "filename*=UTF-8''#{ERB::Util.url_encode(utf8_filename)}"
-  end
-
-  def rescue_unauthorized
-    render plain:  "You are not authorized to access this download.",
-           status: :forbidden
   end
 
   def set_download

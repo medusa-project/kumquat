@@ -3,7 +3,7 @@ require 'test_helper'
 class HealthControllerTest < ActionDispatch::IntegrationTest
 
   setup do
-    setup_elasticsearch
+    setup_opensearch
   end
 
   # index()
@@ -19,7 +19,7 @@ class HealthControllerTest < ActionDispatch::IntegrationTest
     assert_response :internal_server_error
   end
 
-  test 'index() returns HTTP 500 when Elasticsearch is not responding' do
+  test 'index() returns HTTP 500 when OpenSearch is not responding' do
     skip # TODO: write this somehow
     get health_path
     assert_response :internal_server_error

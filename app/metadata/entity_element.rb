@@ -103,7 +103,7 @@ class EntityElement < ApplicationRecord
   #
   def indexed_field
     [INDEX_FIELD_PREFIX,
-     self.name.gsub(ElasticsearchClient::RESERVED_CHARACTERS, "_")].join
+     self.name.gsub(OpensearchClient::RESERVED_CHARACTERS, "_")].join
   end
 
   ##
@@ -112,7 +112,7 @@ class EntityElement < ApplicationRecord
   #
   def indexed_keyword_field
     [INDEX_FIELD_PREFIX,
-     self.name.gsub(ElasticsearchClient::RESERVED_CHARACTERS, "_"),
+     self.name.gsub(OpensearchClient::RESERVED_CHARACTERS, "_"),
      KEYWORD_FIELD_SUFFIX].join
   end
 
@@ -122,7 +122,7 @@ class EntityElement < ApplicationRecord
   #
   def indexed_sort_field
     [INDEX_FIELD_PREFIX,
-     self.name.gsub(ElasticsearchClient::RESERVED_CHARACTERS, "_"),
+     self.name.gsub(OpensearchClient::RESERVED_CHARACTERS, "_"),
      SORT_FIELD_SUFFIX].join
   end
 
@@ -132,7 +132,7 @@ class EntityElement < ApplicationRecord
   def parent_indexed_field
     [INDEX_FIELD_PREFIX,
      'parent_',
-     self.name.gsub(ElasticsearchClient::RESERVED_CHARACTERS, "_")].join
+     self.name.gsub(OpensearchClient::RESERVED_CHARACTERS, "_")].join
   end
 
   def serializable_hash(opts)

@@ -101,14 +101,14 @@
 #
 # # Indexing
 #
-# Items are searchable via ActiveRecord as well as via Elasticsearch. A low-
-# level interface to Elasticsearch is provided by ElasticsearchClient, but
-# in most cases, it's better to use the higher-level query interface provided
-# by {ItemRelation}, which is easier to use, and takes authorization, public
+# Items are searchable via ActiveRecord as well as via OpenSearch. A low-level
+# interface to OpenSearch is provided by OpensearchClient, but in most cases,
+# it's better to use the higher-level query interface provided by
+# {ItemRelation}, which is easier to use, and takes authorization, public
 # visibility, etc. into account. (An instance of {ItemRelation} can be obtained
 # from {search}.)
 #
-# **IMPORTANT**: Instances are automatically indexed in Elasticsearch (see
+# **IMPORTANT**: Instances are automatically indexed in OpenSearch (see
 # `as_indexed_json()`) upon transaction commit. They are **not** indexed on
 # save. For this reason, **instances should always be created, updated, and
 # deleted within transactions.**
@@ -116,7 +116,7 @@
 # # Sorting
 #
 # The indexed document contains a {IndexFields::STRUCTURAL_SORT} key that
-# assists in sorting item documents retrieved from Elasticsearch by their
+# assists in sorting item documents retrieved from OpenSearch by their
 # structure. For example, for a compound object, the {Variants::FRONT_COVER
 # front cover} will appear first, then the {Variants::PAGE pages} in page
 # order, then the {Variants::BACK_COVER back cover}.
@@ -186,10 +186,10 @@
 #
 # ## Attribute Propagation
 #
-# Some item properties, such as {allowed_hosts} and {denied_hosts}, propagate
-# to child items in the item tree. The inherited counterparts of these
-# properties are {effective_allowed_hosts} and {effective_denied_hosts}. An
-# item's subtree can be updated using {propagate_heritable_properties}.
+# Some item properties, such as {allowed_hosts}, propagate to child items in
+# the item tree. The inherited counterparts of these properties are
+# {effective_allowed_hosts}. An item's subtree can be updated using
+# {propagate_heritable_properties}.
 #
 class Item < ApplicationRecord
 
@@ -203,19 +203,17 @@ class Item < ApplicationRecord
   # metadata fields may also be present.
   #
   class IndexFields
-    CLASS                              = ElasticsearchIndex::StandardFields::CLASS
+    CLASS                              = OpensearchIndex::StandardFields::CLASS
     COLLECTION                         = 'sys_k_collection'
     CREATED                            = 'sys_d_created'
     DATE                               = 'sys_d_date'
     DESCRIBED                          = 'sys_b_described'
     EFFECTIVE_ALLOWED_HOST_GROUP_COUNT = 'sys_i_effective_allowed_host_group_count'
     EFFECTIVE_ALLOWED_HOST_GROUPS      = 'sys_k_effective_allowed_host_groups'
-    EFFECTIVE_DENIED_HOST_GROUP_COUNT  = 'sys_i_effective_denied_host_group_count'
-    EFFECTIVE_DENIED_HOST_GROUPS       = 'sys_k_effective_denied_host_groups'
     FULL_TEXT                          = 'sys_t_full_text'
     ITEM_SETS                          = 'sys_i_item_sets'
-    LAST_INDEXED                       = ElasticsearchIndex::StandardFields::LAST_INDEXED
-    LAST_MODIFIED                      = ElasticsearchIndex::StandardFields::LAST_MODIFIED
+    LAST_INDEXED                       = OpensearchIndex::StandardFields::LAST_INDEXED
+    LAST_MODIFIED                      = OpensearchIndex::StandardFields::LAST_MODIFIED
     LAT_LONG                           = 'sys_p_lat_long'
     # Repository ID of the item, or its parent item, if a child within a
     # compound object.
@@ -225,14 +223,14 @@ class Item < ApplicationRecord
     PRIMARY_MEDIA_CATEGORY             = 'sys_k_primary_media_category'
     # N.B.: An item might be published but its collection might not be, making
     # it still effectively unpublished. This will take that into account.
-    PUBLICLY_ACCESSIBLE                = ElasticsearchIndex::StandardFields::PUBLICLY_ACCESSIBLE
+    PUBLICLY_ACCESSIBLE                = OpensearchIndex::StandardFields::PUBLICLY_ACCESSIBLE
     PUBLISHED                          = 'sys_b_published'
     PUBLISHED_AT                       = 'sys_d_published'
     REPOSITORY_ID                      = 'sys_k_repository_id'
     REPRESENTATIVE_FILENAME            = 'sys_k_representative_filename'
     REPRESENTATIVE_ITEM                = 'sys_k_representative_item_id'
-    RESTRICTED                         = ElasticsearchIndex::StandardFields::RESTRICTED
-    SEARCH_ALL                         = ElasticsearchIndex::StandardFields::SEARCH_ALL
+    RESTRICTED                         = OpensearchIndex::StandardFields::RESTRICTED
+    SEARCH_ALL                         = OpensearchIndex::StandardFields::SEARCH_ALL
     # Concatenation of various compound object page components or path
     # components (see as_indexed_json()) used for sorting items grouped
     # structurally.
@@ -290,15 +288,9 @@ class Item < ApplicationRecord
   has_and_belongs_to_many :allowed_host_groups,
                           class_name: 'HostGroup',
                           association_foreign_key: :allowed_host_group_id
-  has_and_belongs_to_many :denied_host_groups,
-                          class_name: 'HostGroup',
-                          association_foreign_key: :denied_host_group_id
   has_and_belongs_to_many :effective_allowed_host_groups,
                           class_name: 'HostGroup',
                           association_foreign_key: :effective_allowed_host_group_id
-  has_and_belongs_to_many :effective_denied_host_groups,
-                          class_name: 'HostGroup',
-                          association_foreign_key: :effective_denied_host_group_id
   has_and_belongs_to_many :item_sets
 
   has_many :binaries, inverse_of: :item, dependent: :destroy
@@ -558,7 +550,7 @@ class Item < ApplicationRecord
     doc = {}
     doc[IndexFields::CLASS]                   = self.class.to_s
     doc[IndexFields::COLLECTION]              = self.collection_repository_id
-    # Elasticsearch date fields don't support >4-digit years.
+    # OpenSearch date fields don't support >4-digit years.
     if self.date && self.date.year < 10000
       doc[IndexFields::DATE]                  = self.date.utc.iso8601
     end
@@ -567,10 +559,6 @@ class Item < ApplicationRecord
         self.effective_allowed_host_groups.pluck(:key)
     doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUP_COUNT] =
         doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS].length
-    doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUPS] =
-        self.effective_denied_host_groups.pluck(:key)
-    doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUP_COUNT] =
-        doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUPS].length
     doc[IndexFields::FULL_TEXT]               = self.full_text
     doc[IndexFields::ITEM_SETS]               = self.item_sets.pluck(:id)
     doc[IndexFields::LAST_INDEXED]            = Time.now.utc.iso8601
@@ -611,7 +599,7 @@ class Item < ApplicationRecord
           doc[element.indexed_field] = []
         end
         doc[element.indexed_field] <<
-            StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
+            StringUtils.strip_leading_articles(element.value)[0..OpensearchClient::MAX_KEYWORD_FIELD_LENGTH]
       end
     end
 
@@ -625,7 +613,7 @@ class Item < ApplicationRecord
             doc[element.parent_indexed_field] = []
           end
           doc[element.parent_indexed_field] <<
-              StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
+              StringUtils.strip_leading_articles(element.value)[0..OpensearchClient::MAX_KEYWORD_FIELD_LENGTH]
         end
       end
     end
@@ -1298,15 +1286,14 @@ class Item < ApplicationRecord
   # Transactionally updates an instance's metadata elements from the metadata
   # embedded within its preservation or access master binary.
   #
-  # @param options [Hash<Symbol,Object>]
-  # @option options [Boolean] `:include_date_created`
+  # @param include_date_created [Boolean]
   # @raises [IOError]
   #
-  def update_from_embedded_metadata(options = {})
+  def update_from_embedded_metadata(include_date_created: false)
     return unless self.binaries.any?
     transaction do
       self.elements.destroy_all
-      self.elements += elements_from_embedded_metadata(options)
+      self.elements += elements_from_embedded_metadata(include_date_created: include_date_created)
       # Add a title (because it's required) in case the embedded metadata
       # didn't contain one.
       unless self.element(:title)
@@ -1509,11 +1496,10 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @param options [Hash<Symbol,Object>]
-  # @option options [Boolean] :include_date_created
+  # @param include_date_created [Boolean]
   # @return [Enumerable<ItemElement>]
   #
-  def elements_from_embedded_metadata(options = {})
+  def elements_from_embedded_metadata(include_date_created: false)
     elements = []
 
     # Get the binary from which the metadata will be extracted.
@@ -1558,7 +1544,7 @@ class Item < ApplicationRecord
     elements += elements_for_value(title[:value], 'title') if title
 
     # Date Created
-    if options[:include_date_created].to_s != 'false'
+    if include_date_created
       elements += elements_for_iim_value('Date', 'dateCreated', metadata)
     end
 
@@ -1618,28 +1604,21 @@ class Item < ApplicationRecord
   #
   def inherit_host_groups
     allowed_hgs = []
-    denied_hgs  = []
     # Try to inherit from an ancestor.
     p = self.parent
-    while p && allowed_hgs.empty? && denied_hgs.empty?
+    while p && allowed_hgs.empty?
       allowed_hgs = p.allowed_host_groups
-      denied_hgs  = p.denied_host_groups
       p = p.parent
     end
     # If no ancestor has any host groups, inherit from the collection.
-    if allowed_hgs.empty? && denied_hgs.empty? && self.collection
+    if allowed_hgs.empty? && self.collection
       allowed_hgs = self.collection.allowed_host_groups
-      denied_hgs  = self.collection.denied_host_groups
     end
 
     transaction do
       self.effective_allowed_host_groups.destroy_all
-      self.effective_denied_host_groups.destroy_all
       allowed_hgs.each do |group|
         self.effective_allowed_host_groups << group
-      end
-      denied_hgs.each do |group|
-        self.effective_denied_host_groups << group
       end
     end
   end
@@ -1688,23 +1667,17 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Populates {effective_allowed_host_groups} and
-  # {effective_denied_host_groups}.
+  # Populates {effective_allowed_host_groups}.
   #
   # @return [void]
   #
   def set_effective_host_groups
     allowed_hgs = self.allowed_host_groups
-    denied_hgs  = self.denied_host_groups
-    if allowed_hgs.any? or denied_hgs.any?
+    if allowed_hgs.any?
       transaction do
         self.effective_allowed_host_groups.destroy_all
-        self.effective_denied_host_groups.destroy_all
         allowed_hgs.each do |group|
           self.effective_allowed_host_groups << group
-        end
-        denied_hgs.each do |group|
-          self.effective_denied_host_groups << group
         end
       end
     else
@@ -1815,7 +1788,7 @@ class Item < ApplicationRecord
               self.subpage_number.present? ? zero_pad_numbers(self.subpage_number) : sort_last_token,
               self.title.present? ? zero_pad_numbers(self.title.downcase) : sort_last_token)
     end
-    key[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
+    key[0..OpensearchClient::MAX_KEYWORD_FIELD_LENGTH]
   end
 
   def walk(item, index, &block)

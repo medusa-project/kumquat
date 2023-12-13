@@ -39,18 +39,6 @@
                           name: 'collection[allowed_host_group_ids][]'
           = group.name
 
-  .form-group
-    %h4 Denied Host Groups
-    = hidden_field_tag :host_group_ids, nil,
-                       name: 'collection[denied_host_group_ids][]'
-    - HostGroup.order(:name).each do |group|
-      .checkbox
-        %label
-          = check_box_tag :host_group_ids, group.id,
-                          f.object.denied_host_groups.pluck(:id).include?(group.id),
-                          name: 'collection[denied_host_group_ids][]'
-          = group.name
-
   .float-right
     %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
     = f.submit 'Save Changes', class: 'btn btn-primary'

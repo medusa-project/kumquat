@@ -14,7 +14,6 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
   ##
   # @param collection [Collection]
   # @param options [Hash]
-  # @option options [Boolean] :extract_metadata
   # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with `:num_created` and `:num_skipped`
   #                                keys.
@@ -58,14 +57,11 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
             LOGGER.warn('create_items(): %s', e)
           end
 
-          item.update_from_embedded_metadata(options) if options[:extract_metadata]
-
           item.save!
-
           stats[:num_created] += 1
         end
 
-        if task and index % 10 == 0
+        if task && index % 10 == 0
           task.update(percent_complete: index / num_files.to_f)
         end
       end
@@ -103,7 +99,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
           stats[:num_deleted] += 1
         end
 
-        if task and index % 10 == 0
+        if task && index % 10 == 0
           task.update(percent_complete: index / num_items.to_f)
         end
       end
@@ -152,7 +148,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
           item.save!
         end
 
-        if task and index % 10 == 0
+        if task && index % 10 == 0
           task.update(percent_complete: index / num_files.to_f)
         end
       end

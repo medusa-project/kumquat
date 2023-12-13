@@ -1,2 +1,0 @@
-class UnpublishedError < RuntimeError
-end

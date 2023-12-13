@@ -131,6 +131,8 @@ Rails.application.routes.draw do
       match '/items/add-query-to-item-set', to: 'items#add_query_to_item_set',
             via: :post
       match '/items/import', to: 'items#import', via: :post
+      match '/items/import-embedded-file-metadata',
+            to: 'items#import_embedded_file_metadata', via: :post
       match '/items/batch-change-metadata', to: 'items#batch_change_metadata',
             via: :post
       match '/items/migrate-metadata', to: 'items#migrate_metadata', via: :post

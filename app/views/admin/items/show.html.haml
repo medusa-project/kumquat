@@ -36,30 +36,30 @@
     %ul.nav.nav-tabs{role: 'tablist'}
       %li.nav-item{role: 'presentation'}
         %a.nav-link.active{"aria-controls": "dl-technical-info",
-                           "data-toggle": "tab",
-                           href: "#dl-technical-info",
-                           role: "tab",
+                           "data-toggle":   "tab",
+                           href:            "#dl-technical-info",
+                           role:            "tab",
                            "aria-selected": true} Technical Info
       %li.nav-item{role: 'presentation'}
         %a.nav-link{"aria-controls": "dl-representation",
-                    "data-toggle": "tab",
-                    href: "#dl-representation",
-                    role: "tab"} Representation
+                    "data-toggle":   "tab",
+                    href:            "#dl-representation",
+                    role:            "tab"} Representation
       %li.nav-item{role: 'presentation'}
         %a.nav-link{"aria-controls": "dl-access",
-                    "data-toggle": "tab",
-                    href: "#dl-access",
-                    role: "tab"} Access
+                    "data-toggle":   "tab",
+                    href:            "#dl-access",
+                    role:            "tab"} Access
       %li.nav-item{role: 'presentation'}
         %a.nav-link{"aria-controls": "dl-descriptive-metadata",
-                    "data-toggle": "tab",
-                    href: "#dl-descriptive-metadata",
-                    role: "tab"} Descriptive Metadata
+                    "data-toggle":   "tab",
+                    href:            "#dl-descriptive-metadata",
+                    role:            "tab"} Descriptive Metadata
       %li.nav-item{role: 'presentation'}
         %a.nav-link{"aria-controls": "dl-binaries",
-                    "data-toggle": "tab",
-                    href: "#dl-binaries",
-                    role: "tab"}
+                    "data-toggle":   "tab",
+                    href:            "#dl-binaries",
+                    role:            "tab"}
           Binaries
           - if @item.binaries.find{ |b| !b.medusa_file.exists? }
             %span.badge.badge-pill.badge-danger
@@ -69,14 +69,14 @@
               = @item.binaries.length
       %li.nav-item{role: 'presentation'}
         %a.nav-link{"aria-controls": "dl-schema-org",
-                    "data-toggle": "tab",
-                    href: "#dl-schema-org",
-                    role: "tab"} schema.org
+                    "data-toggle":   "tab",
+                    href:            "#dl-schema-org",
+                    role:            "tab"} schema.org
       %li.nav-item{role: 'presentation'}
-        %a.nav-link{"aria-controls": "dl-elasticsearch",
-                    "data-toggle": "tab",
-                    href: "#dl-elasticsearch",
-                    role: "tab"} Elasticsearch
+        %a.nav-link{"aria-controls": "dl-opensearch",
+                    "data-toggle":   "tab",
+                    href:            "#dl-opensearch",
+                    role:            "tab"} OpenSearch
 
     -# Display a warning if the item is not free-form and has a preservation
     -# master binary but no access master.
@@ -101,8 +101,8 @@
         = render partial: "admin/items/show_binaries_tab"
       #dl-schema-org.tab-pane{role: "tabpanel"}
         = render partial: "admin/items/show_schema_org_tab"
-      #dl-elasticsearch.tab-pane{role: "tabpanel"}
-        = render partial: "admin/items/show_elasticsearch_tab"
+      #dl-opensearch.tab-pane{role: "tabpanel"}
+        = render partial: "admin/items/show_opensearch_tab"
 
 = render partial: 'edit_binary_access_modal'
 = render partial: 'ocr_panel', locals: { show_checked_results_radios: false,

@@ -17,13 +17,13 @@
 #
 # All operations in parentheses are carried out in Item.as_indexed_json().
 #
-# Requires Elasticsearch 7.
+# Requires OpenSearch >= 1.0.
 #
 settings:
   index:
     query:
       default_field: search_all
-    max_result_window: 100000000 # must match ElasticsearchClient::MAX_RESULT_WINDOW
+    max_result_window: 100000000 # must match OpensearchClient::MAX_RESULT_WINDOW
   analysis:
     filter:
       custom_stopper:

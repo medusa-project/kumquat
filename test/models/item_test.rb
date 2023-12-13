@@ -4,7 +4,7 @@ class ItemTest < ActiveSupport::TestCase
 
   setup do
     ActionMailer::Base.deliveries.clear
-    setup_elasticsearch
+    setup_opensearch
     @item = items(:compound_object_1002)
   end
 
@@ -12,16 +12,16 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'delete_document() deletes a document' do
     Item.reindex_all
-    refresh_elasticsearch
+    refresh_opensearch
 
-    index = Configuration.instance.elasticsearch_index
+    index = Configuration.instance.opensearch_index
     item  = items(:compound_object_1002_page1)
-    assert_not_nil ElasticsearchClient.instance.get_document(index,
+    assert_not_nil OpensearchClient.instance.get_document(index,
                                                              item.index_id)
 
     Item.delete_document(item.index_id)
-    refresh_elasticsearch
-    assert_nil ElasticsearchClient.instance.get_document(index,
+    refresh_opensearch
+    assert_nil OpensearchClient.instance.get_document(index,
                                                          item.index_id)
   end
 
@@ -31,12 +31,12 @@ class ItemTest < ActiveSupport::TestCase
     items = Item.all
     items.each(&:reindex)
     count = items.count
-    refresh_elasticsearch
+    refresh_opensearch
 
     items.first.destroy! # outside of a transaction!
 
     Item.delete_orphaned_documents
-    refresh_elasticsearch
+    refresh_opensearch
 
     assert_equal count - 1, Item.search.include_children_in_results(true).count
   end
@@ -45,7 +45,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'num_free_form_files() returns a correct count' do
     Item.reindex_all
-    refresh_elasticsearch
+    refresh_opensearch
     assert_equal Item.where(variant: Item::Variants::FILE).count,
                  Item.num_free_form_files
   end
@@ -54,7 +54,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'num_free_form_items() returns a correct count' do
     Item.reindex_all
-    refresh_elasticsearch
+    refresh_opensearch
     assert_equal Item.where(variant: [Item::Variants::FILE, Item::Variants::DIRECTORY]).count,
                  Item.num_free_form_items
   end
@@ -63,7 +63,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'num_objects() returns a correct count' do
     Item.reindex_all
-    refresh_elasticsearch
+    refresh_opensearch
     assert_equal Item.where('variant = ? OR variant IS NULL',
                             Item::Variants::FILE).count,
                  Item.num_objects
@@ -74,7 +74,7 @@ class ItemTest < ActiveSupport::TestCase
   test 'reindex_all() reindexes all items' do
     assert_equal 0, Item.search.count
     Item.reindex_all
-    refresh_elasticsearch
+    refresh_opensearch
     assert Item.search.count > 0
   end
 
@@ -167,10 +167,6 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS]
     assert_equal @item.effective_allowed_host_groups.pluck(:key).length,
                  doc[Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUP_COUNT]
-    assert_equal @item.effective_denied_host_groups.pluck(:key),
-                 doc[Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUPS]
-    assert_equal @item.effective_denied_host_groups.pluck(:key).length,
-                 doc[Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUP_COUNT]
     assert_nil doc[Item::IndexFields::FULL_TEXT]
     assert_equal @item.item_sets.pluck(:id),
                  doc[Item::IndexFields::ITEM_SETS]
@@ -628,21 +624,16 @@ class ItemTest < ActiveSupport::TestCase
   test 'propagate_heritable_properties() propagates host groups to children' do
     # Clear all host groups on the item and its children.
     @item.allowed_host_groups.destroy_all
-    @item.denied_host_groups.destroy_all
     @item.save!
 
     @item.items.each do |it|
       it.allowed_host_groups.destroy_all
-      it.denied_host_groups.destroy_all
       it.save!
-
       assert_equal 0, it.effective_allowed_host_groups.count
-      assert_equal 0, it.effective_denied_host_groups.count
     end
 
     # Add host groups to the item.
     @item.allowed_host_groups << host_groups(:blue)
-    @item.denied_host_groups << host_groups(:red)
 
     # Propagate heritable properties.
     @item.propagate_heritable_properties
@@ -651,9 +642,6 @@ class ItemTest < ActiveSupport::TestCase
     @item.items.each do |it|
       assert_equal 1, it.effective_allowed_host_groups.count
       assert it.effective_allowed_host_groups.include?(host_groups(:blue))
-
-      assert_equal 1, it.effective_denied_host_groups.count
-      assert it.effective_denied_host_groups.include?(host_groups(:red))
     end
   end
 
@@ -886,60 +874,46 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 1, ActionMailer::Base.deliveries.length
   end
 
-  test 'save() copies allowed_host_groups and denied_host_groups into
-  effective_allowed_host_groups and effective_denied_host_groups when they
-  exist' do
-    # Create initial allowed and denied host groups.
+  test 'save() copies allowed_host_groups into effective_allowed_host_groups
+  when it exists' do
+    # Create initial allowed host groups.
     @item.allowed_host_groups << host_groups(:blue)
-    @item.denied_host_groups << host_groups(:yellow)
     # Assert that they get propagated to effective host groups.
     @item.save!
     assert_equal 1, @item.effective_allowed_host_groups.length
     assert_equal 'blue', @item.effective_allowed_host_groups.first.key
-    assert_equal 1, @item.effective_denied_host_groups.length
-    assert_equal 'yellow', @item.effective_denied_host_groups.first.key
 
     # Clear them out and change them.
     @item.allowed_host_groups.destroy_all
     @item.allowed_host_groups << host_groups(:green)
-    @item.denied_host_groups.destroy_all
-    @item.denied_host_groups << host_groups(:red)
+
     # Assert that they get propagated to effective host groups.
     @item.save!
     assert_equal 1, @item.effective_allowed_host_groups.length
     assert_equal 'green', @item.effective_allowed_host_groups.first.key
-    assert_equal 1, @item.effective_denied_host_groups.length
-    assert_equal 'red', @item.effective_denied_host_groups.first.key
   end
 
-  test 'save() copies parent allowed_host_groups and denied_host_groups into
-  effective_allowed_host_groups and effective_denied_host_groups when they are
-  not set on the instance' do
-    # Create initial allowed and denied host groups.
+  test 'save() copies parent allowed_host_groups into
+  effective_allowed_host_groups and when it is not set on the instance' do
+    # Create initial allowed host groups.
     @item.allowed_host_groups << host_groups(:blue)
-    @item.denied_host_groups  << host_groups(:yellow)
 
     # Assert that they get propagated to effective host groups.
     @item.save!
     assert_equal 1, @item.effective_allowed_host_groups.length
     assert_equal 'blue', @item.effective_allowed_host_groups.first.key
-    assert_equal 1, @item.effective_denied_host_groups.length
-    assert_equal 'yellow', @item.effective_denied_host_groups.first.key
   end
 
-  test 'save() copies collection allowed_host_groups and denied_host_groups
-  into effective_allowed_host_groups and effective_denied_host_groups when they
-  are not set on the instance nor a parent' do
-    # Create initial allowed and denied host groups.
+  test 'save() copies collection allowed_host_groups into
+  effective_allowed_host_groups when it is not set on the instance nor a
+  parent' do
+    # Create initial allowed host groups.
     @item.collection.allowed_host_groups << host_groups(:blue)
-    @item.collection.denied_host_groups << host_groups(:yellow)
 
     # Assert that they get propagated to effective host groups.
     @item.save!
     assert_equal 1, @item.effective_allowed_host_groups.length
     assert_equal 'blue', @item.effective_allowed_host_groups.first.key
-    assert_equal 1, @item.effective_denied_host_groups.length
-    assert_equal 'yellow', @item.effective_denied_host_groups.first.key
   end
 
   test 'save() sets normalized coordinates' do
