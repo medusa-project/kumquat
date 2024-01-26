@@ -86,7 +86,7 @@ class ApplicationJob < ActiveJob::Base
   # Will be called after enqueueing (background jobs only).
   #
   def do_after_enqueue
-    create_task(job_id: self.job_id, user: arguments[0][:user])
+    create_task(job_id: self.job_id, user: arguments.dig(0, :user))
   end
 
   def do_before_perform
