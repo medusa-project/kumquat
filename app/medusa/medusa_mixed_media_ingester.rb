@@ -55,7 +55,6 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
   # the DLS.
   #
   # @param collection [Collection]
-  # @param options [Hash] Options hash.
   # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with `:num_created`, `:num_updated`,
   #                                and `:num_skipped` keys.
@@ -63,9 +62,9 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
   #                         are not set, or if the file group is invalid.
   # @raises [IllegalContentError]
   #
-  def create_items(collection, options = {}, task = nil)
-    check_collection(collection, PackageProfile::MIXED_MEDIA_PROFILE)
-    options = options.symbolize_keys
+  def create_items(collection:, task: nil)
+    check_collection(collection:      collection,
+                     package_profile: PackageProfile::MIXED_MEDIA_PROFILE)
 
     stats = { num_created: 0, num_updated: 0, num_skipped: 0 }
     directories = collection.effective_medusa_directory.directories
@@ -239,8 +238,9 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
   #                         are not set, or if the file group is invalid.
   # @raises [IllegalContentError]
   #
-  def delete_missing_items(collection, task = nil)
-    check_collection(collection, PackageProfile::MIXED_MEDIA_PROFILE)
+  def delete_missing_items(collection:, task: nil)
+    check_collection(collection:      collection,
+                     package_profile: PackageProfile::MIXED_MEDIA_PROFILE)
 
     # Compile a list of all item UUIDs currently in the Medusa file group.
     medusa_items = items_in(collection.effective_medusa_directory)
@@ -281,8 +281,9 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set, or if the file group is invalid.
   #
-  def recreate_binaries(collection, task = nil)
-    check_collection(collection, PackageProfile::MIXED_MEDIA_PROFILE)
+  def recreate_binaries(collection:, task: nil)
+    check_collection(collection:      collection,
+                     package_profile: PackageProfile::MIXED_MEDIA_PROFILE)
 
     directories = collection.effective_medusa_directory.directories
     num_directories = directories.length

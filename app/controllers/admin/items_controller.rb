@@ -483,10 +483,8 @@ module Admin
     def sync
       authorize(Item)
       begin
-        params[:options] = {} unless params[:options].kind_of?(Hash)
         SyncItemsJob.perform_later(collection:  @collection,
                                    ingest_mode: params[:ingest_mode],
-                                   options:     params[:options].to_unsafe_hash,
                                    user:        current_user)
       rescue => e
         handle_error(e)

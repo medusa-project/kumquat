@@ -29,14 +29,14 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
   test 'create_items() with collection file group not set raises an error' do
     @collection.medusa_file_group_uuid = nil
     assert_raises ArgumentError do
-      @ingester.create_items(@collection)
+      @ingester.create_items(collection: @collection)
     end
   end
 
   test 'create_items() with collection package profile not set raises an error' do
     @collection.package_profile = nil
     assert_raises ArgumentError do
-      @ingester.create_items(@collection)
+      @ingester.create_items(collection: @collection)
     end
   end
 
@@ -44,7 +44,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
   raises an error' do
     @collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
     assert_raises ArgumentError do
-      @ingester.create_items(@collection)
+      @ingester.create_items(collection: @collection)
     end
   end
 
@@ -52,14 +52,14 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     @collection.medusa_directory_uuid  = nil
     @collection.medusa_file_group_uuid = nil
     assert_raises ArgumentError do
-      @ingester.create_items(@collection)
+      @ingester.create_items(collection: @collection)
     end
   end
 
   test 'create_items() works' do
     skip if ENV['CI'] == '1' # this doesn't work in CI, maybe because of the way content is moved
     # Run the ingest.
-    result = @ingester.create_items(@collection)
+    result = @ingester.create_items(collection: @collection)
 
     # Assert that the correct number of items were added.
     assert_equal 6, Item.count
@@ -97,7 +97,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
   error' do
     @collection.medusa_file_group_uuid = nil
     assert_raises ArgumentError do
-      @ingester.delete_missing_items(@collection)
+      @ingester.delete_missing_items(collection: @collection)
     end
   end
 
@@ -105,7 +105,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
   an error' do
     @collection.package_profile = nil
     assert_raises ArgumentError do
-      @ingester.delete_missing_items(@collection)
+      @ingester.delete_missing_items(collection: @collection)
     end
   end
 
@@ -113,7 +113,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
   raises an error' do
     @collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
     assert_raises ArgumentError do
-      @ingester.delete_missing_items(@collection)
+      @ingester.delete_missing_items(collection: @collection)
     end
   end
 
@@ -122,14 +122,14 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     @collection.medusa_directory_uuid  = nil
     @collection.medusa_file_group_uuid = nil
     assert_raises ArgumentError do
-      @ingester.delete_missing_items(@collection)
+      @ingester.delete_missing_items(collection: @collection)
     end
   end
 
   test 'delete_missing_items() works' do
     skip if ENV['CI'] == '1' # this doesn't work in CI, maybe because of the way content is moved
     # Ingest some items.
-    @ingester.create_items(@collection)
+    @ingester.create_items(collection: @collection)
 
     # Record initial conditions.
     start_num_items = Item.count
@@ -145,7 +145,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
       # First we need to nillify some cached information from before the move. TODO: this is messy
       @collection.instance_variable_set('@file_group', nil)
       @collection.instance_variable_set('@medusa_directory', nil)
-      result = @ingester.delete_missing_items(@collection)
+      result = @ingester.delete_missing_items(collection: @collection)
 
       # Assert that they were deleted.
       assert_equal start_num_items - 2, Item.count
@@ -161,14 +161,14 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
   test 'replace_metadata() with collection file group not set raises an error' do
     @collection.medusa_file_group_uuid = nil
     assert_raises ArgumentError do
-      @ingester.replace_metadata(@collection)
+      @ingester.replace_metadata(collection: @collection)
     end
   end
 
   test 'replace_metadata() with collection package profile not set raises an error' do
     @collection.package_profile = nil
     assert_raises ArgumentError do
-      @ingester.replace_metadata(@collection)
+      @ingester.replace_metadata(collection: @collection)
     end
   end
 
@@ -177,7 +177,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     @collection.medusa_directory_uuid  = nil
     @collection.medusa_file_group_uuid = nil
     assert_raises ArgumentError do
-      @ingester.replace_metadata(@collection)
+      @ingester.replace_metadata(collection: @collection)
     end
   end
 
@@ -190,7 +190,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
   test 'recreate_binaries() with collection file group not set raises an error' do
     @collection.medusa_file_group_uuid = nil
     assert_raises ArgumentError do
-      @ingester.recreate_binaries(@collection)
+      @ingester.recreate_binaries(collection: @collection)
     end
   end
 
@@ -198,7 +198,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
   error' do
     @collection.package_profile = nil
     assert_raises ArgumentError do
-      @ingester.recreate_binaries(@collection)
+      @ingester.recreate_binaries(collection: @collection)
     end
   end
 
@@ -206,7 +206,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
   raises an error' do
     @collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
     assert_raises ArgumentError do
-      @ingester.recreate_binaries(@collection)
+      @ingester.recreate_binaries(collection: @collection)
     end
   end
 
@@ -215,13 +215,13 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     @collection.medusa_directory_uuid  = nil
     @collection.medusa_file_group_uuid = nil
     assert_raises ArgumentError do
-      @ingester.recreate_binaries(@collection)
+      @ingester.recreate_binaries(collection: @collection)
     end
   end
 
   test 'recreate_binaries() works' do
     # Ingest some items.
-    @ingester.create_items(@collection)
+    @ingester.create_items(collection: @collection)
 
     # Record initial conditions.
     start_num_items = Item.count
@@ -230,7 +230,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     Binary.destroy_all
 
     # Recreate binaries.
-    result = @ingester.recreate_binaries(@collection)
+    result = @ingester.recreate_binaries(collection: @collection)
 
     # Assert that the binaries were created.
     assert_equal Binary.count, result[:num_created]

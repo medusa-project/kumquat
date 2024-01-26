@@ -18,11 +18,10 @@ class MedusaIngester
   LOGGER = CustomLogger.new(MedusaIngester)
 
   ##
-  # Creates new DLS items for any Medusa items that do not already exist in
-  # the DLS.
+  # Creates new local items for any Medusa items that do not already exist
+  # locally.
   #
   # @param collection [Collection]
-  # @param options [Hash] Options hash.
   # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with `:num_created`, `:num_skipped`,
   #                                and `:num_walked` keys.
@@ -30,12 +29,12 @@ class MedusaIngester
   #                         are not set or invalid.
   # @raises [IllegalContentError]
   #
-  def create_items(collection, options = {}, task = nil)
-    ingester_for(collection).create_items(collection, options, task)
+  def create_items(collection:, task: nil)
+    ingester_for(collection).create_items(collection: collection, task: task)
   end
 
   ##
-  # Deletes DLS items that are no longer present in Medusa.
+  # Deletes local items that are no longer present in Medusa.
   #
   # @param collection [Collection]
   # @param task [Task] Supply to receive status updates.
@@ -44,8 +43,8 @@ class MedusaIngester
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
   #
-  def delete_missing_items(collection, task = nil)
-    ingester_for(collection).delete_missing_items(collection, task)
+  def delete_missing_items(collection:, task: nil)
+    ingester_for(collection).delete_missing_items(collection: collection, task: task)
   end
 
   ##
@@ -59,12 +58,12 @@ class MedusaIngester
   #                         are not set or invalid.
   # @raises [IllegalContentError]
   #
-  def recreate_binaries(collection, task = nil)
-    ingester_for(collection).recreate_binaries(collection, task)
+  def recreate_binaries(collection:, task: nil)
+    ingester_for(collection).recreate_binaries(collection: collection, task: task)
   end
 
   ##
-  # Replaces existing DLS metadata for all items in the given collection with
+  # Replaces existing local metadata of all items in the given collection with
   # metadata drawn from embedded file metadata, such as IPTC.
   #
   # @param collection [Collection]
@@ -73,13 +72,13 @@ class MedusaIngester
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
   #
-  def replace_metadata(collection, task = nil)
-    ingester_for(collection).replace_metadata(collection, task)
+  def replace_metadata(collection:, task: nil)
+    ingester_for(collection).replace_metadata(collection: collection, task: task)
   end
 
   ##
   # Retrieves the current list of Medusa collections from the Medusa REST API
-  # and creates or updates the local Collection counterpart instances.
+  # and creates or updates the local {Collection} counterpart instances.
   #
   # @param task [Task] Required for progress reporting
   # @return [void]
@@ -125,12 +124,11 @@ class MedusaIngester
   end
 
   ##
-  # Creates new DLS items for any Medusa items that do not already exist in
-  # the DLS.
+  # Creates new local items for any Medusa items that do not already exist
+  # locally.
   #
   # @param collection [Collection]
   # @param sync_mode [Symbol] Value of one of the {IngestMode} constants.
-  # @param options [Hash] Options hash.
   # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with `:num_created`, `:num_skipped`,
   #                                and `:num_walked` keys.
@@ -138,16 +136,16 @@ class MedusaIngester
   #                         are not set or invalid.
   # @raises [IllegalContentError]
   #
-  def sync_items(collection, sync_mode, options = {}, task = nil)
+  def sync_items(collection:, sync_mode:, task: nil)
     case sync_mode.to_sym
       when IngestMode::CREATE_ONLY
-        self.create_items(collection, options, task)
+        self.create_items(collection: collection, task: task)
       when IngestMode::DELETE_MISSING
-        self.delete_missing_items(collection, task)
+        self.delete_missing_items(collection: collection, task: task)
       when IngestMode::RECREATE_BINARIES
-        self.recreate_binaries(collection, task)
+        self.recreate_binaries(collection: collection, task: task)
       when IngestMode::REPLACE_METADATA
-        self.replace_metadata(collection, task)
+        self.replace_metadata(collection: collection, task: task)
       else
         raise ArgumentError, "Unknown sync mode: #{sync_mode}"
     end

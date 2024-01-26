@@ -40,7 +40,6 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   # the DLS.
   #
   # @param collection [Collection]
-  # @param options [Hash] Options hash.
   # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with `:num_created`, `:num_skipped`,
   #                                and `:num_walked` keys.
@@ -48,14 +47,15 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   #                         are not set or invalid.
   # @raises [IllegalContentError]
   #
-  def create_items(collection, options = {}, task = nil)
-    check_collection(collection, PackageProfile::FREE_FORM_PROFILE)
+  def create_items(collection:, task: nil)
+    check_collection(collection:      collection,
+                     package_profile: PackageProfile::FREE_FORM_PROFILE)
     num_nodes = task ? count_tree_nodes(collection.effective_medusa_directory) : 0
     stats = { num_created: 0, num_skipped: 0, num_walked: 0 }
     ActiveRecord::Base.transaction do
       create_items_in_tree(collection, collection.effective_medusa_directory,
                            collection.effective_medusa_directory,
-                           options.symbolize_keys, stats, task, num_nodes)
+                           stats, task, num_nodes)
     end
   end
 
@@ -69,8 +69,9 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
   #
-  def delete_missing_items(collection, task = nil)
-    check_collection(collection, PackageProfile::FREE_FORM_PROFILE)
+  def delete_missing_items(collection:, task: nil)
+    check_collection(collection:      collection,
+                     package_profile: PackageProfile::FREE_FORM_PROFILE)
 
     # Compile a list of all item UUIDs currently in the Medusa file group.
     medusa_items = items_in(collection.effective_medusa_directory)
@@ -112,8 +113,9 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   #                         are not set or invalid.
   # @raises [IllegalContentError]
   #
-  def recreate_binaries(collection, task = nil)
-    check_collection(collection, PackageProfile::FREE_FORM_PROFILE)
+  def recreate_binaries(collection:, task: nil)
+    check_collection(collection:      collection,
+                     package_profile: PackageProfile::FREE_FORM_PROFILE)
 
     num_nodes = task ? count_tree_nodes(collection.effective_medusa_directory) : 0
     stats = { num_created: 0 }
@@ -157,14 +159,13 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   # @param collection [Collection]
   # @param cfs_dir [Medusa::Directory]
   # @param top_cfs_dir [Medusa::Directory]
-  # @param options [Hash]
   # @param status [Hash]
   # @param task [Task] Supply to receive status updates.
   # @param num_nodes [Integer]
   # @return [Hash<Symbol,Integer>] Hash with `:num_created`, `:num_skipped`,
   #                                and `:num_walked` keys.
   #
-  def create_items_in_tree(collection, cfs_dir, top_cfs_dir, options, status,
+  def create_items_in_tree(collection, cfs_dir, top_cfs_dir, status,
                            task = nil, num_nodes = 0)
     cfs_dir.directories.each do |dir|
       item = Item.find_by_repository_id(dir.uuid)
@@ -188,7 +189,7 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
       end
 
       status[:num_walked] += 1
-      create_items_in_tree(collection, dir, top_cfs_dir, options, status,
+      create_items_in_tree(collection, dir, top_cfs_dir, status,
                            task, num_nodes)
     end
     cfs_dir.files.each do |file|
