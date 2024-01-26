@@ -1,6 +1,6 @@
-class CreatePdfJob < Job
+class CreatePdfJob < ApplicationJob
 
-  QUEUE = Job::Queue::PUBLIC
+  QUEUE = ApplicationJob::Queue::PUBLIC
 
   queue_as QUEUE
 

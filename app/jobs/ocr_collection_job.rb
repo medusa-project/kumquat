@@ -1,10 +1,10 @@
 ##
 # Runs OCR against all relevant {Binary binaries} in a collection.
 #
-class OcrCollectionJob < Job
+class OcrCollectionJob < ApplicationJob
 
   LOGGER = CustomLogger.new(OcrCollectionJob)
-  QUEUE  = Job::Queue::ADMIN
+  QUEUE  = ApplicationJob::Queue::ADMIN
 
   queue_as QUEUE
 

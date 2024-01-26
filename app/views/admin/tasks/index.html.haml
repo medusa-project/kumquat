@@ -21,7 +21,7 @@
         %label.ml-3.mr-1{for: "dl-task-queue"} Queue
         %select#dl-task-queue.custom-select{name: "queue"}
           %option
-          - Job::Queue::all.each do |q|
+          - ApplicationJob::Queue::all.each do |q|
             %option
               = q.to_s == params[:queue] ? 'selected' : ''
               \#{q}

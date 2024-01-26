@@ -1,6 +1,6 @@
-class MigrateItemMetadataJob < Job
+class MigrateItemMetadataJob < ApplicationJob
 
-  QUEUE = Job::Queue::ADMIN
+  QUEUE = ApplicationJob::Queue::ADMIN
 
   queue_as QUEUE
 

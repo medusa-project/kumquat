@@ -1,6 +1,6 @@
-class ReindexItemsJob < Job
+class ReindexItemsJob < ApplicationJob
 
-  QUEUE = Job::Queue::ADMIN
+  QUEUE = ApplicationJob::Queue::ADMIN
 
   queue_as QUEUE
 

@@ -2,9 +2,9 @@
 # Runs OCR against the relevant binaries attached to an item and all of its
 # child items.
 #
-class OcrItemJob < Job # TODO: replace this with OcrItemsJob
+class OcrItemJob < ApplicationJob # TODO: replace this with OcrItemsJob
 
-  QUEUE = Job::Queue::ADMIN
+  QUEUE = ApplicationJob::Queue::ADMIN
 
   queue_as QUEUE
 

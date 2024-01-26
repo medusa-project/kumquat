@@ -4,9 +4,9 @@
 # @see OcrCollectionJob
 # @see OcrItemJob
 #
-class OcrBinaryJob < Job
+class OcrBinaryJob < ApplicationJob
 
-  QUEUE = Job::Queue::ADMIN
+  QUEUE = ApplicationJob::Queue::ADMIN
 
   queue_as QUEUE
 
