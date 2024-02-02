@@ -109,19 +109,13 @@ body#items_show, #dl-free-form-item-view {
     width: $viewer-width;
   }
 
-  #dl-pdf-viewer, #dl-pdfjs-viewer, #dl-native-pdf-viewer,
-  #dl-native-pdf-viewer > object {
+  #dl-pdf-viewer, #dl-pdfjs-viewer {
     height: 600px;
     margin: 0 auto;
     max-width: 1200px;
     iframe {
       border: 0;
     }
-  }
-
-  #dl-native-pdf-viewer > object {
-    height: 100%;
-    width:  100%;
   }
 
   #dl-video-player {

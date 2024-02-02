@@ -291,16 +291,6 @@ const DLItemView = function() {
             return false;
         });
 
-        const pdfjsViewer     = $("#dl-pdfjs-viewer");
-        const nativePDFViewer = $("#dl-native-pdf-viewer");
-        if (Application.isPDFSupportedNatively()) {
-            nativePDFViewer.show();
-            pdfjsViewer.hide();
-        } else {
-            nativePDFViewer.hide();
-            pdfjsViewer.show();
-        }
-
         // Add an expander icon in front of every collapse toggle.
         const toggleForCollapse = function(collapse) {
             return collapse.prev().find('a[data-toggle="collapse"]:first');
