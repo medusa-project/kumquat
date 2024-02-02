@@ -333,28 +333,21 @@ function noContextMenuHandler(e) {
  * @return {String} Guessed PDF file name.
  */
 function getPDFFileNameFromURL(url) {
-  var reURI = /^(?:([^:]+:)?\/\/[^\/]+)?([^?#]*)(\?[^#]*)?(#.*)?$/;
-  //            SCHEME      HOST         1.PATH  2.QUERY   3.REF
-  // Pattern to get last matching NAME.pdf
-  var reFilename = /[^\/?#=]+\.pdf\b(?!.*\.pdf\b)/i;
-  var splitURI = reURI.exec(url);
-  var suggestedFilename = reFilename.exec(splitURI[1]) ||
-                           reFilename.exec(splitURI[2]) ||
-                           reFilename.exec(splitURI[3]);
-  if (suggestedFilename) {
-    suggestedFilename = suggestedFilename[0];
-    if (suggestedFilename.indexOf('%') !== -1) {
-      // URL-encoded %2Fpath%2Fto%2Ffile.pdf should be file.pdf
-      try {
-        suggestedFilename =
-          reFilename.exec(decodeURIComponent(suggestedFilename))[0];
-      } catch(e) { // Possible (extremely rare) errors:
-        // URIError "Malformed URI", e.g. for "%AA.pdf"
-        // TypeError "null has no properties", e.g. for "%2F.pdf"
-      }
-    }
+  // By default, PDF.js returns a meaningless filename. But we have a request
+  // to preserve the original filename:
+  // https://github.com/medusa-project/digital-library-issues/issues/80
+  // Fetch the binary's JSON representation in order to pluck out its object
+  // key.
+  url = url.replaceAll(/\/stream\?/g, ".json?")
+  var request = new XMLHttpRequest();
+  request.open('GET', url, false); // evil synchronous request
+  request.send();
+  if (request.status === 200) {
+    const objectKey = JSON.parse(request.responseText).object_key;
+    const parts = objectKey.split("/");
+    return parts[parts.length - 1];
   }
-  return suggestedFilename || 'document.pdf';
+  return "document.pdf";
 }
 
 var ProgressBar = (function ProgressBarClosure() {
