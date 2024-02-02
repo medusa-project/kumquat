@@ -1,6 +1,6 @@
-class PurgeCollectionItemsFromImageServerCacheJob < Job
+class PurgeCollectionItemsFromImageServerCacheJob < ApplicationJob
 
-  QUEUE = Job::Queue::ADMIN
+  QUEUE = ApplicationJob::Queue::ADMIN
 
   queue_as QUEUE
 

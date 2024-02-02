@@ -1,6 +1,6 @@
-class ReplaceItemMetadataJob < Job
+class ReplaceItemMetadataJob < ApplicationJob
 
-  QUEUE = Job::Queue::ADMIN
+  QUEUE = ApplicationJob::Queue::ADMIN
 
   queue_as QUEUE
 

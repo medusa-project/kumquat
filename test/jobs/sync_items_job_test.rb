@@ -13,8 +13,7 @@ class SyncItemsJobTest < ActiveSupport::TestCase
     col.items.destroy_all
 
     SyncItemsJob.perform_now(collection:  col,
-                             ingest_mode: MedusaIngester::IngestMode::CREATE_ONLY,
-                             options:     {})
+                             ingest_mode: MedusaIngester::IngestMode::CREATE_ONLY)
 
     assert_equal 5, col.items.count
   end

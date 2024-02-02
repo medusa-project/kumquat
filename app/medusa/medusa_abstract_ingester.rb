@@ -15,8 +15,8 @@ class MedusaAbstractIngester
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set, or if the file group is invalid.
   #
-  def replace_metadata(collection, task = nil)
-    check_collection(collection)
+  def replace_metadata(collection:, task: nil)
+    check_collection(collection: collection)
 
     stats = { num_updated: 0 }
     items = collection.items
@@ -43,7 +43,7 @@ class MedusaAbstractIngester
   #                                             Omit to skip this validation.
   # @raises [ArgumentError]
   #
-  def check_collection(collection, package_profile = nil)
+  def check_collection(collection:, package_profile: nil)
     raise ArgumentError, 'Collection file group is not set' unless
         collection.medusa_file_group
     raise ArgumentError, 'Collection package profile is not set' unless

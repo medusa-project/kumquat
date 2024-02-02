@@ -113,7 +113,7 @@ module Admin
         flash['error'] = 'No items are checked.'
       end
 
-      OpensearchClient.instance.refresh
+      RefreshOpensearchJob.perform_later
       redirect_back fallback_location: admin_collection_item_set_path(params[:collection_id],
                                                                       params[:item_set_id])
     end

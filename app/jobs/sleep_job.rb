@@ -1,9 +1,9 @@
 ##
 # A job that sleeps for a given length of time.
 #
-class SleepJob < Job
+class SleepJob < ApplicationJob
 
-  QUEUE = Job::Queue::ADMIN
+  QUEUE = ApplicationJob::Queue::ADMIN
 
   queue_as QUEUE
 

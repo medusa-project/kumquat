@@ -1,9 +1,9 @@
 ##
 # Propagates various item properties to its children.
 #
-class PropagatePropertiesToChildrenJob < Job
+class PropagatePropertiesToChildrenJob < ApplicationJob
 
-  QUEUE = Job::Queue::ADMIN
+  QUEUE = ApplicationJob::Queue::ADMIN
 
   queue_as QUEUE
 

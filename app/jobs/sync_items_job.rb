@@ -1,6 +1,6 @@
-class SyncItemsJob < Job
+class SyncItemsJob < ApplicationJob
 
-  QUEUE = Job::Queue::ADMIN
+  QUEUE = ApplicationJob::Queue::ADMIN
 
   queue_as QUEUE
 
@@ -10,7 +10,6 @@ class SyncItemsJob < Job
   # 1. `:user`: {User} instance
   # 2. `:collection`: {Collection} instance
   # 3. `:ingest_mode`: One of the {MedusaIngester::IngestMode} constant values
-  # 4. `:options`: Options hash
   #
   # @param args [Hash]
   #
@@ -19,8 +18,9 @@ class SyncItemsJob < Job
 
     self.task.update(status_text: "Importing items in #{collection.title}")
 
-    result = MedusaIngester.new.sync_items(collection, args[:ingest_mode],
-                                           args[:options], self.task)
+    result = MedusaIngester.new.sync_items(collection: collection,
+                                           sync_mode:  args[:ingest_mode],
+                                           task:       self.task)
 
     self.task.status_text += ": #{result[:num_created].to_i} created; "\
         "#{result[:num_updated].to_i} updated; "\

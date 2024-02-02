@@ -1,10 +1,10 @@
 ##
 # Runs OCR against one or more items and their children.
 #
-class OcrItemsJob < Job
+class OcrItemsJob < ApplicationJob
 
   LOGGER = CustomLogger.new(OcrItemsJob)
-  QUEUE  = Job::Queue::ADMIN
+  QUEUE  = ApplicationJob::Queue::ADMIN
 
   queue_as QUEUE
 

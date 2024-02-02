@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_11_22_190757) do
+ActiveRecord::Schema[7.1].define(version: 2024_01_05_221043) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -296,7 +296,6 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_22_190757) do
     t.string "embed_tag"
     t.string "representative_medusa_file_id"
     t.datetime "end_date", precision: nil
-    t.text "allowed_netids_deleteme"
     t.datetime "published_at", precision: nil
     t.boolean "expose_full_text_search", default: true, null: false
     t.string "representative_image"

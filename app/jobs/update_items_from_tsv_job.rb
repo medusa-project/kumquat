@@ -1,6 +1,6 @@
-class UpdateItemsFromTsvJob < Job
+class UpdateItemsFromTsvJob < ApplicationJob
 
-  QUEUE = Job::Queue::ADMIN
+  QUEUE = ApplicationJob::Queue::ADMIN
 
   queue_as QUEUE
 

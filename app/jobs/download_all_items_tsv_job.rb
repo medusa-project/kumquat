@@ -1,7 +1,7 @@
-class DownloadAllItemsTsvJob < Job
+class DownloadAllItemsTsvJob < ApplicationJob
 
   LOGGER          = CustomLogger.new(DownloadAllItemsTsvJob)
-  QUEUE           = Job::Queue::ADMIN
+  QUEUE           = ApplicationJob::Queue::ADMIN
 
   queue_as QUEUE
 

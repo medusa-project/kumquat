@@ -13,15 +13,15 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
 
   ##
   # @param collection [Collection]
-  # @param options [Hash]
   # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with `:num_created` and `:num_skipped`
   #                                keys.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
   #
-  def create_items(collection, options = {}, task = nil)
-    check_collection(collection, PackageProfile::SINGLE_ITEM_OBJECT_PROFILE)
+  def create_items(collection:, task: nil)
+    check_collection(collection:      collection,
+                     package_profile: PackageProfile::SINGLE_ITEM_OBJECT_PROFILE)
 
     cfs_dir  = collection.effective_medusa_directory
     pres_dir = cfs_dir.directories.find{ |d| d.name == 'preservation' }
@@ -77,8 +77,9 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
   #
-  def delete_missing_items(collection, task = nil)
-    check_collection(collection, PackageProfile::SINGLE_ITEM_OBJECT_PROFILE)
+  def delete_missing_items(collection:, task: nil)
+    check_collection(collection:      collection,
+                     package_profile: PackageProfile::SINGLE_ITEM_OBJECT_PROFILE)
 
     # Compile a list of all item UUIDs currently in the Medusa file group.
     medusa_items = items_in(collection.effective_medusa_directory)
@@ -116,8 +117,9 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
   #
-  def recreate_binaries(collection, task = nil)
-    check_collection(collection, PackageProfile::SINGLE_ITEM_OBJECT_PROFILE)
+  def recreate_binaries(collection:, task: nil)
+    check_collection(collection: collection,
+                     package_profile: PackageProfile::SINGLE_ITEM_OBJECT_PROFILE)
 
     cfs_dir  = collection.effective_medusa_directory
     pres_dir = cfs_dir.directories.find{ |d| d.name == 'preservation' }
@@ -166,6 +168,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
     end
     stats
   end
+
 
   private
 

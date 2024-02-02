@@ -1,6 +1,6 @@
-class UpdateItemsFromEmbeddedMetadataJob < Job
+class UpdateItemsFromEmbeddedMetadataJob < ApplicationJob
 
-  QUEUE = Job::Queue::ADMIN
+  QUEUE = ApplicationJob::Queue::ADMIN
 
   queue_as QUEUE
 

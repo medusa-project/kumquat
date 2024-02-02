@@ -1,6 +1,6 @@
-class SyncCollectionsJob < Job
+class SyncCollectionsJob < ApplicationJob
 
-  QUEUE = Job::Queue::ADMIN
+  QUEUE = ApplicationJob::Queue::ADMIN
 
   queue_as QUEUE
 

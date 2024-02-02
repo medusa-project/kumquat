@@ -45,7 +45,6 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
   # the DLS.
   #
   # @param collection [Collection]
-  # @param options [Hash] Options hash.
   # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with `:num_created`, `:num_updated`,
   #                                and `:num_skipped` keys.
@@ -53,9 +52,9 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
   #                         are not set, or if the file group is invalid.
   # @raises [IllegalContentError]
   #
-  def create_items(collection, options = {}, task = nil)
-    check_collection(collection, PackageProfile::COMPOUND_OBJECT_PROFILE)
-    options = options.symbolize_keys
+  def create_items(collection:, task: nil)
+    check_collection(collection:      collection,
+                     package_profile: PackageProfile::COMPOUND_OBJECT_PROFILE)
 
     stats = { num_created: 0, num_updated: 0, num_skipped: 0 }
     directories = collection.effective_medusa_directory.directories
@@ -229,8 +228,9 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
   #                         are not set, or if the file group is invalid.
   # @raises [IllegalContentError]
   #
-  def delete_missing_items(collection, task = nil)
-    check_collection(collection, PackageProfile::COMPOUND_OBJECT_PROFILE)
+  def delete_missing_items(collection:, task: nil)
+    check_collection(collection:      collection,
+                     package_profile: PackageProfile::COMPOUND_OBJECT_PROFILE)
 
     # Compile a list of all item UUIDs currently in the Medusa file group.
     medusa_items = items_in(collection.effective_medusa_directory)
@@ -271,8 +271,9 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set, or if the file group is invalid.
   #
-  def recreate_binaries(collection, task = nil)
-    check_collection(collection, PackageProfile::COMPOUND_OBJECT_PROFILE)
+  def recreate_binaries(collection:, task: nil)
+    check_collection(collection:      collection,
+                     package_profile: PackageProfile::COMPOUND_OBJECT_PROFILE)
 
     stats = { num_created: 0 }
     directories = collection.effective_medusa_directory.directories
