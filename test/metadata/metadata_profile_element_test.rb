@@ -37,7 +37,7 @@ class MetadataProfileElementTest < ActiveSupport::TestCase
 
   # data_type
 
-  test 'data_type must be in the range of DataType constants' do
+  test 'data_type must be one of the DataType constant values' do
     assert @element.valid?
 
     @element.data_type = nil
@@ -59,6 +59,21 @@ class MetadataProfileElementTest < ActiveSupport::TestCase
     profile.elements.order(:index).each_with_index do |e, i|
       assert_equal i, e.index
     end
+  end
+
+  # facet_order
+
+  test 'facet_order must be one of the FacetOrder constant values' do
+    assert @element.valid?
+
+    @element.facet_order = nil
+    assert @element.valid?
+
+    @element.facet_order = -1
+    assert !@element.valid?
+
+    @element.facet_order = 25
+    assert !@element.valid?
   end
 
   # human_readable_data_type()

@@ -79,8 +79,8 @@ module Admin
 
     def permitted_params
       params.require(:metadata_profile_element).permit(
-          :data_type, :dc_map, :dcterms_map, :facetable, :index, :indexed,
-          :label, :metadata_profile_id, :name, :searchable, :sortable,
+          :data_type, :dc_map, :dcterms_map, :facet_order, :facetable, :index,
+          :indexed, :label, :metadata_profile_id, :name, :searchable, :sortable,
           :visible, vocabulary_ids: [])
     end
 

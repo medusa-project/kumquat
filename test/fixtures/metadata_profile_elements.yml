@@ -4,91 +4,103 @@
 
 default_profile_title:
   metadata_profile: default
-  dc_map: title
-  dcterms_map: title
-  facetable: false
-  index: 0
-  label: Title
-  name: title
-  searchable: true
-  sortable: true
-  visible: true
-  indexed: true
+  dc_map:           title
+  dcterms_map:      title
+  data_type:        <%= MetadataProfileElement::DataType::SINGLE_LINE_STRING %>
+  index:            0
+  label:            Title
+  name:             title
+  searchable:       true
+  sortable:         true
+  facetable:        false
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
+  visible:          true
+  indexed:          true
   vocabularies:
     - uncontrolled
 
 default_profile_coordinates:
   metadata_profile: default
-  dc_map: spatial
-  dcterms_map: spatial
-  facetable: false
-  index: 1
-  label: Coordinates
-  name: coordinates
-  searchable: false
-  sortable: false
-  visible: true
-  indexed: true
+  dc_map:           spatial
+  dcterms_map:      spatial
+  data_type:        <%= MetadataProfileElement::DataType::SINGLE_LINE_STRING %>
+  index:            1
+  label:            Coordinates
+  name:             coordinates
+  searchable:       false
+  sortable:         false
+  facetable:        false
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
+  visible:          true
+  indexed:          true
   vocabularies:
     - uncontrolled
 
 default_profile_creator:
   metadata_profile: default
-  dc_map: creator
-  dcterms_map: creator
-  facetable: true
-  index: 2
-  label: Creator
-  name: creator
-  searchable: true
-  sortable: true
-  visible: true
-  indexed: true
+  dc_map:           creator
+  dcterms_map:      creator
+  data_type:        <%= MetadataProfileElement::DataType::SINGLE_LINE_STRING %>
+  index:            2
+  label:            Creator
+  name:             creator
+  searchable:       true
+  sortable:         true
+  facetable:        true
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
+  visible:          true
+  indexed:          true
   vocabularies:
     - uncontrolled
 
 default_profile_dateCreated:
   metadata_profile: default
-  dc_map: created
-  dcterms_map: created
-  facetable: false
-  index: 3
-  label: Date Created
-  name: dateCreated
-  searchable: false
-  sortable: true
-  visible: true
-  indexed: true
+  dc_map:           created
+  dcterms_map:      created
+  data_type:        <%= MetadataProfileElement::DataType::SINGLE_LINE_STRING %>
+  index:            3
+  label:            Date Created
+  name:             dateCreated
+  searchable:       false
+  sortable:         true
+  facetable:        false
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
+  visible:          true
+  indexed:          true
   vocabularies:
     - uncontrolled
 
 default_profile_description:
   metadata_profile: default
-  dc_map: description
-  dcterms_map: description
-  facetable: false
-  index: 4
-  label: Description
-  name: description
-  searchable: false
-  sortable: true
-  visible: true
-  indexed: true
+  dc_map:           description
+  dcterms_map:      description
+  data_type:        <%= MetadataProfileElement::DataType::MULTI_LINE_STRING %>
+  index:            4
+  label:            Description
+  name:             description
+  searchable:       false
+  sortable:         true
+  facetable:        false
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
+  visible:          true
+  indexed:          true
   vocabularies:
     - uncontrolled
 
 default_profile_subject:
   metadata_profile: default
-  dc_map: subject
-  dcterms_map: subject
-  facetable: true
-  index: 5
-  label: Subject
-  name: subject
-  searchable: true
-  sortable: false
-  visible: true
-  indexed: true
+  dc_map:           subject
+  dcterms_map:      subject
+  data_type:        <%= MetadataProfileElement::DataType::SINGLE_LINE_STRING %>
+  index:            5
+  label:            Subject
+  name:             subject
+  searchable:       true
+  sortable:         false
+  facetable:        true
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
+  visible:          true
+  indexed:          true
   vocabularies:
     - lcsh
     - tgm
@@ -97,61 +109,69 @@ default_profile_subject:
 
 compound_object_1001_title:
   metadata_profile: compound_object
-  dc_map: title
-  dcterms_map: title
-  facetable: false
-  index: 0
-  label: Title
-  name: title
-  searchable: true
-  sortable: true
-  visible: true
-  indexed: true
+  dc_map:           title
+  dcterms_map:      title
+  data_type:        <%= MetadataProfileElement::DataType::SINGLE_LINE_STRING %>
+  index:            0
+  label:            Title
+  name:             title
+  searchable:       true
+  sortable:         true
+  facetable:        false
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
+  visible:          true
+  indexed:          true
   vocabularies:
     - uncontrolled
 
 compound_object_1001_coordinates:
   metadata_profile: compound_object
-  dc_map: spatial
-  dcterms_map: spatial
-  facetable: false
-  index: 1
-  label: Coordinates
-  name: coordinates
-  searchable: false
-  sortable: false
-  visible: true
-  indexed: true
+  dc_map:           spatial
+  dcterms_map:      spatial
+  data_type:        <%= MetadataProfileElement::DataType::SINGLE_LINE_STRING %>
+  index:            1
+  label:            Coordinates
+  name:             coordinates
+  searchable:       false
+  sortable:         false
+  facetable:        false
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
+  visible:          true
+  indexed:          true
   vocabularies:
     - uncontrolled
 
 compound_object_1001_creator:
   metadata_profile: compound_object
-  dc_map: creator
-  dcterms_map: creator
-  facetable: true
-  index: 2
-  label: Creator
-  name: creator
-  searchable: true
-  sortable: true
-  visible: true
-  indexed: true
+  dc_map:           creator
+  dcterms_map:      creator
+  data_type:        <%= MetadataProfileElement::DataType::SINGLE_LINE_STRING %>
+  index:            2
+  label:            Creator
+  name:             creator
+  searchable:       true
+  sortable:         true
+  facetable:        true
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
+  visible:          true
+  indexed:          true
   vocabularies:
     - uncontrolled
 
 compound_object_1001_dateCreated:
   metadata_profile: compound_object
-  dc_map: created
-  dcterms_map: created
-  facetable: false
-  index: 3
-  label: Date Created
-  name: dateCreated
-  searchable: false
-  sortable: true
-  visible: true
-  indexed: true
+  dc_map:           created
+  dcterms_map:      created
+  data_type:        <%= MetadataProfileElement::DataType::SINGLE_LINE_STRING %>
+  index:            3
+  label:            Date Created
+  name:             dateCreated
+  searchable:       false
+  sortable:         true
+  facetable:        false
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
+  visible:          true
+  indexed:          true
   vocabularies:
     - uncontrolled
 
@@ -159,12 +179,14 @@ compound_object_1001_description:
   metadata_profile: compound_object
   dc_map:           description
   dcterms_map:      description
-  facetable:        false
+  data_type:        <%= MetadataProfileElement::DataType::MULTI_LINE_STRING %>
   index:            4
   label:            Description
   name:             description
   searchable:       false
   sortable:         true
+  facetable:        false
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
   visible:          true
   indexed:          true
   vocabularies:
@@ -172,16 +194,18 @@ compound_object_1001_description:
 
 compound_object_1001_subject:
   metadata_profile: compound_object
-  dc_map: subject
-  dcterms_map: subject
-  facetable: true
-  index: 5
-  label: Subject
-  name: subject
-  searchable: true
-  sortable: false
-  visible: true
-  indexed: true
+  dc_map:           subject
+  dcterms_map:      subject
+  data_type:        <%= MetadataProfileElement::DataType::SINGLE_LINE_STRING %>
+  index:            5
+  label:            Subject
+  name:             subject
+  searchable:       true
+  sortable:         false
+  facetable:        true
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
+  visible:          true
+  indexed:          true
   vocabularies:
     - lcsh
     - tgm

@@ -328,7 +328,15 @@ class ItemRelation < AbstractRelation
             j.set! field.indexed_keyword_field do
               j.terms do
                 j.field field.indexed_keyword_field
-                j.size @bucket_limit
+                case field.facet_order
+                when MetadataProfileElement::FacetOrder::ALPHANUMERIC
+                  j.size 10000 # OpenSearch limit is 65536
+                  j.order do
+                    j.set! :_key, "asc"
+                  end
+                else
+                  j.size @bucket_limit
+                end
               end
             end
           end
