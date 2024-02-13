@@ -211,8 +211,7 @@ class Binary < ApplicationRecord
   def detect_text(language: 'eng')
     raise 'This instance does not support OCR.' unless self.ocrable?
     if Rails.env.development? || Rails.env.test?
-      #detect_text_using_local_tesseract(language: language)
-      detect_text_using_lambda_ocr(language: language)
+      detect_text_using_local_tesseract(language: language)
     else
       detect_text_using_lambda_ocr(language: language)
     end
