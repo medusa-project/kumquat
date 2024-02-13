@@ -10,6 +10,8 @@
 #                         the element can be mapped.
 # * `dcterms_map`         Name of a Dublin Core term to which the element can
 #                         be mapped.
+# * `facet_order`         One of the {MetadataProfileElement::FacetOrder}
+#                         constant values.
 # * `facetable`           Whether the element is used to provide facets in
 #                         results views.
 # * `index`               Zero-based position within the owning
@@ -33,13 +35,51 @@ class MetadataProfileElement < ApplicationRecord
   class DataType
     SINGLE_LINE_STRING = 0
     MULTI_LINE_STRING  = 1
+
+    ##
+    # @return [Enumerable<Integer>] Integer values of all constant values.
+    #
+    def self.all
+      self.constants.map{ |c| self.const_get(c) }
+    end
   end
+
+  ##
+  # Order of the terms appearing in an element's facet.
+  #
+  class FacetOrder
+    FREQUENCY    = 0
+    ALPHANUMERIC = 1
+
+    ##
+    # @return [Enumerable<Integer>] Integer values of all constant values.
+    #
+    def self.all
+      self.constants.map{ |c| self.const_get(c) }
+    end
+
+    ##
+    # @param data_type [Integer] One of the constant values.
+    # @return                    Human-readable facet order.
+    #
+    def self.to_s(facet_order)
+      case facet_order
+      when ALPHANUMERIC
+        'Alphanumeric'
+      when FREQUENCY
+        'Frequency'
+      else
+        ''
+      end
+    end
+  end
+
 
   belongs_to :metadata_profile, inverse_of: :elements
   has_and_belongs_to_many :vocabularies
 
-  validates_inclusion_of :data_type,
-                         in: 0..DataType.constants.map { |c| DataType.const_get(c) }.max
+  validates :data_type, inclusion: { in: DataType.all }
+  validates :facet_order, inclusion: { in: FacetOrder.all }, allow_blank: true
   validates :index, numericality: { only_integer: true,
                                     greater_than_or_equal_to: 0 },
             allow_blank: false
