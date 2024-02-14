@@ -1,33 +1,36 @@
 Kumquat is an implementation of the
-[Illinois Digital Library Service](https://digital.library.illinois.edu).
+[Illinois Digital Special Collections Service](https://digital.library.illinois.edu).
 
 This is a getting-started guide for developers.
 
 # Quick Links
 
-* [SCARS Wiki](https://wiki.illinois.edu/wiki/display/scrs/DLS)
-* [JIRA Project](https://bugs.library.illinois.edu/projects/DLD)
+* [SCARS Wiki](https://wiki.library.illinois.edu/scars/Production_Services/Illinois_Digital_Library/DLS)
+* [GitHub Issues Project](https://github.com/medusa-project/digital-library-issues/issues)
+    * [Project Board](https://github.com/orgs/medusa-project/projects/2)
 
-# Prerequisites
+# Local Development Prerequisites
 
-* Administrator access to the production DLS instance (in order to export data
+* Administrator access to the production DSC instance (in order to export data
   to import into your development instance)
 * PostgreSQL >= 9.x
-* An S3 bucket ([MinIO Server](https://min.io/download) will work in
+* An S3 server (MinIO Server, s3proxy, and SeaweedFS will all work in
   development & test)
 * OpenSearch >= 1.0
-    * The [ICU Analysis Plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-icu.html)
-      must also be installed.
+    * The `analysis-icu` plugin must also be installed.
 * Cantaloupe 5.0+
     * You can install and configure this yourself, but it will be easier to run
-      a [DLS image server container](https://github.com/medusa-project/dls-cantaloupe-docker)
+      a [DSC image server container](https://github.com/medusa-project/dls-cantaloupe-docker)
       in Docker.
     * This will also require the
       [AWS Command Line Interface](https://aws.amazon.com/cli/) v1.x with the
       [awscli-login](https://github.com/techservicesillinois/awscli-login)
       plugin, which is needed to obtain credentials for Cantaloupe to access
       the relevant S3 buckets. (awscli-login requires v1.x of the CLI as of
-      this writing, but that would be the only reason not to upgrade to v2.x.)
+      this writing, but that would be the only reason not to upgrade to v2.x.
+      It's also possible to install 1.x, then rename the `aws` executable to
+      something like `aws-v1`, then install 2.x, and only use `aws-v1 login`
+      for logins.)
 * exiv2 (used to extract image metadata)
 * ffmpeg (used to extract video metadata)
 * tesseract (used for OCR)
@@ -39,7 +42,7 @@ This is a getting-started guide for developers.
 # Install rbenv
 $ brew install rbenv
 $ brew install ruby-build
-$ brew install rbenv-gemset --HEAD
+$ brew install rbenv-gemset
 $ rbenv init
 $ rbenv rehash
 
@@ -57,22 +60,35 @@ $ gem install bundler
 $ bundle install
 ```
 
-## Create the OpenSearch index
+## Configure Opensearch
+
+### Support a single node
+
+Make sure `discovery.type: single-node` is uncommented in
+`config/opensearch.yml`.
+
+### Install the analysis-icu plugin
+
+`bin/opensearch-plugin install analysis-icu`
+
+### Create an index for Kumquat
 
 ```sh
-$ bin/rails opensearch:indexes:create[my_index]
-$ bin/rails opensearch:indexes:create_alias[my_index,my_index_alias]
+$ bin/rails opensearch:indexes:create[kumquat_development_blue]
+$ bin/rails opensearch:indexes:create_alias[kumquat_development_blue,kumquat_development]
 ```
 
-## Configure the application
+## Configure Kumquat
+
+Obtain `demo.key` and `production.key` from a team member and put them in
+`config/credentials`. Then:
 
 ```sh
 $ cd config/credentials
 $ cp template.yml development.yml
 $ cp template.yml test.yml
 ```
-Edit both as necessary. In particular, set `opensearch_index` to
-`my_index_alias` that you created above.
+Edit both as necessary.
 
 See the "Configuration" section later in this file for more information about
 the configuration system.
@@ -85,7 +101,7 @@ $ bin/rails db:setup
 
 # Load some data
 
-## Sync collections with Medusa
+## Import collections from Medusa
 
 ```sh
 $ bin/rails dls:collections:sync
@@ -126,9 +142,7 @@ collection.)
 2. Click the "Objects" button.
 3. Click the "Import" button.
 4. In the "Import Items" panel, make sure "Create" is checked, and click
-   "Import."
-    * This will invoke a background job. Use `bin/rails jobs:workoff` to run
-      it. Wait for it to complete.
+   "Import." This will invoke a background job. Wait for it to complete.
 
 ## Import the collection's metadata
 
@@ -136,9 +150,8 @@ collection.)
 2. Click the "Objects" button.
 3. Click "Metadata -> Export As TSV" and export all items to a file.
 4. Go to the same view on your local instance.
-5. Import the TSV. This will invoke a background job. Use
-   `bin/rails jobs:workoff` to run it. When it finishes, the collection should
-   be fully populated with metadata.
+5. Import the TSV. This will invoke a background job. When it finishes, the
+   collection should be fully populated with metadata.
 
 # Updating
 
@@ -165,9 +178,9 @@ migrate to an incompatible schema, the procedure would be:
        new index.
     2. Otherwise, reindex all database content:
        ```sh
-       $ rails dls:collections:reindex
-       $ rails dls:agents:reindex
-       $ rails dls:items:reindex
+       $ rails collections:reindex
+       $ rails agents:reindex
+       $ rails items:reindex
        ```
 
 # Tests
@@ -189,7 +202,7 @@ There are several dependent services:
     3. One containing Medusa repository data. The content exposed by
        Mockdusa, above, should be available in this bucket.
 
-Because getting all of this running locally can be a hassle, there is also a
+Due to the hassle of getting all of this running locally, there is also a
 `docker-compose.yml` file that will spin up all of the required services and
 run the tests within a containerized environment:
 
@@ -202,7 +215,7 @@ docker-compose pull && docker-compose up --build --exit-code-from kumquat
 # Configuration
 
 See the class documentation in `app/config/configuration.rb` for a detailed
-explanation of how the configurarion system works. The short explanation is
+explanation of how the configuration system works. The short explanation is
 that the `develop` and `test` environments rely on the unencrypted
 `config/credentials/develop.yml` and `test.yml` files, respectively, while the
 `demo` and `production` environments rely on the `demo.yml.enc` and
@@ -210,8 +223,9 @@ that the `develop` and `test` environments rely on the unencrypted
 
 # Authorization
 
-In the production and demo environments, authorization uses LDAP. In
-development and test, there is one "canned user" for each Medusa LDAP group:
+In the production and demo environments, authorization uses the campus Active
+Directory via LDAP. In development and test, there is one "canned user" for
+each Medusa AD group:
 
 * `user`: Library Medusa Users
 * `admin`: Library Medusa Admins
