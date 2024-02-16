@@ -64,19 +64,28 @@ $ bundle install
 
 ### Support a single node
 
-Make sure `discovery.type: single-node` is uncommented in
-`config/opensearch.yml`.
+Uncomment `discovery.type: single-node` in `config/opensearch.yml`. Also add
+the following lines:
+
+```yaml
+plugins.security.disabled: true
+plugins.index_state_management.enabled: false
+reindex.remote.whitelist: "localhost:*"
+```
 
 ### Install the analysis-icu plugin
 
-`bin/opensearch-plugin install analysis-icu`
-
-### Create an index for Kumquat
-
 ```sh
-$ bin/rails opensearch:indexes:create[kumquat_development_blue]
-$ bin/rails opensearch:indexes:create_alias[kumquat_development_blue,kumquat_development]
+$ bin/opensearch-plugin install analysis-icu
 ```
+
+### Start OpenSearch
+```sh
+$ bin/opensearch
+```
+
+To confirm that it's running, try to access
+[http://localhost:9200](http://localhost:9200).
 
 ## Configure Kumquat
 
@@ -92,6 +101,13 @@ Edit both as necessary.
 
 See the "Configuration" section later in this file for more information about
 the configuration system.
+
+### Create an OpenSearch index for Kumquat
+
+```sh
+$ bin/rails "opensearch:indexes:create[kumquat_development_blue]"
+$ bin/rails "opensearch:indexes:create_alias[kumquat_development_blue,kumquat_development]"
+```
 
 ## Create and seed the database
 
@@ -168,12 +184,12 @@ migrate to an incompatible schema, the procedure would be:
 
 1. Update the index schema in `app/search/index_schema.yml`
 2. Create a new index with the new schema:
-   `rails opensearch:indexes:create[new_index]`
+   `rails "opensearch:indexes:create[new_index]"`
 3. Populate the new index with documents. There are a couple of ways to do
    this:
     1. If the schema change was backwards-compatible with the source documents
        added to the index, invoke
-       `rails opensearch:indexes:reindex[current_index,new_index]`.
+       `rails "opensearch:indexes:reindex[current_index,new_index]"`.
        This will reindex all source documents from the current index into the
        new index.
     2. Otherwise, reindex all database content:
