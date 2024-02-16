@@ -9,6 +9,9 @@ class OpensearchClient
 
   CONTENT_TYPE = 'application/json'
 
+  # Maximum number of terms that can be returned for a facet.
+  AGGREGATION_BUCKET_LIMIT = 65536
+
   # Field values should be truncated to this length.
   # (total / bytes per character)
   MAX_KEYWORD_FIELD_LENGTH = 32766 / 3

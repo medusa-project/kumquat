@@ -7,8 +7,7 @@ class AbstractRelation
 
   include Enumerable
 
-  AGGREGATION_TERM_LIMIT = 100
-  BYTE_SIZE_AGGREGATION  = 'byte_size'
+  BYTE_SIZE_AGGREGATION = 'byte_size'
 
   attr_reader :request_json, :response_json
 
@@ -16,7 +15,7 @@ class AbstractRelation
     @client = OpensearchClient.instance
 
     @aggregations = true
-    @bucket_limit = AGGREGATION_TERM_LIMIT
+    @bucket_limit = Setting.integer(Setting::Keys::FACET_TERM_LIMIT, 100)
     @exact_match  = false
     @filters      = {} # Hash<String,Object>
     @host_groups  = []

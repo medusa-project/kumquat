@@ -11,6 +11,7 @@ class Setting < ApplicationRecord
     ADMINISTRATOR_EMAIL   = 'website.administrator.email'
     COPYRIGHT_STATEMENT   = 'website.copyright_statement'
     DEFAULT_RESULT_WINDOW = 'website.results_per_page'
+    FACET_TERM_LIMIT      = 'website.facet_term_limit'
     ORGANIZATION_NAME     = 'organization.name'
     WEBSITE_NAME          = 'website.name'
   end
@@ -47,11 +48,11 @@ class Setting < ApplicationRecord
   ##
   # @param key [String]
   # @param value [Object]
-  # @return [Option]
+  # @return [Setting]
   #
   def self.set(key, value)
     setting = Setting.find_by_key(key)
-    if setting # if the option already exists
+    if setting # if the setting already exists
       if setting.value != value # and it has a new value
         setting.update!(value: value)
       end
