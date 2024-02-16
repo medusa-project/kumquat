@@ -116,7 +116,7 @@ collection.)
 1. Go to the element list on the production instance.
 2. Click the Export button to export it to a file.
 3. On your local instance, go to the element list and import the file.
-   (Log in as `admin` / `admin@example.org`.)
+   (Log in as `super` / `super@example.org`.)
 
 ## Load the collection's metadata profile
 
