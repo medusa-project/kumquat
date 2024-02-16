@@ -724,13 +724,15 @@ module ApplicationHelper
 
   ##
   # @param facet [Facet]
+  # @param permitted_params [ActionController::Parameters]
+  # @private
   #
   def facet_card(facet, permitted_params)
     panel = StringIO.new
-    panel << "<div class=\"card dl-facet\" id=\"#{facet.field}\">"
+    panel << "<div class=\"card dl-card-facet\" id=\"#{facet.field}-card\">"
     panel <<   "<h5 class=\"card-header\">#{facet.name}</h5>"
-    panel <<     '<div class="card-body">'
-    panel <<       '<ul>'
+    panel <<   '<div class="card-body">'
+    panel <<     '<ul>'
     facet.terms.each do |term|
       checked = (params[:fq] and params[:fq].include?(term.query)) ?
                     'checked' : nil

@@ -16,7 +16,7 @@
 }
 
 @media print {
-  header, footer, .btn, .dl-facets, audio, video {
+  header, footer, .btn, .dl-card-facet, audio, video {
     display: none;
   }
 }

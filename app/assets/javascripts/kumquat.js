@@ -1,4 +1,4 @@
-var Application = {
+const Application = {
 
     SCROLL_SPEED: 500,
 
@@ -6,22 +6,21 @@ var Application = {
      * Enables the facets returned by one of the facets_as_x() helpers.
      */
     initFacets: function() {
-        var addFacetEventListeners = function() {
-            $('[name="dl-facet-term"]').off().on('change', function() {
-                var form  = $(this).parents('form:first');
-                var path  = $('[name=dl-current-path]').val();
+        const addFacetEventListeners = function() {
+            $('.dl-card-facet [name="dl-facet-term"]').off().on('change', function() {
+                const form = $(this).parents('form:first');
+                const path = $('[name=dl-current-path]').val();
 
                 form.find('[name="fq"]').remove();
                 form.find('[name="fq[]"]').remove();
-                // Create hidden input counterparts of each checked checkbox, as
-                // checkboxes' values can't change.
+                // Create hidden input counterparts of each checked checkbox.
                 form.find('[name=dl-facet-term]:checked').each(function() {
                     var input = $('<input type="hidden" name="fq[]">');
                     input.val($(this).data('query'));
                     form.append(input);
                 });
 
-                var query = form.serialize();
+                const query = form.serialize();
 
                 $.ajax({
                     url: path,
