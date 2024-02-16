@@ -1,5 +1,5 @@
 $('#dl-items').html('<%=j render('items') %>');
-$('.dl-facets').html('<%=j render('facets') %>');
+$('#dl-facets').html('<%=j render('facets') %>');
 $('#dl-search-status').html('<%=j search_status(@count, @start, @num_results_shown) %>');
 $('#dl-download-zip-modal-container').html('<%=j render(partial: 'download_zip_panel', locals: { context: :results,
                                                                                                  num_downloadable_items: @num_downloadable_items,

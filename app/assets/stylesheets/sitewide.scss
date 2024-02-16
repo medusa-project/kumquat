@@ -68,6 +68,8 @@ div.alert ul {
 .dl-facet {
   margin-bottom: 1em;
   .card-body {
+    max-height: 20em;
+    overflow-y: scroll;
     padding: 0.75em;
     ul {
       list-style-type: none;

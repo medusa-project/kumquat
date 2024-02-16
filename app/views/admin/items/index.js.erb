@@ -1,5 +1,5 @@
 $('#dl-items').html('<%= j(render('items')) %>');
-$('.dl-facets').html('<%= j(render('facets')) %>');
+$('#dl-facets').html('<%= j(render('facets')) %>');
 $('#dl-search-status').html('<%= j(search_status(@count, @start, @num_results_shown)) %>');
 
 <% query = { q: params[:q], fq: params[:fq], df: params[:df] } %>

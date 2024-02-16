@@ -1,7 +1,3 @@
-// Place all the styles related to the items controller here.
-// They will automatically be included in application.css.
-// You can use Sass (SCSS) here: http://sass-lang.com/
-
 $viewer-width: 95%;
 
 body#items_index .page-content, body#search_index .page-content {
@@ -19,16 +15,9 @@ body#items_index .page-content, body#search_index .page-content {
       padding-bottom: 0.35em;
     }
   }
-  .dl-facets {
+  #dl-facets {
     padding-right: 0;
-    .dl-facet{
-      .card-body {
-        max-height: 20em;
-        overflow-y: scroll;
-      }
-    }
   }
-
   .pagination {
     margin: 0 0 1em 0;
   }
