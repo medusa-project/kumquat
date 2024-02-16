@@ -305,8 +305,8 @@ module ApplicationHelper
   # @param permitted_params [ActionController::Parameters]
   # @return [String] HTML string
   #
-  def facets_as_panels(facets, permitted_params)
-    return nil unless facets
+  def facets_as_cards(facets, permitted_params)
+    return nil unless facets&.any?
     html = StringIO.new
     facets.select{ |f| f.terms.any? }.each do |facet|
       html << facet_card(facet, params.permit(permitted_params))

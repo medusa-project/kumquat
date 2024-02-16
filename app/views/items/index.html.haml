@@ -28,7 +28,7 @@
            method: :get, class: 'dl-filter') do
   .row
     .col-sm-4.col-lg-3.col-xl-2.dl-facets.dl-card-facets
-      = facets_as_panels(@facets, ItemsController::PERMITTED_SEARCH_PARAMS)
+      = facets_as_cards(@facets, ItemsController::PERMITTED_SEARCH_PARAMS)
     .col-sm-8.col-lg-9.col-xl-10
       .row
         .col-sm-5
