@@ -795,18 +795,34 @@ harvestableByPrimo)
       self.elements.build(name:  'title',
                           value: struct['title'])
 
-      self.parents.destroy_all
-      struct['parent_collections'].each do |parent_struct|
-        self.parent_collection_joins.build(parent_repository_id: parent_struct['uuid'],
-                                           child_repository_id:  self.repository_id)
-      end
-
-      self.children.destroy_all
-      struct['child_collections'].each do |child_struct|
-        self.child_collection_joins.build(parent_repository_id: self.repository_id,
-                                          child_repository_id:  child_struct['uuid'])
-      end
       self.save!
+
+      # Create relationships (CollectionJoins) to other collections. Note that
+      # some of these save commands will fail the first time this method is
+      # invoked, since not all collections have been created yet. They should
+      # succeed on all later invocations.
+      self.parent_collection_joins.destroy_all
+      struct['parent_collections'].each do |parent_struct|
+        begin
+          self.parent_collection_joins.build(parent_repository_id: parent_struct['uuid'],
+                                             child_repository_id:  self.repository_id).save!
+        rescue ActiveRecord::RecordInvalid
+          puts "Unable to relate parent #{parent_struct['uuid']} to child "\
+                 "#{self.repository_id} -- if this is the first time this "\
+                 "command has ever been run, this is not a problem."
+        end
+      end
+      self.child_collection_joins.destroy_all
+      struct['child_collections'].each do |child_struct|
+        begin
+          self.child_collection_joins.build(parent_repository_id: self.repository_id,
+                                            child_repository_id:  child_struct['uuid']).save!
+        rescue ActiveRecord::RecordInvalid
+          puts "Unable to relate parent #{self.repository_id} to child "\
+                 "#{child_struct['uuid']} -- if this is the first time this "\
+                 "command has ever been run, this is not a problem."
+        end
+      end
     end
   end
 

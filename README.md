@@ -102,7 +102,7 @@ Edit both as necessary.
 See the "Configuration" section later in this file for more information about
 the configuration system.
 
-### Create an OpenSearch index for Kumquat
+## Create an OpenSearch index for Kumquat
 
 ```sh
 $ bin/rails "opensearch:indexes:create[kumquat_development_blue]"
@@ -119,9 +119,14 @@ $ bin/rails db:setup
 
 ## Import collections from Medusa
 
+Run this command **TWICE**:
+
 ```sh
-$ bin/rails dls:collections:sync
+$ bin/rails collections:sync
 ```
+
+After the second invocation has completed, it only has to be run once from now
+on.
 
 ## Load the master element list
 
