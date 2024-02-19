@@ -20,7 +20,7 @@
         .card-body
           %h2 My Watched Collections
           .alert.alert-light
-            %i.fa.fa-info-circle
+            = icon_for(:info)
             You will receive a daily email containing an inventory of new items in each of these collections.
           %ul
             - @watches.each do |watch|

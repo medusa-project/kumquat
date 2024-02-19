@@ -10,7 +10,7 @@
             %span{"aria-hidden": "true"} ×
         .modal-body
           .alert.alert-info
-            %i.fas.fa-info-circle
+            = icon_for(:info)
             This may take a while for large numbers of results.
           = select_tag(:item_set,
                        options_for_select(current_user.item_sets.where(collection_repository_id: @collection.repository_id).map { |s| [s.name, s.id] }),

@@ -3,7 +3,7 @@
     -# populated via ajax by shared/_validation_messages.js.erb
 
   .alert.alert-light
-    %i.fa.fa-info-circle
+    = icon_for(:info)
     Collection metadata profile:
     \#{link_to(@item.collection.metadata_profile.name, admin_metadata_profile_path(@item.collection.metadata_profile))}
   %table.table.dl-elements

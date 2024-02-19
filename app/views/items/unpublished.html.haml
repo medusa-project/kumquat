@@ -6,7 +6,7 @@
              context_url: session[:browse_context_url])
 
 .alert.alert-primary
-  %i.fas.fa-info-circle
+  = icon_for(:info)
   - if @item.collection&.publicly_accessible?
     This item is unpublished.
   - else

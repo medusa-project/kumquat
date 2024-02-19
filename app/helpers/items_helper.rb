@@ -901,7 +901,7 @@ module ItemsHelper
           return compound_viewer_for(item)
         else
           return raw("<div class=\"alert alert-info mt-4 mb-4\">
-            <i class=\"fa fa-info-circle\"></i>
+            #{icon_for(:info)}
             This item's files are private. Please
             #{link_to('contact the collection\'s curator', curator_mailto(item))}
             to request access to the files.

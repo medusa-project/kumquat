@@ -28,17 +28,17 @@
         - case context
         - when :results
           .alert.alert-light
-            %i.fa.fa-info-circle
+            = icon_for(:info)
             Zip files include high-resolution files for all of the items in the
             current result set.
         - when :item
           .alert.alert-light
-            %i.fa.fa-info-circle
+            = icon_for(:info)
             Zip files include high-resolution files for the current object in
             TIFF format.
         - when :directory
           .alert.alert-light
-            %i.fa.fa-info-circle
+            = icon_for(:info)
             Zip files include all files in the current folder tree.
 
         - if num_batches > 1

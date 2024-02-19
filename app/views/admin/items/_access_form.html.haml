@@ -28,7 +28,7 @@
     .col-sm-12
       %h4 Allowed NetIDs
       .alert.alert-light
-        %i.fa.fa-info-circle
+        = icon_for(:info)
         An email will automatically be sent to any new NetIDs entered below.
       = hidden_field_tag('item[allowed_netids][][expires]', nil)
       = hidden_field_tag('item[allowed_netids][][netid]', nil)

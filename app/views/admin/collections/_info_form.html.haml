@@ -3,7 +3,7 @@
 
   - if @collection.items.any?
     .alert.alert-light
-      %i.fas.fa-info-circle
+      = icon_for(:info)
       The fields in this section can only be changed when the collection is empty.
   .form-group
     = f.label :package_profile_id, 'Package Profile'

@@ -346,7 +346,9 @@ module ApplicationHelper
   #
   def fontawesome_icon_for(entity)
     icon = %w(fas cube)
-    if entity == Item
+    if entity == :info
+      icon = %w[fas info-circle]
+    elsif entity == Item
       icon = %w(fas cube)
     elsif entity.kind_of?(Item)
       viewer_binary = entity.effective_viewer_binary
@@ -379,13 +381,13 @@ module ApplicationHelper
       elsif entity.is_video?
         icon = %w(fas film)
       end
-    elsif entity == Collection or entity.kind_of?(Collection)
+    elsif entity == Collection || entity.kind_of?(Collection)
       icon = %w(far folder-open)
-    elsif entity == Agent or entity.kind_of?(Agent)
+    elsif entity == Agent || entity.kind_of?(Agent)
       icon = %w(fas user-circle)
-    elsif entity == ItemSet or entity.kind_of?(ItemSet)
+    elsif entity == ItemSet || entity.kind_of?(ItemSet)
       icon = %w(far circle)
-    elsif entity == User or entity.kind_of?(User)
+    elsif entity == User || entity.kind_of?(User)
       icon = %w(fas user)
     end
     icon
