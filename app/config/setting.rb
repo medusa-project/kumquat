@@ -35,7 +35,7 @@ class Setting < ApplicationRecord
 
   ##
   # @param key [String]
-  # @param default [Boolean] Value to return if there is no value for the given
+  # @param default [Integer] Value to return if there is no value for the given
   #                          key.
   # @return [Integer] Value associated with the given key as an integer, or nil
   #                   if there is no value associated with the given key.
@@ -64,8 +64,8 @@ class Setting < ApplicationRecord
 
   ##
   # @param key [String]
-  # @param default [Boolean] Value to return if there is no value for the given
-  #                          key.
+  # @param default [String] Value to return if there is no value for the given
+  #                         key.
   # @return [String,nil] Value associated with the given key as a string, or nil
   #                      if there is no value associated with the given key.
   #
