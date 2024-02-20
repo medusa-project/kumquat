@@ -17,6 +17,8 @@ class ItemsController < WebsiteController
                                      :iiif_manifest, :iiif_media_sequence,
                                      :iiif_range, :iiif_search, :iiif_sequence]
   before_action :set_item, except: [:index, :tree, :tree_data]
+  before_action :set_collection, only: [:index, :tree, :tree_data]
+  before_action :authorize_collection, only: [:index, :tree, :tree_data]
   before_action :authorize_item, except: [:index, :tree, :tree_data]
   before_action :set_browse_context, only: :index
   before_action :set_permitted_params, only: [:index, :show, :tree]
@@ -232,21 +234,11 @@ class ItemsController < WebsiteController
   #
   def index
     authorize(Item)
-    if params[:collection_id]
-      @collection = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless @collection
-
-      # If the collection is unauthorized, redirect to the show-collection
-      # page, which will contain an explanation.
-      begin
-        authorize(@collection, policy_class:  CollectionPolicy,
-                               policy_method: :show?)
-      rescue NotAuthorizedError
-        redirect_to @collection and return
-      end
-    elsif params[:q].blank?
-      # Use a temporary redirect, as this route is still active when certain
-      # query arguments are provided.
+    if !@collection && params[:q].blank?
+      # We are not allowed to access /items without a query. /items is an
+      # application-wide search endpoint, and we would prefer to direct users
+      # to the Search Gateway. We use a temporary redirect, as this route is
+      # still active when a query is provided.
       redirect_to ::Configuration.instance.metadata_gateway_url + '/items',
                   status: :temporary_redirect,
                   allow_other_host: true
@@ -553,11 +545,6 @@ class ItemsController < WebsiteController
   # Responds to `GET /collections/:collection_id/tree`
   #
   def tree
-    if params[:collection_id]
-      @collection = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless @collection
-      authorize(@collection)
-    end
     respond_to do |format|
       format.html do
         if @collection.free_form?
@@ -599,10 +586,6 @@ class ItemsController < WebsiteController
   # Responds to `GET /collections/:id/items/treedata`
   #
   def tree_data
-    @collection = Collection.find_by_repository_id(params[:collection_id])
-    raise ActiveRecord::RecordNotFound unless @collection
-    authorize(@collection)
-
     @start    = params[:start].to_i
     relation  = item_relation_for(params).order(Item::IndexFields::STRUCTURAL_SORT)
     @items    = relation.to_a
@@ -712,6 +695,21 @@ class ItemsController < WebsiteController
       relation.query_all(session[:q])
     end
     relation
+  end
+
+  def set_collection
+    if params[:collection_id]
+      @collection = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless @collection
+    end
+  end
+
+  def authorize_collection
+    return unless @collection
+    authorize(@collection, policy_class: CollectionPolicy,
+              policy_method: :show?)
+  rescue NotAuthorizedError
+    redirect_to @collection
   end
 
   def set_item

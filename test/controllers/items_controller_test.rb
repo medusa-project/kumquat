@@ -210,13 +210,14 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   test 'index() zip returns HTTP 400 for a missing CAPTCHA response' do
     col = collections(:single_item_object)
-    get collection_items_path(col, format: :zip)
+    get collection_items_path(col, q: "query", format: :zip)
     assert_response :bad_request
   end
 
   test 'index() zip returns HTTP 400 for an incorrect CAPTCHA response' do
     col = collections(:single_item_object)
     get collection_items_path(col,
+                              q:                   "query",
                               format:              :zip,
                               email:               nil,
                               answer:              3,
