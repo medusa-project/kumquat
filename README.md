@@ -11,6 +11,8 @@ This is a getting-started guide for developers.
 
 # Local Development Prerequisites
 
+* AWS CLI with [awscli-login
+  plugin](https://github.com/techservicesillinois/awscli-login)
 * Administrator access to the production DSC instance (in order to export data
   to import into your development instance)
 * PostgreSQL >= 9.x
@@ -115,6 +117,22 @@ $ bin/rails "opensearch:indexes:create_alias[kumquat_development_blue,kumquat_de
 $ bin/rails db:setup
 ```
 
+## Start Kumquat
+
+```sh
+$ bin/rails server
+```
+
+Kumquat should now be available at
+[http://localhost:3000](http://localhost:3000).
+
+N.B.: If this command crashes on macOS, try adding the following line to your
+`.zshrc` file:
+
+```sh
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+```
+
 # Load some data
 
 ## Import collections from Medusa
@@ -134,36 +152,51 @@ on.
 [Champaign-Urbana Historic Built Environment](https://digital.library.illinois.edu/collections/81180450-e3fb-012f-c5b6-0019b9e633c5-2)
 collection.)
 
-1. Go to the element list on the production instance.
+1. Go to the [element list](https://digital.library.illinois.edu/admin/elements)
+   on the production instance.
 2. Click the Export button to export it to a file.
 3. On your local instance, go to the element list and import the file.
    (Log in as `super` / `super@example.org`.)
 
-## Load the collection's metadata profile
+## Import required controlled vocabularies
 
-1. Go to the collection's metadata profile in the production instance.
+1. Go to the [vocabulary list](https://digital.library.illinois.edu/admin/vocabularies)
+   on the production instance.
+2. Click the "BT" vocabulary.
+3. Click the Export button to export it to a file.
+4. On your local instance, go to the vocabulary list and import the file.
+5. Repeat for the "provider," "resourceType," and "rights" vocabularies.
+
+## Import the collection's metadata profile
+
+1. Go to the [collection's metadata
+   profile](https://digital.library.illinois.edu/admin/metadata-profiles/12) in the
+   production instance.
 2. Click the Export button to export it to a file.
 3. On your local instance, go to the metadata profiles list and click the
    Import button to import the file.
 
 ## Configure the collection
 
-1. On your local instance, go to the collection's admin view.
-2. Click Edit.
+1. On your local instance, go to [the collection's admin
+   view](http://localhost:3000/admin/collections/81180450-e3fb-012f-c5b6-0019b9e633c5-2).
+2. In the Technical Info tab, click Edit.
 3. Copy the settings from the production instance:
     1. Set the File Group ID to `b3576c20-1ea8-0134-1d77-0050569601ca-6`.
     2. Set the Package Profile to "Single-Item Object."
     3. Set the Metadata Profile to the profile you just imported.
-    4. Make sure it is "Published in DLS."
-    5. Save the collection.
+    4. Save the collection.
+4. In the Access tab, click Edit and set the collection as published.
 
 ## Sync the collection
 
-1. Go to the admin view of the collection.
-2. Click the "Objects" button.
-3. Click the "Import" button.
-4. In the "Import Items" panel, make sure "Create" is checked, and click
-   "Import." This will invoke a background job. Wait for it to complete.
+1. On the command line, log into AWS: `aws login`
+2. Go to the admin view of the collection.
+3. Click the "Objects" button.
+4. Click the "Import" button.
+5. In the "Import Items" panel, make sure "Create" is checked, and click
+   "Import." This will invoke a background job. Wait for it to complete. You
+   can track its progress in [tasks view](http://localhost:3000/admin/tasks).
 
 ## Import the collection's metadata
 
