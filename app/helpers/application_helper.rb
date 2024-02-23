@@ -303,13 +303,15 @@ module ApplicationHelper
   ##
   # @param facets [Enumerable<Facet>]
   # @param permitted_params [ActionController::Parameters]
+  # @param show_more_options [Boolean]
   # @return [String] HTML string
   #
-  def facets_as_cards(facets, permitted_params)
+  def facets_as_cards(facets, permitted_params, show_more_options: true)
     return nil unless facets&.any?
     html = StringIO.new
     facets.select{ |f| f.terms.any? }.each do |facet|
-      html << facet_card(facet, params.permit(permitted_params))
+      html << facet_card(facet, params.permit(permitted_params),
+                         show_more_options: show_more_options)
       html << facet_modal(facet, params.permit(permitted_params))
     end
     raw(html.string)
@@ -728,9 +730,10 @@ module ApplicationHelper
   ##
   # @param facet [Facet]
   # @param permitted_params [ActionController::Parameters]
+  # @param show_more_options [Boolean]
   # @private
   #
-  def facet_card(facet, permitted_params)
+  def facet_card(facet, permitted_params, show_more_options: true)
     max_terms = Setting.integer(Setting::Keys::FACET_TERM_LIMIT, 20)
     panel = StringIO.new
     panel << "<div class=\"card dl-card-facet\" id=\"#{facet.field}-card\">"
@@ -760,7 +763,7 @@ module ApplicationHelper
     end
     panel <<     '</ul>'
     panel <<   '</div>' # card-body
-    if facet.terms.length >= max_terms
+    if facet.terms.length >= max_terms && show_more_options
       panel << "<button type=\"button\" class=\"btn btn-text dl-more-button\"
                     data-toggle=\"modal\" data-target=\"##{facet.field.gsub(/[^A-Za-z\d]/, "-")}-modal\">"
       panel <<   'More Options&hellip;'
