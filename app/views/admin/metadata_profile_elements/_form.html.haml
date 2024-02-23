@@ -8,7 +8,6 @@
 - data_type_options_for_select   = MetadataProfileElement::DataType.constants.map{ |c| [ c.to_s.humanize, MetadataProfileElement::DataType.const_get(c) ] }
 - name_options_for_select        = ItemElement.all_available.sort{ |e, f| e.name <=> f.name }.map{ |t| [ t.name, t.name ] }
 - position_options_for_select    = [['Nothing (First)', 0]]
-- facet_order_options_for_select = MetadataProfileElement::FacetOrder::all.map { |c| [MetadataProfileElement::FacetOrder::to_s(c), c] }
 - elements                       = metadata_profile.elements.order(:index)
 - if element.id.present?
   - elements = elements.where('id != ?', element.id)
@@ -91,11 +90,6 @@
     %label
       = f.check_box :facetable
       Facetable
-  .form-group
-    = f.label :facet_order, 'Facet Order'
-    = f.select(:facet_order, facet_order_options_for_select,
-               { selected: f.object.facet_order },
-               class: 'custom-select')
   = f.hidden_field :metadata_profile_id, value: metadata_profile.id
   .clearfix
     .float-right

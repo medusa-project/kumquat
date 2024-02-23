@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_02_12_222408) do
+ActiveRecord::Schema[7.1].define(version: 2024_02_23_150237) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -325,7 +325,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_12_222408) do
     t.string "dcterms_map"
     t.integer "data_type", default: 0, null: false
     t.boolean "indexed", default: true
-    t.integer "facet_order", default: 0, null: false
     t.index ["facetable"], name: "index_metadata_profile_elements_on_facetable"
     t.index ["index"], name: "index_metadata_profile_elements_on_index"
     t.index ["indexed"], name: "index_metadata_profile_elements_on_indexed"

@@ -8,6 +8,11 @@ class Facet
   #   @return [String]
   attr_accessor :name
 
+  # @!attribute order
+  #   @return [Integer] One of the {MetadataProfileElement::FacetOrder}
+  #                     constant values.
+  attr_accessor :order
+
   # @!attribute terms
   #   @return [Array<FacetTerm>]
   attr_reader :terms

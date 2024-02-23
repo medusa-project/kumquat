@@ -310,6 +310,7 @@ module ApplicationHelper
     html = StringIO.new
     facets.select{ |f| f.terms.any? }.each do |facet|
       html << facet_card(facet, params.permit(permitted_params))
+      html << facet_modal(facet, params.permit(permitted_params))
     end
     raw(html.string)
   end
@@ -730,34 +731,102 @@ module ApplicationHelper
   # @private
   #
   def facet_card(facet, permitted_params)
+    max_terms = Setting.integer(Setting::Keys::FACET_TERM_LIMIT, 20)
     panel = StringIO.new
     panel << "<div class=\"card dl-card-facet\" id=\"#{facet.field}-card\">"
-    panel <<   "<h5 class=\"card-header\">#{facet.name}</h5>"
+    panel <<   '<h5 class="card-header">'
+    panel <<     facet.name
+    panel <<   '</h5>'
     panel <<   '<div class="card-body">'
     panel <<     '<ul>'
-    facet.terms.each do |term|
+    facet.terms[0..max_terms].each do |term|
+      checked          = (params[:fq] && params[:fq].include?(term.query)) ?
+                           'checked' : nil
+      checked_params   = term.removed_from_params(permitted_params.deep_dup).except(:start)
+      unchecked_params = term.added_to_params(permitted_params.deep_dup).except(:start)
+      term_label       = truncate(term.label, length: 80)
+      panel <<     '<li class="dl-term">'
+      panel <<       '<div class="checkbox">'
+      panel <<         '<label>'
+      panel <<           "<input type=\"checkbox\" name=\"dl-facet-term\" #{checked} "\
+                             "data-query=\"#{term.query.gsub('"', '&quot;')}\" "\
+                             "data-checked-href=\"#{url_for(unchecked_params)}\" "\
+                             "data-unchecked-href=\"#{url_for(checked_params)}\"> "
+      panel <<             "<span class=\"dl-term-name\">#{term_label}</span> "
+      panel <<             "<span class=\"dl-count\">#{term.count}</span>"
+      panel <<         '</label>'
+      panel <<       '</div>'
+      panel <<     '</li>'
+    end
+    panel <<     '</ul>'
+    panel <<   '</div>' # card-body
+    if facet.terms.length >= max_terms
+      panel << "<button type=\"button\" class=\"btn btn-text dl-more-button\"
+                    data-toggle=\"modal\" data-target=\"##{facet.field.gsub(/[^A-Za-z\d]/, "-")}-modal\">"
+      panel <<   'More Options&hellip;'
+      panel << '</button>'
+    end
+    panel << '</div>' # card
+    raw(panel.string)
+  end
+
+  ##
+  # @param facet [Facet]
+  # @param permitted_params [ActionController::Parameters]
+  # @private
+  #
+  def facet_modal(facet, permitted_params)
+    modal_id = "#{facet.field.gsub(/[^A-Za-z\d]/, "-")}-modal"
+    panel = StringIO.new
+    panel << "<div class=\"modal fade dl-modal-facet\" id=\"#{modal_id}\"
+              tabindex=\"-1\" aria-labelledby=\"#{modal_id}-label\"
+              aria-hidden=\"true\">"
+    panel <<   "<div class=\"modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable\">"
+    panel <<     "<div class=\"modal-content\">"
+    panel <<       "<div class=\"modal-header\">"
+    panel <<         "<h5 class=\"modal-title fs-5\" id=\"#{modal_id}-label\">"
+    panel <<           facet.name
+    panel <<         "</h5>"
+    panel <<         "<button type=\"button\" class=\"close\"
+                      data-dismiss=\"modal\" aria-label=\"Close\">"
+    panel <<           '<span aria-hidden="true">&times;</span>'
+    panel <<         "</button>"
+    panel <<       "</div>"
+    panel <<       "<div class=\"modal-body\">"
+    panel <<         "<div class=\"alert alert-light\">"
+    panel <<           icon_for(:info)
+    panel <<           " Only items that match <strong>all</strong> of the checked terms will be returned."
+    panel <<         "</div>"
+    panel <<         "<ul>"
+    # natural_sort gem
+    facet.terms.sort_by{ |term| NaturalSort(term.label) }.each do |term|
       checked = (params[:fq] and params[:fq].include?(term.query)) ?
-                    'checked' : nil
+                  'checked' : nil
       checked_params = term.removed_from_params(permitted_params.deep_dup).except(:start)
       unchecked_params = term.added_to_params(permitted_params.deep_dup).except(:start)
       term_label = truncate(term.label, length: 80)
-
-      panel << '<li class="dl-term">'
-      panel <<   '<div class="checkbox">'
-      panel <<     '<label>'
-      panel <<       "<input type=\"checkbox\" name=\"dl-facet-term\" #{checked} "\
-                         "data-query=\"#{term.query.gsub('"', '&quot;')}\" "\
-                         "data-checked-href=\"#{url_for(unchecked_params)}\" "\
-                         "data-unchecked-href=\"#{url_for(checked_params)}\"> "
-      panel <<         "<span class=\"dl-term-name\">#{term_label}</span> "
-      panel <<         "<span class=\"dl-count\">#{term.count}</span>"
-      panel <<     '</label>'
-      panel <<   '</div>'
-      panel << '</li>'
+      panel <<         '<li class="dl-term">'
+      panel <<           '<div class="checkbox">'
+      panel <<             '<label>'
+      panel <<               "<input type=\"checkbox\" name=\"dl-facet-term\" #{checked} "\
+                               "data-query=\"#{term.query.gsub('"', '&quot;')}\" "\
+                               "data-checked-href=\"#{url_for(unchecked_params)}\" "\
+                               "data-unchecked-href=\"#{url_for(checked_params)}\"> "
+      panel <<               "<span class=\"dl-term-name\">#{term_label}</span> "
+      panel <<               "<span class=\"dl-count\">#{term.count}</span>"
+      panel <<             '</label>'
+      panel <<           '</div>'
+      panel <<         '</li>'
     end
-    panel <<     '</ul>'
-    panel <<   '</div>'
-    panel << '</div>'
+    panel <<         '</ul>'
+    panel <<       '</div>' # modal-body
+    panel <<       '<div class="modal-footer">'
+    panel <<         '<button type="button" class="btn btn-light" data-dismiss="modal">Close</button>'
+    panel <<         '<button type="button" class="btn btn-primary submit">Apply Changes</button>'
+    panel <<       '</div>'
+    panel <<     '</div>' # modal-content
+    panel <<   '</div>' # modal-dialog
+    panel << '</div>' # modal
     raw(panel.string)
   end
 

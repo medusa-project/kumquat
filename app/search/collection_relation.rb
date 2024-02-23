@@ -183,7 +183,7 @@ class CollectionRelation < AbstractRelation
             j.set! facet[:name] do
               j.terms do
                 j.field facet[:name]
-                j.size @bucket_limit
+                j.size OpensearchClient::AGGREGATION_BUCKET_LIMIT
               end
             end
           end

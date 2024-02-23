@@ -228,6 +228,7 @@ GEM
       libv8-node (~> 18.16.0.0)
     minitest (5.20.0)
     mutex_m (0.2.0)
+    natural_sort (0.3.0)
     net-imap (0.4.4)
       date
       net-protocol
@@ -414,6 +415,7 @@ DEPENDENCIES
   medusa-client!
   mimemagic
   mini_racer
+  natural_sort
   netaddr (~> 2)
   omniauth
   omniauth-rails_csrf_protection
