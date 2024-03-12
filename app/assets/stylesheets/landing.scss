@@ -3,6 +3,22 @@ body#landing {
     margin-bottom: 0px;
   }
 
+  #sensitive-banner {
+    background-position: center 14%;
+    height: 30px;
+    display: flex;
+    color: darkblue;
+    font-size: 0.8em;
+    font-weight: bold;
+  }
+
+  .local-link::after {
+    content: url("fontawesome-up-right-from-square.svg");
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+  }
+
   #dl-banner {
     /* https://digital.library.illinois.edu/items/f07734a0-4b72-0134-1da8-0050569601ca-f */
     background-image:image-url("almamater.jpg");
