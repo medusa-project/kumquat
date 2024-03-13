@@ -19,6 +19,13 @@ body#landing {
     height: 10px;
   }
 
+  #sensitive-banner::before {
+    content: url("fontawesome-triangle-exclamation.svg");
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+  }
+
   #dl-banner {
     /* https://digital.library.illinois.edu/items/f07734a0-4b72-0134-1da8-0050569601ca-f */
     background-image:image-url("almamater.jpg");
