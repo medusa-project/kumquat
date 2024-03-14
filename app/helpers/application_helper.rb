@@ -811,7 +811,7 @@ module ApplicationHelper
       panel <<         '<li class="dl-term">'
       panel <<           '<div class="checkbox">'
       panel <<             '<label>'
-      panel <<               "<input type=\"checkbox\" name=\"dl-facet-term\" #{checked} "\
+      panel <<               "<input type=\"radio\" name=\"dl-facet-term\" #{checked} "\
                                "data-query=\"#{term.query.gsub('"', '&quot;')}\" "\
                                "data-checked-href=\"#{url_for(unchecked_params)}\" "\
                                "data-unchecked-href=\"#{url_for(checked_params)}\"> "
