@@ -766,7 +766,7 @@ module ApplicationHelper
     if facet.terms.length >= max_terms && show_more_options
       panel << "<button type=\"button\" class=\"btn btn-text dl-more-button\"
                     data-toggle=\"modal\" data-target=\"##{facet.field.gsub(/[^A-Za-z\d]/, "-")}-modal\">"
-      panel <<   'More Options&hellip;'
+      panel <<   'More&hellip;'
       panel << '</button>'
     end
     panel << '</div>' # card
