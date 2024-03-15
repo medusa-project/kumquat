@@ -1,6 +1,27 @@
 // Place all the styles related to the collections controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+#sensitive-banner {
+  background-position: center 14%;
+  height: 30px;
+  display: flex;
+  color: darkblue;
+  font-size: 0.8em;
+}
+
+  .local-link::after {
+    content: url("fontawesome-up-right-from-square.svg");
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+  }
+
+  #sensitive-banner::before {
+    content: url("fontawesome-triangle-exclamation.svg");
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+  }
 
 body#collections_index {
   /* center the nav pills */
@@ -20,6 +41,7 @@ body#collections_index {
       width: 15em;
     }
   }
+
 
   @media only screen and (max-width : 480px) {
     div.dl-card {
