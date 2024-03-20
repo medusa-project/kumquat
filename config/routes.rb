@@ -21,6 +21,7 @@ Rails.application.routes.draw do
         via: :get, as: 'collections_iiif_presentation_list',
         defaults: { format: :json }
   resources :collections, only: [:index, :show] do
+    patch 'collections_dismiss_banner', on: :member
     match 'items/treedata', to: 'items#tree_data', via: [:get, :post]
     match 'tree', to: 'items#tree', via: :get
     resources :items, only: :index
