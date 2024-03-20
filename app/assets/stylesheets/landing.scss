@@ -9,7 +9,18 @@ body#landing {
     display: flex;
     color: darkblue;
     font-size: 0.8em;
-  }
+
+
+    .close-btn {
+      cursor: pointer;
+      font-size: 0.9em;
+      display: inline-block;
+      border: none;
+      background: none;
+      margin-right: 0px;
+      margin-left: auto;
+      }
+    }
 
   .local-link::after {
     content: url("fontawesome-up-right-from-square.svg");
@@ -25,15 +36,7 @@ body#landing {
     height: 12px;
   }
 
-  #sensitive-banner::after {
-    content: url("fontawesome-xmark.svg");
-    display: inline-block;
-    position: absolute;
-    right: 15px;
-    width: 12px;
-    height: 12px;
-  }
-
+  
   #dl-banner {
     /* https://digital.library.illinois.edu/items/f07734a0-4b72-0134-1da8-0050569601ca-f */
     background-image:image-url("almamater.jpg");
