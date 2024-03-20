@@ -9,6 +9,16 @@
   font-size: 0.8em;
 }
 
+  .close-btn {
+    cursor: pointer;
+    font-size: 0.9em;
+    display: inline-block;
+    border: none;
+    background: none;
+    margin-right: 0px;
+    margin-left: auto;
+  }
+
   .local-link::after {
     content: url("fontawesome-up-right-from-square.svg");
     display: inline-block;
