@@ -3,7 +3,7 @@
 class CollectionsController < WebsiteController
 
   LOGGER                  = CustomLogger.new(CollectionsController)
-  PERMITTED_SEARCH_PARAMS = [:fq, :id, :q ]
+  PERMITTED_SEARCH_PARAMS = [:fq, :id, :q]
 
   before_action :set_permitted_params, only: [:show, :collections_dismiss_banner]
   before_action :enable_cors, only: [:iiif_presentation, :collections_dismiss_banner]
@@ -102,7 +102,6 @@ class CollectionsController < WebsiteController
   def collections_dismiss_banner 
     session[:collections_dismiss_banner] = true 
     redirect_to collection_path(@collection)
-    puts 'collections dismiss banner is called on'
   end
 
   def show_contentdm
