@@ -453,6 +453,14 @@ const Application = {
             }
         });
 
+        $(document).ready(function()
+        {
+          $('.close-btn').click(function()
+          {
+            $('#sensitive-banner').hide();
+          });
+        });
+
         $(document).ajaxError(function(event, request, settings) {
             console.error(event);
             console.error(request);
