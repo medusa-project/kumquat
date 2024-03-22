@@ -1,6 +1,5 @@
 Rails.application.routes.draw do
   root 'landing#index'
-  match '/dismiss_banner', to: 'landing#dismiss_banner', via: :patch, as: :dismiss_banner 
   # Error routes that work in conjunction with
   # config.exceptions_app = self.routes.
   match '/404', to: 'errors#not_found', via: :all
@@ -21,7 +20,6 @@ Rails.application.routes.draw do
         via: :get, as: 'collections_iiif_presentation_list',
         defaults: { format: :json }
   resources :collections, only: [:index, :show] do
-    patch 'collections_dismiss_banner', on: :member
     match 'items/treedata', to: 'items#tree_data', via: [:get, :post]
     match 'tree', to: 'items#tree', via: :get
     resources :items, only: :index
