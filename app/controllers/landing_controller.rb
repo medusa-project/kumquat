@@ -1,5 +1,4 @@
 class LandingController < WebsiteController
-
   ##
   # Responds to GET /
   #
@@ -15,10 +14,5 @@ class LandingController < WebsiteController
           nil
         end
       end
-  end
-
-  def dismiss_banner 
-    session[:dismiss_banner] = true 
-    redirect_to root_path 
-  end
+    end
 end
