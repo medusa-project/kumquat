@@ -452,12 +452,17 @@ const Application = {
                 }
             }
         });
-
+        
         $(document).ready(function()
         {
-          $('.close-btn').click(function()
-          {
+          if (document.cookie.includes("bannerDismissed=true")) {
             $('#sensitive-banner').hide();
+          }
+
+          $('.close-btn').click(function() {
+            $('#sensitive-banner').hide();
+
+            document.cookie = "bannerDismissed=true";
           });
         });
 
