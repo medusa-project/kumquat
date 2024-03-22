@@ -5,9 +5,11 @@ class CollectionsController < WebsiteController
   LOGGER                  = CustomLogger.new(CollectionsController)
   PERMITTED_SEARCH_PARAMS = [:fq, :id, :q]
 
-  before_action :set_permitted_params, only: [:show, :collections_dismiss_banner]
-  before_action :enable_cors, only: [:iiif_presentation, :collections_dismiss_banner]
-  before_action :set_collection, only: [:iiif_presentation, :show, :collections_dismiss_banner]
+  #todo: Remove :collections_dismiss_banner controller action
+
+  before_action :set_permitted_params, only: :show
+  before_action :enable_cors, only: :iiif_presentation
+  before_action :set_collection, only: [:iiif_presentation, :show]
   before_action :authorize_collection, only: [:iiif_presentation, :show]
 
   ##
