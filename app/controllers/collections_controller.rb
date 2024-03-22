@@ -5,8 +5,6 @@ class CollectionsController < WebsiteController
   LOGGER                  = CustomLogger.new(CollectionsController)
   PERMITTED_SEARCH_PARAMS = [:fq, :id, :q]
 
-  #todo: Remove :collections_dismiss_banner controller action
-
   before_action :set_permitted_params, only: :show
   before_action :enable_cors, only: :iiif_presentation
   before_action :set_collection, only: [:iiif_presentation, :show]
@@ -100,11 +98,6 @@ class CollectionsController < WebsiteController
   #
   # This is a legacy route from `images.library.illinois.edu`.
   #
-
-  def collections_dismiss_banner 
-    session[:collections_dismiss_banner] = true 
-    redirect_to collection_path(@collection)
-  end
 
   def show_contentdm
     col = Collection.where('LOWER(contentdm_alias) = ?',
