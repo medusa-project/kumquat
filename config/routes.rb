@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   root 'landing#index'
+
   # Error routes that work in conjunction with
   # config.exceptions_app = self.routes.
   match '/404', to: 'errors#not_found', via: :all
