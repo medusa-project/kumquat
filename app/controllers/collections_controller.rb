@@ -98,7 +98,6 @@ class CollectionsController < WebsiteController
   #
   # This is a legacy route from `images.library.illinois.edu`.
   #
-
   def show_contentdm
     col = Collection.where('LOWER(contentdm_alias) = ?',
                            params[:alias].downcase).first
