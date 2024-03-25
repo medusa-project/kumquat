@@ -2,43 +2,6 @@ body#landing {
   nav.navbar {
     margin-bottom: 0px;
   }
-
-  #sensitive-banner {
-    background-position: center 14%;
-    height: 30px;
-    display: flex;
-    color: darkblue;
-    font-size: 0.8em;
-
-    .statement {
-      flex-grow: 1;
-    }
-
-  .close-sensitive-btn {
-    cursor: pointer;
-    font-size: 0.9em;
-    display: inline-block;
-    border: none;
-    background: none;
-    margin-right: 0px;
-    margin-left: auto;
-    }
-  }
-
-  .local-link::after {
-    content: url("fontawesome-up-right-from-square.svg");
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-  }
-
-  #sensitive-banner::before {
-    content: url("fontawesome-triangle-exclamation.svg");
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-  }
-
   
   #dl-banner {
     /* https://digital.library.illinois.edu/items/f07734a0-4b72-0134-1da8-0050569601ca-f */
