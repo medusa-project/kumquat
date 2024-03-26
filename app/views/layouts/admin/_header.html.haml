@@ -114,4 +114,8 @@
             = link_to 'My Account', admin_user_path(current_user), class: 'dropdown-item'
             = link_to 'Public Website', root_url, class: 'dropdown-item'
             .dropdown-divider
+            = link_to 'OAI-PMH Endpoint (Generic)', oai_pmh_path, class: 'dropdown-item'
+            = link_to 'OAI-PMH Endpoint (IDHH)', idhh_oai_pmh_path, class: 'dropdown-item'
+            = link_to 'OAI-PMH Endpoint (Primo)', primo_oai_pmh_path, class: 'dropdown-item'
+            .dropdown-divider
             = link_to 'Log Out', signout_path, method: 'delete', class: 'dropdown-item'
