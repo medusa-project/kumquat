@@ -14,7 +14,7 @@ const DLItemView = function() {
      */
     const CitationPanel = function() {
 
-        var init = function() {
+        const init = function() {
             Date.prototype.getAbbreviatedMonthName = function() {
                 switch (this.getMonth()) {
                     case 1: return 'Jan.';
@@ -163,7 +163,7 @@ const DLItemView = function() {
             // Find the number of usable sizes (i.e. sizes above MIN_IMAGE_SIZE
             // and below maxPixels) in order to calculate button size tiers.
             var numUsableSizes = 0;
-            for (var i = 0; i < numSizes; i++) {
+            for (let i = 0; i < numSizes; i++) {
                 const width  = info['sizes'][i]['width'];
                 const height = info['sizes'][i]['height'];
                 if (width >= MIN_IMAGE_SIZE && height >= MIN_IMAGE_SIZE
@@ -174,7 +174,7 @@ const DLItemView = function() {
 
             // Create a button for each size tier from the maximum down to
             // the minimum.
-            for (var i = numSizes - 1, size_i = numSizes - 1; i >= 0; i--) {
+            for (i = numSizes - 1, size_i = numSizes - 1; i >= 0; i--) {
                 const width   = info['sizes'][i]['width'];
                 const height  = info['sizes'][i]['height'];
 
@@ -828,6 +828,7 @@ $(document).ready(function() {
  */
 $(window).on("pageshow", function(event) {
     if ($('body#items_index').length && !event.originalEvent.persisted) {
+        Application.view = new DLItemsView();
         Application.view.restoreState();
     }
 });
