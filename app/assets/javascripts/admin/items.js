@@ -134,15 +134,15 @@ const DLAdminItemsView = function() {
 
     this.init = function() {
         new Application.FilterField();
-        Application.initFacets();
-        Application.initThumbnails();
-
         new BatchChangeModal();
 
         self.attachEventListeners();
     };
 
     this.attachEventListeners = function() {
+        Application.initFacets();
+        Application.initThumbnails();
+
         $('.pagination a').on('click', function() {
             $('form.dl-filter')[0].scrollIntoView({behavior: "smooth", block: "start"});
         });

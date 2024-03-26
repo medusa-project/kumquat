@@ -427,11 +427,9 @@ const DLItemsView = function() {
             .serialize();
     };
 
-    /**
-     * This needs to be public as it's called from index.js.
-     */
     this.attachEventListeners = function() {
         Application.initThumbnails();
+        Application.initFacets();
 
         filterForm.find('select[name="sort"]').off().on("change", function() {
             onSortMenuChanged();
@@ -439,54 +437,6 @@ const DLItemsView = function() {
         filterForm.find('.page-link').off().on("click", function() {
             filterForm.scrollIntoView({behavior: "smooth", block: "start"});
             onPageLinkClicked($(this));
-        });
-
-        const removeHiddenInputs = function () {
-            filterForm.find('[name="fq"], [name="fq[]"]').remove();
-        };
-        const createHiddenInputs = function() {
-            removeHiddenInputs();
-            // Create hidden input counterparts of each checked checkbox.
-            filterForm.find('[name=dl-facet-term]:checked').each(function() {
-                const input = $('<input type="hidden" name="fq[]">');
-                input.val($(this).data('query'));
-                filterForm.append(input);
-            });
-        };
-
-        filterForm.find('.dl-card-facet [name="dl-facet-term"]').off().on('change', function() {
-            $(this).prop("checked") ?
-                createHiddenInputs() : removeHiddenInputs();
-            const query = getSerializedCanonicalFormQuery();
-            $.ajax({
-                url:      CURRENT_PATH,
-                method:   'GET',
-                data:     query,
-                dataType: 'script',
-                success:  function(result) {
-                    window.location.hash = query;
-                    eval(result);
-                }
-            });
-        });
-        filterForm.find('.dl-modal-facet .modal-footer button.submit').off().on('click', function(e) {
-            e.preventDefault();
-            const modal = $(this).parents(".dl-modal-facet");
-            modal.on("hidden.bs.modal", function() {
-                createHiddenInputs();
-                const query = getSerializedCanonicalFormQuery();
-                $.ajax({
-                    url:      CURRENT_PATH,
-                    method:   'GET',
-                    data:     query,
-                    dataType: 'script',
-                    success: function(result) {
-                        window.location.hash = query;
-                        eval(result);
-                    }
-                });
-            });
-            modal.modal("hide");
         });
     };
 
