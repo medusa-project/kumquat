@@ -257,7 +257,7 @@ class EntityRelation < AbstractRelation
             j.set! field.indexed_keyword_field do
               j.terms do
                 j.field field.indexed_keyword_field
-                j.size OpensearchClient::AGGREGATION_BUCKET_LIMIT
+                j.size @bucket_limit
               end
             end
           end

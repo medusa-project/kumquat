@@ -61,6 +61,21 @@ class MetadataProfileElementTest < ActiveSupport::TestCase
     end
   end
 
+  # facet_order
+
+  test 'facet_order must be one of the FacetOrder constant values' do
+    assert @element.valid?
+
+    @element.facet_order = nil
+    assert @element.valid?
+
+    @element.facet_order = -1
+    assert !@element.valid?
+
+    @element.facet_order = 25
+    assert !@element.valid?
+  end
+
   # human_readable_data_type()
 
   test 'human_readable_data_type() returns the correct string' do

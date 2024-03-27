@@ -15,6 +15,7 @@ class AbstractRelation
     @client = OpensearchClient.instance
 
     @aggregations = true
+    @bucket_limit = Setting.integer(Setting::Keys::FACET_TERM_LIMIT, 100)
     @exact_match  = false
     @filters      = {} # Hash<String,Object>
     @host_groups  = []
@@ -47,6 +48,17 @@ class AbstractRelation
   #
   def aggregations(boolean)
     @aggregations = boolean
+    @loaded = false
+    self
+  end
+
+  ##
+  # @param limit [Integer] Maximum number of buckets that will be returned in a
+  #                        facet.
+  # @return [self]
+  #
+  def bucket_limit(limit)
+    @bucket_limit = limit
     @loaded = false
     self
   end

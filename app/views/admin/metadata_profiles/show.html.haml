@@ -134,7 +134,12 @@
                   - else
                     = boolean(element.sortable)
                 %td{class: "text-center #{element.facetable ? 'bg-success' : 'bg-danger'}"}
-                  = boolean(element.facetable)
+                  - if element.facetable
+                    %span{style: "color: white"}
+                      = MetadataProfileElement::FacetOrder::to_s(element.facet_order)
+                      Order
+                  - else
+                    = boolean(element.facetable)
       - else
         %p This profile has no elements.
 

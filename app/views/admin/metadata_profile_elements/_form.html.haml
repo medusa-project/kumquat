@@ -13,11 +13,14 @@
   - elements = elements.where('id != ?', element.id)
 - elements.each_with_index do |e, i|
   - position_options_for_select << [e.label, i + 1]
-
 - vocabularies = Vocabulary.order(:name)
+
 = form_for([:admin, element], remote: true) do |f|
   .dl-error-messages
     -# populated via ajax by shared/_validation_messages.js.erb
+
+  = f.hidden_field :metadata_profile_id, value: metadata_profile.id
+
   .form-group
     = f.label :name
     = f.select(:name,
@@ -90,7 +93,23 @@
     %label
       = f.check_box :facetable
       Facetable
-  = f.hidden_field :metadata_profile_id, value: metadata_profile.id
+  .form-group
+    %label Facet Term Order
+    .form-check
+      %label
+        = f.radio_button(:facet_order, MetadataProfileElement::FacetOrder::FREQUENCY,
+                         class: 'form-check-input')
+        Frequency
+    .form-check
+      %label
+        = f.radio_button(:facet_order, MetadataProfileElement::FacetOrder::ALPHANUMERIC,
+                         class: 'form-check-input')
+        Alphanumeric
+
+    %span.form-text.text-muted
+      = icon_for(:info)
+      This does not apply to terms in panels, which are always sorted alphanumerically.
+
   .clearfix
     .float-right
       %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel

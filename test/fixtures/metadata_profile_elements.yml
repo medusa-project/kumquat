@@ -13,6 +13,7 @@ default_profile_title:
   searchable:       true
   sortable:         true
   facetable:        false
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
   visible:          true
   indexed:          true
   vocabularies:
@@ -29,6 +30,7 @@ default_profile_coordinates:
   searchable:       false
   sortable:         false
   facetable:        false
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
   visible:          true
   indexed:          true
   vocabularies:
@@ -45,6 +47,7 @@ default_profile_creator:
   searchable:       true
   sortable:         true
   facetable:        true
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
   visible:          true
   indexed:          true
   vocabularies:
@@ -61,6 +64,7 @@ default_profile_dateCreated:
   searchable:       false
   sortable:         true
   facetable:        false
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
   visible:          true
   indexed:          true
   vocabularies:
@@ -77,6 +81,7 @@ default_profile_description:
   searchable:       false
   sortable:         true
   facetable:        false
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
   visible:          true
   indexed:          true
   vocabularies:
@@ -93,6 +98,7 @@ default_profile_subject:
   searchable:       true
   sortable:         false
   facetable:        true
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
   visible:          true
   indexed:          true
   vocabularies:
@@ -112,6 +118,7 @@ compound_object_1001_title:
   searchable:       true
   sortable:         true
   facetable:        false
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
   visible:          true
   indexed:          true
   vocabularies:
@@ -128,6 +135,7 @@ compound_object_1001_coordinates:
   searchable:       false
   sortable:         false
   facetable:        false
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
   visible:          true
   indexed:          true
   vocabularies:
@@ -144,6 +152,7 @@ compound_object_1001_creator:
   searchable:       true
   sortable:         true
   facetable:        true
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
   visible:          true
   indexed:          true
   vocabularies:
@@ -160,6 +169,7 @@ compound_object_1001_dateCreated:
   searchable:       false
   sortable:         true
   facetable:        false
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
   visible:          true
   indexed:          true
   vocabularies:
@@ -176,6 +186,7 @@ compound_object_1001_description:
   searchable:       false
   sortable:         true
   facetable:        false
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
   visible:          true
   indexed:          true
   vocabularies:
@@ -192,6 +203,7 @@ compound_object_1001_subject:
   searchable:       true
   sortable:         false
   facetable:        true
+  facet_order:      <%= MetadataProfileElement::FacetOrder::FREQUENCY %>
   visible:          true
   indexed:          true
   vocabularies:
