@@ -463,6 +463,19 @@ const Application = {
             }
         });
 
+        $(document).ready(function()
+        {
+          if (document.cookie.includes("bannerDismissed=true")) {
+            $('#sensitive-banner').hide();
+          }
+
+          $('.close-sensitive-btn').click(function() {
+            $('#sensitive-banner').hide();
+
+            document.cookie = "bannerDismissed=true";
+          });
+        });
+
         $(document).ajaxError(function(event, request, settings) {
             console.error(event);
             console.error(request);

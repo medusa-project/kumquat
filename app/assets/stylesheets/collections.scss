@@ -1,7 +1,6 @@
 // Place all the styles related to the collections controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
-
 body#collections_index {
   /* center the nav pills */
   .nav-tabs > li, .nav-pills > li {
@@ -20,6 +19,7 @@ body#collections_index {
       width: 15em;
     }
   }
+
 
   @media only screen and (max-width : 480px) {
     div.dl-card {
