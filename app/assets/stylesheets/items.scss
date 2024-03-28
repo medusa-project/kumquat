@@ -43,54 +43,8 @@ body#items_show, #dl-free-form-item-view {
     height: 650px;
   }
 
-  #dl-supplementary-viewer {
-    background-color: #211f1f;
-    color: white;
-    font-family: sans-serif;
-    font-size: 12px;
-    padding: 0.5em;
-    margin: 0 auto;
-    width: $viewer-width;
-    .dl-bottom-panel {
-      padding: 0.5em;
-      > a {
-        color: white;
-        text-transform: uppercase;
-        > img {
-          width: 20px;
-          height: 20px;
-          cursor: pointer;
-          margin: 7px 5px 0 0;
-        }
-      }
-      > a:hover {
-        text-decoration: none;
-      }
-    }
-    .dl-supplmentary-viewer-content {
-      height: 600px;
-      #dl-pdf-viewer {
-        height: 560px;
-        margin: 0 auto;
-      }
-      .dl-metadata {
-        height: 600px;
-        overflow-y: scroll;
-        dt {
-          border-bottom: 1px solid #343434;
-          color: #9a9a9a;
-          font-weight: normal;
-          margin-bottom: 6px;
-        }
-        dd {
-          margin-left: 0;
-          margin-bottom: 1.2em;
-          ul {
-            padding-left: 1em;
-          }
-        }
-      }
-    }
+  #dl-supplementary-item-viewer {
+    min-height: 550px;
   }
 
   #dl-3d-viewer {
@@ -101,7 +55,7 @@ body#items_show, #dl-free-form-item-view {
   #dl-pdf-viewer, #dl-pdfjs-viewer {
     height: 600px;
     margin: 0 auto;
-    max-width: 1200px;
+    max-width: 1300px;
     iframe {
       border: 0;
     }

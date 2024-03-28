@@ -411,29 +411,23 @@ const Application = {
             .addClass('active');
 
         // Add an expander icon in front of every collapse toggle.
-        var toggleForCollapse = function(collapse) {
+        const toggleForCollapse = function(collapse) {
             return collapse.prev().find('a[data-toggle="collapse"]:first');
         };
-        var setToggleState = function(elem, expanded) {
+        const setToggleState = function(elem, expanded) {
             var class_ = expanded ? 'fa-minus-square' : 'fa-plus-square';
             elem.html('<i class="far ' + class_ + '"></i> ' + elem.text());
         };
 
-        var collapses = $('.collapse');
+        const collapses = $('.collapse');
         collapses.each(function() {
-            if (!$(this).hasClass('dl-supplmentary-viewer-content')) {
-                setToggleState(toggleForCollapse($(this)), $(this).hasClass('show'));
-            }
+            setToggleState(toggleForCollapse($(this)), $(this).hasClass('show'));
         });
         collapses.on('show.bs.collapse', function () {
-            if (!$(this).hasClass('dl-supplmentary-viewer-content')) {
-                setToggleState(toggleForCollapse($(this)), true);
-            }
+            setToggleState(toggleForCollapse($(this)), true);
         });
         collapses.on('hide.bs.collapse', function () {
-            if (!$(this).hasClass('dl-supplmentary-viewer-content')) {
-                setToggleState(toggleForCollapse($(this)), false);
-            }
+            setToggleState(toggleForCollapse($(this)), false);
         });
 
         Application.smoothAnchorScroll(0);
