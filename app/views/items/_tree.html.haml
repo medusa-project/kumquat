@@ -1,8 +1,14 @@
 %strong 
   Note on file organization and description: 
-The files and folders names below were not changed after the University Archives received them from the department and include numerous abbreviations. Folders and files display in alphabetical order, and files often have generic, nondescriptive titles. Please contact an archivist at 
-= mail_to "illiarch@illinois.edu"
-for assistance navigating these files.
+
+.alert.alert-info
+  The files and folders names below were not changed after the University Archives 
+  received them from the department and include numerous abbreviations. 
+  Folders and files display in alphabetical order, and files often have generic, 
+  nondescriptive titles. Please contact an archivist at 
+  = succeed "." do
+    %a{href: "mailto:#{@collection.medusa_repository.email}"}= @collection.medusa_repository.email
+    for assistance navigating these files
 
 #dl-free-form-split-pane
   #dl-free-form-tree-view{"data-toggle":    "popover",
