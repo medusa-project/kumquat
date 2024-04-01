@@ -43,8 +43,14 @@ body#items_show, #dl-free-form-item-view {
     height: 650px;
   }
 
-  #dl-supplementary-item-viewer {
-    min-height: 550px;
+  #dl-supplementary-item {
+    #dl-supplementary-item-viewer {
+      min-height: 550px;
+    }
+    #dl-supplementary-item-metadata {
+      max-height: 640px;
+      overflow-y: scroll;
+    }
   }
 
   #dl-3d-viewer {
