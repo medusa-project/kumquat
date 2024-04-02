@@ -6,6 +6,7 @@ module Admin
 
     setup do
       @collection = collections(:compound_object)
+      setup_opensearch
       sign_out
     end
 
