@@ -1,11 +1,11 @@
-%strong 
-  Note on file organization and description: 
-
 .alert.alert-info
-  The files and folders names below were not changed after the University Archives 
-  received them from the department and include numerous abbreviations. 
-  Folders and files display in alphabetical order, and files often have generic, 
-  nondescriptive titles. Please contact an archivist at 
+  %strong 
+    Note on file organization and description: 
+  The folder and file display below mimics the navigation of folders and files on a computer. 
+  Folders and files display in alphabetical order. Note that top-level folders may have been created by the #{@collection.medusa_repository.title}, 
+  or the original groupings may have been retained as received. Typically names of files and subfolders are not changed after the 
+  #{@collection.medusa_repository.title} receives them in order to retain their original context, 
+  and files and folders may have generic, nondescriptive titles that reflect their source. Please contact an archivist at 
   = succeed "." do
     %a{href: "mailto:#{@collection.medusa_repository.email}"}= @collection.medusa_repository.email
     for assistance navigating these files
