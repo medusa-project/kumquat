@@ -67,6 +67,13 @@
               - else
                 None
           %tr
+            %td Supplementary Document Label
+            %td
+              - if @collection.supplementary_document_label.present?
+                = @collection.supplementary_document_label
+              - else
+                Default (based on document type)
+          %tr
             %td First Imported
             %td= local_time(@collection.created_at)
           %tr

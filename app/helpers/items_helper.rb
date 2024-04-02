@@ -841,9 +841,12 @@ module ItemsHelper
     html     = StringIO.new
     supp_bin = supp_item&.effective_image_binary
     if supp_bin && (show_nonpublic || (supp_bin.public? || current_user&.medusa_user?))
+      label = supp_item.collection.supplementary_document_label.present? ?
+                supp_item.collection.supplementary_document_label :
+                "Supplementary #{supp_bin.human_readable_media_category}"
       html << '<h2>'
       html <<   '<a role="button" data-toggle="collapse" href="#dl-supplementary-item" aria-expanded="true" aria-controls="dl-supplementary-item">'
-      html <<     "Supplementary #{supp_bin.human_readable_media_category}"
+      html <<     label
       html <<   '</a>'
       html << '</h2>'
       html << '<div id="dl-supplementary-item" class="collapse">'

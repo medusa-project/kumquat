@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_03_27_141945) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_01_213450) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -142,6 +142,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_27_141945) do
     t.string "representation_type", default: "self", null: false
     t.text "access_systems"
     t.text "resource_types"
+    t.string "supplementary_document_label"
     t.index ["descriptive_element_id"], name: "index_collections_on_descriptive_element_id"
     t.index ["external_id"], name: "index_collections_on_external_id"
     t.index ["harvestable"], name: "index_collections_on_harvestable"
