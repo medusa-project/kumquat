@@ -453,16 +453,9 @@ const Application = {
             }
         });
 
-        $(document).ready(function()
-        {
-          if (document.cookie.includes("bannerDismissed=true")) {
-            $('#sensitive-banner').hide();
-          }
-
-          $('.close-sensitive-btn').click(function() {
-            $('#sensitive-banner').hide();
-
-            document.cookie = "bannerDismissed=true";
+        $(document).ready(function() {
+          $('.sensitive-toggle-btn').click(function() {
+            $('#sensitive-banner .statement').toggleClass('hidden');
           });
         });
 
