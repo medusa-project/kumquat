@@ -5,25 +5,40 @@
  */
 #sensitive-banner {
   background-position: center 14%;
-  height: 30px;
+  height: 50px;
   display: flex;
   color: darkblue;
   font-size: 0.8em;
-}
+
+.statement-box {
+  display: none;
+  border: 1px;
+  padding: 10px;
+  margin-top: 10px;
+  background-color: hotpink;
+  }
 
 .statement {
   flex-grow: 1;
-}
+  }
 
-.close-sensitive-btn {
+.sensitive-toggle-btn {
   cursor: pointer;
-  font-size: 0.9em;
-  display: inline-block;
+  text-align: right;
+  padding: 5px;
+  color: darkblue;
+  width: 100%;
+  font-size: 0.8em;
   border: none;
-  background: none;
   margin-right: 0px;
   margin-left: auto;
+  }
 }
+
+.hidden {
+  display: none;
+}
+
 
 .local-link::after {
   content: url("fontawesome-up-right-from-square.svg");
@@ -32,12 +47,6 @@
   height: 10px;
 }
 
-#sensitive-banner::before {
-  content: url("fontawesome-triangle-exclamation.svg");
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-}
 
 @font-face {
   font-family: 'Oswald';
