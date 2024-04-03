@@ -3,48 +3,27 @@
  *
  * N.B.: For sitewide styles, use sitewide.css.
  */
-#sensitive-banner {
-  background-position: center 14%;
-  height: 50px;
-  display: flex;
-  color: darkblue;
-  font-size: 0.8em;
 
-.statement-box {
-  display: none;
-  border: 1px;
-  padding: 10px;
-  margin-top: 10px;
-  background-color: hotpink;
+#sensitive-pane { 
+  .sensitive-toggle-btn {
+    cursor: pointer;
+    text-align: right;
+    padding: 5px;
+    color: darkblue;
+    width: 100%;
+    font-size: 0.8em;
+    border: none;
+    margin-right: 0px;
+    margin-left: auto;
   }
 
-.statement {
-  flex-grow: 1;
+  .content.hidden {
+    display: none;
   }
 
-.sensitive-toggle-btn {
-  cursor: pointer;
-  text-align: right;
-  padding: 5px;
-  color: darkblue;
-  width: 100%;
-  font-size: 0.8em;
-  border: none;
-  margin-right: 0px;
-  margin-left: auto;
+  .statement {
+    flex-grow: 1;
   }
-}
-
-.hidden {
-  display: none;
-}
-
-
-.local-link::after {
-  content: url("fontawesome-up-right-from-square.svg");
-  display: inline-block;
-  width: 10px;
-  height: 10px;
 }
 
 
