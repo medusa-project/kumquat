@@ -17,6 +17,14 @@
     font-size: 0.8em;
   }
 
+  .sensitive-toggle-btn::before {
+    content: url("fontawesome-play.svg");
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    margin-right: 10px;
+  }
+
   .content.hidden {
     display: none;
   }
