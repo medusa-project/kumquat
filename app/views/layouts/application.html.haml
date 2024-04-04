@@ -27,10 +27,9 @@
       - else
         = render partial: 'layouts/header'
       .page-content
-        = render partial: "shared/sensitive_content"
         = flashes
         = yield.force_encoding(Encoding::UTF_8)
-      = render 'layouts/footer'
+        = render 'layouts/footer'
     
     = render partial: 'shared/google_analytics'
    
