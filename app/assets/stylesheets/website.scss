@@ -11,7 +11,7 @@
     color: white;
     background-color: #022544;
     text-align: left;
-    padding: 20px;
+    padding: 5px;
     display: block;
     width: 100%;
     font-size: 0.8em;
@@ -19,6 +19,14 @@
 
   .sensitive-toggle-btn::before {
     content: url("fontawesome-play.svg");
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    margin-right: 10px;
+  }
+
+  .sensitive-toggle-btn.expanded::before {
+    content: url("fontawesome-sort-down.svg");
     display: inline-block;
     width: 9px;
     height: 9px;
