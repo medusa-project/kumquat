@@ -802,9 +802,8 @@ module ApplicationHelper
     facet.terms.sort_by{ |term| NaturalSort(term.label) }.each do |term|
       checked = (params[:fq] and params[:fq].include?(term.query)) ?
                   'checked' : nil
-      checked_params = term.removed_from_params(permitted_params.deep_dup).except(:start)
+      checked_params   = term.removed_from_params(permitted_params.deep_dup).except(:start)
       unchecked_params = term.added_to_params(permitted_params.deep_dup).except(:start)
-      term_label = truncate(term.label, length: 80)
       panel <<         '<li class="dl-term">'
       panel <<           '<div class="checkbox">'
       panel <<             '<label>'
@@ -812,7 +811,7 @@ module ApplicationHelper
                                "data-query=\"#{term.query.gsub('"', '&quot;')}\" "\
                                "data-checked-href=\"#{url_for(unchecked_params)}\" "\
                                "data-unchecked-href=\"#{url_for(checked_params)}\"> "
-      panel <<               "<span class=\"dl-term-name\">#{term_label}</span> "
+      panel <<               "<span class=\"dl-term-name\">#{term.label}</span> "
       panel <<               "<span class=\"dl-count\">#{term.count}</span>"
       panel <<             '</label>'
       panel <<           '</div>'
