@@ -455,7 +455,7 @@ const Application = {
 
         $(document).ready(function() {
           $('.sensitive-toggle-btn').click(function() {
-            $(this).siblings('.content').toggleClass('hidden');
+            $('#sensitive-pane-content').toggleClass('d-none');
             $(this).toggleClass('expanded');
           });
         });
