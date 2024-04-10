@@ -459,11 +459,7 @@ const Application = {
 
         $(document).ready(function() {
           $('.sensitive-toggle-btn').click(function() {
-<<<<<<< HEAD
-            $(this).siblings('.content').toggleClass('hidden');
-=======
             $('#sensitive-pane-content').toggleClass('d-none');
->>>>>>> origin
             $(this).toggleClass('expanded');
           });
         });
