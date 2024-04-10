@@ -10,10 +10,10 @@
 #                         the element can be mapped.
 # * `dcterms_map`         Name of a Dublin Core term to which the element can
 #                         be mapped.
-# * `facet_order`         One of the {MetadataProfileElement::FacetOrder}
-#                         constant values.
 # * `facetable`           Whether the element is used to provide facets in
 #                         results views.
+# * `facet_order`         One of the {MetadataProfileElement::FacetOrder}
+#                         constant values.
 # * `index`               Zero-based position within the owning
 #                         {MetadataProfile}.
 # * `indexed`             Whether the element is added to

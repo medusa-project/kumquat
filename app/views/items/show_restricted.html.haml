@@ -22,28 +22,13 @@
 
 %section
   = viewer_for_item(@item)
-  - if @item.supplementary_item
-    - supp_item = @item.supplementary_item
-    - supp_bin  = supp_item&.effective_image_binary
-    - if supp_bin
-      #dl-supplementary-viewer
-        .dl-bottom-panel
-          %a{"aria-controls": "dl-binary-#{supp_bin.id}",
-             "aria-expanded": "false",
-             "data-toggle":   "collapse",
-             href:            "#dl-binary-#{supp_bin.id}",
-             role:            "button"}
-            %img{src: "/universalviewer/themes/uv-en-GB-theme/img/uv-shared-module/arrows_left.png"}
-            = supp_item.element(:supplementType)&.value || "Supplementary #{supp_bin.human_readable_media_category}"
-        .dl-supplmentary-viewer-content.collapse{id: "dl-binary-#{supp_bin.id}"}
-          .row
-            .col-sm-9
-              = viewer_for_binary(supp_bin)
-            .col-sm-3.dl-metadata
-              = metadata_as_list(supp_item)
+
 %section
   = rights_statement(@item.effective_rights_term,
                      @item.effective_rights_statement)
+
+%section= supplementary_item_section(@item.supplementary_item, show_nonpublic: true)
+
 - if @item.elements.reject{ |e| e.name == 'title' }.any?
   %section= metadata_section(@item)
 

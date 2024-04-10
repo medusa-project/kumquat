@@ -4,6 +4,10 @@ module Admin
 
   class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
+    setup do
+      setup_opensearch
+    end
+
     # index()
 
     test "index() redirects to sign-in page for signed-out users" do

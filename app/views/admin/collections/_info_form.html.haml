@@ -46,6 +46,9 @@
                options,
                { include_blank: true },
                { class: 'custom-select' }
+  .form-group
+    = f.label :supplementary_document_label, 'Supplementary Document Label'
+    = f.text_field(:supplementary_document_label, class: 'form-control')
 
   .float-right
     %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel

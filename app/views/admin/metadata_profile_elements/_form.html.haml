@@ -3,100 +3,125 @@
 -# element [MetadataProfileElement]
 -# metadata_profile [MetadataProfile]
 
-- dublin_core_elements           = DublinCoreElement.all.sort{ |e, f| e.label <=> f.label }.map { |p| [ p.label, p.name ] }
-- dublin_core_terms              = DublinCoreTerm.all.sort{ |e, f| e.label <=> f.label }.map { |p| [ p.label, p.name ] }
-- data_type_options_for_select   = MetadataProfileElement::DataType.constants.map{ |c| [ c.to_s.humanize, MetadataProfileElement::DataType.const_get(c) ] }
-- name_options_for_select        = ItemElement.all_available.sort{ |e, f| e.name <=> f.name }.map{ |t| [ t.name, t.name ] }
-- position_options_for_select    = [['Nothing (First)', 0]]
-- facet_order_options_for_select = MetadataProfileElement::FacetOrder::all.map { |c| [MetadataProfileElement::FacetOrder::to_s(c), c] }
-- elements                       = metadata_profile.elements.order(:index)
+- dublin_core_elements        = DublinCoreElement.all.sort{ |e, f| e.label <=> f.label }.map { |p| [ p.label, p.name ] }
+- dublin_core_terms           = DublinCoreTerm.all.sort{ |e, f| e.label <=> f.label }.map { |p| [ p.label, p.name ] }
+- name_options_for_select     = ItemElement.all_available.sort{ |e, f| e.name <=> f.name }.map{ |t| [ t.name, t.name ] }
+- position_options_for_select = [['Nothing (First)', 0]]
+- elements                    = metadata_profile.elements.order(:index)
 - if element.id.present?
   - elements = elements.where('id != ?', element.id)
 - elements.each_with_index do |e, i|
   - position_options_for_select << [e.label, i + 1]
-
 - vocabularies = Vocabulary.order(:name)
+
 = form_for([:admin, element], remote: true) do |f|
   .dl-error-messages
     -# populated via ajax by shared/_validation_messages.js.erb
-  .form-group
-    = f.label :name
-    = f.select(:name,
-               name_options_for_select,
-               { selected: element.name },
-               class: 'custom-select')
-  .form-group
-    = f.label :label
-    = f.text_field :label, class: 'form-control'
-  .form-group
-    = f.label :index, 'Position After'
-    = f.select :index,
-               position_options_for_select,
-               { selected: element.index },
-               class: 'custom-select'
-  .form-group
-    = f.label :vocabularies, 'Vocabularies'
-    = hidden_field_tag('metadata_profile_element[vocabulary_ids][]', nil)
-    - vocabularies.each do |vocab|
-      .checkbox
-        = label_tag do
-          = check_box_tag :vocabulary_ids,
-                          vocab.id,
-                          element.vocabulary_ids.include?(vocab.id),
-                          name: 'metadata_profile_element[vocabulary_ids][]'
-          = vocab.name
-  .form-group
-    = f.label :dc_map, 'Dublin Core Mapping'
-    = select('metadata_profile_element',
-             'dc_map',
-             dublin_core_elements,
-             { include_blank: true, selected: f.object.dc_map },
-             { class: 'custom-select' })
-  .form-group
-    = f.label :dcterms_map, 'Dublin Core Terms Mapping'
-    = select('metadata_profile_element',
-             'dcterms_map',
-             dublin_core_terms,
-             { include_blank: true, selected: f.object.dcterms_map },
-             { class: 'custom-select' })
-  .form-group
-    = f.label :data_type
-    = f.select(:data_type,
-               data_type_options_for_select,
-               { selected: f.object.data_type },
-               class: 'custom-select')
-  .checkbox
-    %label
-      = f.check_box :visible
-      Visible
-  .checkbox
-    %label
-      = f.check_box :indexed
-      Indexed
-  - unless f.object.new_record?
-    .alert.alert-warning
-      %i.fas.fa-exclamation-triangle
-      After changing the indexed status
-      of an element, you must reindex all items in every collection associated
-      with this profile using the "Reindex Items" button on the collections tab.
-  .checkbox
-    %label
-      = f.check_box :searchable
-      Searchable
-  .checkbox
-    %label
-      = f.check_box :sortable
-      Sortable
-  .checkbox
-    %label
-      = f.check_box :facetable
-      Facetable
-  .form-group
-    = f.label :facet_order, 'Facet Order'
-    = f.select(:facet_order, facet_order_options_for_select,
-               { selected: f.object.facet_order },
-               class: 'custom-select')
+
   = f.hidden_field :metadata_profile_id, value: metadata_profile.id
+
+  .row
+    .col-md-6
+      .form-group
+        = f.label :name
+        = f.select(:name,
+                   name_options_for_select,
+                   { selected: element.name },
+                   class: 'custom-select')
+      .form-group
+        = f.label :label
+        = f.text_field :label, class: 'form-control'
+      .form-group
+        = f.label :index, 'Position After'
+        = f.select :index,
+                   position_options_for_select,
+                   { selected: element.index },
+                   class: 'custom-select'
+
+      .form-group
+        .checkbox
+          %label
+            = f.check_box :visible
+            Visible
+        .checkbox
+          %label
+            = f.check_box :indexed
+            Indexed
+        - unless f.object.new_record?
+          .alert.alert-warning
+            %i.fas.fa-exclamation-triangle
+            After changing the indexed status
+            of an element, you must reindex all items in every collection associated
+            with this profile using the "Reindex Items" button on the collections tab.
+        .checkbox
+          %label
+            = f.check_box :searchable
+            Searchable
+        .checkbox
+          %label
+            = f.check_box :sortable
+            Sortable
+        .checkbox
+          %label
+            = f.check_box :facetable
+            Facetable
+
+      .form-group
+        %label Facet Term Order
+        .form-check
+          %label
+            = f.radio_button(:facet_order, MetadataProfileElement::FacetOrder::FREQUENCY,
+                             class: 'form-check-input')
+            Frequency
+        .form-check
+          %label
+            = f.radio_button(:facet_order, MetadataProfileElement::FacetOrder::ALPHANUMERIC,
+                             class: 'form-check-input')
+            Alphanumeric
+        %span.form-text.text-muted
+          = icon_for(:info)
+          This does not apply to terms in panels, which are always sorted alphanumerically.
+
+    .col-md-6
+      .form-group
+        %label Data Type
+        .form-check
+          %label
+            = f.radio_button(:data_type, MetadataProfileElement::DataType::SINGLE_LINE_STRING,
+                             class: 'form-check-input')
+            Single Line String
+        .form-check
+          %label
+            = f.radio_button(:data_type, MetadataProfileElement::DataType::MULTI_LINE_STRING,
+                             class: 'form-check-input')
+            Multi-Line String
+
+      .form-group
+        = f.label :dc_map, 'Dublin Core Mapping'
+        = select('metadata_profile_element',
+                 'dc_map',
+                 dublin_core_elements,
+                 { include_blank: true, selected: f.object.dc_map },
+                 { class: 'custom-select' })
+      .form-group
+        = f.label :dcterms_map, 'Dublin Core Terms Mapping'
+        = select('metadata_profile_element',
+                 'dcterms_map',
+                 dublin_core_terms,
+                 { include_blank: true, selected: f.object.dcterms_map },
+                 { class: 'custom-select' })
+      .form-group
+        = f.label :vocabularies, 'Vocabularies'
+        = hidden_field_tag('metadata_profile_element[vocabulary_ids][]', nil)
+        - vocabularies.each do |vocab|
+          .checkbox
+            = label_tag do
+              = check_box_tag :vocabulary_ids,
+                              vocab.id,
+                              element.vocabulary_ids.include?(vocab.id),
+                              name: 'metadata_profile_element[vocabulary_ids][]'
+              = vocab.name
+
   .clearfix
     .float-right
       %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel

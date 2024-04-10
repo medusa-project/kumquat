@@ -43,47 +43,12 @@ body#landing {
   }
 
   #sensitive-pane {
-    
-    .sensitive-toggle-btn {
-      cursor: pointer;
-      color: white;
-      background-color: #022544;
-      font-size: 0.8em;
-      margin: 0 -15px 0 -15px;
-      display: flex;
-    }
-
-    .sensitive-toggle-btn::before {
-      content: url("fontawesome-play.svg");
-      display: inline-block;
-      width: 9px;
-      height: 9px;
-      margin-right: 10px;
-    }
-
-    .sensitive-toggle-btn.expanded::before {
-      content: url("fontawesome-sort-down.svg");
-      display: inline-block;
-      width: 9px;
-      height: 9px;
-      margin-right: 10px;
-    }
-
-    .content.hidden {
-      display: none;
-    }
-
-    .statement {
-      color: black;
-      background-color: white;
-      flex-grow: 1;
-      flex-flow: column nowrap;
-      justify-content: space-between;
-    }
+    margin: -16px -15px 0 -15px;
   }
-  
 
-
+  #sensitive-pane-content {
+    padding: 1em 0 0 0;
+  }
 
   #dl-description {
     padding: 1em 0em 1em 0em;
