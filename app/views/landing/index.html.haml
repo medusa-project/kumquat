@@ -1,8 +1,6 @@
 - provide :body_id, 'landing'
 - provide :title, 'Home'
 
-= render partial: "shared/sensitive_content"
-
 #dl-banner
   %h1
     %span Digital Collections
@@ -33,7 +31,9 @@
                         Configuration.instance.metadata_gateway_url + '/items',
                         class: 'dropdown-item'
 
-.row
+= render partial: 'shared/sensitive_content'
+
+.row.mt-3
   .col-md-12
     .card.bg-dark.text-white
       = image_tag('banner_dls.jpg',
