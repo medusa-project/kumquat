@@ -3,49 +3,6 @@
  *
  * N.B.: For sitewide styles, use sitewide.css.
  */
-
-#sensitive-pane { 
-  
-  .sensitive-toggle-btn {
-    cursor: pointer;
-    color: white;
-    background-color: #022544;
-    text-align: left;
-    padding: 5px;
-    display: block;
-    width: 100%;
-    font-size: 0.8em;
-  }
-
-  .sensitive-toggle-btn::before {
-    content: url("fontawesome-play.svg");
-    display: inline-block;
-    width: 9px;
-    height: 9px;
-    margin-right: 10px;
-  }
-
-  .sensitive-toggle-btn.expanded::before {
-    content: url("fontawesome-sort-down.svg");
-    display: inline-block;
-    width: 9px;
-    height: 9px;
-    margin-right: 10px;
-  }
-
-  .content.hidden {
-    display: none;
-  }
-
-  .statement {
-    color: black;
-    background-color: white;
-    flex-grow: 1;
-    font-family: Arial, Helvetica, sans-serif;
-  }
-}
-
-
 @font-face {
   font-family: 'Oswald';
   src: font_url('Oswald-Regular.eot');
