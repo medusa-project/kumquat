@@ -1,14 +1,14 @@
 .alert.alert-info
   %strong 
     Note on file organization and description: 
-  The folder and file display below mimics the navigation of folders and files on a computer. 
-  Folders and files display in alphabetical order. Note that top-level folders may have been created by the #{@collection.medusa_repository.title}, 
-  or the original groupings may have been retained as received. Typically names of files and subfolders are not changed after the 
-  #{@collection.medusa_repository.title} receives them in order to retain their original context, 
-  and files and folders may have generic, nondescriptive titles that reflect their source. Please contact an archivist at 
+  The folders and files displayed below are in alphabetical order. The #{@collection.medusa_repository.title} uses different strategies 
+  to arrange and describe digital files, including creating top-level folders to reflect broad categories, creating folders to reflect 
+  the physical arrangement of scanned materials, and retaining the original groupings as received. Digital file and subfolder names are 
+  typically unchanged to retain their original context and may have nondescriptive titles. Some files may be scans of physical originals 
+  held at the #{@collection.medusa_repository.title}.  Please contact an archivist at 
   = succeed "." do
     %a{href: "mailto:#{@collection.medusa_repository.email}"}= @collection.medusa_repository.email
-    for assistance navigating these files
+    for assistance 
 
 #dl-free-form-split-pane
   #dl-free-form-tree-view{"data-toggle":    "popover",
