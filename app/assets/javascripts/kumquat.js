@@ -457,11 +457,9 @@ const Application = {
             }
         });
 
-        $(document).ready(function() {
-          $('.sensitive-toggle-btn').click(function() {
+        $('.sensitive-toggle-btn').off("click").on("click", function() {
             $('#sensitive-pane-content').toggleClass('d-none');
             $(this).toggleClass('expanded');
-          });
         });
 
         $(document).ajaxError(function(event, request, settings) {
