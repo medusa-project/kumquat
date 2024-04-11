@@ -724,6 +724,8 @@ const DLTreeBrowserView = function() {
         return url;
     }
 
+    const treeView = $('#dl-free-form-item-view');
+
     const updateItemViewHeight = function() {
         const lastElem = treeView.children().filter(':visible').filter(':last');
         const height   = lastElem.offset().top + lastElem.height() - 200;
@@ -733,7 +735,6 @@ const DLTreeBrowserView = function() {
     const setItemViewHTML = function(result) {
         //reset flag used by embed.js
         window.embedScriptIncluded = false;
-        const treeView = $('#dl-free-form-item-view');
         treeView.html(result);
         Application.init();
         Application.view = new DLItemView();
