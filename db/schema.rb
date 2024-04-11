@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_02_12_222408) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_01_213450) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -124,10 +124,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_12_222408) do
     t.string "medusa_file_group_uuid"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.text "resource_types_deleteme"
     t.string "medusa_directory_uuid"
     t.integer "package_profile_id"
-    t.text "access_systems_deleteme"
     t.integer "medusa_repository_id"
     t.text "rights_statement"
     t.string "rights_term_uri"
@@ -144,6 +142,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_12_222408) do
     t.string "representation_type", default: "self", null: false
     t.text "access_systems"
     t.text "resource_types"
+    t.string "supplementary_document_label"
     t.index ["descriptive_element_id"], name: "index_collections_on_descriptive_element_id"
     t.index ["external_id"], name: "index_collections_on_external_id"
     t.index ["harvestable"], name: "index_collections_on_harvestable"
@@ -379,6 +378,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_12_222408) do
     t.index ["job_id"], name: "index_tasks_on_job_id", unique: true
     t.index ["queue"], name: "index_tasks_on_queue"
     t.index ["started_at"], name: "index_tasks_on_started_at"
+    t.index ["status"], name: "index_tasks_on_status"
     t.index ["stopped_at"], name: "index_tasks_on_stopped_at"
     t.index ["updated_at"], name: "index_tasks_on_updated_at"
     t.index ["user_id"], name: "index_tasks_on_user_id"

@@ -91,6 +91,29 @@ div.alert ul {
       padding: 0.1em 0.3em;
     }
   }
+  .dl-more-button {
+    font-size: 0.9em;
+  }
+}
+
+.dl-modal-facet {
+  ul {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    list-style-type: none;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-left: 0;
+  }
+  .dl-count {
+    background-color: #a0a0a0;
+    color: white;
+    font-weight: bold;
+    font-size: 0.8em;
+    border-radius: 0.8em;
+    padding: 0.1em 0.3em;
+  }
 }
 
 // Controlled via Application.AJAXShade().

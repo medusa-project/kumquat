@@ -118,6 +118,9 @@
 # * `rights_statement`              Rights statement text.
 # * `rights_term_uri`               URI of a term in one of the rights-related
 #                                   vocabularies.
+# * `supplementary_document_label`  Label of the supplementary document section
+#                                   for items in the collection that have such
+#                                   documents.
 # * `updated_at`                    Managed by ActiveRecord.
 #
 # Attribute Propagation

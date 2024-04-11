@@ -310,6 +310,7 @@ module Admin
                                          :representative_item_id,
                                          :representative_medusa_file_id,
                                          :restricted, :rights_term_uri,
+                                         :supplementary_document_label,
                                          allowed_host_group_ids: [])
     end
 

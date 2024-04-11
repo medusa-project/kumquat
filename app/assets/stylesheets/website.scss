@@ -3,42 +3,6 @@
  *
  * N.B.: For sitewide styles, use sitewide.css.
  */
-#sensitive-banner {
-  background-position: center 14%;
-  height: 30px;
-  display: flex;
-  color: darkblue;
-  font-size: 0.8em;
-}
-
-.statement {
-  flex-grow: 1;
-}
-
-.close-sensitive-btn {
-  cursor: pointer;
-  font-size: 0.9em;
-  display: inline-block;
-  border: none;
-  background: none;
-  margin-right: 0px;
-  margin-left: auto;
-}
-
-.local-link::after {
-  content: url("fontawesome-up-right-from-square.svg");
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-}
-
-#sensitive-banner::before {
-  content: url("fontawesome-triangle-exclamation.svg");
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-}
-
 @font-face {
   font-family: 'Oswald';
   src: font_url('Oswald-Regular.eot');
@@ -196,4 +160,41 @@ header .form-inline .form-control {
 /* CAPTCHA honeypot field */
 input.dl-captcha-email {
   display: none;
+}
+
+#sensitive-pane {
+  margin: -16px 0 15px 0;
+
+  .sensitive-toggle-btn {
+    border: 0;
+    cursor: pointer;
+    color: white;
+    background-color: #022544;
+    padding: 5px;
+    width: 100%;
+    font-size: 0.8em;
+    display: flex;
+  }
+
+  .sensitive-toggle-btn::before {
+    content: url("fontawesome-play.svg");
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    margin-right: 10px;
+    margin-left: 10px;
+  }
+
+  .sensitive-toggle-btn.expanded::before {
+    content: url("fontawesome-sort-down.svg");
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    margin-right: 10px;
+    margin-left: 10px;
+  }
+}
+
+#sensitive-pane-content {
+  padding: 0 1em 1em 1em;
 }

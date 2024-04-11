@@ -328,14 +328,9 @@ class ItemRelation < AbstractRelation
             j.set! field.indexed_keyword_field do
               j.terms do
                 j.field field.indexed_keyword_field
-                case field.facet_order
-                when MetadataProfileElement::FacetOrder::ALPHANUMERIC
-                  j.size OpensearchClient::AGGREGATION_BUCKET_LIMIT
-                  j.order do
-                    j.set! :_key, "asc"
-                  end
-                else
-                  j.size @bucket_limit
+                j.size OpensearchClient::AGGREGATION_BUCKET_LIMIT
+                j.order do
+                  j.set! :_key, "asc"
                 end
               end
             end

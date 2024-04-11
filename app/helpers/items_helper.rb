@@ -834,6 +834,37 @@ module ItemsHelper
 
   ##
   # @param item [Item]
+  # @param show_nonpublic [Boolean]
+  # @return [String]
+  #
+  def supplementary_item_section(supp_item, show_nonpublic: false)
+    html     = StringIO.new
+    supp_bin = supp_item&.effective_image_binary
+    if supp_bin && (show_nonpublic || (supp_bin.public? || current_user&.medusa_user?))
+      label = supp_item.collection.supplementary_document_label.present? ?
+                supp_item.collection.supplementary_document_label :
+                "Supplementary #{supp_bin.human_readable_media_category}"
+      html << '<h2>'
+      html <<   '<a role="button" data-toggle="collapse" href="#dl-supplementary-item" aria-expanded="true" aria-controls="dl-supplementary-item">'
+      html <<     label
+      html <<   '</a>'
+      html << '</h2>'
+      html << '<div id="dl-supplementary-item" class="collapse">'
+      html <<   '<div class="row">'
+      html <<     '<div id="dl-supplementary-item-viewer" class="col-sm-8 col-md-9">'
+      html <<       viewer_for_binary(supp_bin)
+      html <<     '</div>'
+      html <<     '<div id="dl-supplementary-item-metadata" class="col-sm-4 col-md-3">'
+      html <<       metadata_as_list(supp_item)
+      html <<     '</div>'
+      html <<   '</div>'
+      html << '</div>'
+    end
+    raw(html.string)
+  end
+
+  ##
+  # @param item [Item]
   # @return [String]
   # @see metadata_as_table
   #

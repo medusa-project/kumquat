@@ -29,25 +29,6 @@
       = viewer_for_item(@root_item.three_d_item)
 %section
   = viewer_for_item(@root_item)
-  - if has_viewer?(@root_item) && @root_item.supplementary_item
-    - supp_item = @root_item.supplementary_item
-    - supp_bin  = supp_item&.effective_image_binary
-    - if supp_bin && (supp_bin.public? || current_user&.medusa_user?)
-      #dl-supplementary-viewer
-        .dl-bottom-panel
-          %a{"aria-controls": "dl-binary-#{supp_bin.id}",
-             "aria-expanded": "false",
-             "data-toggle": "collapse",
-             href: "#dl-binary-#{supp_bin.id}",
-             role: "button"}
-            %img{src: "/universalviewer/themes/uv-en-GB-theme/img/uv-shared-module/arrows_left.png"}/
-            = supp_item.element(:supplementType)&.value || "Supplementary #{supp_bin.human_readable_media_category}"
-        .dl-supplmentary-viewer-content.collapse{id: "dl-binary-#{supp_bin.id}"}
-          .row
-            .col-sm-9
-              = viewer_for_binary(supp_bin)
-            .col-sm-3.dl-metadata
-              = metadata_as_list(supp_item)
   .mt-4
     - if has_viewer?(@root_item)
       .float-right
@@ -59,8 +40,12 @@
 %section
   = rights_statement(@root_item.effective_rights_term,
                      @root_item.effective_rights_statement)
+
+%section= supplementary_item_section(@root_item.supplementary_item)
+
 - if @root_item.elements.reject{ |e| e.name == 'title' }.any?
   %section= metadata_section(@root_item)
+
 = render partial: 'download_section',
          locals: { item: @root_item, expanded: false, show_heading: true }
 = render partial: 'staff_info', locals: { item: @root_item }

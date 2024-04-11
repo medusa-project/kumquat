@@ -6,47 +6,63 @@ const Application = {
      * Enables the facets returned by one of the facets_as_x() helpers.
      */
     initFacets: function() {
-        const addFacetEventListeners = function() {
-            $('.dl-card-facet [name="dl-facet-term"]').off().on('change', function() {
-                const form = $(this).parents('form:first');
-                const path = $('[name=dl-current-path]').val();
+        const CURRENT_PATH = $('[name=dl-current-path]').val();
+        const filterForm = $("form.dl-filter");
 
-                form.find('[name="fq"]').remove();
-                form.find('[name="fq[]"]').remove();
-                // Create hidden input counterparts of each checked checkbox.
-                form.find('[name=dl-facet-term]:checked').each(function() {
-                    var input = $('<input type="hidden" name="fq[]">');
-                    input.val($(this).data('query'));
-                    form.append(input);
-                });
+        const getSerializedCanonicalFormQuery = function() {
+            return filterForm.find(':not([name=collection_id], [name=dl-facet-term])')
+                .serialize();
+        };
 
-                const query = form.serialize();
-
-                $.ajax({
-                    url: path,
-                    method: 'GET',
-                    data: query,
-                    dataType: 'script',
-                    success: function(result) {
-                        // Enables results page persistence after back/forward
-                        // navigation.
-                        window.location.hash = query;
-                        eval(result);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(xhr.responseText);
-                        console.error(status);
-                        console.error(error);
-                    }
-                });
+        const removeHiddenInputs = function () {
+            filterForm.find('[name="fq"], [name="fq[]"]').remove();
+        };
+        const createHiddenInputs = function() {
+            removeHiddenInputs();
+            // Create hidden input counterparts of each checked checkbox.
+            filterForm.find('[name=dl-facet-term]:checked').each(function() {
+                const input = $('<input type="hidden" name="fq[]">');
+                input.val($(this).data('query'));
+                filterForm.append(input);
             });
         };
 
-        // When a filter field has been updated, it will change the facets.
-        $(document).ajaxSuccess(function(event, request) {
-            addFacetEventListeners();
+        filterForm.find('.dl-card-facet [name="dl-facet-term"]').off().on('change', function() {
+            $(this).prop("checked") ?
+                createHiddenInputs() : removeHiddenInputs();
+            const query = getSerializedCanonicalFormQuery();
+            $.ajax({
+                url:      CURRENT_PATH,
+                method:   'GET',
+                data:     query,
+                dataType: 'script',
+                success:  function(result) {
+                    window.location.hash = query;
+                    eval(result);
+                }
+            });
         });
-        addFacetEventListeners();
+        filterForm.find('.dl-modal-facet .modal-footer button.submit').off().on('click', function(e) {
+            e.preventDefault();
+            const modal = $(this).parents(".dl-modal-facet");
+            modal.on("hidden.bs.modal", function() {
+                createHiddenInputs();
+                const query = getSerializedCanonicalFormQuery();
+                $.ajax({
+                    url:      CURRENT_PATH,
+                    method:   'GET',
+                    data:     query,
+                    dataType: 'script',
+                    success: function(result) {
+                        window.location.hash = query;
+                        eval(result);
+                    }
+                });
+            });
+            modal.modal("hide");
+        });
+
+
     },
 
     initThumbnails: function() {
@@ -261,19 +277,19 @@ const Application = {
      * @constructor
      */
     FilterField: function() {
-        var INPUT_DELAY_MSEC = 500;
+        const INPUT_DELAY_MSEC = 500;
+        const form = $('form.dl-filter');
 
-        $('form.dl-filter').submit(function () {
+        form.submit(function () {
             $.get(this.action, $(this).serialize(), null, 'script');
             $(this).nextAll('input').addClass('active');
             return false;
         });
 
-        var submitForm = function () {
-            var forms = $('form.dl-filter');
-            var query = forms.serialize();
+        const submitForm = function () {
+            const query = form.serialize();
             $.ajax({
-                url: forms.attr('action'),
+                url: form.attr('action'),
                 method: 'GET',
                 data: query,
                 dataType: 'script',
@@ -288,19 +304,13 @@ const Application = {
 
         var input_timer;
         // When text is typed in the filter field...
-        $('form.dl-filter input').on('keyup', function () {
+        form.find('input[name=q]').on('keyup', function () {
             // Reset the typing-delay counter.
             clearTimeout(input_timer);
-
             // After the user has stopped typing, wait a bit and then submit
             // the form via AJAX.
             input_timer = setTimeout(submitForm, INPUT_DELAY_MSEC);
             return false;
-        });
-        // When form controls accompanying the filter field are changed,
-        // resubmit the form via AJAX.
-        $('form.dl-filter select, form.dl-filter input[type=radio]').on('change', function() {
-            submitForm();
         });
     },
 
@@ -401,29 +411,23 @@ const Application = {
             .addClass('active');
 
         // Add an expander icon in front of every collapse toggle.
-        var toggleForCollapse = function(collapse) {
+        const toggleForCollapse = function(collapse) {
             return collapse.prev().find('a[data-toggle="collapse"]:first');
         };
-        var setToggleState = function(elem, expanded) {
+        const setToggleState = function(elem, expanded) {
             var class_ = expanded ? 'fa-minus-square' : 'fa-plus-square';
             elem.html('<i class="far ' + class_ + '"></i> ' + elem.text());
         };
 
-        var collapses = $('.collapse');
+        const collapses = $('.collapse');
         collapses.each(function() {
-            if (!$(this).hasClass('dl-supplmentary-viewer-content')) {
-                setToggleState(toggleForCollapse($(this)), $(this).hasClass('show'));
-            }
+            setToggleState(toggleForCollapse($(this)), $(this).hasClass('show'));
         });
         collapses.on('show.bs.collapse', function () {
-            if (!$(this).hasClass('dl-supplmentary-viewer-content')) {
-                setToggleState(toggleForCollapse($(this)), true);
-            }
+            setToggleState(toggleForCollapse($(this)), true);
         });
         collapses.on('hide.bs.collapse', function () {
-            if (!$(this).hasClass('dl-supplmentary-viewer-content')) {
-                setToggleState(toggleForCollapse($(this)), false);
-            }
+            setToggleState(toggleForCollapse($(this)), false);
         });
 
         Application.smoothAnchorScroll(0);
@@ -453,16 +457,10 @@ const Application = {
             }
         });
 
-        $(document).ready(function()
-        {
-          if (document.cookie.includes("bannerDismissed=true")) {
-            $('#sensitive-banner').hide();
-          }
-
-          $('.close-sensitive-btn').click(function() {
-            $('#sensitive-banner').hide();
-
-            document.cookie = "bannerDismissed=true";
+        $(document).ready(function() {
+          $('.sensitive-toggle-btn').click(function() {
+            $('#sensitive-pane-content').toggleClass('d-none');
+            $(this).toggleClass('expanded');
           });
         });
 

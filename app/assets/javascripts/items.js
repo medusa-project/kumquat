@@ -14,7 +14,7 @@ const DLItemView = function() {
      */
     const CitationPanel = function() {
 
-        var init = function() {
+        const init = function() {
             Date.prototype.getAbbreviatedMonthName = function() {
                 switch (this.getMonth()) {
                     case 1: return 'Jan.';
@@ -163,7 +163,7 @@ const DLItemView = function() {
             // Find the number of usable sizes (i.e. sizes above MIN_IMAGE_SIZE
             // and below maxPixels) in order to calculate button size tiers.
             var numUsableSizes = 0;
-            for (var i = 0; i < numSizes; i++) {
+            for (let i = 0; i < numSizes; i++) {
                 const width  = info['sizes'][i]['width'];
                 const height = info['sizes'][i]['height'];
                 if (width >= MIN_IMAGE_SIZE && height >= MIN_IMAGE_SIZE
@@ -174,7 +174,7 @@ const DLItemView = function() {
 
             // Create a button for each size tier from the maximum down to
             // the minimum.
-            for (var i = numSizes - 1, size_i = numSizes - 1; i >= 0; i--) {
+            for (i = numSizes - 1, size_i = numSizes - 1; i >= 0; i--) {
                 const width   = info['sizes'][i]['width'];
                 const height  = info['sizes'][i]['height'];
 
@@ -412,59 +412,81 @@ const DLItemView = function() {
  */
 const DLItemsView = function() {
 
-    const self = this;
+    const CURRENT_PATH = $('[name=dl-current-path]').val();
+    const filterForm   = $("form.dl-filter");
+    const self         = this;
 
     this.init = function() {
         new Application.CaptchaProtectedDownload();
         new Application.FilterField();
-        Application.initFacets();
-
-        // Submit the sort form on change.
-        $('select[name="sort"]').off().on('change', function () {
-            var query = $(this).parents('form:first')
-                .find(':not(input[name=collection_id])').serialize();
-            $.ajax({
-                url: $('[name=dl-current-path]').val(),
-                method: 'GET',
-                data: query,
-                dataType: 'script',
-                success: function (result) {
-                    // Enables results page persistence after back/forward
-                    // navigation.
-                    window.location.hash = query;
-                    eval(result);
-                }
-            });
-        });
-
-        // Override Rails' handling of link_to() with `remote: true` option.
-        // We are doing the same thing but also updating the hash.
-        $('.page-link').on('click', function() {
-            var url   = $(this).attr('href');
-            var query = url.substring(url.indexOf("?") + 1);
-            $.ajax({
-                url: url,
-                method: 'GET',
-                dataType: 'script',
-                success: function(result) {
-                    window.location.hash = query;
-                    eval(result);
-                }
-            });
-            return false;
-        });
-
         self.attachEventListeners();
     };
 
-    /**
-     * This needs to be public as it's called from index.js.
-     */
+    const getSerializedCanonicalFormQuery = function() {
+        return filterForm.find(':not([name=collection_id], [name=dl-facet-term])')
+            .serialize();
+    };
+
     this.attachEventListeners = function() {
         Application.initThumbnails();
+        Application.initFacets();
 
-        $('.pagination a').on('click', function() {
-            $('form.dl-filter')[0].scrollIntoView({behavior: "smooth", block: "start"});
+        filterForm.find('select[name="sort"]').off().on("change", function() {
+            onSortMenuChanged();
+        });
+        filterForm.find('.page-link').off().on("click", function() {
+            filterForm.scrollIntoView({behavior: "smooth", block: "start"});
+            onPageLinkClicked($(this));
+        });
+    };
+
+    this.restoreState = function() {
+        var query = window.location.hash;
+        if (query.length) {
+            query = query.substring(1); // trim off the `#`
+            console.debug('restoreState(): ' + query);
+            $.ajax({
+                url:      CURRENT_PATH,
+                method:   'GET',
+                data:     query,
+                dataType: 'script',
+                success: function (result) {
+                    eval(result);
+                }
+            });
+        }
+    };
+
+    const onPageLinkClicked = function(link) {
+        const url = link.attr('href');
+        var query = "";
+        const queryIndex = url.indexOf("?");
+        if (queryIndex >= 0) {
+            query = url.substring(queryIndex + 1);
+        }
+        $.ajax({
+            url:      url,
+            method:   'GET',
+            dataType: 'script',
+            success:  function(result) {
+                window.location.hash = query;
+                eval(result);
+            }
+        });
+        return false;
+    };
+
+    const onSortMenuChanged = function() {
+        const query = getSerializedCanonicalFormQuery();
+        $.ajax({
+            url:      CURRENT_PATH,
+            method:   'GET',
+            data:     query,
+            dataType: 'script',
+            success: function (result) {
+                window.location.hash = query;
+                eval(result);
+            }
         });
     };
 
@@ -631,7 +653,7 @@ const DLTreeBrowserView = function() {
          * @param level Used internally; supply 0 to start.
          * @param onComplete Callback function.
          */
-        var drillDown = function(nodes, level, onComplete) {
+        const drillDown = function(nodes, level, onComplete) {
             var jstree = $('#dl-free-form-tree-view');
             if (level < nodes.length) {
                 var id = nodes[level];
@@ -653,7 +675,7 @@ const DLTreeBrowserView = function() {
          *                to start.
          * @param onComplete Callback function.
          */
-        var traceLineage = function(id, parents, onComplete) {
+        const traceLineage = function(id, parents, onComplete) {
             console.debug('Finding parent of ' + id);
             $.ajax({
                 url: '/items/' + id + '.json',
@@ -756,19 +778,7 @@ $(document).ready(function() {
  */
 $(window).on("pageshow", function(event) {
     if ($('body#items_index').length && !event.originalEvent.persisted) {
-        var query = window.location.hash;
-        if (query.length) {
-            query = query.substring(1); // trim off the `#`
-            console.debug('Restoring ' + query);
-            $.ajax({
-                url: $('[name=dl-current-path]').val(),
-                method: 'GET',
-                data: query,
-                dataType: 'script',
-                success: function (result) {
-                    eval(result);
-                }
-            });
-        }
+        Application.view = new DLItemsView();
+        Application.view.restoreState();
     }
 });
