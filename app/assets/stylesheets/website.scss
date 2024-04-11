@@ -176,6 +176,10 @@ input.dl-captcha-email {
     display: flex;
   }
 
+  .sensitive-toggle-btn:focus {
+    outline: none !important;
+  }
+
   .sensitive-toggle-btn::before {
     content: url("fontawesome-play.svg");
     display: inline-block;
