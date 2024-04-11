@@ -24,6 +24,11 @@
         %span.caret
       .dropdown-menu.dropdown-menu-right
         - if @uofi_user
+          = link_to collection_tree_path(@collection), 
+                    target: '_blank',
+                    class: 'dropdown-item' do 
+            %i.far.fa-folder-open
+              Browse Collection 
           = link_to @permitted_params.merge(format: :json),
                     target: '_blank',
                     class: 'dropdown-item' do
