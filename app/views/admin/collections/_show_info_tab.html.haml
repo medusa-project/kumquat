@@ -27,6 +27,8 @@
               - if @file_group
                 - begin
                   = link_to(@file_group.title, @file_group.url)
+                  %br
+                  %code= @file_group.uuid
                 - rescue Medusa::NotFoundError
                   Invalid
               - else
@@ -37,6 +39,8 @@
               - if @collection.medusa_directory
                 = medusa_directory_link(@collection.medusa_directory_uuid,
                                         @collection.medusa_directory)
+                %br
+                %code= @collection.medusa_directory_uuid
               - else
                 File Group Root
           %tr
