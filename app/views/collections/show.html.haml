@@ -24,6 +24,12 @@
         %span.caret
       .dropdown-menu.dropdown-menu-right
         - if @uofi_user
+          = link_to collection_tree_path(@collection),
+                    target: '_blank',
+                    class: 'dropdown-item' do
+            %i.fa.fa-folder-open 
+            Browse Collection
+          .dropdown-divider{role: "separator"}
           = link_to @permitted_params.merge(format: :json),
                     target: '_blank',
                     class: 'dropdown-item' do
@@ -34,7 +40,7 @@
                     class: 'dropdown-item' do
             %i.fa.fa-code
              IIIF Representation
-          .dropdown-divider{role: "separator"}
+          .dropdown-divider{role: "separator"} 
         = link_to admin_collection_path(@collection),
                   target: '_blank',
                   class: 'dropdown-item' do
