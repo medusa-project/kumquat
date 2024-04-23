@@ -17,7 +17,13 @@
                   target: '_blank',
                   class: 'dropdown-item' do
           = icon_for(item.collection)
-            Physical Collection
+          Physical Collection
+      - if item.bib_id.present?
+        = link_to item.catalog_record_url,
+                  target: '_blank',
+                  class: 'dropdown-item' do
+          %i.fa.fa-book
+          Library Catalog Record
         .dropdown-divider
       = link_to @permitted_params.merge(format: :atom),
                 target: '_blank',
@@ -48,12 +54,6 @@
                     class: 'dropdown-item' do
             %i.fa.fa-code
             IIIF Image Information v3
-      - if item.bib_id.present?
-        = link_to item.catalog_record_url,
-                  target: '_blank',
-                  class: 'dropdown-item' do
-          %i.fa.fa-book
-          Library Catalog Record
       - if current_user&.medusa_user?
         .dropdown-divider
         = link_to admin_collection_item_path(item.collection, item),
