@@ -3,7 +3,8 @@
 - provide :active_nav, 'metadata'
 
 = admin_breadcrumb({ label: 'Home', url: admin_root_path },
-                   { label: 'Elements', url: admin_elements_path })
+                   { label: 'Elements', url: admin_elements_path },
+                   { label: @element.name })
 
 .btn-group.float-right
   -# Export button
