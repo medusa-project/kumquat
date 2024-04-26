@@ -13,6 +13,7 @@
         %hr/
         %div{"data-item-id": "#{item.repository_id}"}
           = hidden_field_tag('dl-citation-author', item.element(:creator)&.value)
+          = hidden_field_tag('dl-citation-collection', item.collection.title)
           = hidden_field_tag('dl-citation-date-created', item.created_at.iso8601)
           = hidden_field_tag('dl-citation-source',
                              Setting::string(Setting::Keys::ORGANIZATION_NAME))

@@ -57,6 +57,7 @@ const DLItemView = function() {
                 var source = container.find('[name=dl-citation-source]').val();
                 var title = container.find('[name=dl-citation-title]').val();
                 var url = container.find('[name=dl-citation-url]').val();
+                var collection = container.find('[name=dl-citation-collection]').val();
                 var citation = '';
 
                 switch ($(this).val()) {
@@ -73,8 +74,9 @@ const DLItemView = function() {
                                 dateObj.getMonthName() + ' ' + dateObj.getDay() + '). ';
                         }
                         title = '<i>' + title + '</i>. ';
+                        collection = 'In ' + collection + ', ';
                         url = 'Retrieved from ' + url;
-                        citation = author + date + title + url;
+                        citation = author + date + title + collection + url;
                         break;
                     case 'Chicago':
                         // https://owl.english.purdue.edu/owl/resource/717/05/
@@ -82,23 +84,25 @@ const DLItemView = function() {
                             author += ', ';
                         }
                         title = '"' + title + '," ';
+                        collection = 'In ' + collection + ', ';
                         source = '<i>' + source + '</i>, ';
                         date = 'last modified ' + dateObj.getMonthName() +
                             ' ' + dateObj.getDay() + ', ' +
                             dateObj.getFullYear() + ', ';
                         url += '.';
-                        citation = author + title + source + date + url;
+                        citation = author + title + collection + source + date + url;
                         break;
                     case 'MLA':
                         // "A Page on a Web Site"
                         // https://owl.english.purdue.edu/owl/resource/747/08/
                         title = '"' + title + '." ';
+                        collection = 'In ' + collection + ', ';
                         source = '<i>' + source + ',</i> ';
                         date = dateObj.getDay() + ' ' +
                             dateObj.getAbbreviatedMonthName() + ' ' +
                             dateObj.getFullYear() + ', ';
                         url = url.replace('http://', '').replace('https://', '') + '.';
-                        citation = title + source + date + url;
+                        citation = title + collection + source + date + url;
                         break;
                 }
                 container.find('.dl-citation').html(citation);
