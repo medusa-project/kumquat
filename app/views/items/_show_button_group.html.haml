@@ -2,6 +2,9 @@
 -# item [Item]
 
 #item-show-buttons.btn-group.float-right{role: "group"}
+  = link_to '#dl-cite-modal', class: 'btn btn-light', "data-toggle": "modal" do 
+    %i.fa.fa-quote-left
+    Cite 
   = share_button(item)
   .btn-group{role: "group"}
     %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
