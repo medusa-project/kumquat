@@ -751,14 +751,6 @@ module ItemsHelper
         <i class="fa fa-share-alt"></i> Share <span class="caret"></span>
       </button>
       <div class="dropdown-menu">'
-    # cite
-    if entity.kind_of?(Item)
-      html << link_to('#', onclick: 'return false;', class: 'dropdown-item',
-                      data: { toggle: 'modal', target: '#dl-cite-modal' }) do
-        raw('<i class="fas fa-pen-square"></i> Cite')
-      end
-      html << '<div class="dropdown-divider"></div>'
-    end
     # email
     html << link_to("mailto:?subject=#{title}&body=#{url}", class: 'dropdown-item') do
       raw('<i class="fa fa-envelope"></i> Email')
