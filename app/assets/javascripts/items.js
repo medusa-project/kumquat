@@ -71,9 +71,7 @@ const DLItemView = function() {
                         // date should be date of item NOT date of creation?
                         if (author) {
                             author += '. ';
-                        } else {
-                            author = '[Unknown]. ';
-                        }
+                        } 
                         if (date) {
                             date = '(' + dateObj.getFullYear() + ', ' +
                                 dateObj.getMonthName() + ' ' + dateObj.getDay() + '). ';
@@ -111,12 +109,12 @@ const DLItemView = function() {
                         // https://owl.english.purdue.edu/owl/resource/747/08/
                         // CreatorName, TitleOfItem, DateOfItem, NameOfCollection, NAmeOfRepo, NAmeOfInst, URL
                         title = '"' + title + '." ';
-                        collection = 'In ' + collection + ', ';
-                        source = '<i>' + source + ',</i> ';
-                        repo = ' ' + repo + ', ';
+                        collection = 'In ' + collection + '. ';
+                        source = '<i>' + source + '.</i> ';
+                        repo = ' ' + repo + '. ';
                         date = dateObj.getDay() + ' ' +
                             dateObj.getAbbreviatedMonthName() + ' ' +
-                            dateObj.getFullYear() + ', ';
+                            dateObj.getFullYear() + '. ';
                         url = url.replace('http://', '').replace('https://', '') + '.';
                         citation = title + date + collection + repo + source + url;
                         break;
