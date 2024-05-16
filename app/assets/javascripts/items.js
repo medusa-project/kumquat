@@ -58,12 +58,17 @@ const DLItemView = function() {
                 var title = container.find('[name=dl-citation-title]').val();
                 var url = container.find('[name=dl-citation-url]').val();
                 var collection = container.find('[name=dl-citation-collection]').val();
+                var repo = container.find('[name=dl-citation-repository]').val();
                 var citation = '';
 
                 switch ($(this).val()) {
                     case 'APA':
                         // "Nonperiodical Web Document or Report":
                         // https://owl.english.purdue.edu/owl/resource/560/10/
+                        // From Krista: CreatorName, (DateOfItem), TitleOfItem, NameOfCollection, NameOfRepo, NameOfInstitution, URL
+                        // if no author -> TitleOfItem, (DateOfItem), ... etc.
+                        // if no date -> "n.d."
+                        // date should be date of item NOT date of creation?
                         if (author) {
                             author += '. ';
                         } else {
@@ -72,37 +77,48 @@ const DLItemView = function() {
                         if (date) {
                             date = '(' + dateObj.getFullYear() + ', ' +
                                 dateObj.getMonthName() + ' ' + dateObj.getDay() + '). ';
+                        } else { 
+                            date = 'n.d. ';
                         }
                         title = '<i>' + title + '</i>. ';
                         collection = 'In ' + collection + ', ';
                         url = 'Retrieved from ' + url;
-                        citation = author + date + title + collection + url;
+                        repo = ' ' + repo + ', ';
+                        source = '<i>' + source + '</i>, ';
+                        citation = author + date + title + collection + repo + source + url;
+                        // citation_no_author = title + date + collection + url;
+                        // citation_no_date = author + "n.d" + title + collection + url;
                         break;
                     case 'Chicago':
                         // https://owl.english.purdue.edu/owl/resource/717/05/
+                        // skip components that don't exist
+                        // CreatorName, "TitleOfItem", DateOfItem, NameOfCollection, NameOfRepo, NameOfInst, URL
                         if (author) {
                             author += ', ';
                         }
                         title = '"' + title + '," ';
                         collection = 'In ' + collection + ', ';
                         source = '<i>' + source + '</i>, ';
-                        date = 'last modified ' + dateObj.getMonthName() +
+                        repo = ' ' + repo + ', ';
+                        date = dateObj.getMonthName() +
                             ' ' + dateObj.getDay() + ', ' +
                             dateObj.getFullYear() + ', ';
                         url += '.';
-                        citation = author + title + collection + source + date + url;
+                        citation = author + title + date + collection + repo + source + url;
                         break;
                     case 'MLA':
                         // "A Page on a Web Site"
                         // https://owl.english.purdue.edu/owl/resource/747/08/
+                        // CreatorName, TitleOfItem, DateOfItem, NameOfCollection, NAmeOfRepo, NAmeOfInst, URL
                         title = '"' + title + '." ';
                         collection = 'In ' + collection + ', ';
                         source = '<i>' + source + ',</i> ';
+                        repo = ' ' + repo + ', ';
                         date = dateObj.getDay() + ' ' +
                             dateObj.getAbbreviatedMonthName() + ' ' +
                             dateObj.getFullYear() + ', ';
                         url = url.replace('http://', '').replace('https://', '') + '.';
-                        citation = title + collection + source + date + url;
+                        citation = title + date + collection + repo + source + url;
                         break;
                 }
                 container.find('.dl-citation').html(citation);
