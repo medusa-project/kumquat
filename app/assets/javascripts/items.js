@@ -69,12 +69,15 @@ const DLItemView = function() {
                         // if no author -> TitleOfItem, (DateOfItem), ... etc.
                         // if no date -> "n.d."
                         // date should be date of item NOT date of creation?
-                        if (author) {
-                            author += '. ';
-                        } 
-                        if (date) {
+                        if (!author) {
+                            citation = title + date + collection + repo + source + url;
+                        } else {
+                          author += '. ';
+                        
+                          if (date) {
                             date = '(' + dateObj.getFullYear() + ', ' +
                                 dateObj.getMonthName() + ' ' + dateObj.getDay() + '). ';
+                                
                         } else { 
                             date = 'n.d. ';
                         }
@@ -84,7 +87,8 @@ const DLItemView = function() {
                         repo = ' ' + repo + ', ';
                         source = '<i>' + source + '</i>, ';
                         citation = author + date + title + collection + repo + source + url;
-                        // citation_no_author = title + date + collection + url;
+                        }
+                        // citation_no_author = title + date + collection repo + source + url;
                         // citation_no_date = author + "n.d" + title + collection + url;
                         break;
                     case 'Chicago':
