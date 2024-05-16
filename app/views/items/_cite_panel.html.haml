@@ -19,6 +19,7 @@
                              Setting::string(Setting::Keys::ORGANIZATION_NAME))
           = hidden_field_tag('dl-citation-title', item.title)
           = hidden_field_tag('dl-citation-url', item_url(item))
+          = hidden_field_tag('dl-citation-repository', item.collection.medusa_repository.title)
           %select.custom-select{name: "dl-citation-format"}
             %option APA
             %option Chicago
