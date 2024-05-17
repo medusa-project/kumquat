@@ -16,43 +16,26 @@ const DLItemView = function() {
 
         const init = function() {
             Date.prototype.getAbbreviatedMonthName = function() {
-                switch (this.getMonth()) {
-                    case 1: return 'Jan.';
-                    case 2: return 'Feb.';
-                    case 3: return 'Mar.';
-                    case 4: return 'Apr.';
-                    case 5: return 'May';
-                    case 6: return 'June';
-                    case 7: return 'July';
-                    case 8: return 'Aug.';
-                    case 9: return 'Sept.';
-                    case 10: return 'Oct.';
-                    case 11: return 'Nov.';
-                    case 12: return 'Dec.';
-                }
+                const monthNames = [
+                    'Jan.', 'Feb.', 'Mar.', 'Apr.', 'May,', 'June',
+                    'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'
+                ];
+                return monthNames[this.getMonth()];
             };
             Date.prototype.getMonthName = function() {
-                switch (this.getMonth()) {
-                    case 1: return 'January';
-                    case 2: return 'February';
-                    case 3: return 'March';
-                    case 4: return 'April';
-                    case 5: return 'May';
-                    case 6: return 'June';
-                    case 7: return 'July';
-                    case 8: return 'August';
-                    case 9: return 'September';
-                    case 10: return 'October';
-                    case 11: return 'November';
-                    case 12: return 'December';
-                }
+                const monthNames = [
+                  'January', 'February', 'March', 'April', 'May', 'June',
+                  'July', 'August', 'September', 'October', 'November',
+                  'December'
+                ];
+                return monthNames[this.getMonth()];
             };
             $('[name=dl-citation-format]').on('change', function() {
                 var container = $(this).parent();
                 var item_id = container.data('item-id');
 
                 var author = container.find('[name=dl-citation-author]').val();
-                var date = container.find('[name=dl-citation-date-created]').val();
+                var date = container.find('[name=dl-citation-date]').val();
                 var dateObj = new Date(date);
                 var source = container.find('[name=dl-citation-source]').val();
                 var title = container.find('[name=dl-citation-title]').val();
@@ -72,9 +55,24 @@ const DLItemView = function() {
                           author += '. ';
                         
                           if (date) {
-                            date = '(' + dateObj.getFullYear() + ', ' +
-                                dateObj.getMonthName() + ' ' + dateObj.getDay() + '). ';
+                            var formattedDate = '';
+                            var month = dateObj.getAbbreviatedMonthName();
+                            var day = dateObj.getDate();
+                            var year = dateObj.getFullYear();
 
+                            if (month && day && year) {
+                                formattedDate = month + ' ' + day + ', ' + year;
+                            } else if (month && year) {
+                                formattedDate = month + ' ' + year;
+                            } else if (day && year) {
+                                formattedDate = day + ', ' + year;
+                            } else if (year) {
+                              formattedDate = year.toString();
+                            } else {
+                              formattedDate = 'n.d.';
+                            }
+                            
+                            date = formattedDate + '. ';
                         } else { 
                             date = 'n.d. ';
                         }
@@ -91,15 +89,33 @@ const DLItemView = function() {
                         if (author) {
                             author += ', ';
                         }
-                        title = '"' + title + '," ';
-                        collection = 'In ' + collection + ', ';
-                        source = '<i>' + source + '</i>, ';
-                        repo = ' ' + repo + ', ';
-                        date = dateObj.getMonthName() +
-                            ' ' + dateObj.getDay() + ', ' +
-                            dateObj.getFullYear() + ', ';
-                        url += '.';
+                          if (date) {
+                            var formattedDate = '';
+                            var month = dateObj.getAbbreviatedMonthName();
+                            var day = dateObj.getDate();
+                            var year = dateObj.getFullYear();
+                            
+                            if (month && day && year) {
+                              formattedDate = month + ' ' + day + ', ' + year;
+                            } else if (month && year) {
+                              formattedDate = month + ' ' + year;
+                            } else if (day && year) {
+                              formattedDate = day + ', ' + year;
+                            } else if (year) {
+                              formattedDate = year.toString();
+                            } else {
+                              formattedDate = ' ';
+                            }
+                          
+                          date = formattedDate + '. ';
+                          url += '.';
+                          title = '"' + title + '," ';
+                          collection = 'In ' + collection + ', ';
+                          source = '<i>' + source + '</i>, ';
+                          repo = ' ' + repo + ', ';
+                          
                         citation = author + title + date + collection + repo + source + url;
+                        }
                         break;
                     case 'MLA':
                         // "A Page on a Web Site"
@@ -108,18 +124,33 @@ const DLItemView = function() {
                         if (author) {
                             author += '. ';
                         }
+                        if (date) {
+                          var formattedDate = '';
+                          var month = dateObj.getAbbreviatedMonthName();
+                          var day = dateObj.getDate();
+                          var year = dateObj.getFullYear();
+                          
+                          if (month && day && year) {
+                            formattedDate = month + ' ' + day + ', ' + year;
+                          } else if (month && year) {
+                            formattedDate = month + ' ' + year;
+                          } else if (day && year) {
+                            formattedDate = day + ', ' + year;
+                          } else if (year) {
+                            formattedDate = year.toString();
+                          } else {
+                            formattedDate = 'Date Unknown. ';
+                          }
+                          
+                        } else {
+                          date = 'Date Unknown. ';
+                        }
+                        
+                        date = formattedDate + '. ';
                         title = '"' + title + '." ';
                         collection = 'In ' + collection + '. ';
                         source = '<i>' + source + '.</i> ';
                         repo = ' ' + repo + '. ';
-                        if (date) {
-
-                          date = dateObj.getDay() + ' ' +
-                          dateObj.getAbbreviatedMonthName() + ' ' +
-                          dateObj.getFullYear() + '. ';
-                        } else {
-                          date = 'Date Unknown. ';
-                        }
                         url = url.replace('http://', '').replace('https://', '') + '.';
                         citation = title + date + collection + repo + source + url;
                         break;
