@@ -49,10 +49,9 @@ const DLItemView = function() {
                         // "Nonperiodical Web Document or Report":
                         // https://owl.english.purdue.edu/owl/resource/560/10/
                         // date should be date of item NOT date of creation?
-                        if (!author) {
-                            citation = title + date + collection + repo + source + url;
-                        } else {
-                          author += '. ';
+                        if (author) {
+                            author += '. ';
+                        }
                         
                           if (date) {
                             var formattedDate = '';
@@ -72,17 +71,21 @@ const DLItemView = function() {
                               formattedDate = 'n.d.';
                             }
                             
-                            date = formattedDate + '. ';
-                        } else { 
+                          } else { 
                             date = 'n.d. ';
-                        }
-                        title = '<i>' + title + '</i>. ';
-                        collection = 'In ' + collection + ', ';
-                        url = 'Retrieved from ' + url;
-                        repo = ' ' + repo + ', ';
-                        source = '<i>' + source + '</i>, ';
-                        citation = author + date + title + collection + repo + source + url;
-                        }
+                          }
+                          date = '(' + formattedDate + '). ';
+                          title = '<i>' + title + '</i>. ';
+                          collection = 'In ' + collection + ', ';
+                          url = 'Retrieved from ' + url;
+                          repo = ' ' + repo + ', ';
+                          source = '<i>' + source + '</i>, ';
+                          citation = author + date + title + collection + repo + source + url;
+
+                          if (!author) {
+                              citation = author + title + date + collection + repo + source + url;
+                          }
+                        
                         break;
                     case 'Chicago':
                         // https://owl.english.purdue.edu/owl/resource/717/05/
@@ -124,36 +127,36 @@ const DLItemView = function() {
                         if (author) {
                             author += '. ';
                         }
-                        if (date) {
-                          var formattedDate = '';
-                          var month = dateObj.getAbbreviatedMonthName();
-                          var day = dateObj.getDate();
-                          var year = dateObj.getFullYear();
-                          
-                          if (month && day && year) {
-                            formattedDate = month + ' ' + day + ', ' + year;
-                          } else if (month && year) {
-                            formattedDate = month + ' ' + year;
-                          } else if (day && year) {
-                            formattedDate = day + ', ' + year;
-                          } else if (year) {
-                            formattedDate = year.toString();
+                          if (date) {
+                            var formattedDate = '';
+                            var month = dateObj.getAbbreviatedMonthName();
+                            var day = dateObj.getDate();
+                            var year = dateObj.getFullYear();
+                            
+                            if (month && day && year) {
+                              formattedDate = month + ' ' + day + ', ' + year;
+                            } else if (month && year) {
+                              formattedDate = month + ' ' + year;
+                            } else if (day && year) {
+                              formattedDate = day + ', ' + year;
+                            } else if (year) {
+                              formattedDate = year.toString();
+                            } else {
+                              formattedDate = 'Date Unknown. ';
+                            }
+                            
                           } else {
-                            formattedDate = 'Date Unknown. ';
+                            date = 'Date Unknown. ';
                           }
                           
-                        } else {
-                          date = 'Date Unknown. ';
-                        }
-                        
-                        date = formattedDate + '. ';
-                        title = '"' + title + '." ';
-                        collection = 'In ' + collection + '. ';
-                        source = '<i>' + source + '.</i> ';
-                        repo = ' ' + repo + '. ';
-                        url = url.replace('http://', '').replace('https://', '') + '.';
-                        citation = title + date + collection + repo + source + url;
-                        break;
+                          date = formattedDate + '. ';
+                          collection = 'In ' + collection + '. ';
+                          source = '<i>' + source + '.</i> ';
+                          repo = ' ' + repo + '. ';
+                          url = url.replace('http://', '').replace('https://', '') + '.';
+                          title = ' ' + title + '. ';
+                          citation = author + title + date + collection + repo + source + url;
+                          break;
                 }
                 container.find('.dl-citation').html(citation);
             }).trigger('change');
