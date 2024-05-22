@@ -113,8 +113,8 @@ const DLItemView = function() {
                           date = formattedDate + '. ';
                           url += '.';
                           title = '"' + title + '," ';
-                          collection = 'In ' + collection + ', ';
-                          source = '<i>' + source + '</i>, ';
+                          collection = collection + ', ';
+                          source = source + ', ';
                           repo = ' ' + repo + ', ';
                           
                         citation = author + title + date + collection + repo + source + url;
