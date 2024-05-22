@@ -76,10 +76,10 @@ const DLItemView = function() {
                           }
                           date = '(' + formattedDate + '). ';
                           title = '<i>' + title + '</i>. ';
-                          collection = 'In ' + collection + ', ';
-                          url = 'Retrieved from ' + url;
+                          collection = collection + ', ';
+                          url = url;
                           repo = ' ' + repo + ', ';
-                          source = '<i>' + source + '</i>, ';
+                          source = source + '. ';
                           citation = author + date + title + collection + repo + source + url;
 
                           if (!author) {
