@@ -150,9 +150,9 @@ const DLItemView = function() {
                           }
                           
                           date = formattedDate + '. ';
-                          collection = 'In ' + collection + '. ';
-                          source = '<i>' + source + '.</i> ';
-                          repo = ' ' + repo + '. ';
+                          collection = collection + '. ';
+                          source = source + '. ';
+                          repo = ' ' + repo + ', ';
                           url = url.replace('http://', '').replace('https://', '') + '.';
                           title = ' ' + title + '. ';
                           citation = author + title + date + collection + repo + source + url;
