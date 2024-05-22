@@ -111,7 +111,7 @@ GEM
       minitest (>= 5.1)
       mutex_m
       tzinfo (~> 2.0)
-    airbrussh (1.4.0)
+    airbrussh (1.5.2)
       sshkit (>= 1.6.1, != 1.7.0)
     ast (2.4.2)
     autoprefixer-rails (9.6.1.1)
@@ -138,7 +138,7 @@ GEM
     base64 (0.2.0)
     bigdecimal (3.1.7)
     builder (3.2.4)
-    capistrano (3.14.1)
+    capistrano (3.18.1)
       airbrussh (>= 1.0.0)
       i18n
       rake (>= 10.0.0)
@@ -189,7 +189,7 @@ GEM
       tilt
     hashie (5.0.0)
     httpclient (2.8.3)
-    i18n (1.14.4)
+    i18n (1.14.5)
       concurrent-ruby (~> 1.0)
     io-console (0.7.2)
     irb (1.12.0)
@@ -237,11 +237,13 @@ GEM
       net-protocol
     net-protocol (0.2.2)
       timeout
-    net-scp (3.0.0)
-      net-ssh (>= 2.6.5, < 7.0.0)
+    net-scp (4.0.0)
+      net-ssh (>= 2.6.5, < 8.0.0)
+    net-sftp (4.0.0)
+      net-ssh (>= 5.0.0, < 8.0.0)
     net-smtp (0.5.0)
       net-protocol
-    net-ssh (6.1.0)
+    net-ssh (7.2.3)
     netaddr (2.0.4)
     nio4r (2.7.1)
     nokogiri (1.16.3)
@@ -321,7 +323,7 @@ GEM
       thor (~> 1.0, >= 1.2.2)
       zeitwerk (~> 2.6)
     rainbow (3.1.1)
-    rake (13.1.0)
+    rake (13.2.1)
     rdoc (6.6.3.1)
       psych (>= 4.0.0)
     regexp_parser (2.7.0)
@@ -356,8 +358,11 @@ GEM
       actionpack (>= 5.2)
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
-    sshkit (1.21.1)
+    sshkit (1.22.2)
+      base64
+      mutex_m
       net-scp (>= 1.1.2)
+      net-sftp (>= 2.1.2)
       net-ssh (>= 2.8.0)
     standard (1.24.3)
       language_server-protocol (~> 3.17.0.2)
