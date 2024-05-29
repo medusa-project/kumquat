@@ -16,94 +16,147 @@ const DLItemView = function() {
 
         const init = function() {
             Date.prototype.getAbbreviatedMonthName = function() {
-                switch (this.getMonth()) {
-                    case 1: return 'Jan.';
-                    case 2: return 'Feb.';
-                    case 3: return 'Mar.';
-                    case 4: return 'Apr.';
-                    case 5: return 'May';
-                    case 6: return 'June';
-                    case 7: return 'July';
-                    case 8: return 'Aug.';
-                    case 9: return 'Sept.';
-                    case 10: return 'Oct.';
-                    case 11: return 'Nov.';
-                    case 12: return 'Dec.';
-                }
+                const monthNames = [
+                    'Jan.', 'Feb.', 'Mar.', 'Apr.', 'May,', 'June',
+                    'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'
+                ];
+                return monthNames[this.getMonth()];
             };
             Date.prototype.getMonthName = function() {
-                switch (this.getMonth()) {
-                    case 1: return 'January';
-                    case 2: return 'February';
-                    case 3: return 'March';
-                    case 4: return 'April';
-                    case 5: return 'May';
-                    case 6: return 'June';
-                    case 7: return 'July';
-                    case 8: return 'August';
-                    case 9: return 'September';
-                    case 10: return 'October';
-                    case 11: return 'November';
-                    case 12: return 'December';
-                }
+                const monthNames = [
+                  'January', 'February', 'March', 'April', 'May', 'June',
+                  'July', 'August', 'September', 'October', 'November',
+                  'December'
+                ];
+                return monthNames[this.getMonth()];
             };
             $('[name=dl-citation-format]').on('change', function() {
                 var container = $(this).parent();
                 var item_id = container.data('item-id');
 
                 var author = container.find('[name=dl-citation-author]').val();
-                var date = container.find('[name=dl-citation-date-created]').val();
+                var date = container.find('[name=dl-citation-date]').val();
                 var dateObj = new Date(date);
                 var source = container.find('[name=dl-citation-source]').val();
                 var title = container.find('[name=dl-citation-title]').val();
                 var url = container.find('[name=dl-citation-url]').val();
                 var collection = container.find('[name=dl-citation-collection]').val();
+                var repo = container.find('[name=dl-citation-repository]').val();
                 var citation = '';
 
                 switch ($(this).val()) {
                     case 'APA':
                         // "Nonperiodical Web Document or Report":
                         // https://owl.english.purdue.edu/owl/resource/560/10/
+                        // date should be date of item NOT date of creation?
                         if (author) {
                             author += '. ';
-                        } else {
-                            author = '[Unknown]. ';
                         }
-                        if (date) {
-                            date = '(' + dateObj.getFullYear() + ', ' +
-                                dateObj.getMonthName() + ' ' + dateObj.getDay() + '). ';
-                        }
-                        title = '<i>' + title + '</i>. ';
-                        collection = 'In ' + collection + ', ';
-                        url = 'Retrieved from ' + url;
-                        citation = author + date + title + collection + url;
+                        
+                          if (date) {
+                            var formattedDate = '';
+                            var month = dateObj.getAbbreviatedMonthName();
+                            var day = dateObj.getDate();
+                            var year = dateObj.getFullYear();
+
+                            if (month && day && year) {
+                                formattedDate = month + ' ' + day + ', ' + year;
+                            } else if (month && year) {
+                                formattedDate = month + ' ' + year;
+                            } else if (day && year) {
+                                formattedDate = day + ', ' + year;
+                            } else if (year) {
+                              formattedDate = year.toString();
+                            } else {
+                              formattedDate = 'n.d.';
+                            }
+                            
+                          } else { 
+                            date = 'n.d. ';
+                          }
+                          date = '(' + formattedDate + '). ';
+                          title = '<i>' + title + '</i>. ';
+                          collection = collection + ', ';
+                          url = url;
+                          repo = ' ' + repo + ', ';
+                          source = source + '. ';
+                          citation = author + date + title + collection + repo + source + url;
+
+                          if (!author) {
+                              citation = author + title + date + collection + repo + source + url;
+                          }
+                        
                         break;
                     case 'Chicago':
                         // https://owl.english.purdue.edu/owl/resource/717/05/
                         if (author) {
                             author += ', ';
                         }
-                        title = '"' + title + '," ';
-                        collection = 'In ' + collection + ', ';
-                        source = '<i>' + source + '</i>, ';
-                        date = 'last modified ' + dateObj.getMonthName() +
-                            ' ' + dateObj.getDay() + ', ' +
-                            dateObj.getFullYear() + ', ';
-                        url += '.';
-                        citation = author + title + collection + source + date + url;
+                          if (date) {
+                            var formattedDate = '';
+                            var month = dateObj.getAbbreviatedMonthName();
+                            var day = dateObj.getDate();
+                            var year = dateObj.getFullYear();
+                            
+                            if (month && day && year) {
+                              formattedDate = month + ' ' + day + ', ' + year;
+                            } else if (month && year) {
+                              formattedDate = month + ' ' + year;
+                            } else if (day && year) {
+                              formattedDate = day + ', ' + year;
+                            } else if (year) {
+                              formattedDate = year.toString();
+                            } else {
+                              formattedDate = ' ';
+                            }
+                          
+                          date = formattedDate + '. ';
+                          url += '.';
+                          title = '"' + title + '," ';
+                          collection = collection + ', ';
+                          source = source + ', ';
+                          repo = ' ' + repo + ', ';
+                          
+                        citation = author + title + date + collection + repo + source + url;
+                        }
                         break;
                     case 'MLA':
                         // "A Page on a Web Site"
                         // https://owl.english.purdue.edu/owl/resource/747/08/
-                        title = '"' + title + '." ';
-                        collection = 'In ' + collection + ', ';
-                        source = '<i>' + source + ',</i> ';
-                        date = dateObj.getDay() + ' ' +
-                            dateObj.getAbbreviatedMonthName() + ' ' +
-                            dateObj.getFullYear() + ', ';
-                        url = url.replace('http://', '').replace('https://', '') + '.';
-                        citation = title + collection + source + date + url;
-                        break;
+                        // CreatorName, TitleOfItem, DateOfItem, NameOfCollection, NAmeOfRepo, NAmeOfInst, URL
+                        if (author) {
+                            author += '. ';
+                        }
+                          if (date) {
+                            var formattedDate = '';
+                            var month = dateObj.getAbbreviatedMonthName();
+                            var day = dateObj.getDate();
+                            var year = dateObj.getFullYear();
+                            
+                            if (month && day && year) {
+                              formattedDate = month + ' ' + day + ', ' + year;
+                            } else if (month && year) {
+                              formattedDate = month + ' ' + year;
+                            } else if (day && year) {
+                              formattedDate = day + ', ' + year;
+                            } else if (year) {
+                              formattedDate = year.toString();
+                            } else {
+                              formattedDate = 'Date Unknown. ';
+                            }
+                            
+                          } else {
+                            date = 'Date Unknown. ';
+                          }
+                          
+                          date = formattedDate + '. ';
+                          collection = collection + '. ';
+                          source = source + '. ';
+                          repo = ' ' + repo + ', ';
+                          url = url.replace('http://', '').replace('https://', '') + '.';
+                          title = ' ' + title + '. ';
+                          citation = author + title + date + collection + repo + source + url;
+                          break;
                 }
                 container.find('.dl-citation').html(citation);
             }).trigger('change');
