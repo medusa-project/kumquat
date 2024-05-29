@@ -24,10 +24,11 @@
         = icon_for(Item)
         View Items
   - if @collection.physical_collection_url.present?
-    = link_to('Physical Collection',
-              @collection.physical_collection_url,
+    = link_to(@collection.physical_collection_url,
               class: 'btn btn-lg btn-outline-primary',
-              target: '_blank')
+              target: '_blank') do 
+      %i.fa.fa-external-link-alt
+      = 'Full Collection Description'
 
 - unless @uofi_user
   .alert.alert-info
