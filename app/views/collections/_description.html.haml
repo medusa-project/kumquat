@@ -21,14 +21,14 @@
       = link_to(@collection.access_url,
                 class: 'btn btn-lg btn-outline-primary',
                 target: @collection.published_in_dls ? '' : '_blank') do
-        = icon_for(Item)
         View Items
+        = icon_for(Item)
   - if @collection.physical_collection_url.present?
     = link_to(@collection.physical_collection_url,
               class: 'btn btn-lg btn-outline-primary',
               target: '_blank') do 
-      %i.fa.fa-external-link-alt
       = 'Full Collection Description'
+      %i.fa.fa-external-link-alt
 
 - unless @uofi_user
   .alert.alert-info
