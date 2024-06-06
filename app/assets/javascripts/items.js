@@ -103,18 +103,18 @@ const DLItemView = function() {
                         var year = dateObj.getFullYear();
                         
                         if (month && day && year) {
-                          formattedDate = month + ' ' + day + ', ' + year;
+                          formattedDate = month + ' ' + day + ', ' + year + '. ';
                         } else if (month && year) {
-                          formattedDate = month + ' ' + year;
+                          formattedDate = month + ' ' + year + '. ';
                         } else if (day && year) {
-                          formattedDate = day + ', ' + year;
+                          formattedDate = day + ', ' + year + '. ';
                         } else if (year) {
                           formattedDate = year.toString();
                         } else {
                           formattedDate = ' ';
                         }
                           
-                          date = formattedDate + '. ';
+                          date = formattedDate + ' ';
                           url += '.';
                           title = '"' + title + '," ';
                           collection = collection + ', ';
