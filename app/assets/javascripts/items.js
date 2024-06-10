@@ -36,6 +36,7 @@ const DLItemView = function() {
 
                 var author = container.find('[name=dl-citation-author]').val();
                 var date = container.find('[name=dl-citation-date]').val();
+                var date_created = container.find('[name=dl-citation-date-created]').val();
                 var dateObj = new Date(date);
                 var source = container.find('[name=dl-citation-source]').val();
                 var title = container.find('[name=dl-citation-title]').val();
@@ -52,28 +53,27 @@ const DLItemView = function() {
                         if (author) {
                             author += '. ';
                         }
-                        
-                          if (date) {
-                            var formattedDate = '';
-                            var month = dateObj.getAbbreviatedMonthName();
-                            var day = dateObj.getDate();
-                            var year = dateObj.getFullYear();
+                        if (!date) {
+                            date = date_created;
+                        }
+                          
+                        var formattedDate = '';
+                        var month = dateObj.getAbbreviatedMonthName();
+                        var day = dateObj.getDate();
+                        var year = dateObj.getFullYear();
 
-                            if (month && day && year) {
-                                formattedDate = month + ' ' + day + ', ' + year;
-                            } else if (month && year) {
-                                formattedDate = month + ' ' + year;
-                            } else if (day && year) {
-                                formattedDate = day + ', ' + year;
-                            } else if (year) {
-                              formattedDate = year.toString();
-                            } else {
-                              formattedDate = 'n.d.';
-                            }
-                            
-                          } else { 
-                            date = 'n.d. ';
-                          }
+                        if (month && day && year) {
+                            formattedDate = month + ' ' + day + ', ' + year;
+                        } else if (month && year) {
+                            formattedDate = month + ' ' + year;
+                        } else if (day && year) {
+                            formattedDate = day + ', ' + year;
+                        } else if (year) {
+                          formattedDate = year.toString();
+                        } else {
+                          formattedDate = 'n.d.';
+                        }
+  
                           date = '(' + formattedDate + '). ';
                           title = '<i>' + title + '</i>. ';
                           collection = collection + ', ';
@@ -92,25 +92,29 @@ const DLItemView = function() {
                         if (author) {
                             author += ', ';
                         }
-                          if (date) {
-                            var formattedDate = '';
-                            var month = dateObj.getAbbreviatedMonthName();
-                            var day = dateObj.getDate();
-                            var year = dateObj.getFullYear();
-                            
-                            if (month && day && year) {
-                              formattedDate = month + ' ' + day + ', ' + year;
-                            } else if (month && year) {
-                              formattedDate = month + ' ' + year;
-                            } else if (day && year) {
-                              formattedDate = day + ', ' + year;
-                            } else if (year) {
-                              formattedDate = year.toString();
-                            } else {
-                              formattedDate = ' ';
-                            }
+
+                        if (!date) {
+                          date = date_created;
+                        }
                           
-                          date = formattedDate + '. ';
+                        var formattedDate = '';
+                        var month = dateObj.getAbbreviatedMonthName();
+                        var day = dateObj.getDate();
+                        var year = dateObj.getFullYear();
+                        
+                        if (month && day && year) {
+                          formattedDate = month + ' ' + day + ', ' + year + '. ';
+                        } else if (month && year) {
+                          formattedDate = month + ' ' + year + '. ';
+                        } else if (day && year) {
+                          formattedDate = day + ', ' + year + '. ';
+                        } else if (year) {
+                          formattedDate = year.toString();
+                        } else {
+                          formattedDate = ' ';
+                        }
+                          
+                          date = formattedDate + ' ';
                           url += '.';
                           title = '"' + title + '," ';
                           collection = collection + ', ';
@@ -118,7 +122,7 @@ const DLItemView = function() {
                           repo = ' ' + repo + ', ';
                           
                         citation = author + title + date + collection + repo + source + url;
-                        }
+                        
                         break;
                     case 'MLA':
                         // "A Page on a Web Site"
@@ -127,29 +131,29 @@ const DLItemView = function() {
                         if (author) {
                             author += '. ';
                         }
-                          if (date) {
-                            var formattedDate = '';
-                            var month = dateObj.getAbbreviatedMonthName();
-                            var day = dateObj.getDate();
-                            var year = dateObj.getFullYear();
-                            
-                            if (month && day && year) {
-                              formattedDate = month + ' ' + day + ', ' + year;
-                            } else if (month && year) {
-                              formattedDate = month + ' ' + year;
-                            } else if (day && year) {
-                              formattedDate = day + ', ' + year;
-                            } else if (year) {
-                              formattedDate = year.toString();
-                            } else {
-                              formattedDate = 'Date Unknown. ';
-                            }
-                            
-                          } else {
-                            date = 'Date Unknown. ';
-                          }
+
+                        if (!date) {
+                            date = date_created;
+                        }
+                      
+                        var formattedDate = '';
+                        var month = dateObj.getAbbreviatedMonthName();
+                        var day = dateObj.getDate();
+                        var year = dateObj.getFullYear();
+                        
+                        if (month && day && year) {
+                          formattedDate = month + ' ' + day + ', ' + year + '. ';
+                        } else if (month && year) {
+                          formattedDate = month + ' ' + year + '. ';
+                        } else if (day && year) {
+                          formattedDate = day + ', ' + year + '. ';
+                        } else if (year) {
+                          formattedDate = year.toString();
+                        } else {
+                          formattedDate = 'Date Unknown. ';
+                        }
                           
-                          date = formattedDate + '. ';
+                          date = formattedDate;
                           collection = collection + '. ';
                           source = source + '. ';
                           repo = ' ' + repo + ', ';
