@@ -62,24 +62,24 @@ const DLItemView = function() {
                         var day = dateObj.getDate();
                         var year = dateObj.getFullYear();
 
-                        if (month && day && year) {
+                        if (year) {
+                          formattedDate = year.toString();
+                        } else if (month && day && year) {
                             formattedDate = month + ' ' + day + ', ' + year;
                         } else if (month && year) {
                             formattedDate = month + ' ' + year;
                         } else if (day && year) {
                             formattedDate = day + ', ' + year;
-                        } else if (year) {
-                          formattedDate = year.toString();
                         } else {
                           formattedDate = 'n.d.';
                         }
-  
                           date = '(' + formattedDate + '). ';
                           title = '<i>' + title + '</i>. ';
                           collection = collection + ', ';
                           url = url;
                           repo = ' ' + repo + ', ';
                           source = source + '. ';
+
                           citation = author + date + title + collection + repo + source + url;
 
                           if (!author) {
@@ -102,17 +102,18 @@ const DLItemView = function() {
                         var day = dateObj.getDate();
                         var year = dateObj.getFullYear();
                         
-                        if (month && day && year) {
-                          formattedDate = month + ' ' + day + ', ' + year + '. ';
+                        if (year) {
+                          formattedDate = year.toString() + ', ';
+                        } else if (month && day && year) {
+                          formattedDate = month + ' ' + day + ', ' + year + ', ';
                         } else if (month && year) {
-                          formattedDate = month + ' ' + year + '. ';
+                          formattedDate = month + ' ' + year + ', ';
                         } else if (day && year) {
-                          formattedDate = day + ', ' + year + '. ';
-                        } else if (year) {
-                          formattedDate = year.toString();
+                          formattedDate = day + ', ' + year + ', ';
                         } else {
                           formattedDate = ' ';
                         }
+
                           
                           date = formattedDate + ' ';
                           url += '.';
@@ -121,7 +122,7 @@ const DLItemView = function() {
                           source = source + ', ';
                           repo = ' ' + repo + ', ';
                           
-                        citation = author + title + date + collection + repo + source + url;
+                          citation = author + title + date + collection + repo + source + url;
                         
                         break;
                     case 'MLA':
@@ -141,25 +142,28 @@ const DLItemView = function() {
                         var day = dateObj.getDate();
                         var year = dateObj.getFullYear();
                         
-                        if (month && day && year) {
+                        if (year) {
+                          formattedDate = year.toString() + '. ';
+                        
+                        } else if (month && day && year) {
                           formattedDate = month + ' ' + day + ', ' + year + '. ';
                         } else if (month && year) {
                           formattedDate = month + ' ' + year + '. ';
                         } else if (day && year) {
                           formattedDate = day + ', ' + year + '. ';
-                        } else if (year) {
-                          formattedDate = year.toString();
                         } else {
                           formattedDate = 'Date Unknown. ';
                         }
-                          
-                          date = formattedDate;
+
+                          date = formattedDate + ' ';
                           collection = collection + '. ';
                           source = source + '. ';
                           repo = ' ' + repo + ', ';
                           url = url.replace('http://', '').replace('https://', '') + '.';
                           title = ' ' + title + '. ';
+
                           citation = author + title + date + collection + repo + source + url;
+
                           break;
                 }
                 container.find('.dl-citation').html(citation);
