@@ -51,8 +51,12 @@ const DLItemView = function() {
                         // https://owl.english.purdue.edu/owl/resource/560/10/
                         // date should be date of item NOT date of creation?
                         if (author) {
+                          if (author.charAt(author.length - 1) !== '.') {
                             author += '. ';
+                        } else {
+                          author += ' ';
                         }
+                      }
                         if (!date) {
                             date = date_created;
                         }
@@ -130,7 +134,11 @@ const DLItemView = function() {
                         // https://owl.english.purdue.edu/owl/resource/747/08/
                         // CreatorName, TitleOfItem, DateOfItem, NameOfCollection, NAmeOfRepo, NAmeOfInst, URL
                         if (author) {
+                          if (author.charAt(author.length - 1) !== '.') {
                             author += '. ';
+                          } else {
+                            author += ' ';
+                          }
                         }
 
                         if (!date) {
