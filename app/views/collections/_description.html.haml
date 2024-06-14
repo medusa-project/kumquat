@@ -3,9 +3,9 @@
     - if @show_browse_tree_button
       = link_to(collection_tree_path(@collection),
                 class: 'btn btn-lg btn-outline-primary') do
-        = icon_for(@collection)
         Browse Collection
-    - elsif @collection.published_in_dls
+        = icon_for(@collection)
+    - elsif @collection.published_in_dls 
       -# If the collection contains only one item, link straight to it.
       - if @num_public_objects == 1
         - link_target = item_path(@collection.items.first)
@@ -14,9 +14,9 @@
       = link_to(link_target,
                 class: 'btn btn-lg btn-outline-primary',
                 target: @collection.published_in_dls ? '' : '_blank') do
-        = icon_for(Item)
         = number_with_delimiter(@num_public_objects)
         = 'Item'.pluralize(@num_public_objects)
+        = icon_for(Item)
     - elsif @collection.access_url.present?
       = link_to(@collection.access_url,
                 class: 'btn btn-lg btn-outline-primary',

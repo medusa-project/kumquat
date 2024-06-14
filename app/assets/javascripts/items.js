@@ -83,7 +83,6 @@ const DLItemView = function() {
                           url = url;
                           repo = ' ' + repo + ', ';
                           source = source + '. ';
-
                           citation = author + date + title + collection + repo + source + url;
 
                           if (!author) {
