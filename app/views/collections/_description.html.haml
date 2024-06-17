@@ -26,7 +26,10 @@
   - if @collection.physical_collection_url.present?
     = link_to(@collection.physical_collection_url,
               class: 'btn btn-lg btn-outline-primary',
-              target: '_blank') do 
+              target: '_blank',
+              'aria-label': 'Full Collection Description, opens new window',
+              data: {toggle: 'tooltip', placement: 'top'},
+              title: 'Opens new window') do 
       = 'Full Collection Description'
       %i.fa.fa-external-link-alt
 
