@@ -477,6 +477,10 @@ const Application = {
 
 };
 
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});
+
 var ready = function() {
     Application.init();
 };
