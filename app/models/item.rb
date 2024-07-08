@@ -884,9 +884,9 @@ class Item < ApplicationRecord
   # @see effective_rights_term
   #
   def effective_rights_statement
-    # if no rights value, map through elments to retrieve accessRights value
+    # iterate through elments to retrieve rights description value
     rs = self.elements.find{ |e| e.name == 'accessRights' && e.value.present? }&.value 
-    # Use the statement assigned to the instance.
+    # if blank, iterate through elements to retrieve the statement assigned to the instance.
     if rs.blank?
       rs = self.elements.find{ |e| e.name == 'rights' && e.value.present? }&.value
     end
