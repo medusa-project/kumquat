@@ -878,8 +878,8 @@ class Item < ApplicationRecord
   # {effective_rights_term}) in that the statement is free-form and the term is
   # drawn from some controlled vocabulary.
   #
-  # @return [String, nil] Rights statement assigned to the instance, if
-  #                       present; otherwise, rights description,
+  # @return [String, nil] Rights description assigned to the instance, if
+  #                       present; otherwise, rights statement,
   #                       if present; otherwise nil.
   # @see effective_rights_term
   #
