@@ -878,26 +878,18 @@ class Item < ApplicationRecord
   # {effective_rights_term}) in that the statement is free-form and the term is
   # drawn from some controlled vocabulary.
   #
-  # @return [String, nil] Rights statement assigned to the instance, if
-  #                       present; otherwise, the closest ancestor statement,
-  #                       if present; otherwise, the rights statement assigned
-  #                       to its collection, if present; otherwise nil.
+  # @return [String, nil] Rights description assigned to the instance, if
+  #                       present; otherwise, rights statement,
+  #                       if present; otherwise nil.
   # @see effective_rights_term
   #
   def effective_rights_statement
-    # Use the statement assigned to the instance.
-    rs = self.elements.find{ |e| e.name == 'rights' && e.value.present? }&.value
-    # If not available, walk up the item tree to find a parent statement.
+    # iterate through elments to retrieve rights description value
+    rs = self.elements.find{ |e| e.name == 'accessRights' && e.value.present? }&.value 
+    # if blank, iterate through elements to retrieve the statement assigned to the instance.
     if rs.blank?
-      p = self.parent
-      while p
-        rs = p.elements.find{ |e| e.name == 'rights' && e.value.present? }&.value
-        break if rs.present?
-        p = p.parent
-      end
+      rs = self.elements.find{ |e| e.name == 'rights' && e.value.present? }&.value
     end
-    # If still no statement available, use the collection's statement.
-    rs = self.collection.rights_statement if rs.blank?
     rs
   end
 

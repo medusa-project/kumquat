@@ -397,24 +397,9 @@ class ItemTest < ActiveSupport::TestCase
 
   # effective_rights_statement()
 
-  test 'effective_rights_statement() returns the statement of the instance' do
+  test 'effective_rights_statement() returns the rights description of the instance' do
     @item = items(:compound_object_1001)
     assert_equal 'Sample Rights', @item.effective_rights_statement
-  end
-
-  test 'effective_rights_statement() should fall back to a parent statement' do
-    @item.collection.rights_statement = "cats"
-    @item.elements.destroy_all
-    assert_equal @item.collection.rights_statement,
-                 @item.effective_rights_statement
-  end
-
-  test 'effective_rights_statement() should fall back to the collection
-  rights statement' do
-    @item.elements.destroy_all
-    @item.save
-    @item.collection.rights_statement = 'cats'
-    assert_equal 'cats', @item.effective_rights_statement
   end
 
   # effective_rights_term()
