@@ -5,7 +5,7 @@
       \#{link_to 'Contact us', "mailto:#{Setting::string(Setting::Keys::ADMINISTRATOR_EMAIL)}"}
       for questions and to provide feedback.
   %il-footer{role: "contentinfo"}
-    .il-footer-contact.uofi_address{slot: "contact"}
+    .il-footer-contact.uofi_address{slot: "contact", style: "text-align: left;"}
       %p
         %a{href: "/" } Main Library Information
       %p 1408 W.Gregory Dr. 
@@ -13,27 +13,28 @@
       %p 217-333-2290
       %p
         %a{href: "https://www.library.illinois.edu/ask-us/"} Ask a Librarian!
-    .il-footer-social.gw-m-0{slot: "social"}
-      %li
-        %a.social-icon-link{href: "https://www.facebook.com/uillinoislibrary", style: "background: none; color: white;"}
-          %i.fa-brands.fa-facebook{"aria-hidden" => "true"}
-          %span.sr-only Facebook
-      %li
-        %a.social-icon-link{href: "https://www.instagram.com/uillinoislibrary/", style: "background: none; color: white;"}
-          %i.fa-brands.fa-instagram{"aria-hidden" => "true"}
-          %span.sr-only Instagram
-      %li
-        %a.social-icon-link{href: "https://x.com/IllinoisLibrary", style: "background: none; color: white;"}
-          %i.fa-brands.fa-x-twitter{"aria-hidden" => "true"}
-          %span.sr-only Twitter
-      %li 
-        %a.social-icon-link{href: "https://www.tiktok.com/@uillinoislibrary", style: "background: none; color: white;"}
-          %i.fa-brands.fa-tiktok{"aria-hidden" => "true"}
-          %span.sr-only TikTok
-      %li
-        %a.social-icon-link{href: "https://www.reddit.com/user/UIllinoisLibrary", style: "background: none; color: white;"}
-          %i.fa-brands.fa-reddit{"aria-hidden" => "true"}
-          %span.sr-only Reddit
+    .il-footer-social.gw-m-0{slot: "social", style: "text-align: left;"}
+      %ul
+        %li
+          %a.social-icon-link{href: "https://www.facebook.com/uillinoislibrary", style: "background: none; color: white;"}
+            %i.fa-brands.fa-facebook{"aria-hidden" => "true"}
+            %span.sr-only Facebook
+        %li
+          %a.social-icon-link{href: "https://www.instagram.com/uillinoislibrary/", style: "background: none; color: white;"}
+            %i.fa-brands.fa-instagram{"aria-hidden" => "true"}
+            %span.sr-only Instagram
+        %li
+          %a.social-icon-link{href: "https://x.com/IllinoisLibrary", style: "background: none; color: white;"}
+            %i.fa-brands.fa-x-twitter{"aria-hidden" => "true"}
+            %span.sr-only Twitter
+        %li 
+          %a.social-icon-link{href: "https://www.tiktok.com/@uillinoislibrary", style: "background: none; color: white;"}
+            %i.fa-brands.fa-tiktok{"aria-hidden" => "true"}
+            %span.sr-only TikTok
+        %li
+          %a.social-icon-link{href: "https://www.reddit.com/user/UIllinoisLibrary", style: "background: none; color: white;"}
+            %i.fa-brands.fa-reddit{"aria-hidden" => "true"}
+            %span.sr-only Reddit
     .il-footer-navigation
       .il-footer-navigation-column
         %nav{aria: {labelledby: "library-resources"}}
