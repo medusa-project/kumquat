@@ -15,6 +15,10 @@
     = yield(:meta_tags)
     = stylesheet_link_tag    'application', media: 'all'
     = javascript_include_tag 'application'
+    %link{rel: "dns-prefetch", href: "https://cdn.toolkit.illinois.edu"}
+    %link{rel: "stylesheet", href: "https://cdn.toolkit.illinois.edu/2/toolkit.css"}
+    %script{src: "https://cdn.toolkit.illinois.edu/2/toolkit.js"}
+    %script{src: "https://kit.fontawesome.com/72baa8e3c1.js", crossorigin: "anonymous"}
   %body{id: yield(:body_id).present? ? raw(yield(:body_id)) : nil,
         "data-nav": yield(:active_nav)}
     = hidden_field_tag('dl-root-path', root_path)
