@@ -58,6 +58,16 @@
             %li 
               %a{href: "https://www.library.illinois.edu/doc/", style: "display: block; margin-top: 15px;"}
                 %img.footer-library_fdlp-div_img{src: "https://www.library.illinois.edu/funkaces/wp-content/themes/main-theme/assets/images/fdlp-emblem-logo-text-invert.png", alt: "Federal Library Depository Program Logo", width: "100px;" } 
+    %nav{slot: "links", class: "il-footer-links", aria: {label: "Legal notices"}}
+      %ul
+        %li
+          %button#ot-sdk-btn{data: {il: "cookies"}, class: "ot-sdk-show-settings"} About Cookies 
+        %li 
+          %a{data: {il: "privacy"}, href: "https://www.vpaa.uillinois.edu/resources/web_privacy"} Privacy Policy
+        %li
+          %a{data: {il: "copyright"}, href: "https://illinois.edu/resources/website/copyright.html"} Copyright © 2024
+        %li 
+          %a{href: "https://www.library.illinois.edu/staff/bylaws-the-library-university-of-illinois-at-urbana-champaign/"} College Bylaws
 
 
          
