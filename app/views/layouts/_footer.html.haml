@@ -4,54 +4,71 @@
       The Digital Collections are a product of the University Library.
       \#{link_to 'Contact us', "mailto:#{Setting::string(Setting::Keys::ADMINISTRATOR_EMAIL)}"}
       for questions and to provide feedback.
-    .col-md-12.info-area
-      .row
-        .col-md-4
-          %div Main Library Information Desk
-          %div
-            %a{href: "tel:+12173332290"} (217) 333-2290
-          %div 1408 W. Gregory Dr.
-          %div Urbana, IL 61801
-          .library-footer_social_div.mb-2
-            %a.library-footer_social_a{href: "https://www.facebook.com/universitylibrary",
-                                       title: "Univeristy of Illinois library facebook"}
-              %span.library-footer_social_span.fab.fa-facebook-f.fa-lg
-            %a.library-footer_social_a{href: "https://www.instagram.com/uillinoislibrary/",
-                                       title: "Univeristy of Illinois library instagram"}
-              %span.library-footer_social_span.fab.fa-instagram.fa-lg
-            %a.library-footer_social_a{href: "https://twitter.com/IllinoisLibrary",
-                                       title: "Univeristy of Illinois library twitter"}
-              %span.library-footer_social_span.fab.fa-twitter.fa-lg
-          %a{href: "https://www.library.illinois.edu/friends/make-a-gift/"} Make a Gift
-        .col-md-4.d-none.d-md-block
-          %a{href: "https://illinois.edu"}
-            = image_tag '009_LIBRA_OrangeI_Vert_RGB.png',
-                        class: 'footer-library_i-mark',
-                        alt: 'University of Illinois Logo'
-          .footer-library_copyright.text-center
-            = Setting::string(Setting::Keys::COPYRIGHT_STATEMENT)
-        .col-md-4
-          %nav#ui-skip-73{tabindex: "-1"}
-            %ul
-              %li
-                %a{href: "https://www.vpaa.uillinois.edu/policies/web_privacy.cfm"} Privacy Policy
-              %li
-                %a{href: "https://www.library.illinois.edu/library-building-project/"} Library Building Project
-              %li
-                %a{href: "https://guides.library.illinois.edu/usersdisabilities"} Accessibility
-              %li
-                %a{href: "https://illinois.edu/fb/sec/887006"} Suggest a Purchase
-              %li
-                %a{href: "https://www.library.illinois.edu/staff/"} Library Staff Website
-          .footer-library_fdlp-div
-            %a{href: "https://www.library.illinois.edu/doc/"}
-              = image_tag 'fdlp-emblem-logo-text-invert.png',
-                          class: 'footer-library_fdlp-div_img',
-                          alt: 'Federal Library Depository Program Logo'
-        .col-md-4.d-block.d-md-none
-          %a{href: "https://illinois.edu"}
-            = image_tag '009_LIBRA_OrangeI_Vert_RGB.png',
-                        class: 'footer-library_i-mark footer-library_i-mark_mobile',
-                        alt: 'University of Illinois Logo'
-          .footer-library_copyright.text-center
-            &copy; 2020 The Board of Trustees at the University of Illinois. All rights reserved.
+  %il-footer{role: "contentinfo"}
+    .il-footer-contact.uofi_address{slot: "contact", style: "text-align: left;"}
+      %p
+        %a{href: "/" } Main Library Information
+      %p 1408 W.Gregory Dr. 
+      %p Urbana, IL 61801
+      %p 217-333-2290
+      %p
+        %a{href: "https://www.library.illinois.edu/ask-us/"} Ask a Librarian!
+    .il-footer-social.gw-m-0{slot: "social", style: "text-align: left;"}
+      %ul
+        %li
+          %a.social-icon-link{href: "https://www.facebook.com/uillinoislibrary", style: "background: none; color: white;"}
+            %i.fa-brands.fa-facebook{"aria-hidden" => "true"}
+            %span.sr-only Facebook
+        %li
+          %a.social-icon-link{href: "https://www.instagram.com/uillinoislibrary/", style: "background: none; color: white;"}
+            %i.fa-brands.fa-instagram{"aria-hidden" => "true"}
+            %span.sr-only Instagram
+        %li
+          %a.social-icon-link{href: "https://x.com/IllinoisLibrary", style: "background: none; color: white;"}
+            %i.fa-brands.fa-x-twitter{"aria-hidden" => "true"}
+            %span.sr-only Twitter
+        %li 
+          %a.social-icon-link{href: "https://www.tiktok.com/@uillinoislibrary", style: "background: none; color: white;"}
+            %i.fa-brands.fa-tiktok{"aria-hidden" => "true"}
+            %span.sr-only TikTok
+        %li
+          %a.social-icon-link{href: "https://www.reddit.com/user/UIllinoisLibrary", style: "background: none; color: white;"}
+            %i.fa-brands.fa-reddit{"aria-hidden" => "true"}
+            %span.sr-only Reddit
+    .il-footer-navigation
+      .il-footer-navigation-column
+        %nav{aria: {labelledby: "library-resources"}}
+          %h2#library-resources Library Resources:
+          %ul
+            %li
+              %a{href: "https://guides.library.illinois.edu/usersdisabilities"} Assistive Technology Services
+            %li
+              %a{href: "https://www.library.illinois.edu/geninfo/deia/"} Diversity, Equity, Inclusion, & Accessibility 
+            %li 
+              %a{href: "https://www.library.illinois.edu/collections/sensitive-content-statement/"} Sensitive Content Statement
+            %li
+              %a{href: "https://www.library.illinois.edu/staff/"} Library Staff Website
+      .il-footer-navigation-column
+        %nav{aria: {labelledby: "additional-links"}}
+          %h2#additional-links Get Involved:
+          %ul 
+            %li
+              %a{href: "https://www.library.illinois.edu/friends/make-a-gift/"} Make a Gift 
+            %li
+              %a{href: "https://forms.illinois.edu/sec/887006"} Suggest a Purchase
+            %li 
+              %a{href: "https://www.library.illinois.edu/doc/", style: "display: block; margin-top: 15px;"}
+                %img.footer-library_fdlp-div_img{src: "https://www.library.illinois.edu/funkaces/wp-content/themes/main-theme/assets/images/fdlp-emblem-logo-text-invert.png", alt: "Federal Library Depository Program Logo", width: "100px;" } 
+    %nav{slot: "links", class: "il-footer-links", aria: {label: "Legal notices"}}
+      %ul
+        %li
+          %button#ot-sdk-btn{data: {il: "cookies"}, class: "ot-sdk-show-settings"} About Cookies 
+        %li 
+          %a{data: {il: "privacy"}, href: "https://www.vpaa.uillinois.edu/resources/web_privacy"} Privacy Policy
+        %li
+          %a{data: {il: "copyright"}, href: "https://illinois.edu/resources/website/copyright.html"} Copyright © 2024
+        %li 
+          %a{href: "https://www.library.illinois.edu/staff/bylaws-the-library-university-of-illinois-at-urbana-champaign/"} College Bylaws
+
+
+         
