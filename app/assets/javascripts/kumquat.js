@@ -412,7 +412,7 @@ const Application = {
 
         // Add an expander icon in front of every collapse toggle.
         const toggleForCollapse = function(collapse) {
-            return collapse.prev().find('a[data-toggle="collapse"]:first');
+            return collapse.prev().find('a[data-bs-toggle="collapse"]:first');
         };
         const setToggleState = function(elem, expanded) {
             var class_ = expanded ? 'fa-minus-square' : 'fa-plus-square';
@@ -462,6 +462,12 @@ const Application = {
             $(this).toggleClass('expanded');
         });
 
+        $('.contact-toggle-btn').off("click").on("click", function () {
+            $('#contact-form').toggleClass('show');
+            $(this).toggleclass('expanded');
+            setToggleState($(this), $('#contact-form').hasClass('show'));
+        });
+
         $(document).ajaxError(function(event, request, settings) {
             console.error(event);
             console.error(request);
@@ -479,6 +485,13 @@ const Application = {
 
 $(document).ready(function(){
   $('[data-toggle="tooltip"]').tooltip();
+});
+
+$(document).ready(function(){
+  $('[data-bs-toggle="collapse"]').on('click', function() {
+    var target = $(this).attr('href');
+    $(target).collapse('toggle');
+  });
 });
 
 var ready = function() {
