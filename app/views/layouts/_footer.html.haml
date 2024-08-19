@@ -1,9 +1,10 @@
 %footer{role: "contentinfo"}
   .row
     .col-sm-12.text-line
-      The Digital Collections are a product of the University Library.
-      \#{link_to 'Contact us', "mailto:#{Setting::string(Setting::Keys::ADMINISTRATOR_EMAIL)}"}
-      for questions and to provide feedback.
+      .contact-area
+        The Digital Collections are a product of the University Library.
+        = render partial: "layouts/contact_form"
+    
   %il-footer{role: "contentinfo"}
     .il-footer-contact.uofi_address{slot: "contact", style: "text-align: left;"}
       %p
