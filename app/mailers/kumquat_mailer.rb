@@ -44,6 +44,26 @@ class KumquatMailer < ApplicationMailer
   end
 
   ##
+  # Used for user feedback from a contact form.
+  #
+  # @param from_email [String] Email address entered into a contact form.
+  # @param from_name [String]  Name entered into a contact form.
+  # @param page_url [String]   URL on which the contact form appears.
+  # @param comment [String]    Comment entered into a contact form.
+  # @param to_email [String]   Email address to which the feedback is to be
+  #                            routed.
+  #
+  def contact_form_message(from_email:, from_name:, page_url:, comment:, to_email:)
+    @from_email = from_email.present? ? from_email : "Not Supplied"
+    @from_name = from_name.present? ? from_name : "Not Supplied"
+    @page_url = page_url 
+    @comment = comment 
+    mail(from:  from_email.present? ? from_email : NO_REPLY_ADDRESS,
+          to:   to_email, 
+          subject: "#{subject_prefix} User feedback received")
+  end
+
+  ##
   # Sends an email about new items in the collection associated with the given
   # [Watch] to its associated user.
   #
