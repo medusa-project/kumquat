@@ -1,7 +1,7 @@
 class LandingController < WebsiteController
 
   ##
-  # Responds to GET /
+  # Responds to POST /
   #
   #
   def contact
@@ -29,6 +29,10 @@ class LandingController < WebsiteController
     end
   end 
 
+  ##
+  # Responds to GET /
+  #
+  #
   def index
     authorize(:landing)
     @gateway_item_count = Rails.cache.fetch('gateway.item_count',
