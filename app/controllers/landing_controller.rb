@@ -6,6 +6,7 @@ class LandingController < WebsiteController
   #
   def contact
     if !check_captcha
+      Rails.logger.debug "CAPTCHA validation failed."
       render plain: "Incorrect math question response.", status: :bad_request
       return
     elsif params[:comment]&.blank?
