@@ -440,6 +440,45 @@ const Application = {
         // an ApplicationController after_filter. `X-Kumquat-Result` is
         // another header that, if set, can contain "success" or "error",
         // indicating the result of a form submission.
+        $(document).on('submit', '#contact-form', function(event) { 
+          event.preventDefault();
+          console.log('Form submit event triggered');
+          
+          var $form = $(this);
+          console.log('Form action:', $form.attr('action'));
+          $.ajax({
+            type: $form.attr('method'),
+            url: $form.attr('action'),
+            data: $form.serialize(),
+            success: function(response, status, xhr) {
+              console.log('AJAX request successful');
+              var result_type = xhr.getResponseHeader('X-Kumquat-Message-Type');
+              var message = xhr.getResponseHeader('X-Kumquat-Message');
+              console.log('Result Type:', result_type);
+              console.log('Message:', message);
+              if (result_type && message) {
+                Application.Flash.set(message, result_type);
+              }
+              if (result_type === 'success') {
+                $form.closest('.collapse').collapse('hide');
+              }
+            }, 
+            error: function(xhr) {
+              console.log('AJAX request failed');
+              var result_type = xhr.getResponseHeader('X-Kumquat-Message-Type');
+              var message = xhr.responseText;
+              // var message = xhr.getResponseHeader('X-Kumquat-Message');
+              console.log('Error Result Type:', result_type);
+              console.log('Error Message:', message);
+              if (message) {
+                Application.Flash.set(message, 'error');
+              } else {
+                Application.Flash.set('An unexpected error occurred.', 'error');
+              }
+            }
+          });
+      });
+
         $(document).ajaxSuccess(function(event, request) {
             var result_type = request.getResponseHeader('X-Kumquat-Message-Type');
             var edit_panel = $('.dl-edit-panel.in');
@@ -464,7 +503,7 @@ const Application = {
 
         $('.contact-toggle-btn').off("click").on("click", function () {
             $('#contact-form').toggleClass('show');
-            $(this).toggleclass('expanded');
+            $(this).toggleClass('expanded');
             setToggleState($(this), $('#contact-form').hasClass('show'));
         });
 
@@ -491,6 +530,28 @@ $(document).ready(function(){
   $('[data-bs-toggle="collapse"]').on('click', function() {
     var target = $(this).attr('href');
     $(target).collapse('toggle');
+  });
+});
+
+$(document).ready(function(){
+  function toggleSubmitButton() {
+    var commentFilled = $('textarea[name="comment"]').val();
+    var captchaFilled = $('input[name="answer"]').val();
+
+    var commentFilled = commentFilled && commentFilled.trim() !== "";
+    var captchaFilled = captchaFilled && captchaFilled.trim() !== "";
+
+    if (commentFilled && captchaFilled) {
+      $('#submit-button').prop('disabled', false);
+    } else {
+      $('#submit-button').prop('disabled', true);
+    }
+  }
+
+  toggleSubmitButton();
+
+  $('textarea[name="comment"], input[name="answer"]').on('input', function() {
+    toggleSubmitButton();
   });
 });
 
