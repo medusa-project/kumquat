@@ -305,7 +305,7 @@ class ItemsController < WebsiteController
           }
       end
       format.zip do
-        return unless check_captcha
+        return unless check_item_captcha
         download_relation.limit((params[:limit].to_i > 0) ?
                                   params[:limit].to_i : OpensearchClient::MAX_RESULT_WINDOW)
         # Use the Medusa Downloader to generate a zip of items from
