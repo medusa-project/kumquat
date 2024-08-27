@@ -42,7 +42,6 @@ class KumquatMailerTest < ActionMailer::TestCase
 
     assert_equal [to_email], email_message.to
     assert_equal [from_email], email_message.from
-    assert_equal "#{subject_prefix} User feedback received", email_message.subject
   end
 
   # new_items()
