@@ -41,6 +41,34 @@ class WebsiteController < ApplicationController
     success 
   end
 
+  def check_item_captcha
+    success = true
+
+    # Check the honeypot
+    email = params[:email]
+    if email.present?
+      success = false
+      message = "Invalid response."
+    end
+    if success
+      # Check the answer
+      answer_hash   = Digest::MD5.hexdigest("#{params[:answer]}#{ApplicationHelper::CAPTCHA_SALT}")
+      expected_hash = params[:correct_answer_hash]
+      if answer_hash != expected_hash
+        success = false
+        message = "Incorrect response. Please try again."
+      end
+    end
+    unless success
+      response.status                       = :bad_request
+      response.headers['X-Kumquat-Result']  = "error"
+      response.headers['X-Kumquat-Message'] = message
+      render plain: nil, content_type: request.format
+      return false
+    end
+    true
+  end
+
   def enable_cors
     headers['Access-Control-Allow-Origin'] = '*'
   end
