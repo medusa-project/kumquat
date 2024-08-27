@@ -60,7 +60,7 @@
               - if total_byte_size > 0
                 %p.form-text.text-muted.text-center
                   Estimated average file size: #{number_to_human_size(batch_byte_size)}
-              = captcha(@permitted_params.except(:start).merge(format: :zip)) do
+              = download_captcha(@permitted_params.except(:start).merge(format: :zip)) do
                 = hidden_field_tag("limit", batch_size)
                 - num_batches.times do |i|
                   .form-check
