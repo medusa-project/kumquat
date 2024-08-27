@@ -144,10 +144,10 @@ module ApplicationHelper
       form_html   << label_tag(:answer, raw("What is #{number1} &plus; #{number2}?"))
       form_html   << text_field_tag(:answer, nil, class: "form-control")
       form_html   << hidden_field_tag(:correct_answer_hash, answer_hash)
-      # form_html   << '<div class="text-right mt-3">'
-      # form_html   <<   '<button class="btn btn-light" data-dismiss="modal" type="button">Cancel</button>'
-      # form_html   <<   '<input type="submit" value="Download" class="btn btn-primary">'
-      # form_html   << '</div>'
+      form_html   << '<div class="text-right mt-3">'
+      form_html   <<   '<button class="btn btn-light" data-dismiss="modal" type="button">Cancel</button>'
+      form_html   <<   '<input type="submit" value="Download" class="btn btn-primary">'
+      form_html   << '</div>'
       raw(form_html.string)
     end
     raw(html.string)
