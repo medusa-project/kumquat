@@ -28,6 +28,22 @@ class KumquatMailerTest < ActionMailer::TestCase
     assert_equal "Something broke\r\n\r\n", email.body.raw_source
   end
 
+  test "contact_form_message() sends user feedback/comment" do 
+    from_email = "example@email.com"
+    page_url = "http://example.com/contact"
+    to_email = Setting.string(Setting::Keys::ADMINISTRATOR_EMAIL)
+    email_message = KumquatMailer.contact_form_message(
+      from_email: from_email, 
+      from_name: "visitor", 
+      page_url: page_url, 
+      comment: "Feedback.", 
+      to_email: to_email
+    )
+
+    assert_equal [to_email], email_message.to
+    assert_equal [from_email], email_message.from
+  end
+
   # new_items()
 
   test 'new_items() sends the expected email to the user associated with the

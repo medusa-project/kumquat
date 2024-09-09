@@ -17,6 +17,10 @@ Rails.application.routes.draw do
     match '/object', to: 'binaries#object', via: :get
     match '/stream', to: 'binaries#stream', via: :get
   end
+
+  match '/contact', to: 'landing#contact', via: :post,
+        constraints: lambda { |request| request.xhr? }
+
   match '/collections/iiif', to: 'collections#iiif_presentation_list',
         via: :get, as: 'collections_iiif_presentation_list',
         defaults: { format: :json }

@@ -109,7 +109,25 @@ module ApplicationHelper
   #                             form.
   # @return [String]            HTML form string.
   #
-  def captcha(form_action, &block)
+  def captcha 
+    field_html = StringIO.new
+    number1     = rand(9)
+    number2     = rand(9)
+    answer_hash = Digest::MD5.hexdigest((number1 + number2).to_s + CAPTCHA_SALT)
+    label_html  = label_tag(:answer, raw("What is #{number1} &plus; #{number2}?"),
+                          class: "col-sm-3 col-form-label")
+    field_html << text_field_tag(:honey_email, nil,
+                                placeholder: "Leave this field blank.",
+                                style:       "display: none") # honeypot field
+    field_html << text_field_tag(:answer, nil, class: "form-control")
+    field_html << hidden_field_tag(:correct_answer_hash, answer_hash)
+    {
+      label: raw(label_html),
+      field: raw(field_html.string)
+    }
+  end
+
+  def download_captcha(form_action, &block)
     html = StringIO.new
     html << form_tag(form_action, method: :get, class: "dl-captcha-form") do
       number1     = rand(9)

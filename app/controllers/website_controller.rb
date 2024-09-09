@@ -28,6 +28,20 @@ class WebsiteController < ApplicationController
   #                   immediately.
   #
   def check_captcha
+    puts "check captcha called"
+    email = params[:honey_email]
+    success = email.blank?
+    Rails.logger.debug "Honeypot email check: #{success}"
+    if success 
+      answer_hash = Digest::MD5.hexdigest("#{params[:answer]}#{ApplicationHelper::CAPTCHA_SALT}")
+      expected_hash = params[:correct_answer_hash]
+      success = (answer_hash == expected_hash)
+      Rails.logger.debug "CAPTCHA answer check: #{success}"
+    end
+    success 
+  end
+
+  def check_item_captcha
     success = true
 
     # Check the honeypot

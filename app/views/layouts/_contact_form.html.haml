@@ -1,0 +1,33 @@
+.text-center
+  = link_to 'Contact us', "#contact-form", 
+                role:            "button",
+                class:          "contact-toggle-btn",
+                "data-bs-toggle": "collapse",
+                "aria-expanded":  "false",
+                "aria-controls": "contact-form"
+  for questions and to provide feedback. 
+
+  .collapse#contact-form
+    .alert#contact-form-alert{style: "display: none"}
+    = form_tag(contact_path, method: :post, remote: true, id: "contact-form") do
+      -# see for an explanation of the force_encoding():
+      -# https://github.com/rails/rails/issues/23978#issuecomment-290032710
+      = hidden_field_tag(:page_url, request.url.force_encoding("UTF-8"))
+      .row
+        .col-sm-6
+          .mb-3
+            = label_tag(:name, "Your Name (optional)", class: "form-label")
+            = text_field_tag(:name, nil, class: "form-control")
+          .mb-3
+            = label_tag(:email, "Your Email (optional)", class: "form-label")
+            = text_field_tag(:email, nil, class: "form-control")
+        .col-sm-6
+          .mb-3
+            = label_tag(:comment, "Your Comment", class: "form-label")
+            = text_area_tag(:comment, nil, rows: 5, class: "form-control")
+          .mb-3
+            - captcha_hash = captcha 
+            = captcha_hash[:label]
+            = captcha_hash[:field]
+          .mb-3 
+            = submit_tag("Submit", class: "btn btn-primary", id: "submit-button", disabled: true)
