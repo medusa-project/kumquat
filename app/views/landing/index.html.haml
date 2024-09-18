@@ -35,68 +35,73 @@
 
 .row.mt-3
   .col-md-12
-    .card.bg-dark.text-white
-      = image_tag('banner_dls.jpg',
-                  class: 'card-img-top d-lg-none',
-                  alt: 'Thumbnail for Digital Special Collections')
-      = image_tag('banner_dls_lg.jpg',
-                  class: 'card-img-top d-none d-lg-block',
-                  alt: 'Thumbnail for Digital Special Collections')
-      .card-img-overlay.d-flex.flex-column.justify-content-end
-        .dl-card-text-backdrop
-          %h5.card-title
-            = link_to 'Digital Special Collections',
-                      Configuration.instance.metadata_gateway_url + '/collections?fq%5B%5D=system_keyword_service_key:dls'
-          %p.card-text.d-none.d-sm-block
-            Digitized manuscripts, photographs, maps, and other special
-            collections research materials, as well as personal and
-            organizational digital archives.
+    = link_to Configuration.instance.metadata_gateway_url + '/collections?fq%5B%5D=system_keyword_service_key:dls' do 
+      .card.bg-dark.text-white
+        = image_tag('banner_dls.jpg',
+                    class: 'card-img-top d-lg-none',
+                    alt: 'Thumbnail for Digital Special Collections')
+        = image_tag('banner_dls_lg.jpg',
+                    class: 'card-img-top d-none d-lg-block',
+                    alt: 'Thumbnail for Digital Special Collections')
+        .card-img-overlay.d-flex.flex-column.justify-content-end
+          .dl-card-text-backdrop
+            %h5.card-title
+              Digital Special Collections
+                        
+            %p.card-text.d-none.d-sm-block
+              Digitized manuscripts, photographs, maps, and other special
+              collections research materials, as well as personal and
+              organizational digital archives.
 .row
   .col-lg-6
-    .card.bg-dark.text-white
-      = image_tag('banner_ideals.jpg',
-                  class: 'card-img-top',
-                  alt: 'Thumbnail for Scholarship')
-      .card-img-overlay.d-flex.flex-column.justify-content-end
-        .dl-card-text-backdrop
-          %h5.card-title
-            = link_to 'Scholarship', 'https://www.ideals.illinois.edu/'
-          %p.card-text.d-none.d-sm-block
-            Research and scholarship of faculty, staff, and students in IDEALS,
-            the Illinois Digital Environment for Access to Learning and Scholarship.
+    = link_to 'https://www.ideals.illinois.edu/' do 
+      .card.bg-dark.text-white
+        = image_tag('banner_ideals.jpg',
+                    class: 'card-img-top',
+                    alt: 'Thumbnail for Scholarship')
+        .card-img-overlay.d-flex.flex-column.justify-content-end
+          .dl-card-text-backdrop
+            %h5.card-title
+              Scholarship
+            %p.card-text.d-none.d-sm-block
+              Research and scholarship of faculty, staff, and students in IDEALS,
+              the Illinois Digital Environment for Access to Learning and Scholarship.
   .col-lg-6
-    .card.bg-dark.text-white
-      = image_tag('banner_books.jpg',
-                  class: 'card-img-top',
-                  alt: 'Thumbnail for Digitized Books')
-      .card-img-overlay.d-flex.flex-column.justify-content-end
-        .dl-card-text-backdrop
-          %h5.card-title
-            = link_to 'Digitized Books', Configuration.instance.metadata_gateway_url + '/items?fq%5B%5D=system_keyword_service_key:book'
-          %p.card-text.d-none.d-sm-block
-            Books from the library's holdings now available online.
+    = link_to Configuration.instance.metadata_gateway_url + '/items?fq%5B%5D=system_keyword_service_key:book' do 
+      .card.bg-dark.text-white
+        = image_tag('banner_books.jpg',
+                    class: 'card-img-top',
+                    alt: 'Thumbnail for Digitized Books')
+        .card-img-overlay.d-flex.flex-column.justify-content-end
+          .dl-card-text-backdrop
+            %h5.card-title
+              Digitized Books
+            %p.card-text.d-none.d-sm-block
+              Books from the library's holdings now available online.
 .row
   .col-lg-6
-    .card.bg-dark.text-white
-      = image_tag('banner_databank.jpg',
-                  class: 'card-img-top',
-                  alt: 'Thumbnail for Research Data')
-      .card-img-overlay.d-flex.flex-column.justify-content-end
-        .dl-card-text-backdrop
-          %h5.card-title
-            = link_to 'Research Data', 'https://databank.illinois.edu/'
-          %p.card-text.d-none.d-sm-block
-            Publicly accessible research data from faculty, staff, and graduate
-            students in the Illinois Data Bank.
+    = link_to 'https://databank.illinois.edu/' do 
+      .card.bg-dark.text-white
+        = image_tag('banner_databank.jpg',
+                    class: 'card-img-top',
+                    alt: 'Thumbnail for Research Data')
+        .card-img-overlay.d-flex.flex-column.justify-content-end
+          .dl-card-text-backdrop
+            %h5.card-title
+              Research Data
+            %p.card-text.d-none.d-sm-block
+              Publicly accessible research data from faculty, staff, and graduate
+              students in the Illinois Data Bank.
   .col-lg-6
-    .card.bg-dark.text-white
-      = image_tag('banner_idnc.jpg',
-                  class: 'card-img-top',
-                  alt: 'Thumbnail for Digitized Newspapers')
-      .card-img-overlay.d-flex.flex-column.justify-content-end
-        .dl-card-text-backdrop
-          %h5.card-title
-            = link_to 'Digitized Newspapers', 'https://idnc.library.illinois.edu'
-          %p.card-text.d-none.d-sm-block
-            Newspapers and journals with an Illinois focus in the Illinois
-            Digital Newspaper Collections.
+    = link_to 'https://idnc.library.illinois.edu' do 
+      .card.bg-dark.text-white
+        = image_tag('banner_idnc.jpg',
+                    class: 'card-img-top',
+                    alt: 'Thumbnail for Digitized Newspapers')
+        .card-img-overlay.d-flex.flex-column.justify-content-end
+          .dl-card-text-backdrop
+            %h5.card-title
+              Digitized Newspapers
+            %p.card-text.d-none.d-sm-block
+              Newspapers and journals with an Illinois focus in the Illinois
+              Digital Newspaper Collections.
