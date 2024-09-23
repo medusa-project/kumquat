@@ -36,8 +36,7 @@ class KumquatMailerTest < ActionMailer::TestCase
       from_email: from_email, 
       from_name: "visitor", 
       page_url: page_url, 
-      comment: "Feedback.", 
-      to_email: to_email
+      comment: "Feedback."
     )
 
     assert_equal [to_email], email_message.to
