@@ -53,11 +53,12 @@ class KumquatMailer < ApplicationMailer
   # @param to_email [String]   Email address to which the feedback is to be
   #                            routed.
   #
-  def contact_form_message(from_email:, from_name:, page_url:, comment:, to_email:)
+  def contact_form_message(from_email:, from_name:, page_url:, comment:)
     @from_email = from_email.present? ? from_email : "Not Supplied"
     @from_name = from_name.present? ? from_name : "Not Supplied"
     @page_url = page_url 
     @comment = comment 
+    to_email = Setting.string(Setting::Keys::ADMINISTRATOR_EMAIL)
     mail(from:  from_email.present? ? from_email : NO_REPLY_ADDRESS,
           to:   to_email, 
           subject: "#{subject_prefix} User feedback received")
