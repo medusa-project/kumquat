@@ -33,11 +33,13 @@ class KumquatMailerTest < ActionMailer::TestCase
     page_url = "http://example.com/contact"
     to_email = Setting.string(Setting::Keys::ADMINISTRATOR_EMAIL)
     email_message = KumquatMailer.contact_form_message(
-      from_email: from_email, 
-      from_name: "visitor", 
-      page_url: page_url, 
-      comment: "Feedback."
-    )
+                                  from_email: from_email, 
+                                  from_name: "visitor", 
+                                  page_url: page_url, 
+                                  comment: "Feedback.",
+                                  to_email: to_email).deliver_now 
+
+    assert !ActionMailer::Base.deliveries.empty?
 
     assert_equal [to_email], email_message.to
     assert_equal [from_email], email_message.from
