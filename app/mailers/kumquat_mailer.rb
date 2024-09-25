@@ -54,7 +54,7 @@ class KumquatMailer < ApplicationMailer
   #                            routed.
   #
   def contact_form_message(from_email:, from_name:, page_url:, comment:, to_email: Setting.string(Setting::Keys::ADMINISTRATOR_EMAIL))
-    @from_email = from_email.present? ? from_email : "Not Supplied"
+    @from_email = from_email.present? ? from_email : NO_REPLY_ADDRESS
     @from_name = from_name.present? ? from_name : "Not Supplied"
     @page_url = page_url 
     @comment = comment 
