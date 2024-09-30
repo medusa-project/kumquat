@@ -18,15 +18,15 @@
         %td= link_to col.title, admin_collection_path(col)
         %td= number_with_delimiter(col.num_objects)
         %td= number_with_delimiter(col.num_items)
-        %td{class: "text-center #{col.public_in_medusa ? 'bg-success' : 'bg-danger'}"}
+        %td{class: "text-center #{col.public_in_medusa ? 'success' : 'danger'}"}
           = boolean(col.public_in_medusa)
-        %td{class: "text-center #{col.published_in_dls ? 'bg-success' : 'bg-danger'}"}
+        %td{class: "text-center #{col.published_in_dls ? 'success' : 'danger'}"}
           = boolean(col.published_in_dls)
-        %td{class: "text-center #{col.harvestable ? 'bg-success' : 'bg-danger'}"}
+        %td{class: "text-center #{col.harvestable ? 'success' : 'danger'}"}
           = boolean(col.harvestable)
-        %td{class: "text-center #{col.harvestable_by_idhh ? 'bg-success' : 'bg-danger'}"}
+        %td{class: "text-center #{col.harvestable_by_idhh ? 'success' : 'danger'}"}
           = boolean(col.harvestable_by_idhh)
-        %td{class: "text-center #{col.harvestable_by_primo ? 'bg-success' : 'bg-danger'}"}
+        %td{class: "text-center #{col.harvestable_by_primo ? 'success' : 'danger'}"}
           = boolean(col.harvestable_by_primo)
 .row.justify-content-md-center
   .col-md-auto
