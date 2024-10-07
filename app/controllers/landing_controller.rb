@@ -7,10 +7,12 @@ class LandingController < WebsiteController
   def contact
     if !check_captcha
       Rails.logger.debug "CAPTCHA validation failed."
-      render plain: "Incorrect math question response.", status: :bad_request
+      redirect_to root_path
+      # render plain: "Incorrect math question response.", status: :bad_request
       return
     elsif params[:comment]&.blank?
-      render plain: "Please enter a comment.", status: :bad_request
+      redirect_to root_path, alert: "Enter comment."
+      # render plain: "Please enter a comment.", status: :bad_request
       return 
     end
 
@@ -23,9 +25,11 @@ class LandingController < WebsiteController
                                           to_email:  feedback_email).deliver_later
     rescue => e
       LOGGER.error("#{e}")
-        render plain: "An error occurred on the server.", status: :internal_server_error 
+      redirect_to root_path, alert: "An error occurred on the server."
+        # render plain: "An error occurred on the server.", status: :internal_server_error 
     else
-        render plain: "OK"
+      redirect_to root_path, notice: "Thank you for your feedback."  
+      # render plain: "OK"
     end
   end 
 
