@@ -27,13 +27,15 @@
 @import "admin/tasks";
 
 /* Custom overrides */
-// .text-success {
-//   color: white !important;
-// }
+.text-success {
+  font-size: 125%;
+  font-weight: bold;
+}
 
-// .text-danger {
-//   color: white !important;
-// }
+.text-danger {
+  font-size: 125%;
+  font-weight: bold;
+}
 
 // .bg-success {
 //   background-color: darkblue !important;
