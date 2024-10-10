@@ -6,6 +6,15 @@ body#admin_collections_index .page-content {
   .pagination {
     margin: 0px;
   }
+
+  .table.table-striped {
+    border-collapse: collapse;
+
+    th, td {
+      border-top: 3px solid black;
+      border-bottom: 3px solid black;
+    }
+  }
 }
 
 body#admin_collections_show {
