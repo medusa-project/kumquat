@@ -28,6 +28,6 @@
           .mb-3
             - captcha_hash = captcha 
             = captcha_hash[:label]
-            = captcha_hash[:field]
+            = captcha_hash[:field].gsub('id="answer"', 'id="contact-answer"').html_safe 
           .mb-3 
             = submit_tag("Submit", class: "btn btn-primary", id: "submit-button", disabled: true)
