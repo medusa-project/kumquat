@@ -473,6 +473,46 @@ const DLItemView = function() {
         new CitationPanel();
         new CustomImagePanel();
         new Application.CaptchaProtectedDownload();
+
+    $(document).ready(function(){
+      function toggleSubmitButton() {
+        var commentFilled = $('textarea[name="comment"]').val();
+        var captchaField = $('#contact-answer');
+        var captchaFilled = captchaField.val();
+
+        console.log('Comment:', commentFilled);
+        console.log('Captcha Field:', captchaField);
+        console.log('Captcha Field Exists:', captchaField.length > 0);
+        console.log('Captcha Value:', captchaFilled);
+
+        var commentFilled = commentFilled && commentFilled.trim() !== "";
+        var captchaFilled = captchaFilled && captchaFilled.trim() !== "";
+
+        if (commentFilled && captchaFilled) {
+          $('#submit-button').prop('disabled', false);
+        } else {
+          $('#submit-button').prop('disabled', true);
+        }
+      }
+
+      toggleSubmitButton();
+
+      $('textarea[name="comment"], #contact-answer').on('input', function () {
+        console.log('Input event triggered');
+        toggleSubmitButton();
+      });
+
+      // Ensure the form is reset when the document is ready
+      var form = $('#contact-form');
+      if (form) {
+        console.log('Resetting contact form');
+        form.reset();
+      } else {
+        console.log('Contact form not found');
+      }
+
+    });
+
     };
 
 };

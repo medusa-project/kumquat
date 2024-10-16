@@ -25,3 +25,7 @@
          locals: { context: :results,
                    num_downloadable_items: @num_downloadable_items,
                    total_byte_size: @total_byte_size }
+                   
+- unless defined?(@contact_form_rendered)
+  = render partial: 'layouts/contact_form'
+  - @contact_form_rendered = true 

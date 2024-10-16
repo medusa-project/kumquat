@@ -441,43 +441,45 @@ const Application = {
         // another header that, if set, can contain "success" or "error",
         // indicating the result of a form submission.
         $(document).on('submit', '#contact-form', function(event) { 
-          event.preventDefault();
+          // event.preventDefault();
           console.log('Form submit event triggered');
           
           var $form = $(this);
           console.log('Form action:', $form.attr('action'));
-          $.ajax({
-            type: $form.attr('method'),
-            url: $form.attr('action'),
-            data: $form.serialize(),
-            success: function(response, status, xhr) {
-              console.log('AJAX request successful');
-              var result_type = xhr.getResponseHeader('X-Kumquat-Message-Type');
-              var message = xhr.getResponseHeader('X-Kumquat-Message');
-              console.log('Result Type:', result_type);
-              console.log('Message:', message);
-              if (result_type && message) {
-                Application.Flash.set(message, result_type);
-              }
-              if (result_type === 'success') {
-                $form.closest('.collapse').collapse('hide');
-              }
-            }, 
-            error: function(xhr) {
-              console.log('AJAX request failed');
-              var result_type = xhr.getResponseHeader('X-Kumquat-Message-Type');
-              var message = xhr.responseText;
-              // var message = xhr.getResponseHeader('X-Kumquat-Message');
-              console.log('Error Result Type:', result_type);
-              console.log('Error Message:', message);
-              if (message) {
-                Application.Flash.set(message, 'error');
-              } else {
-                Application.Flash.set('An unexpected error occurred.', 'error');
-              }
-            }
-          });
-      });
+        });
+
+      //     $.ajax({
+      //       type: $form.attr('method'),
+      //       url: $form.attr('action'),
+      //       data: $form.serialize(),
+      //       success: function(response, status, xhr) {
+      //         console.log('AJAX request successful');
+      //         var result_type = xhr.getResponseHeader('X-Kumquat-Message-Type');
+      //         var message = xhr.getResponseHeader('X-Kumquat-Message');
+      //         console.log('Result Type:', result_type);
+      //         console.log('Message:', message);
+      //         if (result_type && message) {
+      //           Application.Flash.set(message, result_type);
+      //         }
+      //         if (result_type === 'success') {
+      //           $form.closest('.collapse').collapse('hide');
+      //         }
+      //       }, 
+      //       error: function(xhr) {
+      //         console.log('AJAX request failed');
+      //         var result_type = xhr.getResponseHeader('X-Kumquat-Message-Type');
+      //         var message = xhr.responseText;
+      //         // var message = xhr.getResponseHeader('X-Kumquat-Message');
+      //         console.log('Error Result Type:', result_type);
+      //         console.log('Error Message:', message);
+      //         if (message) {
+      //           Application.Flash.set(message, 'error');
+      //         } else {
+      //           Application.Flash.set('An unexpected error occurred.', 'error');
+      //         }
+      //       }
+      //     });
+      // });
 
         $(document).ajaxSuccess(function(event, request) {
             var result_type = request.getResponseHeader('X-Kumquat-Message-Type');
@@ -515,14 +517,18 @@ const Application = {
         });
     },
 
-    /**
-     * @return An object representing the current view.
-     */
+    // /**
+    //  * @return An object representing the current view.
+    //  */
     view: null
 
 };
 
 $(document).ready(function(){
+  var form = $('#contact-form')[0];
+  if (form) {
+    form.reset();
+  }
   $('[data-toggle="tooltip"]').tooltip();
 });
 
@@ -536,7 +542,7 @@ $(document).ready(function(){
 $(document).ready(function(){
   function toggleSubmitButton() {
     var commentFilled = $('textarea[name="comment"]').val();
-    var captchaFilled = $('input[name="answer"]').val();
+    var captchaFilled = $('#contact-answer').val();
 
     var commentFilled = commentFilled && commentFilled.trim() !== "";
     var captchaFilled = captchaFilled && captchaFilled.trim() !== "";
@@ -550,7 +556,7 @@ $(document).ready(function(){
 
   toggleSubmitButton();
 
-  $('textarea[name="comment"], input[name="answer"]').on('input', function() {
+  $('textarea[name="comment"], #contact-answer').on('input', function() {
     toggleSubmitButton();
   });
 });

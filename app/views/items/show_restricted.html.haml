@@ -33,3 +33,7 @@
   %section= metadata_section(@item)
 
 = render partial: 'staff_info', locals: { item: @item }
+
+- unless defined?(@contact_form_rendered)
+  = render partial: 'layouts/contact_form'
+  - @contact_form_rendered = true 

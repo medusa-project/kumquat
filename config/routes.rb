@@ -18,8 +18,8 @@ Rails.application.routes.draw do
     match '/stream', to: 'binaries#stream', via: :get
   end
 
-  match '/contact', to: 'landing#contact', via: :post,
-        constraints: lambda { |request| request.xhr? }
+  match '/contact', to: 'website#contact', via: :post
+        # constraints: lambda { |request| request.xhr? }
 
   match '/collections/iiif', to: 'collections#iiif_presentation_list',
         via: :get, as: 'collections_iiif_presentation_list',
