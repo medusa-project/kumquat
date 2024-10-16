@@ -520,13 +520,15 @@ const Application = {
     // /**
     //  * @return An object representing the current view.
     //  */
-    // view: null
+    view: null
 
 };
 
 $(document).ready(function(){
-  $('[#contact-form').reset();
-  
+  var form = $('#contact-form')[0];
+  if (form) {
+    form.reset();
+  }
   $('[data-toggle="tooltip"]').tooltip();
 });
 
@@ -540,7 +542,7 @@ $(document).ready(function(){
 $(document).ready(function(){
   function toggleSubmitButton() {
     var commentFilled = $('textarea[name="comment"]').val();
-    var captchaFilled = $('input[name="answer"]').val();
+    var captchaFilled = $('#contact-answer').val();
 
     var commentFilled = commentFilled && commentFilled.trim() !== "";
     var captchaFilled = captchaFilled && captchaFilled.trim() !== "";
@@ -554,7 +556,7 @@ $(document).ready(function(){
 
   toggleSubmitButton();
 
-  $('textarea[name="comment"], input[name="answer"]').on('input', function() {
+  $('textarea[name="comment"], #contact-answer').on('input', function() {
     toggleSubmitButton();
   });
 });
