@@ -14,6 +14,10 @@
   .dl-no-results
     = no_results_help(params[:q], @suggestions)
 
+- unless defined?(@contact_form_rendered)
+  = render partial: 'layouts/contact_form'
+  - @contact_form_rendered = true 
+
 - if Rails.env.development?
   = render partial: 'shared/results_debug',
            locals: { es_request: @es_request_json,

@@ -67,3 +67,7 @@
   - if dl_item.repository_id == @selected_item.repository_id
     = hidden_field_tag('dl-download-item-index', index)
   = hidden_field_tag('dl-download-item-id', dl_item.repository_id)
+
+- unless defined?(@contact_form_rendered)
+  = render partial: 'layouts/contact_form'
+  - @contact_form_rendered = true 

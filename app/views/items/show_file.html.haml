@@ -67,3 +67,7 @@
       Email Curator About This File
 
 = render partial: 'cite_panel', locals: { item: @item }
+
+- unless defined?(@contact_form_rendered)
+  = render partial: 'layouts/contact_form'
+  - @contact_form_rendered = true 
