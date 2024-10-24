@@ -2,6 +2,11 @@
 -# item [Item]
 
 #item-show-buttons.btn-group.float-right{role: "group"}
+  - if item.bib_id.present?
+    = link_to item.catalog_record_url, class: 'btn btn-light', type: 'button' do 
+      %i.fa.fa-book 
+      Physical Item 
+        
   = link_to '#dl-cite-modal', class: 'btn btn-light', "data-toggle": "modal" do 
     %i.fa.fa-quote-left
     Cite 
@@ -35,13 +40,6 @@
                   class: 'dropdown-item' do
           = icon_for(item.collection)
           Physical Collection
-      - if item.bib_id.present?
-        = link_to item.catalog_record_url,
-                  target: '_blank',
-                  class: 'dropdown-item' do
-          %i.fa.fa-book
-          Library Catalog Record
-        .dropdown-divider
       = link_to @permitted_params.merge(format: :atom),
                 target: '_blank',
                 class: 'dropdown-item' do
