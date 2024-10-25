@@ -368,7 +368,8 @@ const DLItemView = function() {
             return collapse.prev().find('a[data-toggle="collapse"]:first');
         };
         const setToggleState = function(elem, expanded) {
-            elem.find('img').css('transform', expanded ? 'rotate(90deg)' : 'rotate(270deg)');
+            var class_ = expanded ? 'fa-minus-square' : 'fa-plus-square';
+            elem.html('<i class="far ' + class_ + '"></i> ' + elem.text());
         };
 
         const collapses = $('.collapse');
