@@ -559,6 +559,18 @@ $(document).ready(function(){
   $('textarea[name="comment"], #contact-answer').on('input', function() {
     toggleSubmitButton();
   });
+
+  $('#contact-form').on('submit', function(event) {
+    var commentField = $('textarea[name="comment"]').val();
+    var emailField = $('input[name="email"]').val();
+
+    if (emailField.includes("@mail.ru")) {
+      event.preventDefault();
+    }
+    if (commentField.includes("https://")) {
+      event.preventDefault();
+    }
+  })
 });
 
 var ready = function() {
