@@ -75,10 +75,11 @@
     Subcollections
     %small
       %span.badge.badge-pill.badge-secondary= @children.count
-  .dl-cards
-    = entities_as_cards(@children)
+  .dl-cards-container.clearfix
+    .dl-cards
+      = entities_as_cards(@children)
 
-.text-center
+.text-center.email-curator
   - mailto = curator_mailto(@collection)
   - if mailto
     = link_to mailto, class: 'btn btn-light' do
