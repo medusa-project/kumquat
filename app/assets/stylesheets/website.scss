@@ -49,6 +49,21 @@ section {
   margin-bottom: 2.2em;
 }
 
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.dl-cards-container {
+  margin-bottom: 2rem;
+}
+
+.text-center.email-curator {
+  text-align: center;
+  margin-top: 2rem;
+}
+
 div.dl-cards {
   div.dl-card {
     float: left;
