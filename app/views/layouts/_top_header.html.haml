@@ -38,6 +38,7 @@
           = submit_tag("Log In", class: "btn btn-link p-0 mr-2")
       - else
         = link_to 'Log In', signin_path, class: 'stripe-link mr-2'
-      
-      .btn-group{role: "group"}
-        %a#about-link.btn.btn-sm{href: "https://guides.library.illinois.edu/digital-special-collections/", target: "_blank"} About
+        
+      - if current_page?(root_path)
+        .btn-group{role: "group"}
+          %a#about-link.btn.btn-sm{href: "https://guides.library.illinois.edu/digital-special-collections/", target: "_blank"} About
