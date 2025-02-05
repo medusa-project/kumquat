@@ -73,14 +73,22 @@
 
             #dl-download-one.tab-pane.fade.show{role:              "tabpanel",
                                                 "aria-labelledby": "dl-download-one-tab"}
-              - if total_byte_size > 0
+              - if total_byte_size < 5.gigabytes
                 %p.form-text.text-muted.text-center
                   Estimated file size: #{number_to_human_size(total_byte_size)}
-              = download_captcha(@permitted_params.except(:start).merge(format: :zip, download_start: 0, limit: 0))
+                = download_captcha(@permitted_params.except(:start).merge(format: :zip, download_start: 0, limit: 0))
+              - else 
+                %p.form-text.text-muted.text-center
+                  The estimated file size is too large to download to one zip file. Please use the batch items download option, or 
+                  contact the Digital Library team for more options.
 
         - else
-          - if total_byte_size > 0
+          - if total_byte_size < 5.gigabytes
             %p.form-text.text-muted.text-center
               Estimated file size: #{number_to_human_size(total_byte_size)}
-          = download_captcha(@permitted_params.except(:start).merge(format: :zip, download_start: 0, limit: 0))
+            = download_captcha(@permitted_params.except(:start).merge(format: :zip, download_start: 0, limit: 0))
+          - else 
+            %p.form-text.text-muted.text-center
+              The estimated file size is too large to download to one zip file. Please use the batch items download option, or 
+              contact the Digital Library team for more options.
 
