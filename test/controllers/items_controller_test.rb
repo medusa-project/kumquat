@@ -211,7 +211,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
                               format:               :zip,
                               email:                nil,
                               answer:               7,
-                              correct_answer_hash:  Digest::MD5.hexdigest((5+2).to_s + ApplicationHelper::CAPTHCA_SALT))
+                              correct_answer_hash:  Digest::MD5.hexdigest((5+2).to_s + ApplicationHelper::CAPTCHA_SALT))
     assert_response :ok
   end
 
