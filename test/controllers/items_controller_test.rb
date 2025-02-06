@@ -205,7 +205,14 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'index() returns HTTP 200 for zip' do
-    # TODO: write zip tests
+    col = collections(:single_item_object)
+    get collection_items_path(col,
+                              q:                    "query",
+                              format:               :zip,
+                              email:                nil,
+                              answer:               7,
+                              correct_answer_hash:  Digest::MD5.hexdigest((5+2).to_s + ApplicationHelper::CAPTHCA_SALT))
+    assert_response :ok
   end
 
   test 'index() zip returns HTTP 400 for a missing CAPTCHA response' do
