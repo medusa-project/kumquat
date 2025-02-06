@@ -3,6 +3,7 @@
 -# context [Symbol] :directory, :item, or :results
 -# num_downloadable_items [Integer]
 -# total_byte_size [Integer]
+- download_size_limit = Rails.application.credentials.download_size_limit.to_f 
 
 - if total_byte_size > 0
   - batch_byte_size = MedusaDownloaderClient::TARGET_BATCH_BYTE_SIZE
@@ -73,7 +74,7 @@
 
             #dl-download-one.tab-pane.fade.show{role:              "tabpanel",
                                                 "aria-labelledby": "dl-download-one-tab"}
-              - if total_byte_size < 5.gigabytes
+              - if total_byte_size < download_size_limit
                 %p.form-text.text-muted.text-center
                   Estimated file size: #{number_to_human_size(total_byte_size)}
                 = download_captcha(@permitted_params.except(:start).merge(format: :zip, download_start: 0, limit: 0))
@@ -83,7 +84,7 @@
                   contact the Digital Library team for more options.
 
         - else
-          - if total_byte_size < 5.gigabytes
+          - if total_byte_size < download_size_limit 
             %p.form-text.text-muted.text-center
               Estimated file size: #{number_to_human_size(total_byte_size)}
             = download_captcha(@permitted_params.except(:start).merge(format: :zip, download_start: 0, limit: 0))
