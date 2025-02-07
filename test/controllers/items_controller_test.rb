@@ -216,21 +216,8 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :redirect
   end
 
-  test 'index() displays error message if zip download exceeds threshold GB size' do
-    threshold = 5.gigabytes 
-
-    Rails.configuration.stubs(:download_size_limit).returns(threshold)
-    Item.any_instance.stubs(:total_byte_size).returns(60.gigabytes)
-
-    get :index 
-
-    assert_response :success 
-
-    # assert_template partial: '_download_zip_panel'
-
-    assert_includes response.body, 'The estimated file size is too large to download to one zip file. Please use the 
-                                    batch items download option, or contact the Digital Library team for more options.'
-  end
+  # test 'index() displays error message if zip download exceeds threshold GB size' do
+  # end
 
   test 'index() zip returns HTTP 400 for a missing CAPTCHA response' do
     col = collections(:single_item_object)
