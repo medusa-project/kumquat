@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'mocha/minitest'
 
 class ItemsControllerTest < ActionDispatch::IntegrationTest
 
@@ -213,6 +214,21 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
                               answer:               7,
                               correct_answer_hash:  Digest::MD5.hexdigest((5 + 2).to_s + ApplicationHelper::CAPTCHA_SALT))
     assert_response :redirect
+  end
+
+  test 'index() displays error message if zip download exceeds threshold GB size' do
+    col = collections(:single_item_object)
+
+    Item.any_instance.stubs(:total_byte_size).returns(60.gigabytes)
+    get collection_items_path(col,
+                              q:                    "query",
+                              format:               :zip,
+                              email:                nil,
+                              answer:               7,
+                              correct_answer_hash:  Digest::MD5.hexdigest((5 + 2).to_s + ApplicationHelper::CAPTCHA_SALT))
+    assert_response :success 
+    assert_includes response.body, 'The estimated file size is too large to download to one zip file. Please use the 
+                                    batch items download option, or contact the Digital Library team for more options.'
   end
 
   test 'index() zip returns HTTP 400 for a missing CAPTCHA response' do
