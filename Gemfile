@@ -21,6 +21,7 @@ gem 'marc-dates', git: 'https://github.com/medusa-project/marc-dates.git'
 gem 'matrix' # prawn needs this
 gem 'medusa-client', git: 'https://github.com/medusa-project/medusa-client.git', tag: 'v1.2.0'
 gem 'mini_racer'
+gem 'mocha', require: false 
 gem 'natural_sort' # for sorting facet terms in the pop-up modal
 gem 'netaddr', '~> 2'
 gem 'omniauth'
