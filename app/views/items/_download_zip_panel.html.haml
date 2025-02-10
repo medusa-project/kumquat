@@ -43,18 +43,29 @@
             Zip files include all files in the current folder tree.
 
         - if num_batches > 1
+          .alert.alert-light 
+            = icon_for(:info)
+            Estimated file size: #{number_to_human_size(total_byte_size)}
           %ul.nav.nav-pills.nav-fill{role: "tablist"}
             %li.nav-item{role: "presentation"}
               %a#dl-download-batches-tab.nav-link{href:            "#dl-download-batches",
                                                   "data-toggle":   "tab",
                                                   role:            "tab",
-                                                  "aria-controls": "dl-download-batches"} Items in Batches
-            %li.nav-item{role: "presentation"}
-              %a#dl-download-one-tab.nav-link{href:            "#dl-download-one",
-                                              "data-toggle":   "tab",
-                                              role:            "tab",
-                                              "aria-controls": "dl-download-one"} All Items in One Zip File
-
+                                                  "aria-controls": "dl-download-batches"} Download Items in Batches
+            - if total_byte_size < download_size_limit 
+              %li.nav-item{role: "presentation"}
+                %a#dl-download-one-tab.nav-link{href:            "#dl-download-one",
+                                                "data-toggle":   "tab",
+                                                role:            "tab",
+                                                "aria-controls": "dl-download-one"} All Items in One Zip File
+            - else
+              %p.form-text.text-muted.text-center
+                Due to large file size, these items are only available in multiple batch downloads.         
+              %p.form-text.text-muted.text-center
+                If you know which items you need to download, please download the item directly from the item's page.        
+                If you need all items at once contact the 
+                = mail_to 'digitalcollections@lists.illinois.edu', 'Digital Library Team' 
+                for more options. 
           .tab-content
             #dl-download-batches.tab-pane.fade.show{role:              "tabpanel",
                                                     "aria-labelledby": "dl-download-batches-tab"}
@@ -78,18 +89,12 @@
                 %p.form-text.text-muted.text-center
                   Estimated file size: #{number_to_human_size(total_byte_size)}
                 = download_captcha(@permitted_params.except(:start).merge(format: :zip, download_start: 0, limit: 0))
-              - else 
-                %p.form-text.text-muted.text-center
-                  The estimated file size is too large to download to one zip file. Please use the batch items download option, or 
-                  contact the Digital Library team for more options.
+
 
         - else
           - if total_byte_size < download_size_limit 
             %p.form-text.text-muted.text-center
               Estimated file size: #{number_to_human_size(total_byte_size)}
             = download_captcha(@permitted_params.except(:start).merge(format: :zip, download_start: 0, limit: 0))
-          - else 
-            %p.form-text.text-muted.text-center
-              The estimated file size is too large to download to one zip file. Please use the batch items download option, or 
-              contact the Digital Library team for more options.
+
 
