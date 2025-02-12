@@ -31,7 +31,7 @@ server 'dls-prod-rocky.library.illinois.edu', user: 'dls',
 # For available Capistrano configuration variables see the documentation page.
 # http://capistranorb.com/documentation/getting-started/configuration/
 # Feel free to add new variables to customise your setup.
-set :branch, 'production'
+set :branch, 'stable'
 
 set :linked_files, fetch(:linked_files, []).push('config/credentials/production.key')
 
