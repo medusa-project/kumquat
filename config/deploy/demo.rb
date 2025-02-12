@@ -35,7 +35,7 @@ server 'dls-demo-rocky.library.illinois.edu', user: 'dls',
 set :rails_env, 'demo'
 
 # Default branch is :master
-set :branch, 'demo'
+set :branch, 'main'
 
 set :linked_files, fetch(:linked_files, []).push('config/credentials/demo.key')
 
