@@ -227,6 +227,8 @@ GEM
     mini_racer (0.8.0)
       libv8-node (~> 18.16.0.0)
     minitest (5.22.3)
+    mocha (2.7.1)
+      ruby2_keywords (>= 0.0.5)
     mutex_m (0.2.0)
     natural_sort (0.3.0)
     net-imap (0.4.10)
@@ -349,6 +351,7 @@ GEM
       rubocop-ast (>= 0.4.0)
     ruby-graphviz (1.2.3)
     ruby-progressbar (1.11.0)
+    ruby2_keywords (0.0.5)
     sassc (2.4.0)
       ffi (~> 1.9)
     sprockets (4.0.2)
@@ -419,6 +422,7 @@ DEPENDENCIES
   medusa-client!
   mimemagic
   mini_racer
+  mocha
   natural_sort
   netaddr (~> 2)
   omniauth

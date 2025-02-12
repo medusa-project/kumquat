@@ -3,6 +3,7 @@
 -# context [Symbol] :directory, :item, or :results
 -# num_downloadable_items [Integer]
 -# total_byte_size [Integer]
+- download_size_limit = Rails.application.credentials.download_size_limit.to_f 
 
 - if total_byte_size > 0
   - batch_byte_size = MedusaDownloaderClient::TARGET_BATCH_BYTE_SIZE
@@ -42,18 +43,29 @@
             Zip files include all files in the current folder tree.
 
         - if num_batches > 1
+          .alert.alert-light 
+            = icon_for(:info)
+            Estimated file size: #{number_to_human_size(total_byte_size)}
           %ul.nav.nav-pills.nav-fill{role: "tablist"}
             %li.nav-item{role: "presentation"}
               %a#dl-download-batches-tab.nav-link{href:            "#dl-download-batches",
                                                   "data-toggle":   "tab",
                                                   role:            "tab",
-                                                  "aria-controls": "dl-download-batches"} Items in Batches
-            %li.nav-item{role: "presentation"}
-              %a#dl-download-one-tab.nav-link{href:            "#dl-download-one",
-                                              "data-toggle":   "tab",
-                                              role:            "tab",
-                                              "aria-controls": "dl-download-one"} All Items in One Zip File
-
+                                                  "aria-controls": "dl-download-batches"} Download Items in Batches
+            - if total_byte_size < download_size_limit 
+              %li.nav-item{role: "presentation"}
+                %a#dl-download-one-tab.nav-link{href:            "#dl-download-one",
+                                                "data-toggle":   "tab",
+                                                role:            "tab",
+                                                "aria-controls": "dl-download-one"} All Items in One Zip File
+            - else
+              %p.form-text.text-muted.text-center
+                Due to large file size, these items are only available in multiple batch downloads.         
+              %p.form-text.text-muted.text-center
+                If you know which items you need to download, please download the item directly from the item's page.        
+                If you need all items at once contact the 
+                = mail_to 'digitalcollections@lists.illinois.edu', 'Digital Library Team' 
+                for more options. 
           .tab-content
             #dl-download-batches.tab-pane.fade.show{role:              "tabpanel",
                                                     "aria-labelledby": "dl-download-batches-tab"}
@@ -73,14 +85,16 @@
 
             #dl-download-one.tab-pane.fade.show{role:              "tabpanel",
                                                 "aria-labelledby": "dl-download-one-tab"}
-              - if total_byte_size > 0
+              - if total_byte_size < download_size_limit
                 %p.form-text.text-muted.text-center
                   Estimated file size: #{number_to_human_size(total_byte_size)}
-              = download_captcha(@permitted_params.except(:start).merge(format: :zip, download_start: 0, limit: 0))
+                = download_captcha(@permitted_params.except(:start).merge(format: :zip, download_start: 0, limit: 0))
+
 
         - else
-          - if total_byte_size > 0
+          - if total_byte_size < download_size_limit 
             %p.form-text.text-muted.text-center
               Estimated file size: #{number_to_human_size(total_byte_size)}
-          = download_captcha(@permitted_params.except(:start).merge(format: :zip, download_start: 0, limit: 0))
+            = download_captcha(@permitted_params.except(:start).merge(format: :zip, download_start: 0, limit: 0))
+
 
