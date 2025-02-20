@@ -67,22 +67,15 @@
                 = mail_to 'digitalcollections@lists.illinois.edu', 'Digital Library Team' 
                 for more options. 
           .tab-content
-            #dl-download-batches.tab-pane.fade.show{role:              "tabpanel",
-                                                    "aria-labelledby": "dl-download-batches-tab"}
+            #dl-download-batches.tab-pane.fade.show{role: "tabpanel", "aria-labelledby": "dl-download-batches-tab"}
               - if total_byte_size > 0
                 %p.form-text.text-muted.text-center
                   Estimated average file size: #{number_to_human_size(batch_byte_size)}
               = download_captcha(@permitted_params.except(:start).merge(format: :zip)) do
                 = hidden_field_tag("limit", batch_size)
-                - num_batches.times do |i|
-                  .form-check
-                    = radio_button_tag(:download_start, i * batch_size,
-                                       class: "form-check-input",
-                                       type:  "radio")
-                    = label_tag("download_start_#{i * batch_size}",
-                                "Batch #{i + 1}",
-                                class: "form-check-label mb-1")
-
+                - options = num_batches.times.map { |i| ["Batch #{i + 1}", i * batch_size] }
+                .form-group
+                  = select_tag :download_start, options_for_select(options), class: "form-control"
             #dl-download-one.tab-pane.fade.show{role:              "tabpanel",
                                                 "aria-labelledby": "dl-download-one-tab"}
               - if total_byte_size < download_size_limit
