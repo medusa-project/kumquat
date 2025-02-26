@@ -314,9 +314,9 @@ class ItemsController < WebsiteController
         # so the strategy is to do it using the asynchronous download feature.
         item_ids = download_relation.to_a.map(&:repository_id)
         if item_ids.any?
-          start    = params[:download_start].to_i + 1
-          end_     = params[:download_start].to_i + item_ids.length
-          zip_name = "items-#{start}-#{end_}"
+          start    = params[:download_start].to_i 
+          end_     = params[:download_start].to_i + item_ids.length - 1
+          zip_name = "items-#{start + 1}-#{end_ + 1}"
           download = Download.create(ip_address: request.remote_ip)
           DownloadZipJob.perform_later(item_ids:                 item_ids,
                                        zip_name:                 zip_name,
