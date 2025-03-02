@@ -82,6 +82,10 @@ class MedusaDownloaderClient
     raise IOError, response.status if response.status != 200
   end
 
+  # helper method that is public calls on targets_for pvt method so ItemsController can have access to the method
+  def process_targets(items, include_private_binaries: false)
+    targets_for(items, include_private_binaries: include_private_binaries)
+  end
 
   private
 
