@@ -281,6 +281,14 @@ class ItemsController < WebsiteController
     @num_downloadable_items = download_relation.count
     @total_byte_size        = download_relation.total_byte_size
 
+    # create instance of medusa downloader client
+    # retrieve targets_for to get zip download data and assign to @targets instance variable
+    # call on private extract method on @targets to extract the file names of the zip download so we can call on this inside the view
+    # 
+    medusa_downloader       = MedusaDownloaderClient.new
+    @targets                = medusa_downloader.process_targets(@items)
+    @file_names             = extract_file_names(@targets)
+
     respond_to do |format|
       format.html do
         session[:first_result_id] = @items.first&.repository_id
@@ -737,4 +745,8 @@ class ItemsController < WebsiteController
     @permitted_params = params.permit(PERMITTED_SEARCH_PARAMS)
   end
 
+  # private method to extract the file_names in the zip download
+  def extract_file_names(targets)
+    targets.map{|target| File.basename(target[:path])}.uniq
+  end
 end
