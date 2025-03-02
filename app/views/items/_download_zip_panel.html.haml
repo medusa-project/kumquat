@@ -3,6 +3,8 @@
 -# context [Symbol] :directory, :item, or :results
 -# num_downloadable_items [Integer]
 -# total_byte_size [Integer]
+-# file_names [Array]
+
 - download_size_limit = Rails.application.credentials.download_size_limit.to_f 
 
 - if total_byte_size > 0
@@ -75,7 +77,9 @@
                 = hidden_field_tag("limit", batch_size)
                 - start = num_batches.times.map { |i| i * batch_size }
                 - end_ = num_batches.times.map { |i| (i + 1) * batch_size - 1 }
-                - options = num_batches.times.map { |i| ["Batch #{i + 1} - items #{start[i] + 1} to #{end_[i] + 1}", start[i]] }
+                - options = num_batches.times.map do |i|
+                  - batch_file_names = @file_names[start[i]..end_[i]]&.join(', ') || 'Unknown files'
+                  - ["Batch #{i + 1} - items #{start[i] + 1} to #{end_[i] + 1} - Files: (#{batch_file_names})", start[i]]
                 .form-group
                   = select_tag :download_start, options_for_select(options), class: "form-control"
             #dl-download-one.tab-pane.fade.show{role:              "tabpanel",
