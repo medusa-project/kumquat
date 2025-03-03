@@ -78,7 +78,10 @@
                 - start = num_batches.times.map { |i| i * batch_size }
                 - end_ = num_batches.times.map { |i| (i + 1) * batch_size - 1 }
                 - options = num_batches.times.map do |i|
-                  - batch_file_names = @file_names[start[i]..end_[i]]&.join(', ') || 'Unknown files'
+                  - if @file_names && @file_names[start[i]..end_[i]]
+                    - batch_file_names = @file_names[start[i]..end_[i]].uniq.join(', ')
+                  - else 
+                    - batch_file_names = 'Unknown files'
                   - ["Batch #{i + 1} - items #{start[i] + 1} to #{end_[i] + 1} - Files: (#{batch_file_names})", start[i]]
                 .form-group
                   = select_tag :download_start, options_for_select(options), class: "form-control"
