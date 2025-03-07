@@ -148,7 +148,8 @@ const Application = {
                     form.remove();
                     modalBody.html(waitMessageHTML +
                         '<div class="text-center">' +
-                            '<div class="progress-bar progress-bar-striped progres-bar-animated bg-info" ' + 'role="progressbar" style="width: 100%; height: 2em;"></div>' +
+                            '<div class="progress-bar progress-bar-striped progres-bar-animated bg-info" ' + 
+                              'role="progressbar" style="width: 100%; height: 2em;"></div>' +
                             '</div>' +
                         '</div>');
                     
