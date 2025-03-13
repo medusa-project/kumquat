@@ -64,10 +64,14 @@
               %p.form-text.text-muted.text-center
                 Due to large file size, these items are only available in multiple batch downloads.         
               %p.form-text.text-muted.text-center
-                If you know which items you need to download, please download the item directly from the item's page.        
-                If you need all items at once contact the 
-                = mail_to 'digitalcollections@lists.illinois.edu', 'Digital Library Team' 
-                for more options. 
+                If you know which items you need to download, please download the item directly from the item's page.
+              %p.form-text.text-muted.text-centered
+              .alert.alert-light
+                %p{ style: "color: #ff5733; text-align: center;" }
+                  = icon_for(:info)
+                  If you need all items in a single download, please close 
+                  this window and send us a message using the
+                  Contact us form at the bottom of the page.
           .tab-content
             #dl-download-batches.tab-pane.fade.show{role: "tabpanel", "aria-labelledby": "dl-download-batches-tab"}
               - if total_byte_size > 0
