@@ -281,6 +281,14 @@ class ItemsController < WebsiteController
     @num_downloadable_items = download_relation.count
     @total_byte_size        = download_relation.total_byte_size
 
+    # create instance of medusa downloader client
+    # retrieve targets_for to get zip download data and assign to @targets instance variable
+    # call on private extract method on @targets to extract the file names of the zip download so we can call on this inside the view
+    # 
+    medusa_downloader       = MedusaDownloaderClient.new
+    @targets                = medusa_downloader.process_targets(@items)
+    @file_names             = extract_file_names(@targets)
+
     respond_to do |format|
       format.html do
         session[:first_result_id] = @items.first&.repository_id
@@ -314,9 +322,9 @@ class ItemsController < WebsiteController
         # so the strategy is to do it using the asynchronous download feature.
         item_ids = download_relation.to_a.map(&:repository_id)
         if item_ids.any?
-          start    = params[:download_start].to_i + 1
-          end_     = params[:download_start].to_i + item_ids.length
-          zip_name = "items-#{start}-#{end_}"
+          start    = params[:download_start].to_i 
+          end_     = params[:download_start].to_i + item_ids.length - 1
+          zip_name = "items-#{start + 1}-#{end_ + 1}"
           download = Download.create(ip_address: request.remote_ip)
           DownloadZipJob.perform_later(item_ids:                 item_ids,
                                        zip_name:                 zip_name,
@@ -737,4 +745,8 @@ class ItemsController < WebsiteController
     @permitted_params = params.permit(PERMITTED_SEARCH_PARAMS)
   end
 
+  # private method to extract the file_names in the zip download
+  def extract_file_names(targets)
+    targets.map{|target| File.basename(target[:path])}.uniq
+  end
 end
