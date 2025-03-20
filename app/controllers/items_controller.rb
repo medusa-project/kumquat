@@ -513,7 +513,7 @@ class ItemsController < WebsiteController
               include_restricted(false).
               host_groups(client_host_groups).
               to_a
-          items += [item] if @item.parent
+          items += [item] if !items.include?(item)
           zip_name = 'item'
         end
 
