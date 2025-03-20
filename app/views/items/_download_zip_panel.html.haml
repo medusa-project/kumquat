@@ -84,7 +84,7 @@
                   - end_indices = start_indices.map { |i| [i + batch_size - 1, num_downloadable_items - 1].min }
                   - options = start_indices.each_with_index.map do |start_idx, i|
                     - end_idx = end_indices[i]
-                    - ["Batch #{i + 1} - items #{start_idx + 1} to #{end_idx + 1}", start_idx]
+                    - ["Batch #{i + 1}: items #{start_idx + 1} - #{end_idx + 1} (Contains #{end_idx - start_idx + 1} item(s))", start_idx]
                 .form-group
                   = select_tag :download_start, options_for_select(options), class: "form-control"
             #dl-download-one.tab-pane.fade.show{role:              "tabpanel",
