@@ -3,7 +3,6 @@
 -# context [Symbol] :directory, :item, or :results
 -# num_downloadable_items [Integer]
 -# total_byte_size [Integer]
--# file_names [Array]
 
 - download_size_limit = Rails.application.credentials.download_size_limit.to_f 
 
@@ -80,15 +79,12 @@
               = download_captcha(@permitted_params.except(:start).merge(format: :zip)) do
                 = hidden_field_tag("limit", batch_size)
                 - options = []
-                - if @file_names && !@file_names.empty?
-                  - start = num_batches.times.map { |i| i * batch_size }.select { |i| i < @file_names.size }
-                  - end_ = start.map { |i| [i + batch_size - 1, @file_names.size - 1].min }
-                  - options = start.each_with_index.map do |s, i|
-                    - if @file_names[s..end_[i]]
-                      - batch_file_names = @file_names[s..end_[i]].uniq.join(', ')
-                    - else 
-                      - batch_file_names = 'No Files'
-                    - ["Batch #{i + 1} - items #{s + 1} to #{end_[i] + 1} - Files: (#{batch_file_names})", s]
+                - if num_downloadable_items > 0
+                  - start_indices = num_batches.times.map { |i| i * batch_size }.select { |i| i < num_downloadable_items }
+                  - end_indices = start_indices.map { |i| [i + batch_size - 1, num_downloadable_items - 1].min }
+                  - options = start_indices.each_with_index.map do |start_idx, i|
+                    - end_idx = end_indices[i]
+                    - ["Batch #{i + 1}: items #{start_idx + 1} - #{end_idx + 1} (Contains #{end_idx - start_idx + 1} item(s))", start_idx]
                 .form-group
                   = select_tag :download_start, options_for_select(options), class: "form-control"
             #dl-download-one.tab-pane.fade.show{role:              "tabpanel",
@@ -97,6 +93,7 @@
                 %p.form-text.text-muted.text-center
                   Estimated file size: #{number_to_human_size(total_byte_size)}
                 = download_captcha(@permitted_params.except(:start).merge(format: :zip, download_start: 0, limit: 0))
+
 
 
         - else
