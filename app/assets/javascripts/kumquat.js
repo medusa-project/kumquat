@@ -127,6 +127,8 @@ const Application = {
 
     CaptchaProtectedDownload: function() {
         const forms = $(".dl-captcha-form");
+        // add const that will restore the dl-download-zip modal to its original content
+        const originalModalContent = $('#dl-download-zip-modal .modal-body').html();
         forms.on("submit", function(e) {
             e.preventDefault();
             const form = $(e.target);
@@ -209,7 +211,11 @@ const Application = {
                         "<div class='alert alert-danger'>" + message + "</div>");
                 }
             });
-        })
+        });
+        // Add event listener so the download zip modal is reset when closed
+        $('#dl-download-zip-modal').on('hidden.bs.modal', function() {
+          $(this).find(".modal-body").html(originalModalContent);
+        });
     },
 
     /**
