@@ -213,6 +213,9 @@ const Application = {
       }, 5000);
     }
 
+  // Note: This doesn't allow for parallel downloads. 
+  // The user will have to wait for the first download batch to finish before starting again. 
+  // Might want to refactor this at some point.
     function resetModal() {
       modalBody.html(originalModalContent);
       modal.find(".dl-captcha-form").off("submit", handleFormSubmit).on("submit", handleFormSubmit);
