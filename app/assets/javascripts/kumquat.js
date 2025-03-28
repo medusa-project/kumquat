@@ -134,6 +134,25 @@ const Application = {
           const form = $(e.target);
           form.find(".alert").remove();
 
+          let url = form.attr("action").include("?")
+            ? form.attr('action') + "&" + form.serialize()
+            : form.attr('action') + "?" + form.serialize();
+
+          $.ajax({
+            url: url,
+            method: 'GET',
+            dataType: 'script',
+            success: function (data, status, xhr) {
+              const waitMessageHTML = `
+                <p>Your file is being prepared. When it's ready, a download button will appear below.</p>
+                  <div class="progress-bar progress-bar-striped progres-bar-animated bg-info"
+                    <role="progressbar" style="width: 100%; height: 2em;">
+                  </div>
+                `;
+
+                modalBody.html(waitMessageHTML);
+            }
+          })
         
         }
       },
