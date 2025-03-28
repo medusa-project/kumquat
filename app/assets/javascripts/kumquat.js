@@ -126,97 +126,19 @@ const Application = {
     },
 
     CaptchaProtectedDownload: function() {
-        const forms = $(".dl-captcha-form");
-        // add const that will restore the dl-download-zip modal to its original content
-        const originalModalContent = $('#dl-download-zip-modal .modal-body').html();
-        forms.on("submit", function(e) {
-            e.preventDefault();
-            const form = $(e.target);
-            form.find(".alert").remove();
-            let url;
-            if (form.attr("action").includes("?")) {
-                url = form.attr('action') + "&" + form.serialize();
-            } else {
-                url = form.attr('action') + "?" + form.serialize();
-            }
-            $.ajax({
-                url:      url,
-                method:   'GET',
-                dataType: 'script',
-                success:  function(data, status, xhr) {
-                    const waitMessageHTML = '<p>Your file is being prepared. ' +
-                        'When it\'s ready, a download button will appear below.</p>';
-                    const modalBody = form.parents(".modal-body");
-                    form.remove();
-                    modalBody.html(waitMessageHTML +
-                        '<div class="text-center">' +
-                            '<div class="progress-bar progress-bar-striped progres-bar-animated bg-info" ' + 
-                              'role="progressbar" style="width: 100%; height: 2em;"></div>' +
-                            '</div>' +
-                        '</div>');
-                    
+        const modal = $("#dl-download-zip-modal");
+        const modalBody = modal.find(".modal-body");
+        const originalModalContent = modalBody.html();
+        function handleFormSubmit(e) {
+          e.preventDefault();
+          const form = $(e.target);
+          form.find(".alert").remove();
 
-                    // Poll the Download representation at an interval, updating
-                    // the modal content (e.g. progress bar) at each refresh.
-                    const intervalID = setInterval(function() {
-                        $.ajax({
-                            url:      xhr.getResponseHeader("X-Kumquat-Location"),
-                            method:   'GET',
-                            dataType: 'json',
-                            success:  function(data, status, xhr) {
-                                var href = null;
-                                if (data.filename) {
-                                    href = "/downloads/" + data.key + "/file";
-                                } else if (data.url) {
-                                    href = data.url;
-                                }
-                                if (parseInt(data.task.status) === 4) { // failed
-                                    modalBody.html("<p>There was an error preparing the file.</p>");
-                                    clearInterval(intervalID);
-                                } else if (href) {
-                                    modalBody.html('<div class="text-center">' +
-                                            '<a href="' + href + '" class="btn btn-lg btn-success">' +
-                                                '<i class="fa fa-download"></i> Download' +
-                                            '</a>' +
-                                        '</div>');
-                                    clearInterval(intervalID);
-                                } else if (!data.task.indeterminate) {
-                                    const pct = Math.round(data.task.percent_complete * 100);
-                                    modalBody.html(waitMessageHTML +
-                                        '<div class="progress mt-3" style="height: 2em">' +
-                                            '<div class="progress-bar progress-bar-striped progress-bar-animated bg-info" ' +
-                                                'aria-valuemax="100" ' +
-                                                'aria-valuemin="0" ' +
-                                                'aria-valuenow="' + pct + '" ' +
-                                                'role="progressbar" ' +
-                                                'style="width:' + pct + '%">' +
-                                            '</div>' +
-                                        '</div>' +
-                                        '<span class="sr-only">' + pct + '% complete</span>' +
-                                        '<p class="text-center">' + pct + '%</p>');
-                                }
-                            },
-                            error: function(request, status, error) {
-                                clearInterval(intervalID);
-                                const message = request.getResponseHeader('X-Kumquat-Message');
-                                modalBody.append(
-                                    "<div class='alert alert-danger'>" + message + "</div>");
-                            }
-                        });
-                    }, 5000);
-                },
-                error: function(request, status, error) {
-                    const message = request.getResponseHeader('X-Kumquat-Message');
-                    form.prepend(
-                        "<div class='alert alert-danger'>" + message + "</div>");
-                }
-            });
-        });
-        // Add event listener so the download zip modal is reset when closed
-        $('#dl-download-zip-modal').on('hidden.bs.modal', function() {
-          $(this).find(".modal-body").html(originalModalContent);
-        });
-    },
+        
+        }
+      },
+
+                   
 
     /**
      * Marks changed form fields as dirty.
