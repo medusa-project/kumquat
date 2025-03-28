@@ -151,6 +151,18 @@ const Application = {
                 `;
 
                 modalBody.html(waitMessageHTML);
+
+                const pollingUrl = xhr.getResponseHeader("X-Kumquat-Location");
+                if (!pollingUrl) {
+                  modalBody.append("<p class='text-danger'>Error: No polling URL found.</p>");
+                  return
+                }
+
+                startPolling(pollingUrl);
+            },
+            error: function(request, status, error) {
+              const message = request.getResponseHeader('X-Kumquat-Message') || "An error occurred.";
+              form.prepend(`<div class='alert alert-danger'>${message}</div`);
             }
           })
         
