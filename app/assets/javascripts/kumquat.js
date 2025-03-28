@@ -177,7 +177,7 @@ const Application = {
           dataType: 'json',
           success: function (data, status, xhr) {
             let href = data.filename ? `/downloads/${data.key}/file` : data.url;
-            let pct = data.task.total > 0 ? Math.round(100 * data.task.current / data.task.total) : 0;
+            // let pct = data.task.total > 0 ? Math.round(100 * data.task.current / data.task.total) : 0;
 
             if (parseInt(data.task.status) === 4) {
               modalBody.html("<p>There was an error preparing the file.</p>");
@@ -197,12 +197,10 @@ const Application = {
                 <p>Your file is being prepared. Please wait...</p>
                 <div class="progress">
                   <div class="progress-bar progress-bar-striped progress-bar-animated bg-info"
-                    role="progressbar" style="width: ${pct}%;">
+                    role="progressbar" style="width: 100%;">
                   </div>
-                </div>
-                <p class="text-center">${pct}%</p>`
-                  
-              );
+                </div>  
+              `);
             }
           },
           error: function() {
