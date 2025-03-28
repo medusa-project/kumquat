@@ -126,91 +126,105 @@ const Application = {
     },
 
     CaptchaProtectedDownload: function() {
-        const forms = $(".dl-captcha-form");
-        forms.on("submit", function(e) {
-            e.preventDefault();
-            const form = $(e.target);
-            form.find(".alert").remove();
-            let url;
-            if (form.attr("action").includes("?")) {
-                url = form.attr('action') + "&" + form.serialize();
-            } else {
-                url = form.attr('action') + "?" + form.serialize();
-            }
-            $.ajax({
-                url:      url,
-                method:   'GET',
-                dataType: 'script',
-                success:  function(data, status, xhr) {
-                    const waitMessageHTML = '<p>Your file is being prepared. ' +
-                        'When it\'s ready, a download button will appear below.</p>';
-                    const modalBody = form.parents(".modal-body");
-                    form.remove();
-                    modalBody.html(waitMessageHTML +
-                        '<div class="text-center">' +
-                            '<div class="progress-bar progress-bar-striped progres-bar-animated bg-info" ' + 
-                              'role="progressbar" style="width: 100%; height: 2em;"></div>' +
-                            '</div>' +
-                        '</div>');
-                    
+        const modal = $("#dl-download-zip-modal");
+        const modalBody = modal.find(".modal-body");
+        const originalModalContent = modalBody.html();
+        function handleFormSubmit(e) {
+          e.preventDefault();
+          const form = $(e.target);
+          form.find(".alert").remove();
 
-                    // Poll the Download representation at an interval, updating
-                    // the modal content (e.g. progress bar) at each refresh.
-                    const intervalID = setInterval(function() {
-                        $.ajax({
-                            url:      xhr.getResponseHeader("X-Kumquat-Location"),
-                            method:   'GET',
-                            dataType: 'json',
-                            success:  function(data, status, xhr) {
-                                var href = null;
-                                if (data.filename) {
-                                    href = "/downloads/" + data.key + "/file";
-                                } else if (data.url) {
-                                    href = data.url;
-                                }
-                                if (parseInt(data.task.status) === 4) { // failed
-                                    modalBody.html("<p>There was an error preparing the file.</p>");
-                                    clearInterval(intervalID);
-                                } else if (href) {
-                                    modalBody.html('<div class="text-center">' +
-                                            '<a href="' + href + '" class="btn btn-lg btn-success">' +
-                                                '<i class="fa fa-download"></i> Download' +
-                                            '</a>' +
-                                        '</div>');
-                                    clearInterval(intervalID);
-                                } else if (!data.task.indeterminate) {
-                                    const pct = Math.round(data.task.percent_complete * 100);
-                                    modalBody.html(waitMessageHTML +
-                                        '<div class="progress mt-3" style="height: 2em">' +
-                                            '<div class="progress-bar progress-bar-striped progress-bar-animated bg-info" ' +
-                                                'aria-valuemax="100" ' +
-                                                'aria-valuemin="0" ' +
-                                                'aria-valuenow="' + pct + '" ' +
-                                                'role="progressbar" ' +
-                                                'style="width:' + pct + '%">' +
-                                            '</div>' +
-                                        '</div>' +
-                                        '<span class="sr-only">' + pct + '% complete</span>' +
-                                        '<p class="text-center">' + pct + '%</p>');
-                                }
-                            },
-                            error: function(request, status, error) {
-                                clearInterval(intervalID);
-                                const message = request.getResponseHeader('X-Kumquat-Message');
-                                modalBody.append(
-                                    "<div class='alert alert-danger'>" + message + "</div>");
-                            }
-                        });
-                    }, 5000);
-                },
-                error: function(request, status, error) {
-                    const message = request.getResponseHeader('X-Kumquat-Message');
-                    form.prepend(
-                        "<div class='alert alert-danger'>" + message + "</div>");
-                }
-            });
-        })
-    },
+          let url = form.attr("action").includes("?")
+            ? form.attr('action') + "&" + form.serialize()
+            : form.attr('action') + "?" + form.serialize();
+
+          $.ajax({
+            url: url,
+            method: 'GET',
+            dataType: 'script',
+            success: function (data, status, xhr) {
+              const waitMessageHTML = `
+                <p>Your file is being prepared. When it's ready, a download button will appear below.</p>
+                <div class="text-center">
+                  <div class="progress-bar progress-bar-striped progres-bar-animated bg-info"
+                    role="progressbar" style="width: 100%; height: 2em;">
+                </div>
+              </div>
+            `;
+
+            modalBody.html(waitMessageHTML);
+
+            const pollingUrl = xhr.getResponseHeader("X-Kumquat-Location");
+            if (!pollingUrl) {
+              modalBody.append("<p class='text-danger'>Error: No polling URL found.</p>");
+              return;
+            }
+
+            startPolling(pollingUrl);
+      },
+      error: function(request, status, error) {
+        const message = request.getResponseHeader('X-Kumquat-Message') || "An error occurred.";
+        form.prepend(`<div class='alert alert-danger'>${message}</div`);
+        }
+      });
+    }
+
+    function startPolling(pollingUrl) {
+      const intervalID = setInterval(function () {
+        $.ajax({
+          url: pollingUrl,
+          method: 'GET',
+          dataType: 'json',
+          success: function (data, status, xhr) {
+            let href = data.filename ? `/downloads/${data.key}/file` : data.url;
+            // let pct = data.task.total > 0 ? Math.round(100 * data.task.current / data.task.total) : 0;
+
+            if (parseInt(data.task.status) === 4) {
+              modalBody.html("<p>There was an error preparing the file.</p>");
+              clearInterval(intervalID);
+            } else if (href) {
+              modalBody.html(`
+                <p class="text-center">Your download is ready!</p>
+                <div class="text-center mt-3">
+                  <a href="${href}" class="btn btn-success btn-lg d-flex align-items-center justify-content-center" download>
+                    <i class="fas fa-download me-2"></i>Download File
+                  </a>
+                </div>
+              `);
+              clearInterval(intervalID);
+            } else {
+              modalBody.html(`
+                <p>Your file is being prepared. Please wait...</p>
+                <div class="progress">
+                  <div class="progress-bar progress-bar-striped progress-bar-animated bg-info"
+                    role="progressbar" style="width: 100%;">
+                  </div>
+                </div>  
+              `);
+            }
+          },
+          error: function() {
+            clearInterval(intervalID);
+            modalBody.append("<p class='alert alert-danger'>Failed to retrieve download status.</p>");
+          }
+        });
+      }, 5000);
+    }
+
+  // Note: This doesn't allow for parallel downloads. 
+  // The user will have to wait for the first download batch to finish before starting again. 
+  // Might want to refactor this at some point.
+    function resetModal() {
+      modalBody.html(originalModalContent);
+      modal.find(".dl-captcha-form").off("submit", handleFormSubmit).on("submit", handleFormSubmit);
+    }
+
+    modal.find(".dl-captcha-form").on("submit", handleFormSubmit);
+
+    modal.on('hidden.bs.modal', resetModal);
+  },
+
+                   
 
     /**
      * Marks changed form fields as dirty.
