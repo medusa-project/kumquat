@@ -528,7 +528,7 @@ class ItemsController < WebsiteController
             end_index = [start_index + limit - 1, item_ids.length - 1].min 
             batch_item_ids = item_ids[start_index..end_index]
 
-            zip_name = "items-#{start_index + 1}-#{end_index + 1}"
+            zip_name = "files-#{start_index + 1}-#{end_index + 1}"
             
           else
             batch_item_ids = item_ids
