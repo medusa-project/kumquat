@@ -520,13 +520,27 @@ class ItemsController < WebsiteController
         item_ids = items.map(&:repository_id)
         if item_ids.any?
           download = Download.create(ip_address: request.remote_ip)
+
+          start_index = params[:download_start].to_i 
+          limit = params[:limit].to_i
+
+          if limit > 0
+            end_index = [start_index + limit - 1, item_ids.length - 1].min 
+            batch_item_ids = item_ids[start_index..end_index]
+
+            zip_name = "files-#{start_index + 1}-#{end_index + 1}"
+            
+          else
+            batch_item_ids = item_ids
+          end
+
           if params[:contents]&.match?(/jpegs/)
             CreateZipOfJpegsJob.perform_later(item_ids:                 item_ids,
                                               zip_name:                 zip_name,
                                               include_private_binaries: current_user&.medusa_user?,
                                               download:                 download)
           else
-            DownloadZipJob.perform_later(item_ids:                 item_ids,
+            DownloadZipJob.perform_later(item_ids:                 batch_item_ids,
                                          zip_name:                 zip_name,
                                          include_private_binaries: current_user&.medusa_user?,
                                          download:                 download)

@@ -51,7 +51,7 @@
 -# num_downloadable_items is potentially expensive to calculate.
 = render partial: 'download_zip_panel',
          locals: { context: item.directory? ? :directory : :item,
-                   num_downloadable_items: @downloadable_items.length,
+                   num_downloadable_items: item.directory? ? @downloadable_items.length : (item.file? ? 1 : @downloadable_items.length),
                    total_byte_size: @total_byte_size }
 = render partial: 'download_zip_of_jpegs_panel', locals: { item: item }
 = render partial: 'download_pdf_panel', locals: { item: item }
