@@ -126,103 +126,131 @@ const Application = {
     },
 
     CaptchaProtectedDownload: function() {
-        const modal = $("#dl-download-zip-modal");
-        const modalBody = modal.find(".modal-body");
-        const originalModalContent = modalBody.html();
-        function handleFormSubmit(e) {
+      // Handle modal batch and PDF downloads
+        const batchModal = $("#dl-download-zip-modal");
+        const batchModalBody = batchModal.find(".modal-body");
+        const originalBatchModalContent = batchModalBody.length ? batchModalBody.html() : "";
+
+        // Common form submission for both
+        function handleCaptchaFormSubmit(e) {
           e.preventDefault();
           const form = $(e.target);
           form.find(".alert").remove();
 
-          let url = form.attr("action").includes("?")
-            ? form.attr('action') + "&" + form.serialize()
-            : form.attr('action') + "?" + form.serialize();
+          // Check if this is inside the modal or a standalone download
+          const isModalForm = form.closest("#dl-download-zip-modal").length > 0;
+          const container = isModalForm ? batchModalBody : form.parents(".modal-body");
+
+          let url;
+          if (form.attr("action").includes("?")) {
+            url = form.attr('action') + "&" + form.serialize();
+          } else {
+            url = form.attr('action') + "?" + form.serialize();
+          }
+          
 
           $.ajax({
             url: url,
             method: 'GET',
             dataType: 'script',
             success: function (data, status, xhr) {
-              const waitMessageHTML = `
-                <p>Your file is being prepared. When it's ready, a download button will appear below.</p>
-                <div class="text-center">
-                  <div class="progress-bar progress-bar-striped progres-bar-animated bg-info"
-                    role="progressbar" style="width: 100%; height: 2em;">
-                </div>
-              </div>
-            `;
+              const waitMessageHTML = '<p>Your file is being prepared. ' + 
+                  'When it\'s ready, a download button will appear below.</p>';
+              
+              form.remove()
+              container.html(waitMessageHTML +
+                '<div class="progress mt-3" style="height: 2em">' +
+                  '<div class="progress-bar progress-bar-striped progress-bar-animated bg-info" ' +
+                      'role="progrssbar" ' +    
+                      'style="width: 100%">' +
+                  '</div>' +
+                '</div>');
 
-            modalBody.html(waitMessageHTML);
-
+            // Get the polling URL from the response header
             const pollingUrl = xhr.getResponseHeader("X-Kumquat-Location");
             if (!pollingUrl) {
-              modalBody.append("<p class='text-danger'>Error: No polling URL found.</p>");
+              container.append("<p class='text-danger'>Error: No polling URL found.</p>");
               return;
             }
 
-            startPolling(pollingUrl);
-      },
-      error: function(request, status, error) {
-        const message = request.getResponseHeader('X-Kumquat-Message') || "An error occurred.";
-        form.prepend(`<div class='alert alert-danger'>${message}</div`);
-        }
-      });
-    }
+            console.log("starting polling for:", pollingUrl);
 
-    function startPolling(pollingUrl) {
-      const intervalID = setInterval(function () {
-        $.ajax({
-          url: pollingUrl,
-          method: 'GET',
-          dataType: 'json',
-          success: function (data, status, xhr) {
-            let href = data.filename ? `/downloads/${data.key}/file` : data.url;
-            // let pct = data.task.total > 0 ? Math.round(100 * data.task.current / data.task.total) : 0;
+            // Poll the Download representation at each interval
+            const intervalID = setInterval(function() {
+                $.ajax({
+                    url: pollingUrl,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (data, status, xhr) {
+                      console.log("Poll response:", data); // debug
 
-            if (parseInt(data.task.status) === 4) {
-              modalBody.html("<p>There was an error preparing the file.</p>");
-              clearInterval(intervalID);
-            } else if (href) {
-              modalBody.html(`
-                <p class="text-center">Your download is ready!</p>
-                <div class="text-center mt-3">
-                  <a href="${href}" class="btn btn-success btn-lg d-flex align-items-center justify-content-center" download>
-                    <i class="fas fa-download me-2"></i>Download File
-                  </a>
-                </div>
-              `);
-              clearInterval(intervalID);
-            } else {
-              modalBody.html(`
-                <p>Your file is being prepared. Please wait...</p>
-                <div class="progress">
-                  <div class="progress-bar progress-bar-striped progress-bar-animated bg-info"
-                    role="progressbar" style="width: 100%;">
-                  </div>
-                </div>  
-              `);
-            }
-          },
-          error: function() {
-            clearInterval(intervalID);
-            modalBody.append("<p class='alert alert-danger'>Failed to retrieve download status.</p>");
+                      var href = null;
+                      if (data.filename) {
+                        href = "/downloads/" + data.key + "/file";
+                      } else if (data.url) {
+                          href = data.url;
+                      }
+
+                      if (parseInt(data.task.status) === 4) {
+                          container.html("<p>There was an error preparing the file.</p>");
+                          console.log("Task failed. Status:", data.task.status); // debug
+                          clearInterval(intervalID);
+                      } else if (href) {
+                          container.html('<div class="text-center">' + 
+                                '<a href="' + href + '" class="btn btn-lg btn-success">' +
+                                  '<i class="fa fa-download"></i> Download' +
+                                '</a>' +
+                              '</div>');
+                          clearInterval(intervalID);
+                      } else if (!data.task.indeterminate) {
+                          const pct = Math.round(data.task.percent_complete * 100);
+                          container.html(waitMessageHTML +
+                            '<div class="progress mt-3" style="height: 2em">' +
+                              '<div class="progress-bar progress-bar-striped progress-bar-animated bg-info" ' +
+                              'aria-valuemax="100" ' +
+                              'aria-valuemin="0" ' +
+                              'aria-valuenow="' + pct + '" ' +
+                              'role="progressbar" ' +
+                              'style="width:' + pct + '%">' +
+                            '</div>' +
+                          '</div>' +
+                          '<span class="sr-only">' + pct + '% complete</span>' +
+                          '<p class="text-center">' + pct + '%</p>');
+                      }
+                  },
+                  error: function(request, status, error) {
+                    console.log("Poll error:", status, error); // debug
+                    clearInterval(intervalID);
+                    const message = request.getResponseHeader('X-Kumquat-Message') || "An error occurred.";
+                    container.append(
+                      "<div class='alert alert-danger'>" + message + "</div>");
+                  }
+                  });
+              }, 5000);
+            },
+            error: function(request, status, error) {
+              console.log("Form submission error:", status, error); // debug
+                const message = request.getResponseHeader('X-Kumquat-Message') || "An error occurred.";
+                form.prepend(
+                  "<div class='alert alert-danger'>" + message + "</div>");
+              }
+            });
           }
-        });
-      }, 5000);
-    }
 
-  // Note: This doesn't allow for parallel downloads. 
-  // The user will have to wait for the first download batch to finish before starting again. 
-  // Might want to refactor this at some point.
-    function resetModal() {
-      modalBody.html(originalModalContent);
-      modal.find(".dl-captcha-form").off("submit", handleFormSubmit).on("submit", handleFormSubmit);
-    }
+          // For the modal, handle the reset:
+          if (batchModal.length) {
+            function resetBatchModal() {
+              batchModalBody.html(originalBatchModalContent);
+              batchModal.find(".dl-captcha-form").off("submit").on("submit", handleCaptchaFormSubmit);
+            }
+            batchModal.on('hidden.bs.modal', resetBatchModal);
+        }
 
-    modal.find(".dl-captcha-form").on("submit", handleFormSubmit);
+        // Attach event handler to all the captcha forms
+        $(".dl-captcha-form").off("submit").on("submit", handleCaptchaFormSubmit);
+      },
 
-    modal.on('hidden.bs.modal', resetModal);
-  },
+  
 
                    
 
