@@ -4,7 +4,10 @@
 -# num_downloadable_items [Integer]
 -# total_byte_size [Integer]
 
-- download_size_limit = Rails.application.credentials.download_size_limit.to_f 
+- download_size_limit = Rails.application.credentials.download_size_limit 
+- download_size_limit ||= Rails.application.config.respond_to?(:download_size_limit) ? Rails.application.config.download_size_limit : nil 
+- download_size_limit ||= 150.gigabytes # Default fallback
+- Rails.logger.debug "Using download_size_limit: #{download_size_limit} (#{number_to_human_size(download_size_limit)})"
 
 - if total_byte_size > 0
   - batch_byte_size = MedusaDownloaderClient::TARGET_BATCH_BYTE_SIZE
@@ -55,7 +58,7 @@
                                                   "aria-controls": "dl-download-batches"} Download Items in Batches
             - if total_byte_size < download_size_limit 
               %li.nav-item{role: "presentation"}
-                %a#dl-download-one-tab.nav-link{href:            "#dl-download-one",
+                %a#dl-download-one-tab.nav-link.active{href:            "#dl-download-one",
                                                 "data-toggle":   "tab",
                                                 role:            "tab",
                                                 "aria-controls": "dl-download-one"} All Items in One Zip File
@@ -72,7 +75,7 @@
                   this window and send us a message using the
                   Contact us form at the bottom of the page.
           .tab-content
-            #dl-download-batches.tab-pane.fade.show{role: "tabpanel", "aria-labelledby": "dl-download-batches-tab"}
+            #dl-download-batches.tab-pane.fade{role: "tabpanel", "aria-labelledby": "dl-download-batches-tab"}
               - if total_byte_size > 0
                 %p.form-text.text-muted.text-center
                   Estimated average file size: #{number_to_human_size(batch_byte_size)}
@@ -87,7 +90,7 @@
                     - ["Batch #{i + 1}: items #{start_idx + 1} - #{end_idx + 1} (Contains #{end_idx - start_idx + 1} item(s))", start_idx]
                 .form-group
                   = select_tag :download_start, options_for_select(options), class: "form-control"
-            #dl-download-one.tab-pane.fade.show{role:              "tabpanel",
+            #dl-download-one.tab-pane.fade.show.active{role:              "tabpanel",
                                                 "aria-labelledby": "dl-download-one-tab"}
               - if total_byte_size < download_size_limit
                 %p.form-text.text-muted.text-center
