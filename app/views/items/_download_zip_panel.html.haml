@@ -4,7 +4,7 @@
 -# num_downloadable_items [Integer]
 -# total_byte_size [Integer]
 
-- download_size_limit = Rails.application.credentials.download_size_limit 
+- download_size_limit = Rails.application.credentials.download_size_limit.to_i 
 - download_size_limit ||= Rails.application.config.respond_to?(:download_size_limit) ? Rails.application.config.download_size_limit : nil 
 - download_size_limit ||= 150.gigabytes # Default fallback
 - Rails.logger.debug "Using download_size_limit: #{download_size_limit} (#{number_to_human_size(download_size_limit)})"
@@ -51,7 +51,7 @@
             = icon_for(:info)
             Estimated file size: #{number_to_human_size(total_byte_size)}
 
-          - if total_byte_size >= download_size_limit.to_i
+          - if total_byte_size >= download_size_limit
             .alert.alert-light 
               %p{ style: "color: #ff5733; text-align: center;" }
                 = icon_for(:info)
@@ -112,7 +112,7 @@
 
 
         - else
-          - if total_byte_size < download_size_limit.to_i 
+          - if total_byte_size < download_size_limit
             %p.form-text.text-muted.text-center
               Estimated file size: #{number_to_human_size(total_byte_size)}
             = download_captcha(@permitted_params.except(:start).merge(format: :zip, download_start: 0, limit: 0))
