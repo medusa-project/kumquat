@@ -112,7 +112,7 @@
 
 
         - else
-          - if total_byte_size < download_size_limit 
+          - if total_byte_size < download_size_limit.to_i 
             %p.form-text.text-muted.text-center
               Estimated file size: #{number_to_human_size(total_byte_size)}
             = download_captcha(@permitted_params.except(:start).merge(format: :zip, download_start: 0, limit: 0))
