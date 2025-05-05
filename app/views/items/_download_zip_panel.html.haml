@@ -51,7 +51,7 @@
             = icon_for(:info)
             Estimated file size: #{number_to_human_size(total_byte_size)}
 
-          - if total_byte_size >= download_size_limit 
+          - if total_byte_size >= download_size_limit.to_i
             .alert.alert-light 
               %p{ style: "color: #ff5733; text-align: center;" }
                 = icon_for(:info)
