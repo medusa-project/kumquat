@@ -80,6 +80,7 @@ module Admin
           query_all(params[:q]).
           include_unpublished(true).
           include_restricted(true).
+          search_children(true).
           order(CollectionElement.new(name: 'title').indexed_sort_field).
           start(@start).
           limit(@limit)
