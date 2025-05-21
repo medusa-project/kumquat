@@ -149,6 +149,8 @@
 #                                   text is present.)
 # * `latitude`                      Normalized latitude in decimal degrees.
 # * `longitude`                     Normalized longitude in decimal degrees.
+# * `ocred`                         Whether item(s) have been run through OCR. Default
+#                                   is `false`. 
 # * `page_number`                   Literal page number of a page-variant item.
 # * `parent_repository_id`          See "Identifiers" above.
 # * `published`                     Controls public availability. Unpublished
@@ -347,6 +349,13 @@ class Item < ApplicationRecord
   before_save :process_allowed_netids, :notify_netids,
               :prune_identical_elements, :set_effective_host_groups,
               :set_normalized_coords, :set_normalized_date, :set_published_at
+
+  ##
+  # @return [Boolean]
+  # 
+  def ocred?
+    self.ocred 
+  end
 
   ##
   # @return [Integer]
