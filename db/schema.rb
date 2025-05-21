@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_01_213450) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_21_163958) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -300,6 +300,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_01_213450) do
     t.string "representative_image"
     t.string "representation_type", default: "self", null: false
     t.text "allowed_netids"
+    t.boolean "ocred"
     t.index ["collection_repository_id"], name: "index_items_on_collection_identifier"
     t.index ["parent_repository_id"], name: "index_items_on_parent_identifier"
     t.index ["published"], name: "index_items_on_published"
