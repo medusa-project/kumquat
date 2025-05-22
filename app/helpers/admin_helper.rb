@@ -247,9 +247,15 @@ module AdminHelper
       end
 
       if item.expose_full_text_search
-        info_sections << '<span class="text-success"><i class="fa fa-check"></i> Full Text Search</span>'
+        info_sections << '<span class="text-success"><i class="fa fa-check"></i> Full Text Search Enabled</span>'
       else
-        info_sections << '<span class="text-danger"><i class="fa fa-times"></i> Full Text Search</span>'
+        info_sections << '<span class="text-danger"><i class="fa fa-times"></i> Full Text Search Enabled</span>'
+      end
+
+      if item.ocred?
+        info_sections << '<span class="text-success"><i class="fa fa-check"></i> OCR</span>'
+      else
+        info_sections << '<span class="text-danger"><i class="fa fa-times"></i> OCR</span>'
       end
 
       html << '<span class="dl-info-line">'
