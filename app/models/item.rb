@@ -351,13 +351,6 @@ class Item < ApplicationRecord
               :set_normalized_coords, :set_normalized_date, :set_published_at
 
   ##
-  # @return [Boolean]
-  # 
-  def ocred?
-    self.ocred 
-  end
-
-  ##
   # @return [Integer]
   #
   def self.num_free_form_files
@@ -1127,6 +1120,13 @@ class Item < ApplicationRecord
     self.ocrable_binaries(recursive: recursive).where('ocred_at IS NOT NULL')
   end
 
+  ##
+  # @return [Boolean]
+  # 
+  def ocred?
+    self.ocred 
+  end
+  
   ##
   # @return [ActiveRecord::Relation<Item>] All children with a
   #                                        {Variants::PAGE page variant}.
