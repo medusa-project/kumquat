@@ -56,6 +56,7 @@ class OcrItemJob < ApplicationJob # TODO: replace this with OcrItemsJob
       binary.save!
       binary.item.reindex
     end
+    main_item.update!(ocred: true)
   end
 
 end
