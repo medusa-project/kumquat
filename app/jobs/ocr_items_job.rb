@@ -42,6 +42,7 @@ class OcrItemsJob < ApplicationJob
       binary.save!
       binary.item.reindex
     end
+    Item.where(repository_id: args[:item_ids]).update_all(ocred: true)
   end
 
 end
