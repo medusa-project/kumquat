@@ -43,6 +43,7 @@ class OcrCollectionJob < ApplicationJob
       binary.save!
       binary.item.reindex
     end
+    collection.items.update!(ocred: true)
   end
 
 end

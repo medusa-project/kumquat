@@ -27,6 +27,7 @@ class OcrBinaryJob < ApplicationJob
     binary.detect_text(language: args[:language_code])
     binary.save!
     binary.item.reindex
+    binary.item.update!(ocred: true)
 
     self.task&.succeeded
   end
