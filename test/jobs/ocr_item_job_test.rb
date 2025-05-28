@@ -5,7 +5,7 @@ class OcrItemJobTest < ActiveSupport::TestCase
   # perform()
 
   test 'perform()' do
-    item = Item.create!(title: "Test Item")
+    item = items(:compound_object_1001)
     Binary.create!(item: item, master_type: Binary::MasterType::ACCESS,
                             media_type: 'image/png')
 
