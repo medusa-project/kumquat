@@ -5,7 +5,16 @@ class OcrItemJobTest < ActiveSupport::TestCase
   # perform()
 
   test 'perform()' do
-    # TODO: write this
+    item = items(:compound_object_1001)
+    Binary.create!(item: item, master_type: Binary::MasterType::ACCESS,
+                            media_type: 'image/png', byte_size: 123, 
+                            object_key: 'test-key')
+
+    Binary.any_instance.stubs(:detect_text).returns(true)
+    OcrItemJob.perform_now(item: item, language_code: 'eng', include_already_ocred: true)
+
+    item.reload 
+    assert_equal true, item.ocred?
   end
 
 end
