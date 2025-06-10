@@ -39,6 +39,7 @@ class OcrItemsJob < ApplicationJob
                                     num_threads: num_threads,
                                     task: self.task) do |binary|
       binary.detect_text(language: args[:language_code])
+      binary.ocred_at = Time.current 
       binary.save!
       binary.item.reindex
     end
