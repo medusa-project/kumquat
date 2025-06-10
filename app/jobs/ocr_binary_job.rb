@@ -25,6 +25,7 @@ class OcrBinaryJob < ApplicationJob
     self.task&.update(status_text: "Running OCR on #{binary.object_key}")
 
     binary.detect_text(language: args[:language_code])
+    binary.ocred_at = Time.current 
     binary.save!
     binary.item.reindex
     binary.item.update!(ocred: true)
