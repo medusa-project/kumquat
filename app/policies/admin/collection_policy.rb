@@ -29,6 +29,10 @@ module Admin
       update?
     end
 
+    def export_permalinks_and_metadata?
+      show?
+    end
+
     def index?
       @user.medusa_user?
     end
