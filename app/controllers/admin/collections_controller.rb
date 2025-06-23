@@ -67,6 +67,34 @@ module Admin
     end
 
     ##
+    # Responds to 
+    # `GET /admin/collections/:collection_id/export_permalinks_and_metadata`
+    #
+    def export_permalinks_and_metadata
+      authorize(@collection)
+      items = @collection.items
+
+      headers = ['Local ID', 'Collection Name', 'Object Title or Filename', 'Permalink'] # add any other
+      # headers you want to include in the TSV file here
+      tsv = StringIO.new
+      tsv << headers.join("\t") + "\n"
+      items.find_each do |item|
+        object_title = item.title.to_s.gsub(/\s+/, ' ').strip
+        local_id = item.id 
+        collection_name = @collection.title.to_s.gsub(/\s+/, ' ').strip
+        permalink = item_url(item, only_path: false)
+        tsv << [local_id, collection_name, object_title, permalink].join("\t") + "\n" # add any other
+        # metadata you want to include in the TSV file here based on the headers
+        # defined above
+      end
+
+      send_data tsv.string,
+                filename: "#{@collection.title.parameterize}-permalinks_and_metadata.tsv",
+                type:     'text/tab-separated-values'
+  
+    end
+
+    ##
     # Responds to `GET /admin/collections`
     #
     def index
