@@ -74,7 +74,7 @@ module Admin
       authorize(@collection)
       items = @collection.items
 
-      headers = ['Local ID', 'Collection Name', 'Object Title or Filename', 'Permalink'] # add any other
+      headers = ['Local ID', 'Collection Name', 'Object Title', 'Filename', 'Object Type', 'Permalink'] # add any other
       # headers you want to include in the TSV file here
       tsv = StringIO.new
       tsv << headers.join("\t") + "\n"
@@ -82,8 +82,12 @@ module Admin
         object_title = item.title.to_s.gsub(/\s+/, ' ').strip
         local_id = item.id 
         collection_name = @collection.title.to_s.gsub(/\s+/, ' ').strip
+
+        # Determine the type of item to filter whether permalink is for individual file or not:
+        object_type = item.variant.blank? ? 'Compound Object' : 'Individual File/Page'
         permalink = item_url(item, only_path: false)
-        tsv << [local_id, collection_name, object_title, permalink].join("\t") + "\n" # add any other
+
+        tsv << [local_id, collection_name, object_title, object_type, permalink].join("\t") + "\n" # add any other
         # metadata you want to include in the TSV file here based on the headers
         # defined above
       end
