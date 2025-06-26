@@ -74,22 +74,27 @@ module Admin
       authorize(@collection)
       items = @collection.items
 
-      headers = ['Local ID', 'Collection Name', 'Object Title', 'Filename', 'Object Type', 'Permalink'] # add any other
-      # headers you want to include in the TSV file here
-      tsv = StringIO.new
+      headers = ['Bib ID', 'Identifier', 'Collection Name', 'Object Title or Filename', 'Object Type', 'Permalink'] 
       tsv << headers.join("\t") + "\n"
+      
+      # Find the collection's metadata profile and the localId element from Dublin Core
+      profile = @collection.effective_metadata_profile
+      local_id_element = profile.elements.find { |e| e.dcterms_map == "localId" || e.dc_map == "localId" }
+      
       items.find_each do |item|
+        bib_id = item.bib_id.to_s 
         object_title = item.title.to_s.gsub(/\s+/, ' ').strip
-        local_id = item.id 
         collection_name = @collection.title.to_s.gsub(/\s+/, ' ').strip
 
-        # Determine the type of item to filter whether permalink is for individual file or not:
+        identifier = if local_id_element 
+          item.elements.find { |el| el.name == local_id_element.name }&.value
+        end
+
+        # Determine whether permalink is for individual file or not:
         object_type = item.variant.blank? ? 'Compound Object' : 'Individual File/Page'
         permalink = item_url(item, only_path: false)
 
-        tsv << [local_id, collection_name, object_title, object_type, permalink].join("\t") + "\n" # add any other
-        # metadata you want to include in the TSV file here based on the headers
-        # defined above
+        tsv << [bib_id, identifier, collection_name, object_title, object_type, permalink].join("\t") + "\n" 
       end
 
       send_data tsv.string,
