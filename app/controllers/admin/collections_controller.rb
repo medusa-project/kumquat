@@ -78,9 +78,9 @@ module Admin
       tsv = StringIO.new
       tsv << headers.join("\t") + "\n"
 
-      # Find the collection's metadata profile and the localId element from Dublin Core
+      # Find the collection's metadata profile and the localId element 
       profile = @collection.effective_metadata_profile
-      local_id_element = profile.elements.find { |e| e.dcterms_map == "localId" || e.dc_map == "localId" }
+      local_id_element = profile.elements.find { |e| e.name == "localId" }
       
       items.find_each do |item|
         bib_id = item.bib_id.to_s 
@@ -88,7 +88,7 @@ module Admin
         collection_name = @collection.title.to_s.gsub(/\s+/, ' ').strip
 
         identifier = if local_id_element 
-          item.elements.find { |el| el.name == local_id_element.name }&.value
+          item.elements.find { |el| el.name == "localId" }&.value
         end
 
         # Determine whether permalink is for individual file or not:
