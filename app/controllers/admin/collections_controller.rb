@@ -75,8 +75,9 @@ module Admin
       items = @collection.items
 
       headers = ['Bib ID', 'Identifier', 'Collection Name', 'Object Title or Filename', 'Object Type', 'Permalink'] 
+      tsv = StringIO.new
       tsv << headers.join("\t") + "\n"
-      
+
       # Find the collection's metadata profile and the localId element from Dublin Core
       profile = @collection.effective_metadata_profile
       local_id_element = profile.elements.find { |e| e.dcterms_map == "localId" || e.dc_map == "localId" }
