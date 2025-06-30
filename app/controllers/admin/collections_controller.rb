@@ -74,13 +74,13 @@ module Admin
       authorize(@collection)
       items = @collection.items
 
-      headers = ['Bib ID', 'Identifier', 'Collection Name', 'Object Title or Filename', 'Object Type', 'Permalink'] 
+      headers = ['Identifier', 'Collection Name', 'Object Title or Filename', 'Object Type', 'Permalink', 'Bib ID'] 
       tsv = StringIO.new
       tsv << headers.join("\t") + "\n"
 
       # Find the collection's metadata profile and the localId element 
       profile = @collection.effective_metadata_profile
-      local_id_element = profile.elements.find { |e| e.name == "localId" }
+      local_id_element = profile.elements.find { |e| e.name == "localId" || e.name == "identifier" }
       
       items.find_each do |item|
         bib_id = item.bib_id.to_s 
@@ -88,14 +88,14 @@ module Admin
         collection_name = @collection.title.to_s.gsub(/\s+/, ' ').strip
 
         identifier = if local_id_element 
-          item.elements.find { |el| el.name == "localId" }&.value
+          item.elements.find { |el| el.name == "localId" || el.name == "identifier" }&.value
         end
 
         # Determine whether permalink is for individual file or not:
         object_type = item.variant.blank? ? 'Compound Object' : 'Individual File/Page'
         permalink = item_url(item, only_path: false)
 
-        tsv << [bib_id, identifier, collection_name, object_title, object_type, permalink].join("\t") + "\n" 
+        tsv << [identifier, collection_name, object_title, object_type, permalink, bib_id].join("\t") + "\n" 
       end
 
       send_data tsv.string,
