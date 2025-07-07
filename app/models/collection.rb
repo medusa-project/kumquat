@@ -751,6 +751,13 @@ harvestableByPrimo)
     nil
   end
 
+  ##
+  # @return [Integer] Total number of items across subcollections (parent collection's children collections)
+  #                   
+  def subcollections_public_items_count
+    children.sum(&:num_public_objects)
+  end
+
   def to_param
     self.repository_id
   end
