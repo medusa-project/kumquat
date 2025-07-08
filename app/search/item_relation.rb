@@ -29,6 +29,11 @@ class ItemRelation < AbstractRelation
     self
   end
 
+  def collections(ids)
+    @collections = ids
+    self
+  end
+
   ##
   # @param variants [String] One or more `Item::Variants` constant values.
   # @return [ItemRelation] The instance.
