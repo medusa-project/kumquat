@@ -6,7 +6,10 @@
 %form.form-inline.float-right{action: "#{collection_items_path(@collection)}",
                               method: "get"}
   .input-group
-    - if @collection.published_in_dls && @uofi_user
+    - if @children.count > 1 || (@collection.published_in_dls && @uofi_user) 
+      -# Add hidden fields for collection_ids 
+      - @collection_ids.each do |id|
+        = hidden_field_tag 'collection_ids[]', id
       .input-group-prepend
         %span.input-group-text
           %i.fa.fa-search
