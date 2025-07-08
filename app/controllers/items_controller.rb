@@ -8,7 +8,7 @@ class ItemsController < WebsiteController
     SEARCHING           = 2
   end
 
-  PERMITTED_SEARCH_PARAMS = [:_, :collection_id, :df, :display, :download_start,
+  PERMITTED_SEARCH_PARAMS = [:_, :collection_id, { collection_ids: [] }, :df, :display, :download_start,
                              { fq: [] }, :field, :format, :id, :limit, :q,
                              :sort, :start]
 
