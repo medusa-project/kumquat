@@ -232,11 +232,16 @@ class ItemRelation < AbstractRelation
               end
             end
 
-            if @collection
+            if @collections
               j.child! do
+                j.terms do
+                  j.set! Item::IndexFields::COLLECTION, @collections
+                end
+              end
+            elsif @collection 
+              j.child! do 
                 j.term do
-                  j.set! Item::IndexFields::COLLECTION,
-                         @collection.repository_id
+                  j.set! Item::IndexFields::COLLECTION, @collection.repository_id
                 end
               end
             end
