@@ -60,6 +60,7 @@ class CollectionsController < WebsiteController
   # residing in them are NOT.
   #
   def show
+    @collection_ids = [@collection.repository_id] + @collection.children.pluck(:repository_id)
     @uofi_user = @collection.authorized_by_any_host_groups?(request_context.client_host_groups)
     respond_to do |format|
       format.html do
