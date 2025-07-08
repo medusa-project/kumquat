@@ -684,6 +684,7 @@ class ItemsController < WebsiteController
       sort = el.indexed_sort_field if el
     end
 
+    collection_ids = query[:collection_ids].presence || [query[:collection_id]].compact
     relation = Item.search.
         host_groups(client_host_groups).
         collection(@collection).
@@ -691,6 +692,11 @@ class ItemsController < WebsiteController
         order(sort).
         start(session[:start])
 
+    if collection_ids.present?
+      relation.collections(collection_ids)
+    elsif @collection
+      relation.collection(@collection)
+    end
     # Return results flattened if not viewing a file tree.
     if @collection&.free_form? && action_name != "tree_data"
       relation.search_children(true).
