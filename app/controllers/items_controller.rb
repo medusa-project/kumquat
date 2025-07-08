@@ -234,6 +234,8 @@ class ItemsController < WebsiteController
   #
   def index
     authorize(Item)
+    collection_ids = params[:collection_ids] || [params[:collection_id]]
+    @items = Item.where(collection_repository_id: collection_ids)
     if !@collection && params[:q].blank?
       # We are not allowed to access /items without a query. /items is an
       # application-wide search endpoint, and we would prefer to direct users
