@@ -78,19 +78,9 @@
     Subcollections
     %small
       %span.badge.badge-pill.badge-secondary= @children.count
-    .row 
-    .col 
-      %div.mt-3.mb-3 
-        |
-        %span.text-muted
-          = 'Item'.pluralize(@collection.subcollections_public_items_count)
-        %small
-          %span.badge.badge-pill.badge-secondary
-            = number_with_delimiter(@collection.subcollections_public_items_count)
   .dl-cards-container.clearfix
     .dl-cards
       = entities_as_cards(@children)
-  
 
 .text-center.email-curator
   - mailto = curator_mailto(@collection)
