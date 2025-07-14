@@ -5,6 +5,13 @@
                 class: 'btn btn-lg btn-outline-primary') do
         Browse Collection
         = icon_for(@collection)
+    - elsif @children.count > 0
+      -# If the collection has subcollections, link to subcollection section where 
+      -# users can see counts of items in subcollections and click on each card/entity.
+      = link_to '#subcollections', class: 'btn btn-lg btn-outline-primary' do 
+        = number_with_delimiter(@children.count)
+        = 'Subcollection'.pluralize(@children.count)
+        = icon_for(Item)
     - elsif @collection.published_in_dls 
       -# If the collection contains only one item, link straight to it.
       - if @num_public_objects == 1
