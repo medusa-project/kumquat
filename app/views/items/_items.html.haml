@@ -4,7 +4,7 @@
     .col-md-auto
       = page_links
   .dl-cards.d-none.d-sm-block.d-md-none
-    = entities_as_cards(@items)
+    = entities_as_cards(@items. select {|i| i.is_a?(Collection)}) if @items.first.is_a?(Collection)
   .d-sm-none.d-md-block
     = entities_as_media(@items, show_collections: !@collection)
   .row.justify-content-md-center
