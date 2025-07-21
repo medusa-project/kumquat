@@ -217,7 +217,9 @@ module ApplicationHelper
       html <<     '<h4 class="dl-title">'
       html <<       link_to(entity.title, entity)
       html <<     '</h4>'
-      html <<       raw("#{entity.num_public_objects} Items")
+      if entity.num_public_objects > 0
+        html <<         raw("#{entity.num_public_objects} Items")
+      end
       html <<   '</div>'
       html << '</div>'
     end
