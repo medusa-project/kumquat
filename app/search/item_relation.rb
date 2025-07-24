@@ -163,6 +163,7 @@ class ItemRelation < AbstractRelation
   # @return [String] JSON string.
   #
   def build_query
+    collections_array = @collections ? Array(@collections).flatten.compact : nil
     Jbuilder.encode do |j|
       j.track_total_hits true
       j.query do
@@ -232,14 +233,14 @@ class ItemRelation < AbstractRelation
               end
             end
 
-            if @collections
-              j.child! do
+            if collections_array && collections_array.any?
+              j.child! do 
                 j.terms do
-                  j.set! Item::IndexFields::COLLECTION, @collections
+                  j.set! Item::IndexFields::COLLECTION, collections_array
                 end
               end
-            elsif @collection 
-              j.child! do 
+            elsif @collection
+              j.child! do
                 j.term do
                   j.set! Item::IndexFields::COLLECTION, @collection.repository_id
                 end
