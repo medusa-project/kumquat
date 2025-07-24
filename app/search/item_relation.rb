@@ -30,7 +30,7 @@ class ItemRelation < AbstractRelation
   end
 
   def collections(ids)
-    @collections = ids
+    @collections = Array(ids).flatten.compact # Ensure that we have an array of IDs.
     self
   end
 
