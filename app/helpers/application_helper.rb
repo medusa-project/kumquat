@@ -202,11 +202,13 @@ module ApplicationHelper
                                               region: 'square',
                                               size:   CARD_IMAGE_SIZE)
       else
-        case entity.class.to_s
-          when 'Collection'
-            img_url = image_url('fa-folder-open-o-600.png')
-          else
-            img_url = image_url('fa-cube-600.png')
+        # For collections, use representative image if available, otherwise show folder icon
+        if entity.class.to_s == 'Collection' && entity.representative_image.present?
+          img_url = ImageServer.file_image_v2_url(file: entity.representative_image, region: 'square', size: CARD_IMAGE_SIZE)
+        elsif entity.class.to_s == 'Collection'
+          img_url = image_url('fa-folder-open-o-600.png')
+        else
+          img_url = image_url('fa-cube-600.png')
         end
       end
       html << '<div class="dl-card">'
