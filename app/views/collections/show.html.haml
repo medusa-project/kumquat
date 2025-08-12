@@ -80,7 +80,14 @@
       %span.badge.badge-pill.badge-secondary= @children.count
   .dl-cards-container.clearfix
     .dl-cards
-      = entities_as_cards(@children)
+      - @children.each do |child|
+        .dl-card
+          .dl-card-content
+            = link_to child do
+              = thumbnail_tag(child, shape: :square, size: 256)
+            %h4.dl-title= link_to(child.title, child)
+            - if child.num_public_objects > 0
+              = raw("#{child.num_public_objects} Items")
 
 .text-center.email-curator
   - mailto = curator_mailto(@collection)
