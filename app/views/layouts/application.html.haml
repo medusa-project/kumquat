@@ -19,21 +19,33 @@
     %link{rel: "stylesheet", href: "https://cdn.toolkit.illinois.edu/2/toolkit.css"}
     %script{src: "https://cdn.toolkit.illinois.edu/2/toolkit.js"}
     %script{src: "https://kit.fontawesome.com/72baa8e3c1.js", crossorigin: "anonymous"}
+    %script{src: "https://cdn.disability.illinois.edu/skipto.min.js"}
+    :javascript 
+      var SkipToConfig = { 
+        settings: {
+          skipTo: {
+            displayOption: 'popup',
+            colorTheme: 'illinois'
+          }
+        }
+      };
   %body{id: yield(:body_id).present? ? raw(yield(:body_id)) : nil,
         "data-nav": yield(:active_nav)}
     = hidden_field_tag('dl-root-path', root_path)
     = hidden_field_tag('dl-root-url', root_url)
     = hidden_field_tag('dl-current-path', request.path)
-    .container-fluid
-      - if request.path == '/'
-        %header
-          = render partial: 'layouts/top_header'
-      - else
+    - if request.path == '/'
+      %header
+        = render partial: 'layouts/top_header'
+    - else
+      %header
         = render partial: 'layouts/header'
+  %main{id: "main-content"}
+    .container-fluid 
       .page-content
         = flashes
         = yield.force_encoding(Encoding::UTF_8)
-      = render 'layouts/footer'
-    
-    = render partial: 'shared/google_analytics'
+  %footer
+    = render 'layouts/footer'
+  = render partial: 'shared/google_analytics'
    
