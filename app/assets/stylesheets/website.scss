@@ -14,6 +14,14 @@
   font-style: normal;
 }
 
+p a, span a, .breadcrumb a {
+  text-decoration: underline;
+}
+
+.contact-toggle-btn {
+  text-decoration: underline !important;
+}
+
 @media print {
   header, footer, .btn, .dl-card-facet, audio, video {
     display: none;
