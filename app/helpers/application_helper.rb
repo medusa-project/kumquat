@@ -243,7 +243,7 @@ module ApplicationHelper
       # Thumbnail area
       html <<   '<div class="dl-thumbnail-container">'
       link_target = polymorphic_path(entity)
-      html << link_to(link_target) do
+      html << link_to(link_target, aria: { hidden: true }, tabindex: -1) do
         thumbnail_tag(entity, shape: :square)
       end
       # N.B.: this was made by https://loading.io with the following settings:
