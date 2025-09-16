@@ -721,6 +721,10 @@ const DLTreeBrowserView = function() {
                 }
             });
 
+            jstree.on('ready.jstree open_node.jstree select_node.jstree', function() {
+                $(this).find('jstree-anchor:visible').attr('tabindex', '0');
+            });
+
             // DLD-132: when an arrow key is used to change the tree selection,
             // the selected item should load without having to press enter.
             // jstree provides a hover_node event, but it doesn't distinguish
