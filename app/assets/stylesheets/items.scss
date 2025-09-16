@@ -209,7 +209,7 @@ body#tree_browser {
         margin: 0.1em 0;
       }
       .jstree-anchor:focus{
-        outline: 2px solid #1976d2;
+        outline: 2px solid #1976d2 !important;
         outline-offset: 2px;
         background: #e3f2fd; // optional for extra visibility
       }
