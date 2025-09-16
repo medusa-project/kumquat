@@ -722,7 +722,7 @@ const DLTreeBrowserView = function() {
             });
 
             jstree.on('ready.jstree open_node.jstree select_node.jstree', function() {
-                $(this).find('jstree-anchor:visible').attr('tabindex', '0');
+                $(this).find('.jstree-anchor:visible').attr('tabindex', '0');
             });
 
             // DLD-132: when an arrow key is used to change the tree selection,
