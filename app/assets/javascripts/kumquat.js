@@ -601,3 +601,16 @@ var ready = function() {
 };
 
 $(document).ready(ready);
+
+// Enable arrow key navigation for radio buttons in facet modal
+$(document).on('keydown', 'input[type="radio"][name="dl-facet-term"]', function(e) {
+  var $radios = $('input[type="radio"][name="dl-facet-term"]:visible');
+  var idx = $radios.index(this);
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+    $radios.eq((idx + 1) % $radios.length).focus().prop('checked', true);
+    e.preventDefault();
+  } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+    $radios.eq((idx - 1 + $radios.length) % $radios.length).focus().prop('checked', true);
+    e.preventDefault();
+  }
+});
