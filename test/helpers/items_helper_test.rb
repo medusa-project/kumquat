@@ -3,6 +3,7 @@ require 'test_helper'
 class ItemsHelperTest < ActionView::TestCase
 
   include SessionsHelper
+  include ERB::Util
 
   # viewer_for_binary()
 
