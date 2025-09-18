@@ -1261,7 +1261,7 @@ module ItemsHelper
       binary_url = binary_stream_url(binary, "content-disposition": "inline")
       viewer_url = asset_path('/pdfjs/web/viewer.html?file=' + CGI.escape(binary_url))
       html <<   '<div id="dl-pdfjs-viewer" style="width: 100%; height: 100%">'
-      html <<     "<iframe src=\"#{viewer_url}\" height=\"100%\" width=\"100%\"></iframe>"
+      html <<     "<iframe src=\"#{viewer_url}\" height=\"100%\">width=\"100%\" title=\"#{h(binary.human_readable_name)}\"></iframe>"
       html <<     '<div style="text-align: center">'
       html <<       link_to(viewer_url, target: '_blank', class: 'btn btn-outline-secondary btn-sm') do
         content_tag(:span, '', class: 'fa fa-file-pdf') + ' Open PDF in New Window'
