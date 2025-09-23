@@ -154,14 +154,17 @@ class ItemsController < WebsiteController
   # @see http://iiif.io/api/presentation/2.1/#range
   #
   def iiif_range
+    Rails.logger.info "IIIF Range request: params=#{params.inspect}, ip=#{request.remote_ip}"
     @subitem = Item.find_by_repository_id(params[:name])
-    @item    = @subitem.parent
-    if @item && @subitem
-      render 'items/iiif_presentation_api/range',
+    if @subitem
+      @item    = @subitem.parent
+      if @item && @subitem
+        render 'items/iiif_presentation_api/range',
              formats: :json,
              content_type: 'application/json'
-    else
-      render plain: 'No such range.', status: :not_found
+      else
+        render plain: 'No such range.', status: :not_found
+      end
     end
   end
 
