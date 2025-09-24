@@ -1,8 +1,11 @@
 /**
- * Styles in use across the the public website.
- *
- * N.B.: For sitewide styles, use sitewide.css.
- */
+* Styles in use across the the public website.
+*
+* N.B.: For sitewide styles, use sitewide.css.
+*/
+
+@import 'accessibility_overrides';
+
 @font-face {
   font-family: 'Oswald';
   src: font_url('Oswald-Regular.eot');
