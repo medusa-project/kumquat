@@ -1,0 +1,26 @@
+// WCAG-compliant breadcrumb and alert-info overrides
+.breadcrumb {
+  background-color: #e9ecef;
+  color: #13294B !important; // Illinois Blue for text
+}
+
+.breadcrumb-item.active {
+  color: #13294B !important; // Illinois Blue for active item
+  font-weight: 600;
+}
+
+// Alert info override for contrast
+.alert-info {
+  background-color: #205493 !important; // darker blue for contrast
+  color: #fff !important;
+}
+
+.alert-info a {
+  color: #ffd600 !important; // high-contrast yellow for links in alert
+  text-decoration: underline;
+}
+
+.alert-info a:focus, .alert-info a:hover {
+  color: #fff !important;
+  text-decoration: underline;
+}
