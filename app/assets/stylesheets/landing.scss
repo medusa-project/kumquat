@@ -2,6 +2,19 @@ body#landing {
   nav.navbar {
     margin-bottom: 0px;
   }
+
+  // High-contrast focus indicator for all landing page buttons, including Browse dropdown
+  .btn:focus,
+  button:focus,
+  input[type="submit"]:focus,
+  .dropdown-toggle:focus,
+  #dl-browse-dropdown:focus,
+  .btn-secondary:focus {
+    outline: 3px solid #FF552E; // Illinois Orange
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px #fff, 0 0 0 8px #FF552E;
+    z-index: 2;
+  }
   
   #dl-banner {
     /* https://digital.library.illinois.edu/items/f07734a0-4b72-0134-1da8-0050569601ca-f */
