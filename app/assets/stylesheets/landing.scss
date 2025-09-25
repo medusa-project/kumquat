@@ -75,9 +75,15 @@ body#landing {
   }
   .card-img-overlay {
     padding: 0;
+    position: relative;
     .dl-card-text-backdrop {
       background-color: rgba(0, 0, 0, 0.4);
       padding: 20px;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      position: absolute;
+      left: 0;
       .card-title a, .card-text a {
         color: white;
       }
