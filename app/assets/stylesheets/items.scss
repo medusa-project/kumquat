@@ -144,7 +144,8 @@ body#items_show, #dl-free-form-item-view {
       outline: 2px solid #1976d2;
       outline-offset: 2px;
       background: #e3f2fd; // optional for extra visibility
-      div.radio {
+      div.radio:focus-within {
+        outline: 2px solid #1976d2;
         margin: 0.2em;
         padding: 0;
         label {
@@ -159,6 +160,11 @@ body#items_show, #dl-free-form-item-view {
         padding-left: -28px;
         opacity: 0;
         width: 0;
+
+        &:focus {
+          outline: 2px solid #1976d2;
+          outline-offset: 2px;
+        }
       }
       div.radio.active {
         background-color:$uofi-blue-lighter-2;
