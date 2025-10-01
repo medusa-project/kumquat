@@ -140,10 +140,7 @@ body#items_show, #dl-free-form-item-view {
         width: 30%;
       }
     }
-    #iiif-download:focus {
-      outline: 2px solid #1976d2;
-      outline-offset: 2px;
-      background: #e3f2fd; // optional for extra visibility
+    #iiif-download {
       div.radio:focus-within {
         outline: 2px solid #1976d2;
         margin: 0.2em;
