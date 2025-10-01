@@ -154,9 +154,16 @@ body#items_show, #dl-free-form-item-view {
         margin: 10px 0;
       }
       input[type=radio] {
-        padding-left: -28px;
+        position: absolute;
         opacity: 0;
-        width: 0;
+        width: 1px;
+        height: 1px;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
 
         &:focus {
           outline: 2px solid #1976d2;
