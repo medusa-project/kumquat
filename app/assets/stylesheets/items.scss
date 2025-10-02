@@ -143,9 +143,43 @@ body#items_show, #dl-free-form-item-view {
     #iiif-download {
       label.btn {
         margin: 0;
-        padding: 6px 12px;
+        padding: 6px 12px 6px 36px;
         display: inline-block;
         cursor: pointer;
+        position: relative;
+      }
+      label.btn::before {
+        content: "";
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        border: 2px solid #1976d2;
+        border-radius: 50%;
+        background: #fff;
+        box-sizing: border-box;
+      }
+      input[type="radio"]:checked + label.btn::before {
+        background: #1976d2;
+        box-shadow: 0 0 0 2px #fff inset;
+      }
+      input[type="radio"]:checked + label.btn::after {
+        content: "";
+        position: absolute;
+        left: 17px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 6px;
+        height: 6px;
+        background: #fff;
+        border-radius: 50%;
+        z-index: 2;
+      }
+      a:focus, a:focus-visible {
+        outline: 2px solid #1976d2;
+        outline-offset: 2px;
       }
       input[type="radio"]:focus + label.btn,
       input[type="radio"]:focus-visible + label.btn {
