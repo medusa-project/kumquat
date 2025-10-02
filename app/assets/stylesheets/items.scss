@@ -141,14 +141,17 @@ body#items_show, #dl-free-form-item-view {
       }
     }
     #iiif-download {
-      div.radio:focus-within {
+      div.radio label {
+        margin: 0;
+        padding: 6px 12px;
+        display: inline-block;
+        cursor: pointer;
+      }
+      input[type="radio"]:focus + label,
+      input[type="radio"]:focus-visible + label {
         outline: 2px solid #1976d2;
-        margin: 0.2em;
-        padding: 0;
-        label {
-          margin: 0;
-          padding: 6px 12px;
-        }
+        outline-offset: 2px;
+        z-index: 1;
       }
       .form-inline {
         margin: 10px 0;
