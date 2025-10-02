@@ -257,9 +257,9 @@ const DLItemView = function() {
                     const id = 'size-' + width + '-' + height;
                     const labelText = width + '\u00D7' + height + ' pixels (' + percent + '%)';
                     container.append(
-                        '<div class="radio btn btn-outline-primary ' + sizeClass + ' ' + active + '">' +
+                        '<div class="radio ' + sizeClass + ' ' + active + '">' +
                         '<input type="radio" name="size" id="' + id + '" value="' + width + '," ' + checked + '>' +
-                        '<label for="' + id + '">' + labelText + '</label>' +
+                        '<label for="' + id + '" class="btn btn-outline-primary">' + labelText + '</label>' +
                         '</div><br>');
                     size_i--;
                 }
@@ -280,9 +280,9 @@ const DLItemView = function() {
                     var id = 'quality-' + item;
                     var labelText = item.charAt(0).toUpperCase() + item.slice(1);
                     qualitiesDiv.append(
-                        '<div class="radio btn btn-outline-primary ' + containerClass + '">' +
+                        '<div class="radio ' + containerClass + '">' +
                             '<input type="radio" name="quality" id="' + id + '" value="' + item + '" ' + checked + '>' +
-                            '<label for="' + id + '">' + labelText + '</label>' +
+                            '<label for="' + id + '" class="btn btn-outline-primary">' + labelText + '</label>' +
                         '</div>');
                 }
             });
@@ -305,9 +305,9 @@ const DLItemView = function() {
                     labelText = 'TIFF';
                 }
                 formatsDiv.append(
-                    '<div class="radio btn btn-outline-primary ' + containerClass + '">' +
+                    '<div class="radio ' + containerClass + '">' +
                         '<input type="radio" name="format" id="' + id + '" value="' + item + '" ' + checked + '>' +
-                        '<label for="' + id + '">' + labelText + '</label>' +
+                        '<label for="' + id + '" class="btn btn-outline-primary">' + labelText + '</label>' +
                     '</div>');
             });
             container.append(formatsDiv);
