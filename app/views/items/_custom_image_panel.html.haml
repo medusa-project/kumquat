@@ -10,11 +10,9 @@
           %span{"aria-hidden": "true"} ×
       .modal-body
         .row
-          .sr-only{aria: { live: "polite" }}
-            Keyboard users: Use Tab to move between option groups and arrow keys to move between options within a group.
-          #iiif-download.col-sm-6{tabindex: "0"}
+          #iiif-download.col-sm-6
           .col-sm-6
             %h4 HTML Tag
-            %textarea#dl-embed-link.form-control
+            %textarea#dl-embed-link.form-control{readonly: "readonly"}
       .modal-footer
         %a#dl-preview-link.btn.btn-primary{href: "", target: "_blank"} Get It
