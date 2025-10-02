@@ -168,24 +168,24 @@ body#items_show, #dl-free-form-item-view {
         height: 1px;
         margin: 0;
         padding: 0;
-        overflow: hidden;
-        clip: rect(0 0 0 0);
-        white-space: nowrap;
-        border: 0;
-
-        &:focus {
-          outline: 2px solid #1976d2;
-          outline-offset: 2px;
-        }
-      }
-      /* .active class is now on label.btn, not div.radio */
-      .dl-size-1 {
-        font-size: 0.9em;
-      }
-      .dl-size-2 {
-        font-size: 1em;
-      }
-      .dl-size-3 {
+          input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+            white-space: nowrap;
+            border: 0;
+          }
+          input[type="radio"]:focus + label.btn,
+          input[type="radio"]:focus-visible + label.btn {
+            outline: 2px solid #1976d2;
+            outline-offset: 2px;
+            z-index: 1;
+          }
         font-size: 1.15em;
       }
       .dl-size-4 {
