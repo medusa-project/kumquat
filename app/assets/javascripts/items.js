@@ -249,21 +249,17 @@ const DLItemView = function() {
             for (i = numSizes - 1, size_i = numSizes - 1; i >= 0; i--) {
                 const width   = info['sizes'][i]['width'];
                 const height  = info['sizes'][i]['height'];
-
-                if (width >= MIN_IMAGE_SIZE && height >= MIN_IMAGE_SIZE
-                    && width * height <= maxPixels) {
-                    const sizeClass = 'dl-size-' +
-                        Math.floor(size_i / numUsableSizes * NUM_BUTTON_SIZE_TIERS);
+                if (width >= MIN_IMAGE_SIZE && height >= MIN_IMAGE_SIZE && width * height <= maxPixels) {
+                    const sizeClass = 'dl-size-' + Math.floor(size_i / numUsableSizes * NUM_BUTTON_SIZE_TIERS);
                     const percent = Math.round(width / fullWidth * 100);
                     const checked = (size_i === numSizes - 1) ? 'checked' : '';
                     const active  = (size_i === numSizes - 1) ? 'active' : '';
-                    const label   = width + '&times;' + height + ' pixels (' + percent + '%)';
+                    const id = 'size-' + width + '-' + height;
+                    const labelText = width + '\u00D7' + height + ' pixels (' + percent + '%)';
                     container.append(
                         '<div class="radio btn btn-outline-primary ' + sizeClass + ' ' + active + '">' +
-                        '<label>' +
-                        '<input type="radio" name="size" value="' + width + ',' + '" ' + checked + '>' +
-                        label +
-                        '</label>' +
+                        '<input type="radio" name="size" id="' + id + '" value="' + width + '," ' + checked + '>' +
+                        '<label for="' + id + '">' + labelText + '</label>' +
                         '</div><br>');
                     size_i--;
                 }
@@ -281,12 +277,12 @@ const DLItemView = function() {
                         checked = 'checked';
                         containerClass = 'active';
                     }
+                    var id = 'quality-' + item;
+                    var labelText = item.charAt(0).toUpperCase() + item.slice(1);
                     qualitiesDiv.append(
                         '<div class="radio btn btn-outline-primary ' + containerClass + '">' +
-                            '<label>' +
-                                '<input type="radio" name="quality" value="' + item + '" ' + checked + '>' +
-                                item.charAt(0).toUpperCase() + item.slice(1) +
-                            '</label>' +
+                            '<input type="radio" name="quality" id="' + id + '" value="' + item + '" ' + checked + '>' +
+                            '<label for="' + id + '">' + labelText + '</label>' +
                         '</div>');
                 }
             });
@@ -301,18 +297,17 @@ const DLItemView = function() {
                     checked        = 'checked';
                     containerClass = 'active';
                 }
-                var label = item.toUpperCase();
-                if (label === 'JPG') {
-                    label = 'JPEG';
-                } else if (label === 'TIF') {
-                    label = 'TIFF';
+                var id = 'format-' + item;
+                var labelText = item.toUpperCase();
+                if (labelText === 'JPG') {
+                    labelText = 'JPEG';
+                } else if (labelText === 'TIF') {
+                    labelText = 'TIFF';
                 }
                 formatsDiv.append(
                     '<div class="radio btn btn-outline-primary ' + containerClass + '">' +
-                        '<label>' +
-                            '<input type="radio" name="format" value="' + item + '" ' + checked + '>' +
-                            label +
-                        '</label>' +
+                        '<input type="radio" name="format" id="' + id + '" value="' + item + '" ' + checked + '>' +
+                        '<label for="' + id + '">' + labelText + '</label>' +
                     '</div>');
             });
             container.append(formatsDiv);
