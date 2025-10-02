@@ -141,17 +141,22 @@ body#items_show, #dl-free-form-item-view {
       }
     }
     #iiif-download {
-      div.radio label {
+      label.btn {
         margin: 0;
         padding: 6px 12px;
         display: inline-block;
         cursor: pointer;
       }
-      input[type="radio"]:focus + label,
-      input[type="radio"]:focus-visible + label {
+      input[type="radio"]:focus + label.btn,
+      input[type="radio"]:focus-visible + label.btn {
         outline: 2px solid #1976d2;
         outline-offset: 2px;
         z-index: 1;
+      }
+      input[type="radio"]:checked + label.btn,
+      label.btn.active {
+        background-color: $uofi-blue-lighter-2;
+        color: white;
       }
       .form-inline {
         margin: 10px 0;
@@ -173,10 +178,7 @@ body#items_show, #dl-free-form-item-view {
           outline-offset: 2px;
         }
       }
-      div.radio.active {
-        background-color:$uofi-blue-lighter-2;
-        color:white;
-      }
+      /* .active class is now on label.btn, not div.radio */
       .dl-size-1 {
         font-size: 0.9em;
       }
