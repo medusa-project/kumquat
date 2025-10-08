@@ -558,3 +558,24 @@ docReady(function() {
         }
     });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+  var container = document.getElementById('dl-image-viewer');
+  if (container) {
+    // Set title for any existing iframes
+    Array.from(container.getElementsByTagName('iframe')).forEach(function (frame) {
+      frame.setAttribute('title', 'Image Viewer');
+    });
+    // Watch for new iframes added dynamically
+    var observer = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
+        Array.from(mutation.addedNodes).forEach(function (node) {
+          if (node.tagName === 'IFRAME') {
+            node.setAttribute('title', 'Image Viewer');
+          }
+        });
+      });
+    });
+    observer.observe(container, { childList: true, subtree: true });
+  }
+});
