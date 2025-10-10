@@ -895,3 +895,27 @@ $(window).on("pageshow", function(event) {
         Application.view.restoreState();
     }
 });
+
+document.addEventListener('fullscreenchange', function() {
+  if (!document.fullscreenElement) {
+    setTimeout(function() {
+      var viewer = document.getElementById('dl-compound-viewer') || document.getElementById('dl-image-viewer');
+      if (viewer) {
+        viewer.style.cssText = 'height: 650px; background-color: black; margin: 0 auto;';
+
+
+        var iframe = viewer.querySelector('iframe');
+        if (iframe) {
+          iframe.style.cssText = 'width: 100%; height: 650px;';
+
+          void viewer.offsetHeight;
+        }
+      }
+    }, 100);
+  }
+});
+
+
+document.addEventListener('webkitfullscreenchange', argument[0]);
+document.addEventListener('mozfullscreenchange', argument[0]);
+document.addEventListener('MSFullscreenChange', argument[0]);
