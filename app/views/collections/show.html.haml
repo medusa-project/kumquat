@@ -13,6 +13,7 @@
       .input-group-prepend
         %span.input-group-text
           %i.fa.fa-search
+      = label_tag(:q, 'Search This Collection', class: 'sr-only')
       = search_field_tag :q,
                          params[:q],
                          class: 'form-control',
