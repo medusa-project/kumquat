@@ -7,7 +7,7 @@
   .dls-search-banner-overlay
     = form_tag(special_collections_search_path, method: :get, class: 'd-inline-block w-75') do 
       .input-group.input-group-lg
-        = text_field_tag(:query, params[:query], placeholder: "Search across digital special collections...", class: "form-control form-control-lg", 'aria-label': 'Search')
+        = text_field_tag(:query, params[:query], placeholder: "Search across #{number_with_delimiter(@item_count)} items...", class: "form-control form-control-lg", 'aria-label': 'Search')
         .input-group-append
           = submit_tag("Search", class: "btn btn-primary btn-lg")
     .mt-2
