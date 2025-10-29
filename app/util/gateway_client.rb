@@ -22,6 +22,17 @@ class GatewayClient
     end
   end
 
+  ## 
+  # @return [Integer] Total number of items in Digital Special Collections.
+  # 
+  def special_collections_num_items
+    config = ::Configuration.instance
+    url = config.metadata_gateway_url.chomp('/') + '/items.json?fq[]=local_facet_service:Digital Special Collections'
+    response = http_client.get(url)
+    struct = JSON.parse(response.body)
+    struct['numResults']
+  end
+
   private
 
   ##
