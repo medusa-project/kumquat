@@ -7,11 +7,33 @@
   .dls-search-banner-overlay
     = form_tag(search_landing_path, method: :get, class: 'd-inline-block w-75') do 
       .input-group.input-group-lg
-        = text_field_tag(:query, params[:query], placeholder: "Search across #{number_with_delimiter(@item_count)} items...", class: "form-control form-control-lg", 'aria-label': 'Search')
+        = text_field_tag(:query, params[:query], placeholder: "Search across #{number_with_delimiter(@count)} items...", class: "form-control form-control-lg", 'aria-label': 'Search')
         .input-group-append
           = submit_tag("Search", class: "btn btn-primary btn-lg")
     .mt-2
       = link_to "Advanced Search", "#advanced-search", :class => "btn btn-outline-light mt-2", "data-bs-toggle" => "pill", :role => "tab"
+
+.row.justify-content-md-center 
+  .col-md-auto
+
+    = paginate(@count, @limit, @current_page, @permitted_params)
+
+  .search-results-list
+    - if @items.present?
+      - @items.each do |item|
+        .search-result-item.mb-4.d-flex 
+          = thumbnail_tag(item, shape: :square, size: 150)
+          .search-result-details.flex-grow-1 
+            %h5= item.title 
+            %div.text-muted 
+              %span
+                = item.collection.try(:title)
+              %span 
+                Digital Special Collections 
+            = link_to '+ More info...', item_path(item), class: 'btn btn-sm btn-outline-secondary mt-2'
+
+    - else 
+      %p.mt-4.text-muted No items found. 
 
 -## N.B.: The following should be implemented for the special collections search page later:
   -# %ul#search-tabs.nav.nav-pills.mb-0.justify-content-center{role: "tablist"}
