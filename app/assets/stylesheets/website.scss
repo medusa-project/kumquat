@@ -17,6 +17,10 @@
   font-style: normal;
 }
 
+p a, span a, .breadcrumb a {
+  text-decoration: underline;
+}
+
 .contact-toggle-btn {
   text-decoration: underline !important;
 }
