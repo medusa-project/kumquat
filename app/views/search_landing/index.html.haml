@@ -1,17 +1,16 @@
 
 - provide :body_id, "search"
-- provide :title, "Results"
+- provide :title, "Digital Special Collections"
 
 .dls-search-banner
   = image_tag('banner_dls.jpg', :class => 'w-100', :alt => 'Digital Special Collections Banner')
   .dls-search-banner-overlay
+    %h2.text-white.mb-4 Digital Special Collections
     = form_tag(search_landing_path, method: :get, class: 'd-inline-block w-75') do 
       .input-group.input-group-lg
-        = text_field_tag(:query, params[:query], placeholder: "Search across #{number_with_delimiter(@count)} items...", class: "form-control form-control-lg", 'aria-label': 'Search')
+        = text_field_tag(:q, params[:q], placeholder: "Search across #{number_with_delimiter(@count)} items...", class: "form-control form-control-lg", 'aria-label': 'Search')
         .input-group-append
           = submit_tag("Search", class: "btn btn-primary btn-lg")
-    .mt-2
-      = link_to "Advanced Search", "#advanced-search", :class => "btn btn-outline-light mt-2", "data-bs-toggle" => "pill", :role => "tab"
 
 .row.justify-content-md-center 
   .col-md-auto
