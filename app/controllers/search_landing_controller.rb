@@ -1,30 +1,33 @@
 class SearchLandingController < ApplicationController
-  PERMITTED_PARAMS = [{ fq: [] }, :q, :sort, :start, :utf8]
+  PERMITTED_PARAMS = [{ fq: [] }, :q, :sort, :start, :utf8, :commit]
 
   before_action :set_sanitized_params
   def index
-    @limit = window_size.to_i
-    @start = [@permitted_params[:start].to_i.abs, 0].max 
+    @start = [@permitted_params[:start].to_i.abs, max_start].min
+    @limit = window_size
 
-    if params[:query].present? || params[:field].present?
-      relation = ItemRelation.new 
-      process_search_query(relation)
-      @items = relation.start(@start).limit(@limit).to_a           
-    # @count          = relation.count.to_i 
-    # How do I get this count without going through the Gateway?
-      @count          = GatewayClient.instance.special_collections_num_items 
-    else 
-      collections = Collection.where(published_in_dls: true)
-      collection_ids = collections.pluck(:repository_id)
+    # Initialize simple search
+    search = SimpleItemSearch.new(query: params[:q])
 
-      relation = Item.search 
-                    .collections(collection_ids)
-      @items = relation.start(@start).limit(@limit).to_a 
-      # @count = relation.count.to_i 
-      @count          = GatewayClient.instance.special_collections_num_items
-    end
-    @current_page = (@start / @limit) + 1 
-  end 
+    # Apply pagination
+    search.start(@start).limit(@limit)
+
+    # Get results
+    @items = search.results
+    @count = search.count
+
+    # Get facets
+    search.aggregations(true)
+    @facets = search.facets
+
+    @current_page = (@start / @limit) + 1
+    @num_results_shown = [@items.count, @limit].min
+
+    Rails.logger.info "=== SIMPLE SEARCH REQUEST ==="
+    Rails.logger.info "Query: '#{params[:q]}'"
+    Rails.logger.info "Total results: #{@count}"
+    Rails.logger.info "Items returned: #{@items.count}"
+  end
 
   private 
 
@@ -34,6 +37,10 @@ class SearchLandingController < ApplicationController
 
   def window_size 
     40 
+  end
+
+  def max_start 
+    9960 
   end
 
 
