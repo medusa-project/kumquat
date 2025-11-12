@@ -8,14 +8,14 @@
     %h2.text-white.mb-4 Digital Special Collections
     = form_tag(search_landing_path, method: :get, class: 'd-inline-block w-75') do 
       .input-group.input-group-lg
-        = text_field_tag(:q, params[:q], placeholder: "Search across #{number_with_delimiter(@count)} items...", class: "form-control form-control-lg", 'aria-label': 'Search')
+        = text_field_tag(:q, @permitted_params[:q], placeholder: "Search across #{number_with_delimiter(@count)} items...", class: "form-control form-control-lg", 'aria-label': 'Search')
         .input-group-append
           = submit_tag("Search", class: "btn btn-primary btn-lg")
 
 .row.justify-content-md-center 
   .col-md-auto
 
-    = paginate(@count, @limit, @current_page, @permitted_params)
+    = paginate(@count, @limit, @current_page, SearchLandingController::PERMITTED_PARAMS)
 
   .search-results-list
     - if @items.present?
@@ -57,7 +57,7 @@
 
 .row
   .facets.col-sm-4.col-lg-3.col-xl-2
-    = facets_as_cards(@facets, @permitted_params)
+    = facets_as_cards(@facets, SearchLandingController::PERMITTED_PARAMS)
 
   -# .col-sm-8.col-lg-9.col.xl-10
   -#   .row.justify-content-between

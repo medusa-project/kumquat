@@ -7,7 +7,7 @@ class SearchLandingController < ApplicationController
     @limit = window_size
 
     # Initialize simple search
-    search = SimpleItemSearch.new(query: params[:q])
+    search = SimpleItemSearch.new(query: @permitted_params[:q])
 
     # Apply pagination
     search.start(@start).limit(@limit)
@@ -24,7 +24,7 @@ class SearchLandingController < ApplicationController
     @num_results_shown = [@items.count, @limit].min
 
     Rails.logger.info "=== SIMPLE SEARCH REQUEST ==="
-    Rails.logger.info "Query: '#{params[:q]}'"
+    Rails.logger.info "Query: '#{@permitted_params[:q]}'"
     Rails.logger.info "Total results: #{@count}"
     Rails.logger.info "Items returned: #{@items.count}"
   end
