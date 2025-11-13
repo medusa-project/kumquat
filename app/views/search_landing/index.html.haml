@@ -22,6 +22,12 @@
       = facets_as_cards(@facets, SearchLandingController::PERMITTED_PARAMS)
 
   .col-sm-9.col-lg-10
+    .card.dl-results-summary
+      .card-body
+        .row
+          #dl-search-status.col-sm-8
+            = search_status(@count, @start, @num_results_shown)
+            
     .search-results-list
       - if @items.present?
         - @items.each do |item|
