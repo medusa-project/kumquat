@@ -14,58 +14,28 @@
 
 .row.justify-content-md-center 
   .col-md-auto
-
     = paginate(@count, @limit, @current_page, SearchLandingController::PERMITTED_PARAMS)
 
-  .search-results-list
-    - if @items.present?
-      - @items.each do |item|
-        .search-result-item.mb-4.d-flex 
-          = thumbnail_tag(item, shape: :square, size: 150)
-          .search-result-details.flex-grow-1 
-            %h5= item.title 
-            %div.text-muted 
-              %span
-                = item.collection.try(:title)
-              %span 
-                Digital Special Collections 
-            = link_to '+ More info...', item_path(item), class: 'btn btn-sm btn-outline-secondary mt-2'
-
-    - else 
-      %p.mt-4.text-muted No items found. 
-
--## N.B.: The following should be implemented for the special collections search page later:
-  -# %ul#search-tabs.nav.nav-pills.mb-0.justify-content-center{role: "tablist"}
-  -#   %li.nav-item{role: "presentation"}
-  -#     %button#all-items-tab.nav-link.active{"data-bs-toggle": "pill", role: "tab", type: "button", "aria-selected": "true"} All Items
-  -#   %li.nav-item{role: "presentation"}
-  -#     %button#simple-search-tab.nav-link{"data-bs-toggle": "pill", "data-bs-target": "#simple-search", role: "tab", type: "button", "aria-controls": "simple-search", "aria-selected": "false"} Simple Search
-  -#   %li.nav-item{role: "presentation"}
-  -#     %button#advanced-search-tab.nav-link{"data-bs-toggle": "pill", "data-bs-target": "#advanced-search", role: "tab", type: "button", "aria-controls": "advanced-search", "aria-selected": "false"} Advanced Search
-
-  -# .tab-content
-  -#   #simple-search.tab-pane.fade.mt-3{role: "tabpanel", "aria-labelledby": "simple-search-tab"}
-  -#     .input-group.filter-field
-  -#       = text_field_tag(:query, params[:query], placeholder: "Enter search terms...", class: "form-control")
-  -#       = submit_tag("Search", class: "btn btn-outline-primary")
-  -#   #advanced-search.tab-pane.fade.mt-3{role: "tabpanel", "aria-labelledby": "advanced-search-tab"}
-  -#     %p.text-muted Advanced search form coming soon.
-  -#     .row
-        .col-sm-3
-        .col-sm-9
-          = submit_tag("Search", class: "btn btn-outline-primary")
-
 .row
-  .facets.col-sm-4.col-lg-3.col-xl-2
-    = facets_as_cards(@facets, SearchLandingController::PERMITTED_PARAMS)
+  .col-sm-3.col-lg-2
+    .facets
+      = facets_as_cards(@facets, SearchLandingController::PERMITTED_PARAMS)
 
-  -# .col-sm-8.col-lg-9.col.xl-10
-  -#   .row.justify-content-between
-  -#     .col-8
-  -#     .col-4
-  -#       .input-group.mb-3
-  -#         %p.text-muted Sorting options coming soon.
+  .col-sm-9.col-lg-10
+    .search-results-list
+      - if @items.present?
+        - @items.each do |item|
+          .search-result-item.mb-4.d-flex 
+            = thumbnail_tag(item, shape: :square, size: 150)
+            .search-result-details.flex-grow-1 
+              %h5= item.title 
+              %div.text-muted 
+                %span
+                  = item.collection.try(:title)
+                %span 
+                  Digital Special Collections 
+              = link_to '+ More info...', item_path(item), class: 'btn btn-sm btn-outline-secondary mt-2'
 
-    #listing
-      = render partial: "items/listing"
+      - else 
+        %p.mt-4.text-muted No items found.
 
