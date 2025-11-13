@@ -40,25 +40,25 @@ class SimpleItemSearch < ItemRelation
     # Apply DLS collection filter if requested
     if @dls_only
       dls_collection_ids = Collection.where(published_in_dls: true).pluck(:repository_id)
-      self.collections(dls_collection_ids) if dls_collection_ids.any?
+      collections(dls_collection_ids) if dls_collection_ids.any?
     end
 
     # Apply published filter
-    self.include_unpublished(!@published_only)
+    include_unpublished(!@published_only)
 
     # Apply accessibility filter
-    self.include_publicly_inaccessible(!@accessible_only)
-    self.include_restricted(false)
+    include_publicly_inaccessible(!@accessible_only)
+    include_restricted(false)
 
     # Apply search query if present
     if @search_query.present?
       # Use search_all field for simple keyword search
-      self.query_all(@search_query)
+      query_all(@search_query)
       # When a query is present, OpenSearch automatically orders by relevance score
       # so we don't need to explicitly set ordering
     else
       # Use default metadata profile ordering when browsing (no query)
-      self.order(true)
+      order(true)
     end
   end
 
