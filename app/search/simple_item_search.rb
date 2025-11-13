@@ -35,22 +35,24 @@ class SimpleItemSearch < ItemRelation
   end
 
   private
-
+  ##
+  # Applies filters for Simple Item Search: 
+  # - DLS collections only (if requested)
+  # - Published items only
+  # - Publicly accessible items only
+  # - Search query across all fields (if provided)
+  #
   def apply_filters
-    # Apply DLS collection filter if requested
     if @dls_only
       dls_collection_ids = Collection.where(published_in_dls: true).pluck(:repository_id)
       collections(dls_collection_ids) if dls_collection_ids.any?
     end
 
-    # Apply published filter
     include_unpublished(!@published_only)
 
-    # Apply accessibility filter
     include_publicly_inaccessible(!@accessible_only)
     include_restricted(false)
 
-    # Apply search query if present
     if @search_query.present?
       # Use search_all field for simple keyword search
       query_all(@search_query)
