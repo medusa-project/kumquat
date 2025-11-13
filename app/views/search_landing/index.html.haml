@@ -12,7 +12,7 @@
         .input-group-append
           = submit_tag("Search", class: "btn btn-primary btn-lg")
 
-.row.justify-content-md-center 
+.row.justify-content-md-center.mt-4
   .col-md-auto
     = paginate(@count, @limit, @current_page, SearchLandingController::PERMITTED_PARAMS)
 
