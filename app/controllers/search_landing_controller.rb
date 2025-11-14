@@ -1,4 +1,4 @@
-class SearchLandingController < ApplicationController
+class SearchLandingController < WebsiteController
   PERMITTED_PARAMS = [{ fq: [] }, :q, :sort, :start, :utf8, :commit]
 
   before_action :set_sanitized_params
