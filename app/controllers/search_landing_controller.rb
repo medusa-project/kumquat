@@ -1,12 +1,12 @@
 class SearchLandingController < WebsiteController
-  PERMITTED_PARAMS = [{ fq: [] }, :q, :sort, :start, :utf8, :commit]
+  PERMITTED_PARAMS = [{ fq: [] }, :q, :sort, :start, :utf8, :commit, :tab]
 
   before_action :set_sanitized_params
   def index
     @start = [@permitted_params[:start].to_i.abs, max_start].min
     @limit = window_size
 
-    # Initialize simple search
+#     # Initialize simple search
     search = SimpleItemSearch.new(query: @permitted_params[:q])
 
     search.start(@start).limit(@limit)
@@ -20,10 +20,10 @@ class SearchLandingController < WebsiteController
     @current_page = (@start / @limit) + 1
     @num_results_shown = [@items.count, @limit].min
 
-    Rails.logger.info "=== SIMPLE SEARCH REQUEST ==="
-    Rails.logger.info "Query: '#{@permitted_params[:q]}'"
-    Rails.logger.info "Total results: #{@count}"
-    Rails.logger.info "Items returned: #{@items.count}"
+#     Rails.logger.info "=== SIMPLE SEARCH REQUEST ==="
+#     Rails.logger.info "Query: '#{@permitted_params[:q]}'"
+#     Rails.logger.info "Total results: #{@count}"
+#     Rails.logger.info "Items returned: #{@items.count}"
   end
 
   private 
