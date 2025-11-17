@@ -67,7 +67,7 @@ Rails.application.routes.draw do
   match '/oai-pmh/idhh', to: 'oai_pmh#handle', via: %w(get post), as: 'idhh_oai_pmh'
   match '/oai-pmh/primo', to: 'oai_pmh#handle', via: %w(get post), as: 'primo_oai_pmh'
   match '/search-landing', to: 'search_landing#index', via: :get, as: 'search_landing'
-  # match '/special-collections-search', to: 'search#index', via: :get, as: 'special_collections_search'
+  match '/special-collections-search', to: 'special_collections_search#index', via: :get, as: 'special_collections_search'
   match '/search', to: redirect('/', status: 301), via: :all
   match '/signin', to: 'sessions#new', via: :get
   match '/signout', to: 'sessions#destroy', via: :delete
