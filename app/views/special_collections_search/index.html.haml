@@ -9,42 +9,31 @@
     = link_to("Advanced Search", search_landing_path(tab: "advanced-search"), 
               id: "advanced-search-link")
 
--# .row.justify-content-md-center.mt-4
--#   .col-md-auto
--#     = paginate(@count, @limit, @current_page, SpecialCollectionsSearchController::PERMITTED_PARAMS)
-
--# .row
--#   .col-sm-3.col-lg-2
--#     .facets
--#       = facets_as_cards(@facets, SpecialCollectionsSearchController::PERMITTED_PARAMS)
-
-  .col-sm-9.col-lg-10
+- if @permitted_params[:q].present?
+  .container.mt-4
     .card.dl-results-summary
       .card-body
         .row
           #dl-search-status.col-sm-8
             = search_status(@count, @start, @num_results_shown)
             
-    -# .search-results-list
-    -#   - if @items.present?
-    -#     - @items.each do |item|
-    -#       .search-result-item.mb-4.d-flex 
-    -#         = thumbnail_tag(item, shape: :square, size: 150)
-    -#         .search-result-details.flex-grow-1 
-    -#           %h5= item.title 
-    -#           %div.text-muted 
-    -#             %span
-    -#               = item.collection.try(:title)
-    -#             %span 
-    -#               Digital Special Collections 
-    -#           = link_to '+ More info...', item_path(item), class: 'btn btn-sm btn-outline-secondary mt-2'
+    .search-results-list.mt-4
+      - if @items.present?
+        - @items.each do |item|
+          .search-result-item.mb-4.d-flex 
+            = thumbnail_tag(item, shape: :square, size: 150)
+            .search-result-details.flex-grow-1 
+              %h5= item.title 
+              %div.text-muted 
+                %span
+                  = item.collection.try(:title)
+                %span 
+                  Digital Special Collections 
+              = link_to '+ More info...', item_path(item), class: 'btn btn-sm btn-outline-secondary mt-2'
 
-    -#   - else 
-    -#     %p.mt-4.text-muted No items found.
+      - else 
+        %p.mt-4.text-muted No items found.
 
-
-
-
-%h1 Digital Special Collections  
+%h1.mt-5 Digital Special Collections  
 %h5 Digitized manuscripts, photographs, maps, and other special collections research materials, as well as personal and organizational digital archives.
 
