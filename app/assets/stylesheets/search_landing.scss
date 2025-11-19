@@ -16,14 +16,19 @@
   text-align: center;
   z-index: 2;
 }
-
+#advanced-search-link:focus {
+  outline: 3px solid #FF552E; // Illinois Orange
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px #fff, 0 0 0 8px #FF552E;
+  z-index: 2;
+}
 #advanced-search-link {
   text-decoration: underline;
   display: block;
   width: 15%;
   margin: 0.5em auto 0 auto;
   text-align: center;
-  background-color: rgba(0,0,0,0.3);
+  background-color: rgba(0,0,0,0.7);
   color: white;
   font-size: 0.9em;
   padding: 0.3em 0.5em;
