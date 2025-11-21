@@ -43,14 +43,8 @@
               .search-result-item.mb-4.d-flex 
                 = thumbnail_tag(item, shape: :square, size: 150)
                 .search-result-details.flex-grow-1 
-                  %h5= item.title 
-                  %div.text-muted 
-                    %span
-                      = item.collection.try(:title)
-                    %span 
-                      Digital Special Collections 
-                  = link_to '+ More info...', item_path(item), class: 'btn btn-sm btn-outline-secondary mt-2'
-
+                  =link_to "#{item.title}", item_path(item), class: 'h5 d-block mb-2'
+                  %h6= item.element(:creator)
           - else 
             %p.mt-4.text-muted No items found.
 
