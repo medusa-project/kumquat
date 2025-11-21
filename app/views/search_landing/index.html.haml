@@ -2,40 +2,62 @@
 - provide :body_id, "search"
 - provide :title, "Digital Special Collections"
 
-.row
-  .col-12.text-center.mb-4
-    [Insert Menu: All Items (Browse), Simple Search, Advanced Search]
-
-.row.justify-content-md-center.mt-4
-  .col-md-auto
-    = paginate(@count, @limit, @current_page, SearchLandingController::PERMITTED_PARAMS)
+- active_tab = params[:tab] || 'all-items'
 
 .row
-  .col-sm-3.col-lg-2
-    .facets
-      = facets_as_cards(@facets, SearchLandingController::PERMITTED_PARAMS)
+  .col-12.mb-4
+    %ul.nav.nav-pills.nav-fill{role: "tablist"}
+      %li.nav-item{role: "presentation"}
+        %a.nav-link{class: ('active' if active_tab == 'all-items'), "data-toggle": "pill", href: "#all-items", role: "tab", "aria-controls": "all-items", "aria-selected": (active_tab == 'all-items').to_s}
+          All Items
+      %li.nav-item{role: "presentation"}
+        %a.nav-link{class: ('active' if active_tab == 'simple-search'), "data-toggle": "pill", href: "#simple-search", role: "tab", "aria-controls": "simple-search", "aria-selected": (active_tab == 'simple-search').to_s}
+          Simple Search
+      %li.nav-item{role: "presentation"}
+        %a.nav-link{class: ('active' if active_tab == 'advanced-search'), "data-toggle": "pill", href: "#advanced-search", role: "tab", "aria-controls": "advanced-search", "aria-selected": (active_tab == 'advanced-search').to_s}
+          Advanced Search
 
-  .col-sm-9.col-lg-10
-    .card.dl-results-summary
-      .card-body
-        .row
-          #dl-search-status.col-sm-8
-            = search_status(@count, @start, @num_results_shown)
-            
-    .search-results-list
-      - if @items.present?
-        - @items.each do |item|
-          .search-result-item.mb-4.d-flex 
-            = thumbnail_tag(item, shape: :square, size: 150)
-            .search-result-details.flex-grow-1 
-              %h5= item.title 
-              %div.text-muted 
-                %span
-                  = item.collection.try(:title)
-                %span 
-                  Digital Special Collections 
-              = link_to '+ More info...', item_path(item), class: 'btn btn-sm btn-outline-secondary mt-2'
+.tab-content
+  #all-items.tab-pane.fade{class: [('show active' if active_tab == 'all-items')], role: "tabpanel", "aria-labelledby": "all-items-tab"}
+    .row.justify-content-md-center.mt-4
+      .col-md-auto
+        = paginate(@count, @limit, @current_page, SearchLandingController::PERMITTED_PARAMS)
 
-      - else 
-        %p.mt-4.text-muted No items found.
+    .row
+      .col-sm-3.col-lg-2
+        .facets
+          = facets_as_cards(@facets, SearchLandingController::PERMITTED_PARAMS)
 
+      .col-sm-9.col-lg-10
+        .card.dl-results-summary
+          .card-body
+            .row
+              #dl-search-status.col-sm-8
+                = search_status(@count, @start, @num_results_shown)
+                
+        .search-results-list
+          - if @items.present?
+            - @items.each do |item|
+              .search-result-item.mb-4.d-flex 
+                = thumbnail_tag(item, shape: :square, size: 150)
+                .search-result-details.flex-grow-1 
+                  %h5= item.title 
+                  %div.text-muted 
+                    %span
+                      = item.collection.try(:title)
+                    %span 
+                      Digital Special Collections 
+                  = link_to '+ More info...', item_path(item), class: 'btn btn-sm btn-outline-secondary mt-2'
+
+          - else 
+            %p.mt-4.text-muted No items found.
+
+  #simple-search.tab-pane.fade{class: [('show active' if active_tab == 'simple-search')], role: "tabpanel", "aria-labelledby": "simple-search-tab"}
+    .row.justify-content-md-center.mt-4
+      .col-md-6
+        %p.text-center.text-muted Simple search content will go here
+
+  #advanced-search.tab-pane.fade{class: [('show active' if active_tab == 'advanced-search')], role: "tabpanel", "aria-labelledby": "advanced-search-tab"}
+    .row.justify-content-md-center.mt-4
+      .col-md-8
+        %p.text-center.text-muted Advanced search content will go here
