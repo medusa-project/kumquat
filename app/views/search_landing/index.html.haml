@@ -2,15 +2,19 @@
 - provide :body_id, "search"
 - provide :title, "Digital Special Collections"
 
-.dls-search-banner
-  = image_tag('banner_dls.jpg', :class => 'w-100', :alt => 'Digital Special Collections Banner')
-  .dls-search-banner-overlay
-    %h2.text-white.mb-4 Digital Special Collections
-    = form_tag(search_landing_path, method: :get, class: 'd-inline-block w-75') do 
-      .input-group.input-group-lg
-        = text_field_tag(:q, @permitted_params[:q], placeholder: "Search across #{number_with_delimiter(@count)} items...", class: "form-control form-control-lg", 'aria-label': 'Search')
-        .input-group-append
-          = submit_tag("Search", class: "btn btn-primary btn-lg")
+-# .dls-search-banner
+-#   = image_tag('banner_dls.jpg', :class => 'w-100', :alt => 'Digital Special Collections Banner')
+-#   .dls-search-banner-overlay
+-#     %h2.text-white.mb-4 Digital Special Collections
+-#     = form_tag(search_landing_path, method: :get, class: 'd-inline-block w-75') do 
+-#       .input-group.input-group-lg
+-#         = text_field_tag(:q, @permitted_params[:q], placeholder: "Search across #{number_with_delimiter(@count)} items...", class: "form-control form-control-lg", 'aria-label': 'Search')
+-#         .input-group-append
+-#           = submit_tag("Search", class: "btn btn-primary btn-lg")
+
+.row
+  .col-12.text-center.mb-4
+    [Insert Menu: All Items (Browse), Simple Search, Advanced Search]
 
 .row.justify-content-md-center.mt-4
   .col-md-auto
