@@ -5,17 +5,19 @@
 - active_tab = params[:tab] || 'all-items'
 
 .row
-  .col-12.mb-4
-    %ul.nav.nav-pills.nav-fill{role: "tablist"}
-      %li.nav-item{role: "presentation"}
-        %a.nav-link{class: ('active' if active_tab == 'all-items'), "data-toggle": "pill", href: "#all-items", role: "tab", "aria-controls": "all-items", "aria-selected": (active_tab == 'all-items').to_s}
-          All Items
-      %li.nav-item{role: "presentation"}
-        %a.nav-link{class: ('active' if active_tab == 'simple-search'), "data-toggle": "pill", href: "#simple-search", role: "tab", "aria-controls": "simple-search", "aria-selected": (active_tab == 'simple-search').to_s}
-          Simple Search
-      %li.nav-item{role: "presentation"}
-        %a.nav-link{class: ('active' if active_tab == 'advanced-search'), "data-toggle": "pill", href: "#advanced-search", role: "tab", "aria-controls": "advanced-search", "aria-selected": (active_tab == 'advanced-search').to_s}
-          Advanced Search
+  .col-12
+    .card.mb-3
+      .card-body
+        %ul.nav.nav-pills{role: "tablist"}
+          %li.nav-item{role: "presentation"}
+            %a.nav-link{class: ('active' if active_tab == 'all-items'), "data-toggle": "pill", href: "#all-items", role: "tab", "aria-controls": "all-items", "aria-selected": (active_tab == 'all-items').to_s}
+              All Items
+          %li.nav-item{role: "presentation"}
+            %a.nav-link{class: ('active' if active_tab == 'simple-search'), "data-toggle": "pill", href: "#simple-search", role: "tab", "aria-controls": "simple-search", "aria-selected": (active_tab == 'simple-search').to_s}
+              Simple Search
+          %li.nav-item{role: "presentation"}
+            %a.nav-link{class: ('active' if active_tab == 'advanced-search'), "data-toggle": "pill", href: "#advanced-search", role: "tab", "aria-controls": "advanced-search", "aria-selected": (active_tab == 'advanced-search').to_s}
+              Advanced Search
 
 .tab-content
   #all-items.tab-pane.fade{class: [('show active' if active_tab == 'all-items')], role: "tabpanel", "aria-labelledby": "all-items-tab"}
