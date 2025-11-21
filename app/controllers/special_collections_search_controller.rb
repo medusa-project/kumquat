@@ -3,16 +3,16 @@ class SpecialCollectionsSearchController < WebsiteController
   before_action :set_sanitized_params
 
   def index
-    if @permitted_params[:q].blank? && request.get?
+    # Redirect to browse all items if search was submitted with empty query
+    if @permitted_params[:q].blank? && @permitted_params[:commit].present?
       redirect_to search_landing_path
       return
     end
+
     @start = [@permitted_params[:start].to_i.abs, max_start].min
     @limit = window_size
 
-    # Initialize simple search
     search = SimpleItemSearch.new(query: @permitted_params[:q])
-
     search.start(@start).limit(@limit)
 
     @items = search.results
