@@ -2,8 +2,11 @@ class SpecialCollectionsSearchController < WebsiteController
   PERMITTED_PARAMS = [{ fq: [] }, :q, :sort, :start, :utf8, :commit]
   before_action :set_sanitized_params
 
-
-  def index 
+  def index
+    if @permitted_params[:q].blank? && request.get?
+      redirect_to search_landing_path
+      return
+    end
     @start = [@permitted_params[:start].to_i.abs, max_start].min
     @limit = window_size
 
