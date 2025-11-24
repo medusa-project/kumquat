@@ -12,11 +12,10 @@
 %h1.mt-5 Digital Special Collections  
 %h5 Digitized manuscripts, photographs, maps, and other special collections research materials, as well as personal and organizational digital archives.
 
-.row.justify-content-md-center.mt-4
-  .col-md-auto
-    = paginate(@count, @limit, @current_page, SearchLandingController::PERMITTED_PARAMS)
-    
 - if @permitted_params[:q].present?
+  .row.justify-content-md-center.mt-4
+    .col-md-auto
+      = paginate(@count, @limit, @current_page, SearchLandingController::PERMITTED_PARAMS)
   .container.mt-4
     .card.dl-results-summary
       .card-body
