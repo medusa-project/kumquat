@@ -54,5 +54,20 @@ class AdvancedItemSearch < ItemRelation
     @published_only = published_only
     @accessible_only = accessible_only
     @dls_only = dls_only
+
+    # Build the query here 
+    # 
+  end
+
+##  # @return [Enumerable<Item>]
+#
+  def results 
+    to_a 
+  end
+
+  ## @return [Hash] Map of user-friendly field names to indexed field names.
+  #
+  def self.searchable_fields
+    SEARCHABLE_FIELDS.keys.map{|k| [k.titleize, k]}.to_h 
   end
 end
