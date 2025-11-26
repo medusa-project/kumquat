@@ -70,4 +70,25 @@ class AdvancedItemSearch < ItemRelation
   def self.searchable_fields
     SEARCHABLE_FIELDS.keys.map{|k| [k.titleize, k]}.to_h 
   end
+
+  private 
+  ## Applies filters for Advanced Item Search:
+  # - DLS collections only (if requested)
+  # - Published items only
+  # - Publicly accessible items only
+  # - Field-specific search criteria with boolean operators
+  #
+  def apply_filters
+    if @dls_only
+      dls_collection_ids = Collection.where(published_in_dls: true).pluck(:repository_id)
+      self.collections(dls_collection_ids) if dls_collection_ids.any?
+    end
+
+    self.include_unpublished(!@published_only)
+
+    self.include_publicly_inaccessible(!@accessible_only)
+    self.include_restricted(false)
+
+    #TODO: Apply search criteria 
+  end
 end
