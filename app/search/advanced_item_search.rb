@@ -55,7 +55,7 @@ class AdvancedItemSearch < ItemRelation
     @accessible_only = accessible_only
     @dls_only = dls_only
 
-    # Build the query here 
+    #TODO: Build the query here 
     # 
   end
 
