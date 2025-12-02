@@ -1,11 +1,16 @@
 .dls-search-banner
   = image_tag('banner_dls.jpg', :class => 'w-100', :alt => 'Digital Special Collections Banner')
   .dls-search-banner-overlay
-    = form_tag(special_collections_search_path, method: :get, class: 'd-inline-block w-50') do 
+    = form_tag(special_collections_search_path, 
+                method: :get, 
+                class: 'd-inline-block w-50') do 
       .input-group.input-group-lg
-        = text_field_tag(:q, @permitted_params[:q], placeholder: "Search across #{number_with_delimiter(@count)} items...", class: "form-control form-control-lg", 'aria-label': 'Search')
+        = search_field_tag(:q, @permitted_params[:q], 
+                            placeholder: "Search across #{number_with_delimiter(@count)} items...", 
+                            class: "form-control form-control-lg", 
+                            'aria-label': 'Search')
         .input-group-append
-          = submit_tag("Search", class: "btn btn-primary btn-lg")
+          %input.btn.btn-primary{type: "submit", value: "Search"}
     = link_to("Advanced Search", search_landing_path(tab: "advanced-search"), 
               id: "advanced-search-link")
 
