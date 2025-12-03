@@ -81,13 +81,13 @@ class AdvancedItemSearch < ItemRelation
   def apply_filters
     if @dls_only
       dls_collection_ids = Collection.where(published_in_dls: true).pluck(:repository_id)
-      self.collections(dls_collection_ids) if dls_collection_ids.any?
+      collections(dls_collection_ids) if dls_collection_ids.any?
     end
 
-    self.include_unpublished(!@published_only)
+    include_unpublished(!@published_only)
 
-    self.include_publicly_inaccessible(!@accessible_only)
-    self.include_restricted(false)
+    include_publicly_inaccessible(!@accessible_only)
+    include_restricted(false)
 
     #TODO: Apply search criteria 
   end
