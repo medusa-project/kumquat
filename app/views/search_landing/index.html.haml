@@ -10,17 +10,14 @@
       .card-body
         %ul.nav.nav-pills{role: "tablist"}
           %li.nav-item{role: "presentation"}
-            %a.nav-link{class: ('active' if active_tab == 'all-items'), "data-toggle": "pill", href: "#all-items", role: "tab", "aria-controls": "all-items", "aria-selected": (active_tab == 'all-items').to_s}
-              All Items
+            = link_to "All Items", search_landing_path(tab: 'all-items'), class: "nav-link #{'active' if active_tab == 'all-items'}", role: "tab"
           %li.nav-item{role: "presentation"}
-            %a.nav-link{class: ('active' if active_tab == 'simple-search'), "data-toggle": "pill", href: "#simple-search", role: "tab", "aria-controls": "simple-search", "aria-selected": (active_tab == 'simple-search').to_s}
-              Simple Search
+            = link_to "Simple Search", search_landing_path(tab: 'simple-search', q: @permitted_params[:q]), class: "nav-link #{'active' if active_tab == 'simple-search'}", role: "tab"
           %li.nav-item{role: "presentation"}
-            %a.nav-link{class: ('active' if active_tab == 'advanced-search'), "data-toggle": "pill", href: "#advanced-search", role: "tab", "aria-controls": "advanced-search", "aria-selected": (active_tab == 'advanced-search').to_s}
-              Advanced Search
+            = link_to "Advanced Search", search_landing_path(tab: 'advanced-search'), class: "nav-link #{'active' if active_tab == 'advanced-search'}", role: "tab"
 
 .tab-content
-  #all-items.tab-pane.fade{class: [('show active' if active_tab == 'all-items')], role: "tabpanel", "aria-labelledby": "all-items-tab"}
+  #all-items.tab-pane.fade{class: [('show active' if active_tab == 'all-items')], role: "tabpanel"}
     .row.justify-content-md-center.mt-4
       .col-md-auto
         = paginate(@count, @limit, @current_page, SearchLandingController::PERMITTED_PARAMS)
