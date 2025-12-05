@@ -45,12 +45,37 @@
           - else 
             %p.mt-4.text-muted No items found.
 
-  #simple-search.tab-pane.fade{class: [('show active' if active_tab == 'simple-search')], role: "tabpanel", "aria-labelledby": "simple-search-tab"}
+  #simple-search.tab-pane.fade{class: [('show active' if active_tab == 'simple-search')], role: "tabpanel"}
     .row.justify-content-md-center.mt-4
       .col-md-6
-        %p.text-center.text-muted Simple search content will go here
+        = form_tag(search_landing_path, method: :get) do
+          .input-group.filter-field
+            = search_field_tag(:q, @permitted_params[:q], class: "form-control", 'aria-label': 'Simple Search')
+            .input-group-append
+              = submit_tag("Search", class: "btn btn-primary")
+          = hidden_field_tag(:tab, 'simple-search')
+    - if @permitted_params[:q].present?
+      .row.justify-content-md-center.mt-4
+        .col-md-auto
+          = paginate(@count, @limit, @current_page, SpecialCollectionsSearchController::PERMITTED_PARAMS)
+      .container.mt-4
+        .card.dl-results-summary
+          .card-body
+            .row
+              #dl-search-status.col-sm-8
+                = search_status(@count, @start, @num_results_shown)
+        .search-results-list.mt-4
+          - if @items.present?
+            - @items.each do |item|
+              .search-result-item.mb-4.d-flex 
+                = thumbnail_tag(item, shape: :square, size: 150)
+                .search-result-details.flex-grow-1 
+                  =link_to "#{item.title}", item_path(item), class: 'h5 d-block mb-2'
+                  %h6= item.element(:creator)
+          - else
+            %p.text-muted No items found.
 
-  #advanced-search.tab-pane.fade{class: [('show active' if active_tab == 'advanced-search')], role: "tabpanel", "aria-labelledby": "advanced-search-tab"}
+  #advanced-search.tab-pane.fade{class: [('show active' if active_tab == 'advanced-search')], role: "tabpanel"}
     .row.justify-content-md-center.mt-4
       .col-md-8
         %p.text-center.text-muted Advanced search content will go here
