@@ -5,24 +5,25 @@ class SpecialCollectionsSearchController < WebsiteController
   def index
     # Redirect to browse all items if search was submitted with empty query
     if @permitted_params[:q].blank? && @permitted_params[:commit].present?
-      redirect_to search_landing_path
+      redirect_to search_landing_path 
       return
     end
 
     @start = [@permitted_params[:start].to_i.abs, max_start].min
     @limit = window_size
 
-    search = SimpleItemSearch.new(query: @permitted_params[:q])
+    search = SimpleCollectionSearch.new(query: @permitted_params[:q])
     search.start(@start).limit(@limit)
 
-    @items = search.results
+    @collections = search.results
     @count = search.count
 
     search.aggregations(true)
     @facets = search.facets
 
     @current_page = (@start / @limit) + 1
-    @num_results_shown = [@items.count, @limit].min
+    @num_results_shown = [@collections.count, @limit].min
+
   end
 
   private 
