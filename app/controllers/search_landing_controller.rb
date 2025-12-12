@@ -6,24 +6,32 @@ class SearchLandingController < WebsiteController
     @start = [@permitted_params[:start].to_i.abs, max_start].min
     @limit = window_size
 
-#     # Initialize simple search
-    search = SimpleItemSearch.new(query: @permitted_params[:q])
-
+    # Always search collections
+    search = SimpleCollectionSearch.new(query: @permitted_params[:q])
+    search.facet_filters(@permitted_params[:fq])
     search.start(@start).limit(@limit)
-
-    @items = search.results
+    
+    @collections = search.results
     @count = search.count
-
+    
     search.aggregations(true)
     @facets = search.facets
-
+    
     @current_page = (@start / @limit) + 1
-    @num_results_shown = [@items.count, @limit].min
+    @num_results_shown = [@collections.count, @limit].min
 
-#     Rails.logger.info "=== SIMPLE SEARCH REQUEST ==="
-#     Rails.logger.info "Query: '#{@permitted_params[:q]}'"
-#     Rails.logger.info "Total results: #{@count}"
-#     Rails.logger.info "Items returned: #{@items.count}"
+    # TEMPORARY: Debug logging for facets
+    Rails.logger.info "=== COLLECTION SEARCH DEBUG ==="
+    Rails.logger.info "Query: '#{@permitted_params[:q]}'"
+    Rails.logger.info "Total results: #{@count}"
+    Rails.logger.info "Collections returned: #{@collections.count}"
+    Rails.logger.info "Facets count: #{@facets&.count || 0}"
+    @facets&.each do |facet|
+      Rails.logger.info "  Facet: #{facet.name} (#{facet.field}) - #{facet.terms.count} terms"
+      facet.terms.each do |term|
+        Rails.logger.info "    - #{term.label}: #{term.count}"
+      end
+    end
   end
 
   private 
