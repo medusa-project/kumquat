@@ -98,23 +98,26 @@
     - if @permitted_params[:q].present?
       .row.justify-content-md-center.mt-4
         .col-md-auto
-          = paginate(@count, @limit, @current_page, SpecialCollectionsSearchController::PERMITTED_PARAMS)
+          = paginate(@count, @limit, @current_page, SearchLandingController::PERMITTED_PARAMS)
       .container.mt-4
         .card.dl-results-summary
           .card-body
             .row
               #dl-search-status.col-sm-8
-                = search_status(@count, @start, @num_results_shown)
+                - last = [@count, @start + @num_results_shown].min
+                = raw(sprintf("Showing %d&ndash;%d of %s collections", @start + 1, last, number_with_delimiter(@count)))
         .search-results-list.mt-4
-          - if @items.present?
-            - @items.each do |item|
-              .search-result-item.mb-4.d-flex 
-                = thumbnail_tag(item, shape: :square, size: 150)
-                .search-result-details.flex-grow-1 
-                  =link_to "#{item.title}", item_path(item), class: 'h5 d-block mb-2'
-                  %h6= item.element(:creator)
+          - if @collections.present?
+            - @collections.each do |collection|
+              .search-result-item.mb-4.d-flex.align-items-start
+                .flex-shrink-0{style: "width: 150px; height: 150px; overflow: hidden;"}
+                  = thumbnail_tag(collection, shape: :square, size: 150)
+                .search-result-details.flex-grow-1.ms-3
+                  =link_to "#{collection.title}", collection_path(collection), class: 'h5 d-block mb-2'
+                  %h6= collection.element(:creator)
           - else
-            %p.text-muted No items found.
+            %p.text-muted No collections found.
+    %p.text-center.text-muted TODO: Add facets to this page.
 
   #advanced-search.tab-pane.fade{class: [('show active' if active_tab == 'advanced-search')], role: "tabpanel"}
     .row.justify-content-md-center.mt-4
