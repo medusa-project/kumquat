@@ -4,13 +4,45 @@
 
 - active_tab = params[:tab] || 'all-items'
 
+:javascript
+  $(document).ready(function() {
+    // Initialize facets for search_landing page (non-AJAX version)
+    const filterForm = $("form.dl-filter");
+    
+    const createHiddenInputs = function() {
+      // Remove existing hidden fq inputs
+      filterForm.find('[name="fq[]"]').remove();
+      // Create hidden input for each checked checkbox
+      filterForm.find('[name=dl-facet-term]:checked').each(function() {
+        const input = $('<input type="hidden" name="fq[]">');
+        input.val($(this).data('query'));
+        filterForm.append(input);
+      });
+    };
+    
+    // Handle facet checkbox changes
+    filterForm.find('.dl-card-facet [name="dl-facet-term"]').on('change', function() {
+      createHiddenInputs();
+      filterForm.submit();
+    });
+    
+    // Handle modal facet submissions
+    filterForm.find('.dl-modal-facet .modal-footer button.submit').on('click', function(e) {
+      e.preventDefault();
+      const modal = $(this).parents(".dl-modal-facet");
+      modal.modal('hide');
+      createHiddenInputs();
+      filterForm.submit();
+    });
+  });
+
 .row
   .col-12
     .card.mb-3
       .card-body
         %ul.nav.nav-pills{role: "tablist"}
           %li.nav-item{role: "presentation"}
-            = link_to "All Items", search_landing_path(tab: 'all-items'), class: "nav-link #{'active' if active_tab == 'all-items'}", role: "tab"
+            = link_to "All Collections", search_landing_path(tab: 'all-items'), class: "nav-link #{'active' if active_tab == 'all-items'}", role: "tab"
           %li.nav-item{role: "presentation"}
             = link_to "Simple Search", search_landing_path(tab: 'simple-search', q: @permitted_params[:q]), class: "nav-link #{'active' if active_tab == 'simple-search'}", role: "tab"
           %li.nav-item{role: "presentation"}
