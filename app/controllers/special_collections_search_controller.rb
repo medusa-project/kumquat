@@ -13,6 +13,7 @@ class SpecialCollectionsSearchController < WebsiteController
     @limit = window_size
 
     search = SimpleCollectionSearch.new(query: @permitted_params[:q])
+    search.facet_filters(@permitted_params[:fq])
     search.start(@start).limit(@limit)
 
     @collections = search.results
