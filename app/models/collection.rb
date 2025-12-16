@@ -230,17 +230,17 @@ harvestableByPrimo)
   def self.facet_fields
     [
       {
-        name:  CollectionElement.new(name: IndexFields::REPOSITORY_TITLE).indexed_keyword_field,
+        name:  IndexFields::REPOSITORY_TITLE,
         label: 'Repository',
         id:    'dl-repository-facet'
       },
       {
-        name:  CollectionElement.new(name: IndexFields::RESOURCE_TYPES).indexed_keyword_field,
+        name:  IndexFields::RESOURCE_TYPES,
         label: 'Resource Type',
         id:    'dl-resource-type-facet'
       },
       {
-        name:  CollectionElement.new(name: IndexFields::ACCESS_SYSTEMS).indexed_keyword_field,
+        name:  IndexFields::ACCESS_SYSTEMS,
         label: 'Access Systems',
         id:    'dl-access-systems-facet'
       }

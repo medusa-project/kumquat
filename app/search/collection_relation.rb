@@ -77,6 +77,44 @@ class CollectionRelation < AbstractRelation
     JSON.parse(result)
   end
 
+  ##
+  # Override parent's load method to handle collection-specific facets
+  #
+  def load
+    return if @loaded
+
+    @response_json = get_response
+
+    # Assemble the response aggregations into Facets using Collection.facet_fields
+    Collection.facet_fields.each do |facet_config|
+      agg = @response_json['aggregations']&.find{ |a| a[0] == facet_config[:name] }
+      if agg
+        facet       = Facet.new
+        facet.name  = facet_config[:label]
+        facet.field = facet_config[:name]
+        agg[1]['buckets'].each do |bucket|
+          term = FacetTerm.new
+          term.name    = bucket['key'].to_s
+          term.label   = bucket['key'].to_s
+          term.count   = bucket['doc_count']
+          term.facet   = facet
+          facet.terms << term
+        end
+        @result_facets << facet
+      end
+    end
+
+    if @response_json['hits']
+      @result_count = @response_json['hits']['total']['value']
+    else
+      @result_count = 0
+      raise IOError, "#{@response_json['error']['type']}: "\
+          "#{@response_json['error']['root_cause'][0]['reason']}"
+    end
+
+    @loaded = true
+  end
+
 
   private
 

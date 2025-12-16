@@ -1,3 +1,4 @@
+
 ##
 # Metadata element archetype. This is a way of expressing an element that is
 # recognized by, or available for use in, the application. This class in
@@ -23,6 +24,30 @@ class Element < ApplicationRecord
             on: :update
 
   before_destroy :restrict_delete_of_used_elements
+
+  # Returns a hash mapping user-facing labels/names to indexed field constants for search
+  def self.searchable_field_map
+    map = {}
+    # Add Dublin Core elements
+    if defined?(DublinCoreElement)
+      DublinCoreElement.all.each do |e|
+        begin
+          map[e.label] = Item::IndexFields.const_get(e.name.upcase)
+        rescue NameError
+          # Skip if no matching constant
+        end
+      end
+    end
+    # Add custom elements
+    Element.all.each do |e|
+      begin
+        map[e.name] = Item::IndexFields.const_get(e.name.upcase)
+      rescue NameError
+        # Skip if no matching constant
+      end
+    end
+    map.compact
+  end
 
   ##
   # @param struct [Hash] Deserialized JSON structure.
