@@ -228,3 +228,10 @@ input.dl-captcha-email {
 #sensitive-pane-content {
   padding: 0 1em 1em 1em;
 }
+
+.btn-primary:focus-visible {
+  outline: 3px solid #FF552E; // Illinois Orange
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px #fff, 0 0 0 8px #FF552E;
+  z-index: 2;
+}
