@@ -16,3 +16,73 @@
 
 %h1.mt-5 Digital Special Collections  
 %h5 Digitized manuscripts, photographs, maps, and other special collections research materials, as well as personal and organizational digital archives.
+
+- if @permitted_params[:q].present?
+  :javascript
+    $(document).ready(function() {
+      // Initialize facets for special_collections_search page (non-AJAX version)
+      const filterForm = $("form.dl-filter");
+
+      const createHiddenInputs = function() {
+        // Remove existing hidden fq inputs
+        filterForm.find('[name="fq[]"]').remove();
+        // Create hidden input for each checked checkbox
+        filterForm.find('[name=dl-facet-term]:checked').each(function() {
+          const input = $('<input type="hidden" name="fq[]">');
+          input.val($(this).data('query'));
+          filterForm.append(input);
+        });
+      };
+
+      // Handle facet checkbox changes
+      filterForm.find('.dl-card-facet [name="dl-facet-term"]').on('change', function() {
+        createHiddenInputs();
+        filterForm.submit();
+      });
+
+      // Handle modal facet submissions
+      filterForm.find('.dl-modal-facet .modal-footer button.submit').on('click', function(e) {
+        e.preventDefault();
+        const modal = $(this).parents(".dl-modal-facet");
+        modal.modal('hide');
+        createHiddenInputs();
+        filterForm.submit();
+      });
+    });
+
+  .row.justify-content-md-center.mt-4
+    .col-md-auto
+      = paginate(@count, @limit, @current_page, SpecialCollectionsSearchController::PERMITTED_PARAMS)
+
+  = form_tag(@permitted_params.reject{ |k, v| k == 'start' }, method: :get, class: 'dl-filter') do
+    - @permitted_params.reject{ |k, v| k == 'start' }.each do |k, v|
+      - if v.is_a?(Array)
+        - v.each do |item|
+          = hidden_field_tag("#{k}[]", item)
+      - else
+        = hidden_field_tag(k, v)
+    .container.mt-4
+      .row
+        .col-sm-3.col-lg-2
+          .facets
+            = facets_as_cards(@facets, SpecialCollectionsSearchController::PERMITTED_PARAMS)
+
+        .col-sm-9.col-lg-10
+          .card.dl-results-summary
+            .card-body
+              .row
+                #dl-search-status.col-sm-8
+                  - last = [@count, @start + @num_results_shown].min
+                  = raw(sprintf("Showing %d&ndash;%d of %s collections", @start + 1, last, number_with_delimiter(@count)))
+
+          .search-results-list.mt-4
+            - if @collections.present?
+              - @collections.each do |collection|
+                .search-result-item.mb-4.d-flex.align-items-start
+                  .flex-shrink-0{style: "width: 150px; height: 150px; overflow: hidden;"}
+                    = thumbnail_tag(collection, shape: :square, size: 150)
+                  .search-result-details.flex-grow-1.ms-3
+                    =link_to "#{collection.title}", collection_path(collection), class: 'h5 d-block mb-2'
+                    %h6= collection.element(:creator)
+            - else 
+              %p.mt-4.text-muted No collections found.
