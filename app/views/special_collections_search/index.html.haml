@@ -1,0 +1,18 @@
+.dls-search-banner
+  = image_tag('banner_dls.jpg', :class => 'w-100', :alt => 'Digital Special Collections Banner')
+  .dls-search-banner-overlay
+    = form_tag(special_collections_search_path, 
+                method: :get, 
+                class: 'd-inline-block w-50') do 
+      .input-group.input-group-lg
+        = search_field_tag(:q, @permitted_params[:q], 
+                            placeholder: "Search across #{number_with_delimiter(@count)} collections...", 
+                            class: "form-control form-control-lg", 
+                            'aria-label': 'Search')
+        .input-group-append
+          = submit_tag("Search", class: "btn btn-primary")
+    = link_to("Advanced Search", search_landing_path(tab: "advanced-search"), 
+              id: "advanced-search-link")
+
+%h1.mt-5 Digital Special Collections  
+%h5 Digitized manuscripts, photographs, maps, and other special collections research materials, as well as personal and organizational digital archives.
