@@ -52,7 +52,7 @@ class AgentsController < WebsiteController
   def set_items_ivars
     @start                = params[:start] ? params[:start].to_i : 0
     @limit                = ITEMS_LIMIT
-    @current_page         = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+    @current_page         = (@start / @limit.to_f).ceil + 1 if @limit > 0
     # TODO: respect authorization
     @related_objects      = @agent.related_objects
     @related_object_count = @related_objects.count

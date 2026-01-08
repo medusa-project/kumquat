@@ -124,7 +124,7 @@ module Admin
     def show
       @start        = params[:start].to_i
       @limit        = Setting::integer(Setting::Keys::DEFAULT_RESULT_WINDOW)
-      @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+      @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 
 
       @items = Item.search.
           aggregations(false).

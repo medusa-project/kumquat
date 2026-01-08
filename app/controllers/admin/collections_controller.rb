@@ -131,7 +131,7 @@ module Admin
       end
 
       @collections  = relation.to_a
-      @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || @limit == 1
+      @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0
       @count        = relation.count
 
       respond_to do |format|

@@ -28,7 +28,7 @@ module Admin
         @tasks = @tasks.where(status: params[:status])
       end
 
-      @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+      @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 
       @count        = @tasks.count
       @tasks        = @tasks.offset(@start).limit(@limit)
 
