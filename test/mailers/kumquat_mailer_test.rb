@@ -25,7 +25,7 @@ class KumquatMailerTest < ActionMailer::TestCase
     assert_equal [KumquatMailer::NO_REPLY_ADDRESS], email.reply_to
     assert_equal config.admin_email_list, email.to
     assert_equal "[TEST: Kumquat] System Error", email.subject
-    assert_equal "Something broke\r\n\r\n", email.body.raw_source
+    assert_equal normalize_line_endings("Something broke\r\n\r\n"), normalize_line_endings(email.body.raw_source)
   end
 
   test "contact_form_message() sends user feedback/comment" do 
