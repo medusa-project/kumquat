@@ -11,6 +11,16 @@
                             'aria-label': 'Search')
         .input-group-append
           = submit_tag("Search", class: "btn btn-primary")
+
+          // Browse dropdown will include Collections, Items, Repositories
+          // that will link to their respective index pages
+          %button.btn.btn-secondary.dropdown-toggle{"aria-expanded": "false", 
+                                        "aria-haspopup": "true", 
+                                        "data-toggle": "dropdown", 
+                                        type: "button"} 
+            %span.caret
+            Browse
+            
     = link_to("Advanced Search", search_landing_path(tab: "advanced-search"), 
               id: "advanced-search-link")
 
