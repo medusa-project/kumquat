@@ -25,7 +25,7 @@ class KumquatMailerTest < ActionMailer::TestCase
     assert_equal [KumquatMailer::NO_REPLY_ADDRESS], email.reply_to
     assert_equal config.admin_email_list, email.to
     assert_equal "[TEST: Kumquat] System Error", email.subject
-    assert_equal "Something broke\r\n\r\n", email.body.raw_source
+    assert_equal normalize_line_endings("Something broke\r\n\r\n"), normalize_line_endings(email.body.raw_source)
   end
 
   test "contact_form_message() sends user feedback/comment" do 
@@ -98,19 +98,24 @@ class KumquatMailerTest < ActionMailer::TestCase
     assert_equal [recipient], email.to
     assert_equal "[TEST: Kumquat] Hello from Kumquat", email.subject
 
-    assert_equal render_template("test.txt"), email.text_part.body.raw_source
-    assert_equal render_template("test.html"), email.html_part.body.raw_source
+    assert_equal normalize_line_endings(render_template("test.txt")), normalize_line_endings(email.text_part.body.raw_source)
+    assert_equal normalize_line_endings(render_template("test.html")), normalize_line_endings(email.html_part.body.raw_source)
   end
 
 
   private
+
+  def normalize_line_endings(text)
+    text.to_s.gsub("\r\n", "\n").gsub("\r", "\n")
+  end
 
   def render_template(fixture_name, vars = {})
     text = read_fixture(fixture_name).join
     vars.each do |k, v|
       text.gsub!("{{{#{k}}}}", v)
     end
-    text
+    # Remove carriage returns to match Rails' new line ending behavior
+    text.gsub("\r\n", "\n").gsub("\r", "\n")
   end
 
 end
