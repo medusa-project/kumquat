@@ -36,7 +36,8 @@ Rails.application.routes.draw do
     match '/file', to: 'downloads#file', via: :get, as: 'file'
   end
   match '/health', to: 'health#index', via: :get
-  resources :repositories, only: [:index, :show]
+  match '/repositories', to: 'repositories#index', via: :get, as: 'repositories'
+  match '/repositories/:id', to: 'repositories#show', via: :get, as: 'repository'
   resources :items, only: [:index, :show] do
     match '/treedata', to: 'items#item_tree_node', via: [:get, :post]
     match '/binaries/:filename', to: 'items#binary', via: :get, as: 'binary'
