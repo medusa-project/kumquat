@@ -31,7 +31,7 @@ gem 'pg'
 # Used to generate PDFs of compound objects.
 gem 'prawn'
 gem 'puma'
-gem 'rails', '~> 7.1.4.1'
+gem 'rails', '~> 7.1.5.1'
 gem 'rails_autolink'
 gem 'sassc'
 gem 'scars-bootstrap-theme', git: 'https://github.com/medusa-project/scars-bootstrap-theme.git',
