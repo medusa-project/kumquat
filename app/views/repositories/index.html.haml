@@ -1,0 +1,9 @@
+- provide(:title, 'Repositories')
+
+%h1 Digital Special Collections Repositories 
+
+- @repositories.each do |repository|
+  %li.nav-item
+    = link_to repository.title, repository_path(repository.title.parameterize)
+  
+
