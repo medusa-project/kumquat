@@ -1,0 +1,1 @@
+{"version":3,"file":"dependencies.js","sourceRoot":"","sources":["../../../../../../src/content-handlers/iiif/extensions/uv-ebook-extension/dependencies.ts"],"names":[],"mappings":"AAAA,MAAM,CAAC;IACL,OAAO,UAAS,OAAiB;QAC/B,OAAO;YACL,KAAK,EAAE,CAAC,mBAAmB,EAAE,0BAA0B,CAAC;SACzD,CAAC;IACJ,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC"}
