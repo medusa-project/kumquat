@@ -997,6 +997,7 @@ module ItemsHelper
     config_uri = asset_path(config_file, skip_pipeline: true)
     # See http://universalviewer.io/examples/ for config structure.
     # UV seems to want its height to be defined in a style attribute.
+    # N.B.: UV 4.x changed universalviewer/lib/embed.js to /umd/UV.js
     html = StringIO.new
     html << "<div id=\"dl-compound-viewer\" class=\"uv\" "\
       "data-locale=\"en-GB:English (GB)\" "\
@@ -1004,7 +1005,7 @@ module ItemsHelper
       "data-uri=\"#{item_iiif_manifest_url(object)}\" "\
       "data-sequenceindex=\"0\" data-canvasindex=\"#{canvas_index}\" "\
       "data-rotation=\"0\" style=\"height:#{VIEWER_HEIGHT}; background-color:#000;\"></div>"
-    html << javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV')
+    html << javascript_include_tag('/universalviewer/umd/UV.js', id: 'embedUV')
     raw(html.string)
   end
 
@@ -1177,6 +1178,7 @@ module ItemsHelper
 
       # N.B. 1: UV 2.x doesn't work in IE 9, so render an <img> instead.
       # N.B. 2: UV wants its height to be defined in a style attribute.
+      # N.B. 3: UV 4.x changed universalviewer/lib/embed.js to /umd/UV.js
       html << sprintf('<!--[if (lte IE 9)]>%s<![endif]-->
           <!--[if gt IE 9 | !IE ]><!-->
           <div id="dl-image-viewer" class="uv"
@@ -1192,7 +1194,7 @@ module ItemsHelper
                       item_iiif_manifest_url(item),
                       VIEWER_WIDTH,
                       VIEWER_HEIGHT,
-                      javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV'))
+                      javascript_include_tag('/universalviewer/umd/UV.js', id: 'embedUV'))
     else
       html << viewer_unavailable_message
     end
