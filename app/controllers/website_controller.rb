@@ -15,7 +15,10 @@ class WebsiteController < ApplicationController
     elsif params[:comment]&.blank?
       redirect_to request.referer || root_path, alert: "Enter comment."
       # render plain: "Please enter a comment.", status: :bad_request
-      return 
+      return
+    elsif params[:email]&.downcase&.include?("@mail.ru")
+      redirect_to request.referer || root_path, notice: "Thank you for your feedback."
+      return  
     end
 
     feedback_email = Setting.string(Setting::Keys::ADMINISTRATOR_EMAIL)
