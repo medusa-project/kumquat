@@ -410,6 +410,40 @@ const DLItemView = function() {
 
         var initial_index = $('[name=dl-download-item-index]').val();
 
+        // Initialize Universal Viewer v4.0.25
+        var uvElement = document.getElementById('dl-compound-viewer') || document.getElementById('dl-image-viewer');
+        if (uvElement && typeof UV !== 'undefined') {
+            var data = {
+                iiifManifestId: uvElement.getAttribute('data-uri'),
+                config: uvElement.getAttribute('data-config'),
+                locales: [{
+                    name: uvElement.getAttribute('data-locale') || 'en-GB'
+                }],
+                sequenceIndex: parseInt(uvElement.getAttribute('data-sequenceindex') || '0'),
+                canvasIndex: parseInt(uvElement.getAttribute('data-canvasindex') || '0'),
+                rotation: parseInt(uvElement.getAttribute('data-rotation') || '0')
+            };
+            
+            try {
+                var uv = UV.init(uvElement.id, data);
+                
+                // Configure UV to load config file
+                uv.on("configure", function({ config, cb }) {
+                    cb(
+                        new Promise(function (resolve) {
+                            fetch(data.config).then(function (response) {
+                                resolve(response.json());
+                            });
+                        })
+                    );
+                });
+                
+                console.log('Universal Viewer v4.0.25 initialized successfully');
+            } catch (error) {
+                console.error('UV initialization failed:', error);
+            }
+        }
+
         // This acts as both a canvas-index-changed and on-load-complete
         // listener, because UV doesn't have the latter, unless I'm missing
         // something:
