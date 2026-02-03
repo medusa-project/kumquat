@@ -499,12 +499,12 @@ const DLItemView = function() {
       });
 
       // Ensure the form is reset when the document is ready
-      var form = $('#contact-form');
-      if (form) {
+      var formElement = document.getElementById('contact-form');
+      if (formElement && typeof formElement.reset === 'function') {
         console.log('Resetting contact form');
-        form.reset();
+        formElement.reset();
       } else {
-        console.log('Contact form not found');
+        console.log('Contact form not found or reset not available');
       }
 
     });
@@ -916,6 +916,6 @@ document.addEventListener('fullscreenchange', function() {
 });
 
 
-document.addEventListener('webkitfullscreenchange', argument[0]);
-document.addEventListener('mozfullscreenchange', argument[0]);
-document.addEventListener('MSFullscreenChange', argument[0]);
+document.addEventListener('webkitfullscreenchange', function() {});
+document.addEventListener('mozfullscreenchange', function() {});
+document.addEventListener('MSFullscreenChange', function() {});
