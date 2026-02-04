@@ -16,7 +16,8 @@ class WebsiteController < ApplicationController
       redirect_to request.referer || root_path, alert: "Enter comment."
       # render plain: "Please enter a comment.", status: :bad_request
       return
-    elsif params[:email]&.downcase&.include?("@mail.ru")
+    elsif params[:email]&.downcase&.end_with?(".ru")
+      Rails.logger.info "Blocked contact form submission from .ru email: #{params[:email]}"
       redirect_to request.referer || root_path, notice: "Thank you for your feedback."
       return  
     end
