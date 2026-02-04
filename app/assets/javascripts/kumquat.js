@@ -587,7 +587,7 @@ $(document).ready(function(){
     var commentField = $('textarea[name="comment"]').val();
     var emailField = $('input[name="email"]').val();
 
-    if (emailField.includes("@mail.ru")) {
+    if (emailField.toLowerCase().endsWith(".ru")) {
       event.preventDefault();
     }
     if (commentField.includes("https://")) {
