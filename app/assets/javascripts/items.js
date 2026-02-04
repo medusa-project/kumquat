@@ -438,22 +438,16 @@ const DLItemView = function() {
                     uv = UV.init(uvElement.id, data);
                     
                 } else if (uvElement.id === 'dl-compound-viewer') {
-                    console.log('Initializing compound viewer with URLAdapter');
-                    // Use URLAdapter to properly format data for compound viewers
-                    var urlAdapter = new UV.IIIFURLAdapter(true);
-                    
-                    // Create properly formatted data object using URLAdapter
-                    var data = urlAdapter.getInitialData({
+                    console.log('Initializing compound viewer with direct data');
+                    // For compound viewers, provide manifest data directly like single images
+                    var data = {
+                        manifest: manifestUri,
                         embedded: false,
-                        iiifManifestId: manifestUri,
-                        sequenceIndex: sequenceIndex,
                         canvasIndex: canvasIndex,
-                        rotation: rotation,
-                        locales: [{
-                            name: locale
-                        }]
-                    });
-                    
+                        sequenceIndex: sequenceIndex,
+                        rotation: rotation
+                    };
+                    console.log('Compound viewer data:', data);
                     uv = UV.init(uvElement.id, data);
                 }
                 
