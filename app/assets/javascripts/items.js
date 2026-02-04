@@ -414,9 +414,6 @@ const DLItemView = function() {
         var uvElement = document.getElementById('dl-compound-viewer') || document.getElementById('dl-image-viewer');
         if (uvElement && typeof UV !== 'undefined') {
             try {
-                // Use URLAdapter to properly format data like in working UV examples
-                var urlAdapter = new UV.IIIFURLAdapter(true);
-                
                 // Get the manifest URI and config from HTML data attributes
                 var manifestUri = uvElement.getAttribute('data-uri');
                 var configUri = uvElement.getAttribute('data-config');
@@ -425,19 +422,33 @@ const DLItemView = function() {
                 var canvasIndex = parseInt(uvElement.getAttribute('data-canvasindex') || '0');
                 var rotation = parseInt(uvElement.getAttribute('data-rotation') || '0');
                 
-                // Create properly formatted data object using URLAdapter
-                var data = urlAdapter.getInitialData({
-                    embedded: false,
-                    iiifManifestId: manifestUri,
-                    sequenceIndex: sequenceIndex,
-                    canvasIndex: canvasIndex,
-                    rotation: rotation,
-                    locales: [{
-                        name: locale
-                    }]
-                });
+                var uv;
                 
-                var uv = UV.init(uvElement.id, data);
+                // Handle different viewer types differently
+                if (uvElement.id === 'dl-image-viewer') {
+                    console.log('Initializing single image viewer');
+                    // For single image viewers, try direct initialization first
+                    uv = UV.init(uvElement.id);
+                    
+                } else if (uvElement.id === 'dl-compound-viewer') {
+                    console.log('Initializing compound viewer with URLAdapter');
+                    // Use URLAdapter to properly format data for compound viewers
+                    var urlAdapter = new UV.IIIFURLAdapter(true);
+                    
+                    // Create properly formatted data object using URLAdapter
+                    var data = urlAdapter.getInitialData({
+                        embedded: false,
+                        iiifManifestId: manifestUri,
+                        sequenceIndex: sequenceIndex,
+                        canvasIndex: canvasIndex,
+                        rotation: rotation,
+                        locales: [{
+                            name: locale
+                        }]
+                    });
+                    
+                    uv = UV.init(uvElement.id, data);
+                }
                 
                 // Configure UV to load config file
                 uv.on("configure", function({ config, cb }) {
