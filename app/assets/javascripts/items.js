@@ -413,25 +413,37 @@ const DLItemView = function() {
         // Initialize Universal Viewer v4.0.25
         var uvElement = document.getElementById('dl-compound-viewer') || document.getElementById('dl-image-viewer');
         if (uvElement && typeof UV !== 'undefined') {
-            var data = {
-                iiifManifestId: uvElement.getAttribute('data-uri'),
-                config: uvElement.getAttribute('data-config'),
-                locales: [{
-                    name: uvElement.getAttribute('data-locale') || 'en-GB'
-                }],
-                sequenceIndex: parseInt(uvElement.getAttribute('data-sequenceindex') || '0'),
-                canvasIndex: parseInt(uvElement.getAttribute('data-canvasindex') || '0'),
-                rotation: parseInt(uvElement.getAttribute('data-rotation') || '0')
-            };
-            
             try {
+                // Use URLAdapter to properly format data like in working UV examples
+                var urlAdapter = new UV.IIIFURLAdapter(true);
+                
+                // Get the manifest URI and config from HTML data attributes
+                var manifestUri = uvElement.getAttribute('data-uri');
+                var configUri = uvElement.getAttribute('data-config');
+                var locale = uvElement.getAttribute('data-locale') || 'en-GB';
+                var sequenceIndex = parseInt(uvElement.getAttribute('data-sequenceindex') || '0');
+                var canvasIndex = parseInt(uvElement.getAttribute('data-canvasindex') || '0');
+                var rotation = parseInt(uvElement.getAttribute('data-rotation') || '0');
+                
+                // Create properly formatted data object using URLAdapter
+                var data = urlAdapter.getInitialData({
+                    embedded: false,
+                    iiifManifestId: manifestUri,
+                    sequenceIndex: sequenceIndex,
+                    canvasIndex: canvasIndex,
+                    rotation: rotation,
+                    locales: [{
+                        name: locale
+                    }]
+                });
+                
                 var uv = UV.init(uvElement.id, data);
                 
                 // Configure UV to load config file
                 uv.on("configure", function({ config, cb }) {
                     cb(
                         new Promise(function (resolve) {
-                            fetch(data.config).then(function (response) {
+                            fetch(configUri).then(function (response) {
                                 resolve(response.json());
                             });
                         })
