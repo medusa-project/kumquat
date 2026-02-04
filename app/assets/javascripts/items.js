@@ -427,8 +427,15 @@ const DLItemView = function() {
                 // Handle different viewer types differently
                 if (uvElement.id === 'dl-image-viewer') {
                     console.log('Initializing single image viewer');
-                    // For single image viewers, try direct initialization first
-                    uv = UV.init(uvElement.id);
+                    // For single image viewers, provide manifest data directly
+                    var data = {
+                        manifest: manifestUri,
+                        embedded: false,
+                        canvasIndex: canvasIndex,
+                        rotation: rotation
+                    };
+                    console.log('Single image viewer data:', data);
+                    uv = UV.init(uvElement.id, data);
                     
                 } else if (uvElement.id === 'dl-compound-viewer') {
                     console.log('Initializing compound viewer with URLAdapter');
