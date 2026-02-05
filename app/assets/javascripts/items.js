@@ -410,6 +410,64 @@ const DLItemView = function() {
 
         var initial_index = $('[name=dl-download-item-index]').val();
 
+        // Initialize Universal Viewer v4.0.25
+        var uvElement = document.getElementById('dl-compound-viewer') || document.getElementById('dl-image-viewer');
+        if (uvElement && typeof UV !== 'undefined') {
+            try {
+                // Get the manifest URI and config from HTML data attributes
+                var manifestUri = uvElement.getAttribute('data-uri');
+                var configUri = uvElement.getAttribute('data-config');
+                var locale = uvElement.getAttribute('data-locale') || 'en-GB';
+                var sequenceIndex = parseInt(uvElement.getAttribute('data-sequenceindex') || '0');
+                var canvasIndex = parseInt(uvElement.getAttribute('data-canvasindex') || '0');
+                var rotation = parseInt(uvElement.getAttribute('data-rotation') || '0');
+                
+                var uv;
+                
+                // Handle different viewer types differently
+                if (uvElement.id === 'dl-image-viewer') {
+                    console.log('Initializing single image viewer');
+                    // For single image viewers, provide manifest data directly
+                    var data = {
+                        manifest: manifestUri,
+                        embedded: false,
+                        canvasIndex: canvasIndex,
+                        rotation: rotation
+                    };
+                    console.log('Single image viewer data:', data);
+                    uv = UV.init(uvElement.id, data);
+                    
+                } else if (uvElement.id === 'dl-compound-viewer') {
+                    console.log('Initializing compound viewer with direct data');
+                    // For compound viewers, provide manifest data directly like single images
+                    var data = {
+                        manifest: manifestUri,
+                        embedded: false,
+                        canvasIndex: canvasIndex,
+                        sequenceIndex: sequenceIndex,
+                        rotation: rotation
+                    };
+                    console.log('Compound viewer data:', data);
+                    uv = UV.init(uvElement.id, data);
+                }
+                
+                // Configure UV to load config file
+                uv.on("configure", function({ config, cb }) {
+                    cb(
+                        new Promise(function (resolve) {
+                            fetch(configUri).then(function (response) {
+                                resolve(response.json());
+                            });
+                        })
+                    );
+                });
+                
+                console.log('Universal Viewer v4.0.25 initialized successfully');
+            } catch (error) {
+                console.error('UV initialization failed:', error);
+            }
+        }
+
         // This acts as both a canvas-index-changed and on-load-complete
         // listener, because UV doesn't have the latter, unless I'm missing
         // something:
@@ -499,12 +557,12 @@ const DLItemView = function() {
       });
 
       // Ensure the form is reset when the document is ready
-      var form = $('#contact-form');
-      if (form) {
+      var formElement = document.getElementById('contact-form');
+      if (formElement && typeof formElement.reset === 'function') {
         console.log('Resetting contact form');
-        form.reset();
+        formElement.reset();
       } else {
-        console.log('Contact form not found');
+        console.log('Contact form not found or reset not available');
       }
 
     });
@@ -916,6 +974,6 @@ document.addEventListener('fullscreenchange', function() {
 });
 
 
-document.addEventListener('webkitfullscreenchange', argument[0]);
-document.addEventListener('mozfullscreenchange', argument[0]);
-document.addEventListener('MSFullscreenChange', argument[0]);
+document.addEventListener('webkitfullscreenchange', function() {});
+document.addEventListener('mozfullscreenchange', function() {});
+document.addEventListener('MSFullscreenChange', function() {});

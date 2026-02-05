@@ -548,17 +548,27 @@ const Application = {
 };
 
 $(document).ready(function(){
-  var form = $('#contact-form')[0];
-  if (form) {
-    form.reset();
+  var formElement = document.getElementById('contact-form');
+  if (formElement && typeof formElement.reset === 'function') {
+    formElement.reset();
   }
-  $('[data-toggle="tooltip"]').tooltip();
+  
+  // Initialize tooltips if Bootstrap is available
+  if ($.fn.tooltip) {
+    $('[data-toggle="tooltip"]').tooltip();
+  } else {
+    console.warn('Bootstrap tooltip not available');
+  }
 });
 
 $(document).ready(function(){
   $('[data-bs-toggle="collapse"]').on('click', function() {
     var target = $(this).attr('href');
-    $(target).collapse('toggle');
+    if ($.fn.collapse) {
+      $(target).collapse('toggle');
+    } else {
+      console.warn('Bootstrap collapse not available');
+    }
   });
 });
 
@@ -587,7 +597,7 @@ $(document).ready(function(){
     var commentField = $('textarea[name="comment"]').val();
     var emailField = $('input[name="email"]').val();
 
-    if (emailField.includes("@mail.ru")) {
+    if (emailField.toLowerCase().endsWith(".ru")) {
       event.preventDefault();
     }
     if (commentField.includes("https://")) {
