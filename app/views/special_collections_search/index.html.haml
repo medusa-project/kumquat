@@ -5,10 +5,10 @@
                 method: :get, 
                 class: 'd-inline-block w-50') do 
       .input-group.input-group-lg
-        = search_field_tag(:q, @permitted_params[:q], 
-                            placeholder: "Search across #{number_with_delimiter(@count)} collections...", 
-                            class: "form-control form-control-lg", 
-                            'aria-label': 'Search')
+      = search_field_tag(:q, @permitted_params[:q], 
+                          placeholder: "Search across #{number_with_delimiter(@count)} collections and items...", 
+                          class: "form-control form-control-lg", 
+                          'aria-label': 'Search')
         .input-group-append
           = submit_tag("Search", class: "btn btn-primary")
 
@@ -91,16 +91,32 @@
               .row
                 #dl-search-status.col-sm-8
                   - last = [@count, @start + @num_results_shown].min
-                  = raw(sprintf("Showing %d&ndash;%d of %s collections", @start + 1, last, number_with_delimiter(@count)))
+                  = raw(sprintf("Showing %d&ndash;%d of %s results (%d collections, %d items)", 
+                        @start + 1, last, number_with_delimiter(@count), 
+                        @collection_count, @item_count))
 
           .search-results-list.mt-4
-            - if @collections.present?
-              - @collections.each do |collection|
+            - if @results.present?
+              - @results.each do |result|
                 .search-result-item.mb-4.d-flex.align-items-start
                   .flex-shrink-0{style: "width: 150px; height: 150px; overflow: hidden;"}
-                    = thumbnail_tag(collection, shape: :square, size: 150)
+                    - if result[:type] == 'collection'
+                      = thumbnail_tag(result[:object], shape: :square, size: 150)
+                    - else
+                      = thumbnail_tag(result[:object], shape: :square, size: 150)
                   .search-result-details.flex-grow-1.ms-3
-                    =link_to "#{collection.title}", collection_path(collection), class: 'h5 d-block mb-2'
-                    %h6= collection.element(:creator)
+                    - if result[:type] == 'collection'
+                      .result-type-badge.mb-1
+                        %span.badge.badge-primary Collection
+                      = link_to result[:title], collection_path(result[:object]), class: 'h5 d-block mb-2'
+                      %h6= result[:creator]
+                    - else
+                      .result-type-badge.mb-1
+                        %span.badge.badge-secondary Item
+                      = link_to result[:title], item_path(result[:object]), class: 'h5 d-block mb-2'
+                      %h6= result[:creator]
+                      - if result[:collection]
+                        %p.text-muted.small
+                          From: #{link_to result[:collection].title, collection_path(result[:collection])}
             - else 
-              %p.mt-4.text-muted No collections found.
+              %p.mt-4.text-muted No results found.
