@@ -5,10 +5,10 @@
                 method: :get, 
                 class: 'd-inline-block w-50') do 
       .input-group.input-group-lg
-      = search_field_tag(:q, @permitted_params[:q], 
-                          placeholder: "Search across #{number_with_delimiter(@count)} collections and items...", 
-                          class: "form-control form-control-lg", 
-                          'aria-label': 'Search')
+        = search_field_tag(:q, @permitted_params[:q], 
+                            placeholder: "Search across #{number_with_delimiter(@count)} collections and items...", 
+                            class: "form-control form-control-lg", 
+                            'aria-label': 'Search')
         .input-group-append
           = submit_tag("Search", class: "btn btn-primary")
 
@@ -117,6 +117,7 @@
                       %h6= result[:creator]
                       - if result[:collection]
                         %p.text-muted.small
-                          From: #{link_to result[:collection].title, collection_path(result[:collection])}
+                          From: 
+                          = link_to result[:collection].title, collection_path(result[:collection])
             - else 
               %p.mt-4.text-muted No results found.
