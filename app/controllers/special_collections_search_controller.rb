@@ -12,18 +12,23 @@ class SpecialCollectionsSearchController < WebsiteController
     @start = [@permitted_params[:start].to_i.abs, max_start].min 
     @limit = window_size
 
-    search = SimpleCollectionSearch.new(query: @permitted_params[:q])
-    search.facet_filters(@permitted_params[:fq])
-    search.start(@start).limit(@limit)
+    # Unified search for both collections and items
+    search = SpecialCollectionSearch.new(
+      query: @permitted_params[:q],
+      start: @start,
+      limit: @limit,
+      facet_filters: @permitted_params[:fq]
+    )
+    search.execute!
 
-    @collections = search.results
+    @results = search.results
     @count = search.count
-
-    search.aggregations(true)
-    @facets = search.facets 
+    @collection_count = search.collection_count
+    @item_count = search.item_count
+    @facets = search.facets
 
     @current_page = (@start / @limit) + 1
-    @num_results_shown = [@collections.count, @limit].min
+    @num_results_shown = [@results.count, @limit].min
   end
 
   private 
