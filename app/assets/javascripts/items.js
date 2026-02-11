@@ -280,6 +280,16 @@ const DLItemView = function() {
                 
                 return false;
             });
+            
+            // Handle modal close buttons when Bootstrap JS isn't available
+            $('body').on('click', '[data-dismiss="modal"]', function(e) {
+                e.preventDefault();
+                var targetModal = $(this).closest('.modal');
+                if (targetModal.length) {
+                    targetModal.modal('hide');
+                }
+                return false;
+            });
         }; init();
 
         const renderError = function() {
@@ -412,6 +422,30 @@ const DLItemView = function() {
     };
 
     this.init = function() {
+        // Add Bootstrap collapse fallback if not available
+        if (!$.fn.collapse) {
+            $.fn.collapse = function(action) {
+                if (action === 'show') {
+                    this.removeClass('collapse').addClass('collapse show');
+                    // Trigger custom events
+                    this.trigger('show.bs.collapse').trigger('shown.bs.collapse');
+                } else if (action === 'hide') {
+                    this.removeClass('show').addClass('collapse');
+                    // Trigger custom events
+                    this.trigger('hide.bs.collapse').trigger('hidden.bs.collapse');
+                } else if (action === 'toggle') {
+                    if (this.hasClass('show')) {
+                        this.removeClass('show');
+                        this.trigger('hide.bs.collapse').trigger('hidden.bs.collapse');
+                    } else {
+                        this.addClass('show');
+                        this.trigger('show.bs.collapse').trigger('shown.bs.collapse');
+                    }
+                }
+                return this;
+            };
+        }
+        
         $('#dl-download-button').on('click', function() {
             $('#dl-download').collapse('show');
             const container = $('html, body');
