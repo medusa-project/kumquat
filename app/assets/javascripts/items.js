@@ -201,10 +201,31 @@ const DLItemView = function() {
 
         const init = function() {
             const modal = $('#dl-custom-image-modal');
+            
+            if (modal.length === 0) {
+                return;
+            }
+            
+            // Add Bootstrap modal fallback if not available
+            if (!$.fn.modal) {
+                $.fn.modal = function(action) {
+                    if (action === 'show') {
+                        this.removeClass('fade').addClass('show').css('display', 'block');
+                        $('body').addClass('modal-open');
+                        if (!$('.modal-backdrop').length) {
+                            $('body').append('<div class="modal-backdrop fade show"></div>');
+                        }
+                    } else if (action === 'hide') {
+                        this.removeClass('show').css('display', 'none');
+                        $('body').removeClass('modal-open');
+                        $('.modal-backdrop').remove();
+                    }
+                    return this;
+                };
+            }
+            
             modal.on('show.bs.modal', function(e) {
-                // Get the element that was clicked to open the panel.
                 const clicked_button = $(e.relatedTarget);
-                // Read its relevant data attributes.
                 title        = clicked_button.data('title').trim().replace(/"/g, '&quot;');
                 imageUrl     = clicked_button.data('iiif-url');
                 imageInfoUrl = clicked_button.data('iiif-info-url');
@@ -212,18 +233,76 @@ const DLItemView = function() {
                     imageInfoUrl += "?cache=recache";
                 }
 
-                // Load the image's IIIF info.
                 $.ajax({
                     dataType: 'json',
                     url:      imageInfoUrl,
                     data:     null,
                     success:  function(data) {
                         renderContents(data);
+                    },
+                    error: function(xhr, status, error) {
+                        renderError();
                     }
                 });
                 isModalLoaded = true;
             });
+            
+            // Fallback: Handle button clicks directly if Bootstrap modal events don't work
+            $('body').on('click', '[data-target="#dl-custom-image-modal"]', function(e) {
+                e.preventDefault();
+                
+                var button = $(this);
+                title        = button.data('title');
+                imageUrl     = button.data('iiif-url');
+                imageInfoUrl = button.data('iiif-info-url');
+                
+                if (title && imageUrl && imageInfoUrl) {
+                    title = title.trim().replace(/"/g, '&quot;');
+                    if (BYPASS_CACHE) {
+                        imageInfoUrl += "?cache=recache";
+                    }
+                    
+                    $.ajax({
+                        dataType: 'json',
+                        url:      imageInfoUrl,
+                        data:     null,
+                        success:  function(data) {
+                            renderContents(data);
+                            modal.modal('show');
+                        },
+                        error: function(xhr, status, error) {
+                            renderError();
+                            modal.modal('show');
+                        }
+                    });
+                    isModalLoaded = true;
+                }
+                
+                return false;
+            });
+            
+            // Handle modal close buttons when Bootstrap JS isn't available
+            $('body').on('click', '[data-dismiss="modal"]', function(e) {
+                e.preventDefault();
+                var targetModal = $(this).closest('.modal');
+                if (targetModal.length) {
+                    targetModal.modal('hide');
+                }
+                return false;
+            });
         }; init();
+
+        const renderError = function() {
+            const container = $('#iiif-download');
+            container.empty();
+            container.append(
+                '<div class="alert alert-danger">' +
+                    '<i class="fas fa-exclamation-triangle"></i> ' +
+                    'Sorry, this image is not available for custom download. ' +
+                    'Please try the "Original File" download instead.' +
+                '</div>'
+            );
+        };
 
         const renderContents = function(info) {
             const container = $('#iiif-download');
@@ -343,6 +422,30 @@ const DLItemView = function() {
     };
 
     this.init = function() {
+        // Add Bootstrap collapse fallback if not available
+        if (!$.fn.collapse) {
+            $.fn.collapse = function(action) {
+                if (action === 'show') {
+                    this.removeClass('collapse').addClass('collapse show');
+                    // Trigger custom events
+                    this.trigger('show.bs.collapse').trigger('shown.bs.collapse');
+                } else if (action === 'hide') {
+                    this.removeClass('show').addClass('collapse');
+                    // Trigger custom events
+                    this.trigger('hide.bs.collapse').trigger('hidden.bs.collapse');
+                } else if (action === 'toggle') {
+                    if (this.hasClass('show')) {
+                        this.removeClass('show');
+                        this.trigger('hide.bs.collapse').trigger('hidden.bs.collapse');
+                    } else {
+                        this.addClass('show');
+                        this.trigger('show.bs.collapse').trigger('shown.bs.collapse');
+                    }
+                }
+                return this;
+            };
+        }
+        
         $('#dl-download-button').on('click', function() {
             $('#dl-download').collapse('show');
             const container = $('html, body');
