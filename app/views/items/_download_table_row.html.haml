@@ -13,9 +13,9 @@
       .dl-thumbnail
         - if link_to_items
           = link_to(item) do
-            = thumbnail_tag(item, shape: :square, lazy: true)
+            = thumbnail_tag(item, shape: :square, lazy: false)
         - else
-          = thumbnail_tag(item, shape: :square, lazy: true)
+          = thumbnail_tag(item, shape: :square, lazy: false)
     %td
       - if link_to_items
         = link_to(item.title, item)
