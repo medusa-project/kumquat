@@ -6,7 +6,7 @@
                 class: 'd-inline-block w-50') do 
       .input-group.input-group-lg
         = search_field_tag(:q, @permitted_params[:q], 
-                            placeholder: "Search across #{number_with_delimiter(@count)} collections and items...", 
+                            placeholder: "Search across #{number_with_delimiter(@total_available_count)} items", 
                             class: "form-control form-control-lg", 
                             'aria-label': 'Search')
         .input-group-append
