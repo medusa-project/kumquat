@@ -3,6 +3,9 @@ class SpecialCollectionsSearchController < WebsiteController
   before_action :set_sanitized_params
 
   def index 
+    # Get total available counts for placeholder text
+    @total_available_count = get_total_available_count
+    
     # Redirect to browse all collections if search submitted with empty query 
     if @permitted_params[:q].blank? && @permitted_params[:commit].present?
       redirect_to search_landing_path 
