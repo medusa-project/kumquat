@@ -3,35 +3,36 @@ class SearchLandingController < WebsiteController
 
   before_action :set_sanitized_params
   def index 
+    # Get total available counts for display
+    @total_available_count = get_total_available_count
+    
     @start = [@permitted_params[:start].to_i.abs, max_start].min
     @limit = window_size
 
-    # Always search collections
-    search = SimpleCollectionSearch.new(query: @permitted_params[:q])
-    search.facet_filters(@permitted_params[:fq])
-    search.start(@start).limit(@limit)
+    # Use unified search for both collections and items
+    search = SpecialCollectionSearch.new(
+      query: @permitted_params[:q],
+      start: @start,
+      limit: @limit,
+      facet_filters: @permitted_params[:fq]
+    )
+    search.execute!
 
-    @collections = search.results
+    @results = search.results
     @count = search.count
-
-    search.aggregations(true)
+    @collection_count = search.collection_count
+    @item_count = search.item_count
     @facets = search.facets
 
     @current_page = (@start / @limit) + 1
-    @num_results_shown = [@collections.count, @limit].min
+    @num_results_shown = [@results.count, @limit].min
 
-    # TEMPORARY: Debug logging for facets
-    Rails.logger.info "=== COLLECTION SEARCH DEBUG ==="
+    # TEMPORARY: Debug logging for unified search
+    Rails.logger.info "=== UNIFIED SEARCH DEBUG ==="
     Rails.logger.info "Query: '#{@permitted_params[:q]}'"
-    Rails.logger.info "Total results: #{@count}"
-    Rails.logger.info "Collections returned: #{@collections.count}"
+    Rails.logger.info "Total results: #{@count} (#{@collection_count} collections, #{@item_count} items)"
+    Rails.logger.info "Results returned: #{@results.count}"
     Rails.logger.info "Facets count: #{@facets&.count || 0}"
-    @facets&.each do |facet|
-      Rails.logger.info "  Facet: #{facet.name} (#{facet.field}) - #{facet.terms.count} terms"
-      facet.terms.each do |term|
-        Rails.logger.info "    - #{term.label}: #{term.count}"
-      end
-    end
   end
 
   private 
@@ -46,5 +47,26 @@ class SearchLandingController < WebsiteController
 
   def max_start 
     9960 
+  end
+
+  def get_total_available_count
+    # Get total count of DLS collections
+    collection_count = Collection.search
+      .aggregations(false)
+      .include_unpublished(false)
+      .include_restricted(false) 
+      .filter(Collection::IndexFields::PUBLISHED_IN_DLS, true)
+      .count
+
+    # Get total count of DLS items
+    item_count = Item.search
+      .aggregations(false)
+      .include_unpublished(false)
+      .include_restricted(false)
+      .include_publicly_inaccessible(false)
+      .filter(Item::IndexFields::PUBLISHED, true)
+      .count
+
+    collection_count + item_count
   end
 end
