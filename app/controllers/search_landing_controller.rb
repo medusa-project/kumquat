@@ -2,9 +2,12 @@ class SearchLandingController < WebsiteController
   PERMITTED_PARAMS = [{ fq: [] }, :q, :sort, :start, :utf8, :commit, :tab]
 
   before_action :set_sanitized_params
+  
+  include SearchHelper
+  
   def index 
     # Get total available counts for display
-    @total_available_count = get_total_available_count
+    @total_available_count = total_available_dls_count
     
     @start = [@permitted_params[:start].to_i.abs, max_start].min
     @limit = window_size
@@ -47,26 +50,5 @@ class SearchLandingController < WebsiteController
 
   def max_start 
     9960 
-  end
-
-  def get_total_available_count
-    # Get total count of DLS collections
-    collection_count = Collection.search
-      .aggregations(false)
-      .include_unpublished(false)
-      .include_restricted(false) 
-      .filter(Collection::IndexFields::PUBLISHED_IN_DLS, true)
-      .count
-
-    # Get total count of DLS items
-    item_count = Item.search
-      .aggregations(false)
-      .include_unpublished(false)
-      .include_restricted(false)
-      .include_publicly_inaccessible(false)
-      .filter(Item::IndexFields::PUBLISHED, true)
-      .count
-
-    collection_count + item_count
   end
 end
