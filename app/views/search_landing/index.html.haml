@@ -5,34 +5,7 @@
 
 :javascript
   $(document).ready(function() {
-    // Initialize facets for search_landing page (non-AJAX version)
-    const filterForm = $("form.dl-filter");
-
-    const createHiddenInputs = function() {
-      // Remove existing hidden fq inputs
-      filterForm.find('[name="fq[]"]').remove();
-      // Create hidden input for each checked checkbox
-      filterForm.find('[name=dl-facet-term]:checked').each(function() {
-        const input = $('<input type="hidden" name="fq[]">');
-        input.val($(this).data('query'));
-        filterForm.append(input);
-      });
-    };
-
-    // Handle facet checkbox changes
-    filterForm.find('.dl-card-facet [name="dl-facet-term"]').on('change', function() {
-      createHiddenInputs();
-      filterForm.submit();
-    });
-
-    // Handle modal facet submissions
-    filterForm.find('.dl-modal-facet .modal-footer button.submit').on('click', function(e) {
-      e.preventDefault();
-      const modal = $(this).parents(".dl-modal-facet");
-      modal.modal('hide');
-      createHiddenInputs();
-      filterForm.submit();
-    });
+    Application.initFacets();
   });
 
 .row
@@ -54,6 +27,7 @@
         = paginate(@count, @limit, @current_page, SearchLandingController::PERMITTED_PARAMS)
 
     = form_tag(@permitted_params.reject{ |k, v| k == 'start' }, method: :get, class: 'dl-filter') do
+      = hidden_field_tag 'dl-current-path', request.path
       - @permitted_params.reject{ |k, v| k == 'start' }.each do |k, v|
         - if v.is_a?(Array)
           - v.each do |item|
@@ -66,38 +40,8 @@
             = facets_as_cards(@facets, SearchLandingController::PERMITTED_PARAMS)
 
         .col-sm-9.col-lg-10
-          .card.dl-results-summary
-            .card-body
-              .row
-                #dl-search-status.col-sm-8
-                  - last = [@count, @start + @num_results_shown].min
-                  = raw(sprintf("Showing %d&ndash;%d of %s results (%d collections, %d items)", 
-                        @start + 1, last, number_with_delimiter(@count), 
-                        @collection_count, @item_count))
-
-          .search-results-list
-            - if @results.present?
-              - @results.each do |result|
-                .search-result-item.mb-4.d-flex.align-items-start
-                  .flex-shrink-0{style: "width: 150px; height: 150px; overflow: hidden;"}
-                    = thumbnail_tag(result[:object], shape: :square, size: 150)
-                  .search-result-details.flex-grow-1.ms-3
-                    - if result[:type] == 'collection'
-                      .result-type-badge.mb-1
-                        %span.badge.badge-primary Collection
-                      = link_to result[:title], collection_path(result[:object]), class: 'h5 d-block mb-2'
-                      %h6= result[:creator]
-                    - else
-                      .result-type-badge.mb-1
-                        %span.badge.badge-secondary Item
-                      = link_to result[:title], item_path(result[:object]), class: 'h5 d-block mb-2'
-                      %h6= result[:creator]
-                      - if result[:collection]
-                        %p.text-muted.small
-                          From: 
-                          = link_to result[:collection].title, collection_path(result[:collection])
-            - else 
-              %p.mt-4.text-muted No results found.
+          #search-results-container
+            = render 'search_results'
 
   #simple-search.tab-pane.fade{class: [('show active' if active_tab == 'simple-search')], role: "tabpanel"}
     .row.justify-content-md-center.mt-4
@@ -119,6 +63,7 @@
         = paginate(@count, @limit, @current_page, SearchLandingController::PERMITTED_PARAMS)
     
     = form_tag(@permitted_params.reject{ |k, v| k == 'start' }, method: :get, class: 'dl-filter') do
+      = hidden_field_tag 'dl-current-path', request.path
       - @permitted_params.reject{ |k, v| k == 'start' }.each do |k, v|
         - if v.is_a?(Array)
           - v.each do |item|
@@ -134,38 +79,8 @@
               = facets_as_cards(@facets, SearchLandingController::PERMITTED_PARAMS)
 
           .col-sm-9.col-lg-10
-            .card.dl-results-summary
-              .card-body
-                .row
-                  #dl-search-status.col-sm-8
-                    - last = [@count, @start + @num_results_shown].min
-                    = raw(sprintf("Showing %d&ndash;%d of %s results (%d collections, %d items)", 
-                          @start + 1, last, number_with_delimiter(@count), 
-                          @collection_count, @item_count))
-            
-            .search-results-list.mt-4
-              - if @results.present?
-                - @results.each do |result|
-                  .search-result-item.mb-4.d-flex.align-items-start
-                    .flex-shrink-0{style: "width: 150px; height: 150px; overflow: hidden;"}
-                      = thumbnail_tag(result[:object], shape: :square, size: 150)
-                    .search-result-details.flex-grow-1.ms-3
-                      - if result[:type] == 'collection'
-                        .result-type-badge.mb-1
-                          %span.badge.badge-primary Collection
-                        = link_to result[:title], collection_path(result[:object]), class: 'h5 d-block mb-2'
-                        %h6= result[:creator]
-                      - else
-                        .result-type-badge.mb-1
-                          %span.badge.badge-secondary Item
-                        = link_to result[:title], item_path(result[:object]), class: 'h5 d-block mb-2'
-                        %h6= result[:creator]
-                        - if result[:collection]
-                          %p.text-muted.small
-                            From: 
-                            = link_to result[:collection].title, collection_path(result[:collection])
-              - else
-                %p.text-muted.text-center No results found.
+            #search-results-container
+              = render 'search_results'
 
   #advanced-search.tab-pane.fade{class: [('show active' if active_tab == 'advanced-search')], role: "tabpanel"}
     .row.justify-content-md-center.mt-4
