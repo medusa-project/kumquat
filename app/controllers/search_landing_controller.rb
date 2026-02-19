@@ -36,6 +36,11 @@ class SearchLandingController < WebsiteController
     Rails.logger.info "Total results: #{@count} (#{@collection_count} collections, #{@item_count} items)"
     Rails.logger.info "Results returned: #{@results.count}"
     Rails.logger.info "Facets count: #{@facets&.count || 0}"
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
   end
 
   private 

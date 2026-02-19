@@ -34,6 +34,11 @@ class SpecialCollectionsSearchController < WebsiteController
 
     @current_page = (@start / @limit) + 1
     @num_results_shown = [@results.count, @limit].min
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
   end
 
   private 
