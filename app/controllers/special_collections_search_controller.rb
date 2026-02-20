@@ -1,8 +1,13 @@
 class SpecialCollectionsSearchController < WebsiteController 
   PERMITTED_PARAMS = [{ fq: [] }, :q, :sort, :start, :utf8, :commit]
   before_action :set_sanitized_params
+  
+  include SearchHelper
 
   def index 
+    # Get total available counts for placeholder text
+    @total_available_count = total_available_dls_count
+    
     # Redirect to browse all collections if search submitted with empty query 
     if @permitted_params[:q].blank? && @permitted_params[:commit].present?
       redirect_to search_landing_path 
@@ -12,18 +17,28 @@ class SpecialCollectionsSearchController < WebsiteController
     @start = [@permitted_params[:start].to_i.abs, max_start].min 
     @limit = window_size
 
-    search = SimpleCollectionSearch.new(query: @permitted_params[:q])
-    search.facet_filters(@permitted_params[:fq])
-    search.start(@start).limit(@limit)
+    # Unified search for both collections and items
+    search = SpecialCollectionSearch.new(
+      query: @permitted_params[:q],
+      start: @start,
+      limit: @limit,
+      facet_filters: @permitted_params[:fq]
+    )
+    search.execute!
 
-    @collections = search.results
+    @results = search.results
     @count = search.count
-
-    search.aggregations(true)
-    @facets = search.facets 
+    @collection_count = search.collection_count
+    @item_count = search.item_count
+    @facets = search.facets
 
     @current_page = (@start / @limit) + 1
-    @num_results_shown = [@collections.count, @limit].min
+    @num_results_shown = [@results.count, @limit].min
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
   end
 
   private 
