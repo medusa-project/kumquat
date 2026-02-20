@@ -22,7 +22,11 @@
                       class: 'nav-link' do
               = icon_for(Item)
               Items
-          %li#items-nav.nav-item
+          %li#repositories-nav.nav-item 
+            = link_to repositories_path, class: 'nav-link' do 
+              = icon_for(:repository)
+              Repositories
+          %li#about-nav.nav-item
             = link_to "https://guides.library.illinois.edu/digital-special-collections/",
                       class: 'nav-link' do 
               = icon_for(:info)
