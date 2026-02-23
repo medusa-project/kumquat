@@ -369,6 +369,8 @@ module ApplicationHelper
     icon = %w(fas cube)
     if entity == :info
       icon = %w[fas info-circle]
+    elsif entity == :repository
+      icon = %w(fas building)
     elsif entity == Item
       icon = %w(fas cube)
     elsif entity.kind_of?(Item)
