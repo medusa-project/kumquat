@@ -350,6 +350,7 @@ class Item < ApplicationRecord
               :prune_identical_elements, :set_effective_host_groups,
               :set_normalized_coords, :set_normalized_date, :set_published_at
   
+  before_update :capture_published_change
   after_commit :reindex_if_published_changed
 
   ##
@@ -1736,13 +1737,24 @@ class Item < ApplicationRecord
   end
 
   ##
+  # Captures the published status change before update for logging.
+  #
+  def capture_published_change
+    if will_save_change_to_published?
+      @published_change = changes_to_save['published']
+    end
+  end
+
+  ##
   # Reindexes the item if its published status has changed.
   # This ensures the search index stays consistent when items are published/unpublished.
   #
   def reindex_if_published_changed
-    if saved_change_to_published?
-      Rails.logger.info "Reindexing item #{repository_id} due to published status change (#{published_was} -> #{published})"
+    if @published_change
+      old_value, new_value = @published_change
+      Rails.logger.info "Reindexing item #{repository_id} due to published status change (#{old_value} -> #{new_value})"
       reindex
+      @published_change = nil  # Clear the captured change
     end
   end
 
