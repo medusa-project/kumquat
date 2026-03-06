@@ -560,6 +560,13 @@ module Admin
           PropagatePropertiesToChildrenJob.perform_later(item: @item,
                                                          user: current_user)
         end
+        
+        # Explicitly reindex the item outside the transaction to ensure 
+        # the search index gets the committed database changes
+        Rails.logger.info "About to reindex item #{@item.repository_id} (published: #{@item.published})"
+        @item.reindex
+        Rails.logger.info "Reindexed item #{@item.repository_id} (#{@item.title}) after update"
+        
       end
     rescue => e
       handle_error(e)
@@ -685,6 +692,17 @@ module Admin
     rescue => e
       handle_error(e)
     else
+      # Reindex the affected items to update the search index
+      # Do this after successful update to avoid reindexing if update fails
+      begin
+        items_to_reindex = Item.where('repository_id IN (?)', ids)
+        items_to_reindex.find_each(&:reindex)
+        Rails.logger.info "Reindexed #{items_to_reindex.count} items after #{publish ? 'publishing' : 'unpublishing'}"
+      rescue => reindex_error
+        Rails.logger.error "Failed to reindex items: #{reindex_error.message}"
+        # Don't fail the whole operation if reindexing fails, but log it
+      end
+      
       flash['success'] = "#{publish ? 'P' : 'Unp'}ublished #{ids.length} items."
     ensure
       redirect_back fallback_location: admin_collection_items_path(@collection)
