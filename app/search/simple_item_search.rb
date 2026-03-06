@@ -24,11 +24,9 @@ class SimpleItemSearch < ItemRelation
   private
 
   def apply_filters
-    if @dls_only
-      # Filter to items from published collections
-      filter(Item::IndexFields::PUBLISHED, true)
-    end
-
+    # Note: include_unpublished(false) already filters to published items,
+    # so we don't need the redundant filter() call here
+    
     include_unpublished(false)
     include_restricted(false)
     include_publicly_inaccessible(false)
