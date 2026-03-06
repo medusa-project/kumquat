@@ -1836,15 +1836,4 @@ class Item < ApplicationRecord
 
   private
 
-  ##
-  # Reindexes the item if its published status changed.
-  # This ensures the search index stays consistent when items are published/unpublished.
-  #
-  def reindex_if_published_changed
-    if saved_change_to_published?
-      Rails.logger.info "Reindexing item #{repository_id} due to published status change (#{published_was} -> #{published})"
-      reindex
-    end
-  end
-
 end
