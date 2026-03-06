@@ -349,6 +349,8 @@ class Item < ApplicationRecord
   before_save :process_allowed_netids, :notify_netids,
               :prune_identical_elements, :set_effective_host_groups,
               :set_normalized_coords, :set_normalized_date, :set_published_at
+  
+  after_commit :reindex_if_published_changed
 
   ##
   # @return [Integer]
@@ -1730,6 +1732,17 @@ class Item < ApplicationRecord
           self.elements.reject{ |e| e.name == 'title' }.any?
         self.published_at = Time.now
       end
+    end
+  end
+
+  ##
+  # Reindexes the item if its published status has changed.
+  # This ensures the search index stays consistent when items are published/unpublished.
+  #
+  def reindex_if_published_changed
+    if saved_change_to_published?
+      Rails.logger.info "Reindexing item #{repository_id} due to published status change (#{published_was} -> #{published})"
+      reindex
     end
   end
 
