@@ -277,6 +277,7 @@ class ItemsController < WebsiteController
         include_children_in_results(true).
         order(Item::IndexFields::STRUCTURAL_SORT).
         start(params[:download_start]).
+        include_unpublished(current_user&.medusa_admin? || false).
         limit(0)
     if params[:field]
       download_relation.query(params[:field], params[:q], true)
@@ -693,7 +694,8 @@ class ItemsController < WebsiteController
         collection(@collection).
         facet_filters(session[:fq]).
         order(sort).
-        start(session[:start])
+        start(session[:start]).
+        include_unpublished(current_user&.medusa_admin? || false)
 
     if collection_ids.present?
       relation.collections(collection_ids)
