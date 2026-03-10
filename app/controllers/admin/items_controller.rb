@@ -560,6 +560,7 @@ module Admin
           PropagatePropertiesToChildrenJob.perform_later(item: @item,
                                                          user: current_user)
         end
+        
       end
     rescue => e
       handle_error(e)
@@ -680,8 +681,9 @@ module Admin
         items    = relation.to_a.select(&:present?)
         ids      = items.map(&:repository_id)
       end
-      Item.where('repository_id IN (?)', ids)
-          .update_all(published: publish)
+      Item.where('repository_id IN (?)', ids).find_each do |item|
+        item.update!(published: publish)
+      end
     rescue => e
       handle_error(e)
     else

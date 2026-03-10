@@ -274,7 +274,7 @@ class ItemRelation < AbstractRelation
             unless @include_unpublished
               j.child! do
                 j.term do
-                  j.set! Item::IndexFields::PUBLISHED, true
+                  j.set! Item::IndexFields::PUBLICLY_ACCESSIBLE, true
                 end
               end
             end
