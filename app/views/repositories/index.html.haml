@@ -1,9 +1,12 @@
 - provide(:title, 'Repositories')
 
-%h1 Digital Special Collections Repositories 
+%h1 Digital Collections Repositories 
 
 - @repositories.each do |repository|
-  %li.nav-item
+  %ul.nav-item
     = link_to repository.title, repository_path(repository.title.parameterize)
+    .result-type-badge.mb-2
+      %span.badge.badge-primary
+        #{repository.collections.count} #{'Collection'.pluralize(repository.collections.count)}
   
 
