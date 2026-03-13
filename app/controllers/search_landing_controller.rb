@@ -1,5 +1,5 @@
 class SearchLandingController < WebsiteController 
-  PERMITTED_PARAMS = [{ fq: [] }, :q, :sort, :start, :utf8, :commit, :tab]
+  PERMITTED_PARAMS = [{ fq: [] }, :q, :sort, :start, :utf8, :commit, :tab, :'dl-current-path', :_, :format]
 
   before_action :set_sanitized_params
   
