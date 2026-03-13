@@ -6,8 +6,10 @@ const Application = {
      * Enables the facets returned by one of the facets_as_x() helpers.
      */
     initFacets: function() {
-        const CURRENT_PATH = $('[name=dl-current-path]').val();
-        const filterForm = $("form.dl-filter");
+        const filterForm = $("form.dl-filter:visible");
+        const CURRENT_PATH = filterForm.find('[name=dl-current-path]').val();
+        
+        console.log('initFacets called - filterForm length:', filterForm.length, 'CURRENT_PATH:', CURRENT_PATH);
 
         const getSerializedCanonicalFormQuery = function() {
             return filterForm.find(':not([name=collection_id], [name=dl-facet-term])')
@@ -32,13 +34,16 @@ const Application = {
                 createHiddenInputs() : removeHiddenInputs();
             const query = getSerializedCanonicalFormQuery();
             $.ajax({
-                url:      CURRENT_PATH,
+                url:      CURRENT_PATH + '.js',
                 method:   'GET',
                 data:     query,
                 dataType: 'script',
+                headers: {
+                    'Accept': 'text/javascript, application/javascript, application/ecmascript, application/x-ecmascript'
+                },
                 success:  function(result) {
                     window.location.hash = query;
-                    eval(result);
+                    // Don't eval - jQuery already executed the script due to dataType: 'script'
                 }
             });
         });
@@ -49,13 +54,16 @@ const Application = {
                 createHiddenInputs();
                 const query = getSerializedCanonicalFormQuery();
                 $.ajax({
-                    url:      CURRENT_PATH,
+                    url:      CURRENT_PATH + '.js',
                     method:   'GET',
                     data:     query,
                     dataType: 'script',
+                    headers: {
+                        'Accept': 'text/javascript, application/javascript, application/ecmascript, application/x-ecmascript'
+                    },
                     success: function(result) {
                         window.location.hash = query;
-                        eval(result);
+                        // Don't eval - jQuery already executed the script due to dataType: 'script'
                     }
                 });
             });
