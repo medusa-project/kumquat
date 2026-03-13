@@ -229,6 +229,7 @@ class Item < ApplicationRecord
     PUBLISHED                          = 'sys_b_published'
     PUBLISHED_AT                       = 'sys_d_published'
     REPOSITORY_ID                      = 'sys_k_repository_id'
+    REPOSITORY_TITLE                   = 'sys_k_repository_title'
     REPRESENTATIVE_FILENAME            = 'sys_k_representative_filename'
     REPRESENTATIVE_ITEM                = 'sys_k_representative_item_id'
     RESTRICTED                         = OpensearchIndex::StandardFields::RESTRICTED
@@ -277,6 +278,20 @@ class Item < ApplicationRecord
     def self.non_filesystem_variants
       self.all.reject{ |v| [FILE, DIRECTORY].include?(v) }
     end
+  end
+
+  ##
+  # @return [Enumerable<Hash>] Array of hashes with `:name`, `:label`, and `id`
+  #                            keys in the order they should appear.
+  #
+  def self.facet_fields
+    [
+      {
+        name:  IndexFields::REPOSITORY_TITLE,
+        label: 'Repository',
+        id:    'dl-repository-facet'
+      }
+    ]
   end
 
   LOGGER = CustomLogger.new(Item)
@@ -581,6 +596,7 @@ class Item < ApplicationRecord
     doc[IndexFields::PUBLISHED]               = self.published
     doc[IndexFields::PUBLISHED_AT]            = self.published_at&.utc&.iso8601
     doc[IndexFields::REPOSITORY_ID]           = self.repository_id
+    doc[IndexFields::REPOSITORY_TITLE]        = self.collection&.medusa_repository&.title
     doc[IndexFields::REPRESENTATIVE_FILENAME] = self.representative_filename
     doc[IndexFields::REPRESENTATIVE_ITEM]     = self.representative_item_id
     doc[IndexFields::RESTRICTED]              = self.restricted
