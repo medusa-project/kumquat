@@ -6,6 +6,14 @@
 :javascript
   $(document).ready(function() {
     Application.initFacets();
+    
+    // Re-initialize facets when tab navigation links are clicked
+    $('.nav-link').on('click', function() {
+      // Use a small delay to ensure tab content is shown before initializing
+      setTimeout(function() {
+        Application.initFacets();
+      }, 100);
+    });
   });
 
 .row
