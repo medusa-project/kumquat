@@ -334,6 +334,19 @@ class ItemRelation < AbstractRelation
       # Aggregations
       j.aggregations do
         if @aggregations
+          # Hardcoded facet fields (like repository)
+          Item.facet_fields.each do |facet|
+            j.set! facet[:name] do
+              j.terms do
+                j.field facet[:name]
+                j.size @bucket_limit
+                j.order do
+                  j.set! :_key, "asc"
+                end
+              end
+            end
+          end
+          
           # Facetable elements in the metadata profile
           metadata_profile.facet_elements.each do |field|
             j.set! field.indexed_keyword_field do
@@ -391,6 +404,66 @@ class ItemRelation < AbstractRelation
         j.size @limit
       end
     end
+  end
+
+  def load
+    return if @loaded
+
+    @response_json = get_response
+
+    # Assemble the response aggregations into Facets. First process hardcoded facets.
+    Item.facet_fields.each do |facet_config|
+      agg = @response_json['aggregations']&.find{ |a| a[0] == facet_config[:name] }
+      if agg
+        facet       = Facet.new
+        facet.name  = facet_config[:label]
+        facet.field = facet_config[:name]
+        agg[1]['buckets'].each do |bucket|
+          term = FacetTerm.new
+          term.name    = bucket['key'].to_s
+          term.label   = bucket['key'].to_s
+          term.count   = bucket['doc_count']
+          term.facet   = facet
+          facet.terms << term
+        end
+        @result_facets << facet
+      end
+    end
+
+    # Then process metadata profile facets.
+    metadata_profile.facet_elements.each do |element|
+      agg = @response_json['aggregations']&.
+          find{ |a| a[0] == element.indexed_keyword_field }
+      if agg
+        facet       = Facet.new
+        facet.name  = element.label
+        facet.field = element.indexed_keyword_field
+        agg[1]['buckets'].each do |bucket|
+          term = FacetTerm.new
+          term.name    = bucket['key'].to_s
+          term.label   = bucket['key'].to_s
+          term.count   = bucket['doc_count']
+          term.facet   = facet
+          facet.terms << term
+        end
+        @result_facets << facet
+      end
+    end
+
+    agg = @response_json['aggregations']&.find{ |a| a[0] == BYTE_SIZE_AGGREGATION }
+    if agg
+      @result_byte_size = agg[1]['value'].to_i
+    end
+
+    if @response_json['hits']
+      @result_count = @response_json['hits']['total']['value']
+    else
+      @result_count = 0
+      raise IOError, "#{@response_json['error']['type']}: "\
+          "#{@response_json['error']['root_cause'][0]['reason']}"
+    end
+
+    @loaded = true
   end
 
 end
