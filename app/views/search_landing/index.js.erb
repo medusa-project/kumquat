@@ -1,2 +1,18 @@
-$('#search-results-container').html('<%= j render("search_results") %>');
+// Find and update the visible search results container
+var $visibleContainer = $('.tab-pane.show.active #search-results-container');
+if ($visibleContainer.length > 0) {
+    $visibleContainer.html('<%= j render("search_results") %>');
+    console.log('Updated visible container with', $visibleContainer.length, 'elements');
+} else {
+    console.log('No visible container found, falling back to all containers');
+    $('#search-results-container').html('<%= j render("search_results") %>');
+}
+
+// Update facets in the visible tab
+var $visibleFacets = $('.tab-pane.show.active .facets');
+if ($visibleFacets.length > 0) {
+    $visibleFacets.html('<%= j facets_as_cards(@facets, SearchLandingController::PERMITTED_PARAMS) %>');
+}
+
+// Re-initialize facets for the updated content
 Application.initFacets();
