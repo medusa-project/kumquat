@@ -80,15 +80,14 @@
           = hidden_field_tag(k, v)
       = hidden_field_tag(:tab, 'simple-search')
       
-      .container.mt-4
-        .row
-          .col-sm-3.col-lg-2
-            .facets
-              = facets_as_cards(@facets, SearchLandingController::PERMITTED_PARAMS)
+      .row
+        .col-sm-3.col-lg-2
+          .facets
+            = facets_as_cards(@facets, SearchLandingController::PERMITTED_PARAMS)
 
-          .col-sm-9.col-lg-10
-            #search-results-container
-              = render 'search_results'
+        .col-sm-9.col-lg-10
+          #search-results-container
+            = render 'search_results'
 
   #advanced-search.tab-pane.fade{class: [('show active' if active_tab == 'advanced-search')], role: "tabpanel"}
     .row.justify-content-md-center.mt-4
