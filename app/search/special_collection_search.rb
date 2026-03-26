@@ -7,12 +7,14 @@ class SpecialCollectionSearch
   # @param start [Integer] Starting position for pagination
   # @param limit [Integer] Number of results per page
   # @param facet_filters [Array] Facet filters to apply
+  # @param repository_id [Integer] Optional repository ID to scope search to specific repository
   #
-  def initialize(query: nil, start: 0, limit: 40, facet_filters: [])
+  def initialize(query: nil, start: 0, limit: 40, facet_filters: [], repository_id: nil)
     @search_query = query
     @start = start
     @limit = limit
     @facet_filters = facet_filters || []
+    @repository_id = repository_id
     
     @collections = []
     @items = []
