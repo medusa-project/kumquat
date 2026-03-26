@@ -47,7 +47,37 @@ class RepositoriesController < WebsiteController
       @collections = Collection.where(medusa_repository_id: @repository.id,
                                       public_in_medusa: true, 
                                       published_in_dls: true)
-                               .order('title ASC')
+                               .includes(:elements)
+                               .joins("LEFT JOIN entity_elements ON entity_elements.collection_id = collections.id AND entity_elements.name = 'title'")
+                               .order('entity_elements.value ASC NULLS FIRST')
+      
+      # Calculate total items count (collections + their items)
+      @total_items_count = @collections.count + @collections.sum(&:num_public_objects)
+      
+      # Handle search if query is present
+      if @permitted_params[:q].present?
+        @start = [@permitted_params[:start].to_i.abs, max_start].min 
+        @limit = window_size
+
+        # Repository-scoped search
+        search = SpecialCollectionSearch.new(
+          query: @permitted_params[:q],
+          start: @start,
+          limit: @limit,
+          facet_filters: @permitted_params[:fq],
+          repository_id: @repository.id
+        )
+        search.execute!
+
+        @results = search.results
+        @count = search.count
+        @collection_count = search.collection_count
+        @item_count = search.item_count
+        @facets = search.facets
+
+        @current_page = (@start / @limit) + 1
+        @num_results_shown = [@results.count, @limit].min
+      end
       
     rescue => e
       Rails.logger.error("Repository with title '#{params[:id]}' not found: #{e.message}")
