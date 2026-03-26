@@ -32,6 +32,20 @@ class SpecialCollectionSearch
     collection_search.start(@start).limit(@limit)
     collection_search.aggregations(true)
     
+    # Apply repository filtering if specified
+    if @repository_id
+      # Get the repository title for filtering 
+      begin
+        repository = Medusa::Repository.with_id(@repository_id)
+        if repository
+          collection_search.filter(Collection::IndexFields::REPOSITORY_TITLE, repository.title)
+        end
+      rescue => e
+        Rails.logger.warn("Could not fetch repository for search filtering: #{e.message}")
+        # Continue without repository filtering if we can't fetch the repository
+      end
+    end
+    
     @collections = collection_search.results
     @collection_count = collection_search.count
     
