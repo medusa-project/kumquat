@@ -133,6 +133,18 @@ class SpecialCollectionSearch
     results.take(@limit)
   end
   
+  ##
+  # Gets all collection repository IDs that belong to the specified repository
+  # @param repository_id [Integer] The repository ID
+  # @return [Array<String>] Array of collection repository IDs
+  #
+  def get_collection_ids_for_repository(repository_id)
+    Collection.where(medusa_repository_id: repository_id,
+                     public_in_medusa: true,
+                     published_in_dls: true)
+              .pluck(:repository_id)
+  end
+
   def merge_facets(collection_facets, item_facets)
     # If no item facets, just return collection facets
     return collection_facets if item_facets.nil? || item_facets.empty?
