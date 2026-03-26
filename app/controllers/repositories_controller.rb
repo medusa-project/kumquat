@@ -1,4 +1,9 @@
 class RepositoriesController < WebsiteController 
+  PERMITTED_PARAMS = [{ fq: [] }, :id, :q, :sort, :start, :utf8, :commit, :'dl-current-path', :_, :format]
+  before_action :set_sanitized_params
+  
+  include SearchHelper
+
   def index
     # Get all collections that are part of Digital Special Collections
     collections = Collection.where(public_in_medusa: true, published_in_dls: true)
