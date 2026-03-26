@@ -55,6 +55,19 @@ class SpecialCollectionSearch
     item_search.start(@start).limit(@limit)
     item_search.aggregations(true)
     
+    # Apply repository filtering if specified
+    if @repository_id
+      # Get collection repository IDs that belong to this repository
+      collection_ids = get_collection_ids_for_repository(@repository_id)
+      if collection_ids.any?
+        # Filter items by collection repository IDs
+        item_search.filter(Item::IndexFields::COLLECTION, collection_ids)
+      else
+        # No collections in this repository, so no items either
+        item_search.filter(Item::IndexFields::COLLECTION, ['__no_match__'])
+      end
+    end
+    
     @items = item_search.results
     @item_count = item_search.count
     
