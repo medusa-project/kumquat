@@ -1,1 +1,59 @@
-= "#{@repository.title}" 
+.dls-search-banner 
+  = image_tag('cropped-ihx_header.jpg', :class => 'w-100', :alt => "#{@repository.title} Banner")
+  .dls-search-banner-overlay 
+    = form_tag(repository_path(@repository.title.parameterize), method: :get, class: 'd-inline-block w-50') do 
+      .input-group.input-group-lg
+        = search_field_tag(:q, @permitted_params[:q], 
+                            placeholder: "Search across #{number_with_delimiter(@total_items_count)} items", 
+                            class: "form-control form-control-lg", 
+                            'aria-label': 'Search')
+        .input-group-append
+          = submit_tag("Search", class: "btn btn-primary")
+
+%h1.mt-5= @repository.title
+%p.lead= 'Insert Repository Description Here'
+
+- if @permitted_params[:q].present?
+  :javascript
+    $(document).ready(function() {
+      Application.initFacets();
+    });
+
+  .row.justify-content-md-center.mt-4
+    .col-md-auto
+      = paginate(@count, @limit, @current_page, RepositoriesController::PERMITTED_PARAMS)
+
+  = form_tag(@permitted_params.reject{ |k, v| k == 'start' }, method: :get, class: 'dl-filter') do
+    = hidden_field_tag 'dl-current-path', request.path
+    - @permitted_params.reject{ |k, v| k == 'start' }.each do |k, v|
+      - if v.is_a?(Array)
+        - v.each do |item|
+          = hidden_field_tag("#{k}[]", item)
+      - else
+        = hidden_field_tag(k, v)
+    .container.mt-4
+      .row
+        .col-sm-3.col-lg-2
+          .facets
+            = facets_as_cards(@facets, RepositoriesController::PERMITTED_PARAMS)
+
+        .col-sm-9.col-lg-10
+          #search-results-container
+            = render 'search_results'
+
+- else
+  .container.mt-4
+    .row
+      .col-12
+        - if @collections.present?
+          .collections-list.mt-4
+            - @collections.each do |collection|
+              .collection-item.mb-4.d-flex.align-items-start
+                .flex-shrink-0{style: "width: 150px; height: 150px; overflow: hidden; margin-right: 2rem;"}
+                  = thumbnail_tag(collection, shape: :square, size: 150)
+                .collection-details.flex-grow-1
+                  = link_to collection.title, collection_path(collection), class: 'h5 d-block mb-2'
+                  %p.text-muted= truncate(collection.element(:description)&.value, length: 200)
+                  %p.small.text-muted= pluralize(collection.num_public_objects, 'item')
+        - else
+          %p.text-muted No public collections found in this repository.
