@@ -28,13 +28,16 @@ class RepositoriesController < WebsiteController
 
   def show 
     begin
-      # Get all repositories to find the one matching the parameterized title
-      collections = Collection.where(public_in_medusa: true, published_in_dls: true)
-                              .where.not(medusa_repository_id: nil)
+      # Get distinct repository IDs from public collections (optimized to reduce API calls)
+      repository_ids = Collection.where(public_in_medusa: true, published_in_dls: true)
+                                .where.not(medusa_repository_id: nil)
+                                .distinct
+                                .pluck(:medusa_repository_id)
       
+      # Find the repository matching the parameterized title
       @repository = nil
-      collections.each do |collection|
-        repository = collection.medusa_repository
+      repository_ids.each do |repo_id|
+        repository = Medusa::Repository.with_id(repo_id)
         if repository && repository.title.parameterize == params[:id]
           @repository = repository
           break
