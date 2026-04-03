@@ -32,13 +32,19 @@ class SpecialCollectionSearch
     collection_search.start(@start).limit(@limit)
     collection_search.aggregations(true)
     
-    # Apply repository filtering if specified
+    # Apply repository filtering if specified (optimized to avoid duplicate lookups)
+    repository_collection_ids = []
     if @repository_id
-      # Get the repository title for filtering 
       begin
-        repository = Medusa::Repository.with_id(@repository_id)
-        if repository
-          collection_search.filter(Collection::IndexFields::REPOSITORY_TITLE, repository.title)
+        # Single database query to get collection IDs for this repository
+        repository_collection_ids = get_collection_ids_for_repository(@repository_id)
+        
+        if repository_collection_ids.any?
+          # Get repository title for collection filtering (only if we have collections)
+          repository = Medusa::Repository.with_id(@repository_id)
+          if repository
+            collection_search.filter(Collection::IndexFields::REPOSITORY_TITLE, repository.title)
+          end
         end
       rescue => e
         Rails.logger.warn("Could not fetch repository for search filtering: #{e.message}")
@@ -55,17 +61,13 @@ class SpecialCollectionSearch
     item_search.start(@start).limit(@limit)
     item_search.aggregations(true)
     
-    # Apply repository filtering if specified
-    if @repository_id
-      # Get collection repository IDs that belong to this repository
-      collection_ids = get_collection_ids_for_repository(@repository_id)
-      if collection_ids.any?
-        # Filter items by collection repository IDs
-        item_search.filter(Item::IndexFields::COLLECTION, collection_ids)
-      else
-        # No collections in this repository, so no items either
-        item_search.filter(Item::IndexFields::COLLECTION, ['__no_match__'])
-      end
+    # Apply repository filtering using already-fetched collection IDs
+    if @repository_id && repository_collection_ids.any?
+      # Use the collection IDs we already fetched
+      item_search.filter(Item::IndexFields::COLLECTION, repository_collection_ids)
+    elsif @repository_id
+      # No collections in this repository, so no items either
+      item_search.filter(Item::IndexFields::COLLECTION, ['__no_match__'])
     end
     
     @items = item_search.results
