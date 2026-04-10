@@ -42,6 +42,7 @@ gem 'uglifier', '>= 1.3.0' # JavaScript asset compressor
 gem 'uiuc_lib_ad', git: 'https://github.com/UIUCLibrary/uiuc_lib_ad.git'
 
 group :development do
+  gem 'capistrano', '~> 3.20'
   gem 'capistrano-bundler'
   gem 'capistrano-rails'
   gem 'capistrano-rbenv'
