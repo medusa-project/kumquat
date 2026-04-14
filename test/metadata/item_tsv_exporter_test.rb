@@ -198,12 +198,13 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
         Coordinates Creator Date\ Created Description lcsh:Subject tgm:Subject)
 
     collection = collections(:compound_object)
+    now = Time.now
     item = items(:compound_object_1002)
-    item.update!(published_at: Time.now)
+    item.update!(published_at: now)
     item = items(:compound_object_1002_page1)
-    item.update!(published_at: 1.hour.ago)
+    item.update!(published_at: now - 1.hour)
     item = items(:compound_object_1002_page2)
-    item.update!(published_at: Time.now + 1.hour)
+    item.update!(published_at: now + 1.hour)
 
     # all items in range
     expected_values = [COMPOUND_OBJECT_1002,
@@ -211,14 +212,14 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
                        COMPOUND_OBJECT_1002_PAGE2]
     assert_equal to_tsv(expected_header, expected_values),
                  @instance.items_in_collection(collection,
-                                               published_after: 2.hours.ago,
-                                               published_before: Time.now + 2.hours)
+                                               published_after: now - 2.hours,
+                                               published_before: now + 2.hours)
     # only middle item in range
     expected_values = [COMPOUND_OBJECT_1002]
     assert_equal to_tsv(expected_header, expected_values),
                  @instance.items_in_collection(collection,
-                                               published_after: 30.minutes.ago,
-                                               published_before: Time.now + 30.minutes)
+                                               published_after: now - 30.minutes,
+                                               published_before: now + 30.minutes)
   end
 
   # items_in_item_set()
