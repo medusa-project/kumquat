@@ -31,6 +31,7 @@ class BinaryPolicyTest < ActiveSupport::TestCase
   test "object?() does not authorize binaries whose owning collection is not
   authorized" do
     @binary.item.collection.update!(published_in_dls: false)
+    @binary.item.reload
     assert !BinaryPolicy.new(@context, @binary).object?
   end
 
@@ -61,6 +62,7 @@ class BinaryPolicyTest < ActiveSupport::TestCase
   test "show?() does not authorize binaries whose owning collection is not
   authorized" do
     @binary.item.collection.update!(published_in_dls: false)
+    @binary.item.reload
     assert !BinaryPolicy.new(@context, @binary).show?
   end
 
@@ -91,6 +93,7 @@ class BinaryPolicyTest < ActiveSupport::TestCase
   test "stream?() does not authorize binaries whose owning collection is not
   authorized" do
     @binary.item.collection.update!(published_in_dls: false)
+    @binary.item.reload
     assert !BinaryPolicy.new(@context, @binary).stream?
   end
 
