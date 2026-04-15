@@ -12,6 +12,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "binary?() does not authorize items whose collections are restricted" do
     @item.collection.update!(restricted: true)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).binary?
   end
 
@@ -51,12 +52,14 @@ class ItemPolicyTest < ActiveSupport::TestCase
   test "binary?() does not authorize items whose owning collection is
   unpublished" do
     @item.collection.update!(published_in_dls: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).binary?
   end
 
   test "binary?() does not authorize items whose owning collection is private
   in Medusa" do
     @item.collection.update!(public_in_medusa: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).binary?
   end
 
@@ -68,6 +71,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_annotation_list?() does not authorize items whose collections are restricted" do
     @item.collection.update!(restricted: true)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_annotation_list?
   end
 
@@ -107,12 +111,14 @@ class ItemPolicyTest < ActiveSupport::TestCase
   test "iiif_annotation_list?() does not authorize items whose owning collection is
   unpublished" do
     @item.collection.update!(published_in_dls: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_annotation_list?
   end
 
   test "iiif_annotation_list?() does not authorize items whose owning collection is private
   in Medusa" do
     @item.collection.update!(public_in_medusa: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_annotation_list?
   end
 
@@ -124,6 +130,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_canvas?() does not authorize items whose collections are restricted" do
     @item.collection.update!(restricted: true)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_canvas?
   end
 
@@ -163,12 +170,14 @@ class ItemPolicyTest < ActiveSupport::TestCase
   test "iiif_canvas?() does not authorize items whose owning collection is
   unpublished" do
     @item.collection.update!(published_in_dls: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_canvas?
   end
 
   test "iiif_canvas?() does not authorize items whose owning collection is private
   in Medusa" do
     @item.collection.update!(public_in_medusa: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_canvas?
   end
 
@@ -180,6 +189,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_image_resource?() does not authorize items whose collections are restricted" do
     @item.collection.update!(restricted: true)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_image_resource?
   end
 
@@ -219,12 +229,14 @@ class ItemPolicyTest < ActiveSupport::TestCase
   test "iiif_image_resource?() does not authorize items whose owning collection is
   unpublished" do
     @item.collection.update!(published_in_dls: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_image_resource?
   end
 
   test "iiif_image_resource?() does not authorize items whose owning collection is private
   in Medusa" do
     @item.collection.update!(public_in_medusa: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_image_resource?
   end
 
@@ -236,6 +248,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_layer?() does not authorize items whose collections are restricted" do
     @item.collection.update!(restricted: true)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_layer?
   end
 
@@ -275,12 +288,14 @@ class ItemPolicyTest < ActiveSupport::TestCase
   test "iiif_layer?() does not authorize items whose owning collection is
   unpublished" do
     @item.collection.update!(published_in_dls: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_layer?
   end
 
   test "iiif_layer?() does not authorize items whose owning collection is private
   in Medusa" do
     @item.collection.update!(public_in_medusa: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_layer?
   end
 
@@ -292,6 +307,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_manifest?() does not authorize items whose collections are restricted" do
     @item.collection.update!(restricted: true)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_manifest?
   end
 
@@ -331,12 +347,14 @@ class ItemPolicyTest < ActiveSupport::TestCase
   test "iiif_manifest?() does not authorize items whose owning collection is
   unpublished" do
     @item.collection.update!(published_in_dls: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_manifest?
   end
 
   test "iiif_manifest?() does not authorize items whose owning collection is private
   in Medusa" do
     @item.collection.update!(public_in_medusa: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_manifest?
   end
 
@@ -348,6 +366,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_media_sequence?() does not authorize items whose collections are restricted" do
     @item.collection.update!(restricted: true)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_media_sequence?
   end
 
@@ -387,12 +406,14 @@ class ItemPolicyTest < ActiveSupport::TestCase
   test "iiif_media_sequence?() does not authorize items whose owning collection is
   unpublished" do
     @item.collection.update!(published_in_dls: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_media_sequence?
   end
 
   test "iiif_media_sequence?() does not authorize items whose owning collection is private
   in Medusa" do
     @item.collection.update!(public_in_medusa: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_media_sequence?
   end
 
@@ -404,6 +425,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_range?() does not authorize items whose collections are restricted" do
     @item.collection.update!(restricted: true)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_range?
   end
 
@@ -443,12 +465,14 @@ class ItemPolicyTest < ActiveSupport::TestCase
   test "iiif_range?() does not authorize items whose owning collection is
   unpublished" do
     @item.collection.update!(published_in_dls: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_range?
   end
 
   test "iiif_range?() does not authorize items whose owning collection is private
   in Medusa" do
     @item.collection.update!(public_in_medusa: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_range?
   end
 
@@ -460,6 +484,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_search?() does not authorize items whose collections are restricted" do
     @item.collection.update!(restricted: true)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_search?
   end
 
@@ -499,12 +524,14 @@ class ItemPolicyTest < ActiveSupport::TestCase
   test "iiif_search?() does not authorize items whose owning collection is
   unpublished" do
     @item.collection.update!(published_in_dls: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_search?
   end
 
   test "iiif_search?() does not authorize items whose owning collection is private
   in Medusa" do
     @item.collection.update!(public_in_medusa: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_search?
   end
 
@@ -516,6 +543,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_sequence?() does not authorize items whose collections are restricted" do
     @item.collection.update!(restricted: true)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_sequence?
   end
 
@@ -555,12 +583,14 @@ class ItemPolicyTest < ActiveSupport::TestCase
   test "iiif_sequence?() does not authorize items whose owning collection is
   unpublished" do
     @item.collection.update!(published_in_dls: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_sequence?
   end
 
   test "iiif_sequence?() does not authorize items whose owning collection is private
   in Medusa" do
     @item.collection.update!(public_in_medusa: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_sequence?
   end
 
@@ -578,6 +608,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "item_tree_node?() does not authorize items whose collections are restricted" do
     @item.collection.update!(restricted: true)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).item_tree_node?
   end
 
@@ -617,12 +648,14 @@ class ItemPolicyTest < ActiveSupport::TestCase
   test "item_tree_node?() does not authorize items whose owning collection is
   unpublished" do
     @item.collection.update!(published_in_dls: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).item_tree_node?
   end
 
   test "item_tree_node?() does not authorize items whose owning collection is private
   in Medusa" do
     @item.collection.update!(public_in_medusa: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).item_tree_node?
   end
 
@@ -634,6 +667,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "show?() does not authorize items whose collections are restricted" do
     @item.collection.update!(restricted: true)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).show?
   end
 
@@ -673,12 +707,14 @@ class ItemPolicyTest < ActiveSupport::TestCase
   test "show?() does not authorize items whose owning collection is
   unpublished" do
     @item.collection.update!(published_in_dls: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).show?
   end
 
   test "show?() does not authorize items whose owning collection is private
   in Medusa" do
     @item.collection.update!(public_in_medusa: false)
+    @item.reload
     assert !ItemPolicy.new(@context, @item).show?
   end
 
