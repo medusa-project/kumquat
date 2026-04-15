@@ -1218,10 +1218,11 @@ class Item < ApplicationRecord
   #                   (if any) are all publicly accessible.
   #
   def publicly_accessible?
-    return false unless published?
-    return false unless collection&.published_in_dls?
-    return false if parent && !parent.published?
-    true
+    value = self.published && self.collection&.publicly_accessible?
+    if value && self.parent
+      value = self.parent.publicly_accessible?
+    end
+    value
   end
 
   ##
