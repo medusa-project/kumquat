@@ -9,7 +9,7 @@ gem 'aws-sdk-lambda', '~> 1'
 gem 'csv'
 gem 'draper' # Provides decorators
 gem "font-awesome-sass", "~> 5.6" # Provides all of our icons
-gem 'good_job', '~> 3'
+gem 'good_job', '3.99.1'
 gem 'haml'
 gem 'httpclient'
 gem 'jbuilder' # JSON DSL: https://github.com/rails/jbuilder
@@ -31,7 +31,7 @@ gem 'pg'
 # Used to generate PDFs of compound objects.
 gem 'prawn'
 gem 'puma'
-gem 'rails', '~> 7.1.5.1'
+gem 'rails', '~> 7.2.3.1'
 gem 'rails_autolink'
 gem 'sassc'
 gem 'scars-bootstrap-theme', git: 'https://github.com/medusa-project/scars-bootstrap-theme.git',
@@ -42,6 +42,7 @@ gem 'uglifier', '>= 1.3.0' # JavaScript asset compressor
 gem 'uiuc_lib_ad', git: 'https://github.com/UIUCLibrary/uiuc_lib_ad.git'
 
 group :development do
+  gem 'capistrano', '~> 3.20'
   gem 'capistrano-bundler'
   gem 'capistrano-rails'
   gem 'capistrano-rbenv'
