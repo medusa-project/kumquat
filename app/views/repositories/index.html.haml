@@ -6,7 +6,8 @@
   %ul.nav-item
     = link_to repository.title, repository_path(repository.title.parameterize)
     .result-type-badge.mb-2
+      - public_count = @public_collection_counts[repository.id] || 0
       %span.badge.badge-primary
-        #{repository.collections.count} #{'Collection'.pluralize(repository.collections.count)}
+        #{public_count} #{'Collection'.pluralize(public_count)}
   
 
