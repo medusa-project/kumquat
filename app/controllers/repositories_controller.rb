@@ -11,11 +11,13 @@ class RepositoriesController < WebsiteController
     
     # Get unique repositories from these collections
     repositories_hash = {}
+    counts_hash = {}
     collections.each do |collection|
       begin
         repository = collection.medusa_repository
         if repository
-          repositories_hash[repository.id] = repository
+          repositories_hash[collection.medusa_repository_id] = repository
+          counts_hash[collection.medusa_repository_id] = (counts_hash[collection.medusa_repository_id] || 0) + 1
         end
       rescue => e
         Rails.logger.warn("Could not fetch repository for collection #{collection.repository_id}: #{e.message}")
@@ -24,6 +26,7 @@ class RepositoriesController < WebsiteController
     
     # Convert to array and sort by title
     @repositories = repositories_hash.values.sort_by(&:title)
+    @public_collection_counts = counts_hash
   end
 
   def show 
