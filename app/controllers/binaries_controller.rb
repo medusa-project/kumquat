@@ -1,6 +1,9 @@
 class BinariesController < WebsiteController
 
+  include ActionController::Live
   include ActionController::Streaming
+
+  skip_forgery_protection
 
   before_action :set_binary
   before_action :authorize_binary
