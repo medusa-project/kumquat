@@ -17,7 +17,7 @@ port        ENV.fetch("PORT") { 3000 }
 
 # Specifies the path to the PID file so stop scripts can find and kill the process.
 #
-pidfile     ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }
+pidfile     ENV.fetch("PIDFILE") { File.join(ENV.fetch("DLS_HOME", "."), "tmp", "pids", "server.pid") }
 
 # Specifies the `environment` that Puma will run in.
 #
