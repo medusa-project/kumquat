@@ -85,7 +85,7 @@ var init = function (el, data) {
         console.error(message);
     }, false);
     function fullScreenChange(e) {
-        if ((e.type === "webkitfullscreenchange" && !document.webkitIsFullScreen) ||
+        if ((e.type === "webkitfullscreenchange" && !document.webkitFullscreenElement) ||
             (e.type === "fullscreenchange" && !document.fullscreenElement) ||
             (e.type === "MSFullscreenChange" && document.msFullscreenElement === null)) {
             uv.exitFullScreen();
