@@ -59,20 +59,21 @@ var init = function (el, data) {
         overrideFullScreen = data.overrideFullScreen;
         if (!data.overrideFullScreen) {
             if (isFullScreen) {
-                var requestFullScreen = getRequestFullScreen(parent);
-                if (requestFullScreen) {
-                    requestFullScreen.call(parent);
-                    // resize();
+                if (parent.requestFullscreen) {
+                    parent.requestFullscreen();
+                } else if (parent.webkitRequestFullscreen) {
+                    parent.webkitRequestFullscreen();
+                } else if (parent.msRequestFullscreen) {
+                    parent.msRequestFullscreen();
                 }
             }
             else {
-                var exitFullScreen = getExitFullScreen();
-                if (exitFullScreen) {
-                    exitFullScreen.call(document);
-                    // firefox needs extra time when exiting a full screen embed
-                    // setTimeout(function() {
-                    //   resize();
-                    // }, 100);
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
                 }
             }
         }
