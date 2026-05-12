@@ -55,6 +55,7 @@ var init = function (el, data) {
         }, 100);
     }, false);
     uv.on(Events_1.Events.TOGGLE_FULLSCREEN, function (data) {
+        console.log("[UV] TOGGLE_FULLSCREEN received:", data);
         isFullScreen = data.isFullScreen;
         overrideFullScreen = data.overrideFullScreen;
         if (!data.overrideFullScreen) {
@@ -68,10 +69,10 @@ var init = function (el, data) {
                 }
             }
             else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
+                if (document.webkitExitFullscreen) {
                     document.webkitExitFullscreen();
+                } else if (document.exitFullscreen) {
+                    document.exitFullscreen();
                 } else if (document.msExitFullscreen) {
                     document.msExitFullscreen();
                 }
@@ -85,10 +86,20 @@ var init = function (el, data) {
         console.error(message);
     }, false);
     function fullScreenChange(e) {
+        console.log("[UV] fullScreenChange fired:", e.type,
+            "webkitFullscreenElement:", document.webkitFullscreenElement,
+            "fullscreenElement:", document.fullscreenElement);
         if ((e.type === "webkitfullscreenchange" && !document.webkitFullscreenElement) ||
             (e.type === "fullscreenchange" && !document.fullscreenElement) ||
             (e.type === "MSFullscreenChange" && document.msFullscreenElement === null)) {
-            uv.exitFullScreen();
+            if (isFullScreen) {
+                console.log("[UV] calling uv.exitFullScreen()");
+                isFullScreen = false;
+                uv.exitFullScreen();
+                setTimeout(function () {
+                    resize();
+                }, 100);
+            }
         }
     }
     document.addEventListener("fullscreenchange", fullScreenChange, false);
