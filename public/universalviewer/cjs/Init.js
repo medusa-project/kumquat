@@ -55,26 +55,24 @@ var init = function (el, data) {
         }, 100);
     }, false);
     uv.on(Events_1.Events.TOGGLE_FULLSCREEN, function (data) {
-        console.log("[UV] TOGGLE_FULLSCREEN received:", data);
         isFullScreen = data.isFullScreen;
         overrideFullScreen = data.overrideFullScreen;
         if (!data.overrideFullScreen) {
             if (isFullScreen) {
-                if (parent.requestFullscreen) {
-                    parent.requestFullscreen();
-                } else if (parent.webkitRequestFullscreen) {
-                    parent.webkitRequestFullscreen();
-                } else if (parent.msRequestFullscreen) {
-                    parent.msRequestFullscreen();
+                var requestFullScreen = getRequestFullScreen(parent);
+                if (requestFullScreen) {
+                    requestFullScreen.call(parent);
+                    // resize();
                 }
             }
             else {
-                if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
+                var exitFullScreen = getExitFullScreen();
+                if (exitFullScreen) {
+                    exitFullScreen.call(document);
+                    // firefox needs extra time when exiting a full screen embed
+                    // setTimeout(function() {
+                    //   resize();
+                    // }, 100);
                 }
             }
         }
@@ -86,49 +84,47 @@ var init = function (el, data) {
         console.error(message);
     }, false);
     function fullScreenChange(e) {
-        console.log("[UV] fullScreenChange fired:", e.type,
-            "webkitFullscreenElement:", document.webkitFullscreenElement,
-            "fullscreenElement:", document.fullscreenElement);
-        if ((e.type === "webkitfullscreenchange" && !document.webkitFullscreenElement) ||
+        if ((e.type === "webkitfullscreenchange" && !document.webkitIsFullScreen) ||
             (e.type === "fullscreenchange" && !document.fullscreenElement) ||
+            (e.type === "mozfullscreenchange" && !document.mozFullScreen) ||
             (e.type === "MSFullscreenChange" && document.msFullscreenElement === null)) {
-            if (isFullScreen) {
-                console.log("[UV] calling uv.exitFullScreen()");
-                isFullScreen = false;
-                uv.exitFullScreen();
-                setTimeout(function () {
-                    resize();
-                }, 100);
-            }
+            uv.exitFullScreen();
         }
     }
     document.addEventListener("fullscreenchange", fullScreenChange, false);
     document.addEventListener("webkitfullscreenchange", fullScreenChange, false);
+    document.addEventListener("mozfullscreenchange", fullScreenChange, false);
     document.addEventListener("MSFullscreenChange", fullScreenChange, false);
     return uv;
 };
 exports.init = init;
 function getRequestFullScreen(elem) {
-    if (elem.requestFullscreen) {
-        return elem.requestFullscreen;
-    }
     if (elem.webkitRequestFullscreen) {
         return elem.webkitRequestFullscreen;
+    }
+    if (elem.mozRequestFullScreen) {
+        return elem.mozRequestFullScreen;
     }
     if (elem.msRequestFullscreen) {
         return elem.msRequestFullscreen;
     }
+    if (elem.requestFullscreen) {
+        return elem.requestFullscreen;
+    }
     return false;
 }
 function getExitFullScreen() {
-    if (document.exitFullscreen) {
-        return document.exitFullscreen;
-    }
     if (document.webkitExitFullscreen) {
         return document.webkitExitFullscreen;
     }
     if (document.msExitFullscreen) {
         return document.msExitFullscreen;
+    }
+    if (document.mozCancelFullScreen) {
+        return document.mozCancelFullScreen;
+    }
+    if (document.exitFullscreen) {
+        return document.exitFullscreen;
     }
     return false;
 }
