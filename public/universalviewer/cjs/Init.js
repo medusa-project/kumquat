@@ -88,7 +88,9 @@ var init = function (el, data) {
             (e.type === "fullscreenchange" && !document.fullscreenElement) ||
             (e.type === "mozfullscreenchange" && !document.mozFullScreen) ||
             (e.type === "MSFullscreenChange" && document.msFullscreenElement === null)) {
+            isFullScreen = false;
             uv.exitFullScreen();
+            setTimeout(function() { resize(); }, 100);
         }
     }
     document.addEventListener("fullscreenchange", fullScreenChange, false);
