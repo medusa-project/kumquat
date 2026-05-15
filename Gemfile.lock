@@ -239,7 +239,7 @@ GEM
     mocha (2.7.1)
       ruby2_keywords (>= 0.0.5)
     natural_sort (0.3.0)
-    net-imap (0.6.3)
+    net-imap (0.6.4)
       date
       net-protocol
     net-ldap (0.17.1)
