@@ -100,3 +100,28 @@
               %h6.fw-bold.mb-3 Enter Search Term:
 
               #advanced-search-criteria 
+
+                .advanced-search-row{data: {row:'0'}}
+                  .row.g-2.mb-2
+                    .col-12 
+                      = select_tag('criteria[0][field]', options_for_select([['Keyword', 'search_all'], 
+                                                                            ['Title', 'metadata_title'],
+                                                                            ['Creator', 'metadata_creator'],
+                                                                            ['Contributor', 'metadata_contributor'],
+                                                                            ['Subject', 'metadata_subject'], 
+                                                                            ['Description', 'metadata_description'],
+                                                                            ['Author', 'metadata_author'],
+                                                                            ['Date', 'metadata_date'],
+                                                                            ['Language', 'metadata_language'],
+                                                                            ['Type', 'metadata_type'],
+                                                                            ['Identifier', 'metadata_identifier'],
+                                                                            ['Publisher', 'metadata_publisher'],
+                                                                            ['Format', 'metadata_format'],
+                                                                            ['Rights', 'metadata_rights'],
+                                                                            ['Spatial Coverage', 'metadata_spatialCoverage']]), class: 'form-select')
+                  
+                  .row.g-2 
+                    .col-sm-8 
+                    // text input for search term(s)
+                    .col-sm-4 
+                    // match type options 
