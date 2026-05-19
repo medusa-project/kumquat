@@ -122,6 +122,8 @@
                   
                   .row.g-2 
                     .col-sm-8 
-                    // text input for search term(s)
+                      = text_field_tag('criteria[0][query]', nil, class: 'form-control', placeholder: 'Enter search term')
                     .col-sm-4 
-                    // match type options 
+                      = select_tag('criteria[0][match]', options_for_select([['All of the words', 'all'], 
+                                                                            ['Any of the words', 'any'], 
+                                                                            ['Exact phrase', 'phrase']], 'all'), class: 'form-select')
