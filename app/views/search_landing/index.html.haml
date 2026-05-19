@@ -91,5 +91,12 @@
 
   #advanced-search.tab-pane.fade{class: [('show active' if active_tab == 'advanced-search')], role: "tabpanel"}
     .row.justify-content-md-center.mt-4
-      .col-md-8
-        %p.text-center.text-muted Advanced search content will go here
+      .col-md-10 
+        = form_tag(search_landing_path, method: :get, id: 'advanced-search-form') do
+          = hidden_field_tag(:tab, 'advanced-search')
+
+          .card.mb-3 
+            .card-body
+              %h6.fw-bold.mb-3 Enter Search Term:
+
+              #advanced-search-criteria 
