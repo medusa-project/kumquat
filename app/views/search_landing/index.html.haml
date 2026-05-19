@@ -127,3 +127,31 @@
                       = select_tag('criteria[0][match]', options_for_select([['All of the words', 'all'], 
                                                                             ['Any of the words', 'any'], 
                                                                             ['Exact phrase', 'phrase']], 'all'), class: 'form-select')
+
+                  #advanced-search-row-template{style: 'display:none'}
+                    .row.g-2.mb-2
+                      .col-sm-2 
+                        = select_tag('criteria[N][operator]', options_for_select([['and', 'AND'], ['or', 'OR'], ['not', 'NOT']], 'AND'), 
+                                                                                  class: 'form-select')
+                      .col-sm-10 
+                        = select_tag('criteria[N][field]', options_for_select([['Keyword', 'search_all'], 
+                                                                              ['Title', 'metadata_title'],
+                                                                              ['Creator', 'metadata_creator'],
+                                                                              ['Contributor', 'metadata_contributor'],
+                                                                              ['Subject', 'metadata_subject'], 
+                                                                              ['Description', 'metadata_description'],
+                                                                              ['Author', 'metadata_author'],
+                                                                              ['Date', 'metadata_date'],
+                                                                              ['Language', 'metadata_language'],
+                                                                              ['Type', 'metadata_type'],
+                                                                              ['Identifier', 'metadata_identifier'],
+                                                                              ['Publisher', 'metadata_publisher'],
+                                                                              ['Format', 'metadata_format'],
+                                                                              ['Rights', 'metadata_rights'],
+                                                                              ['Spatial Coverage', 'metadata_spatialCoverage']]), class: 'form-select')
+                    .row.g-2
+                      .col-sm-7 
+                        = text_field_tag('criteria[N][query]', nil, class: 'form-control', placeholder: 'Enter search term')
+                      .col-sm-3
+                      
+                      
