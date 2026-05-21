@@ -94,6 +94,7 @@
       .col-md-10 
         = form_tag(search_landing_path, method: :get, id: 'advanced-search-form') do
           = hidden_field_tag(:tab, 'advanced-search')
+          = hidden_field_tag(:q, '')
 
           .card.mb-3 
             .card-body
