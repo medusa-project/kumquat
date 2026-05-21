@@ -115,6 +115,18 @@ const Application = {
             e.target.closest('.advanced-search-row').remove();
           }
         });
+
+        clearBtn.addEventListener('click', function() {
+          document.querySelectorAll('#advanced-search-criteria .advanced-search-row').forEach(function(row) {
+            if (row.dataset.row === '0') {
+              row.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+              row.querySelector('input[type="text"]').value = '';
+            } else {
+              row.remove();
+            }
+          });
+          rowIndex = 1;
+        });
     },
 
     /**
