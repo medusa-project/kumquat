@@ -109,6 +109,12 @@ const Application = {
             criteria.appendChild(clone);
             rowIndex++;
         });
+
+        criteria.addEventListener('click', function(e) {
+          if (e.target.closest('.remove-advanced-row-btn')) {
+            e.target.closest('.advanced-search-row').remove();
+          }
+        });
     },
 
     /**
