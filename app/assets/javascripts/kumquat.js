@@ -89,6 +89,19 @@ const Application = {
         });
     },
 
+    initAdvancedSearch: function() {
+        const form = document.getElementById('advanced-search-form');
+        if (!form) {
+            return;
+        }
+        const criteria = document.getElementById('advanced-search-criteria');
+        const template = document.getElementById('advanced-search-row-template');
+        const addBtn = document.getElementById('add-advanced-search-row');
+        const clearBtn = document.getElementById('advanced-search-clear');
+
+        let rowIndex = 1; 
+    },
+
     /**
      * @returns {Boolean}
      */
