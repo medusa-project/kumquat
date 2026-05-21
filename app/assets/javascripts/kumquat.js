@@ -100,6 +100,15 @@ const Application = {
         const clearBtn = document.getElementById('advanced-search-clear');
 
         let rowIndex = 1; 
+
+        addBtn.addEventListener('click', function() {
+            const clone = template.cloneNode(true);
+            clone.removeAttribute('id');
+            clone.style.display = '';
+            clone.innerHTML = clone.innerHTML.replaceAll('[N]', '[' + rowIndex + ']');
+            criteria.appendChild(clone);
+            rowIndex++;
+        });
     },
 
     /**
