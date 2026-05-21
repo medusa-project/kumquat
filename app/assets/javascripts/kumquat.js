@@ -127,6 +127,32 @@ const Application = {
           });
           rowIndex = 1;
         });
+
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const rows = criteria.querySelectorAll('.advanced-search-row');
+          const parts = [];
+          rows.forEach(function(row, index) {
+            const field = row.querySelector('select[name*="field"]').value;
+            const query = row.querySelector('input[type="text"]').value;
+            const match = row.querySelector('select[name*="match"]').value;
+            const operator = index === 0 ? null : row.querySelector('select[name*="operator"]').value;
+            if (!query) return;
+            let term;
+            if (match === 'phrase'){
+              term = field === 'search_all' ? '"' + query + '"' : field + ':"' + query + '"';
+            } else if (match === 'any') {
+              term = field === 'search_all' ? query.split(' ').join(' | ') : field + ':(' + query.split(' ').join(' | ') + ')';
+            } else {
+              term = field === 'search_all' ? query : field + ':(' + query + ')';
+            }
+            
+            parts.push(index === 0 ? term : operator + ' ' + term);
+          });
+
+          form.querySelector('input[name="q"]').value = parts.join(' ');
+          form.submit();
+        });
     },
 
     /**
