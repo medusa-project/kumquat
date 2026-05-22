@@ -105,6 +105,9 @@ const Application = {
             const clone = template.cloneNode(true);
             clone.removeAttribute('id');
             clone.style.display = '';
+            clone.querySelectorAll('input, select').forEach(function(element) {
+                element.disabled = false;
+            });
             clone.innerHTML = clone.innerHTML.replaceAll('[N]', '[' + rowIndex + ']');
             criteria.appendChild(clone);
             rowIndex++;
@@ -146,7 +149,7 @@ const Application = {
             } else {
               term = field === 'search_all' ? query : field + ':(' + query + ')';
             }
-            
+
             parts.push(index === 0 ? term : operator + ' ' + term);
           });
 
