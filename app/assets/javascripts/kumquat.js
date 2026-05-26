@@ -138,7 +138,7 @@ const Application = {
           const parts = [];
           rows.forEach(function(row, index) {
             const field = row.querySelector('select[name*="field"]').value;
-            const query = row.querySelector('input[type="text"]').value;
+            const query = row.querySelector('input[type="text"]').value.trim();
             const match = row.querySelector('select[name*="match"]').value;
             const operator = index === 0 ? null : row.querySelector('select[name*="operator"]').value;
             if (!query) return;
