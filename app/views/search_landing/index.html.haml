@@ -165,3 +165,26 @@
           .d-flex.justify-content-end.gap-2
             %button.btn.btn-outline-secondary{type: 'button', id: 'advanced-search-clear'} Clear
             = submit_tag('Search', class: 'btn btn-primary', id: 'advanced-search-submit')
+
+    .row.justify-content-md-center.mt-4
+      .col-md-auto
+        = paginate(@count, @limit, @current_page, SearchLandingController::PERMITTED_PARAMS)
+
+    = form_tag(@permitted_params.reject{ |k, v| k == 'start' }, method: :get, class: 'dl-filter') do
+      = hidden_field_tag 'dl-current-path', request.path
+      - @permitted_params.reject{ |k, v| k == 'start' }.each do |k, v|
+        - if v.is_a?(Array)
+          - v.each do |item|
+            = hidden_field_tag("#{k}[]", item)
+        - else
+          = hidden_field_tag(k, v)
+      = hidden_field_tag(:tab, 'advanced-search')
+    
+    .row
+      .col-sm-3.col-lg-2
+        .facets
+          = facets_as_cards(@facets, SearchLandingController::PERMITTED_PARAMS)
+
+      .col-sm-9.col-lg-10
+        #search-results-container
+          = render 'search_results'
