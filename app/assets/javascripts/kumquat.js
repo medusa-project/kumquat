@@ -104,6 +104,7 @@ const Application = {
         addBtn.addEventListener('click', function() {
             const clone = template.cloneNode(true);
             clone.removeAttribute('id');
+            clone.classList.add('advanced-search-row');
             clone.style.display = '';
             clone.querySelectorAll('input, select').forEach(function(element) {
                 element.disabled = false;
