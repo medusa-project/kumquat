@@ -505,7 +505,7 @@ const DLItemView = function() {
         // The 3D viewer is initially not loaded. Load it the first time its
         // container div appears.
         $('#dl-3d-viewer-container').on('shown.bs.collapse', function() {
-            if (!three_d_viewer_loaded) {
+            if (!three_d_viewer_loaded && Application.view.threeDViewer) {
                 Application.view.threeDViewer.start();
                 three_d_viewer_loaded = true;
             }
