@@ -931,6 +931,14 @@ module ItemsHelper
           </div>")
         end
       else
+        # 3D model items must be routed directly to three_d_viewer_for because
+        # effective_viewer_binary uses a preference list that requires master_type
+        # to be set (ACCESS or PRESERVATION), which OBJ/MTL binaries may not have.
+        # If master_type is nil on the 3D binaries, effective_viewer_binary returns
+        # nil, causing a blank panel even when the files exist and are accessible.
+        if item.variant == Item::Variants::THREE_D_MODEL
+          return three_d_viewer_for(item)
+        end
         binary = item.effective_viewer_binary
         return '' unless binary&.public? || current_user&.medusa_user?
         case binary&.media_category
@@ -1318,26 +1326,30 @@ module ItemsHelper
       mtl_binary = three_d_binaries.
         find{ |b| b.filename&.downcase.end_with?('.mtl') }
       # All items with OBJ models should also have one of these.
-      if mtl_binary
-        viewer_url = asset_path('/threejs-viewer/3dviewer.min.js')
-        model_path = File.dirname(item_binary_path(item, obj_binary))
-
-        # Initialize the viewer but don't display it yet. It will be displayed
-        # via JS the first time its container div is shown.
-        html << "<div id=\"dl-3d-viewer\" class=\"dl-viewer\"></div>
-        <script src=\"#{viewer_url}\"></script>
-        <script>
-            $(document).ready(function() {
-                Application.view.threeDViewer = new ThreeJSViewer({
-                    'containerId': 'dl-3d-viewer',
-                    'modelPath': '#{model_path}/',
-                    'objFile': '#{obj_binary.filename}',
-                    'mtlFile': '#{mtl_binary.filename}',
-                    'ambientLightIntensity': 2.0
-                });
-            });
-        </script>"
+      unless mtl_binary
+        return raw('<div class="alert alert-light">'\
+          '<i class="fa fa-exclamation-triangle"></i> '\
+          '3D model is missing a required MTL material file and cannot be displayed.'\
+          '</div>')
       end
+      viewer_url = asset_path('/threejs-viewer/3dviewer.min.js')
+      model_path = File.dirname(item_binary_path(item, obj_binary))
+
+      # Initialize the viewer but don't display it yet. It will be displayed
+      # via JS the first time its container div is shown.
+      html << "<div id=\"dl-3d-viewer\" class=\"dl-viewer\"></div>
+      <script src=\"#{viewer_url}\"></script>
+      <script>
+          $(document).ready(function() {
+              Application.view.threeDViewer = new ThreeJSViewer({
+                  'containerId': 'dl-3d-viewer',
+                  'modelPath': '#{model_path}/',
+                  'objFile': '#{obj_binary.filename}',
+                  'mtlFile': '#{mtl_binary.filename}',
+                  'ambientLightIntensity': 2.0
+              });
+          });
+      </script>"
     end
     raw(html.string)
   end
