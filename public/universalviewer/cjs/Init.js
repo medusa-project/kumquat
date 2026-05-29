@@ -66,13 +66,11 @@ var init = function (el, data) {
                 }
             }
             else {
-                var exitFullScreen = getExitFullScreen();
-                if (exitFullScreen) {
-                    exitFullScreen.call(document);
-                    // firefox needs extra time when exiting a full screen embed
-                    // setTimeout(function() {
-                    //   resize();
-                    // }, 100);
+                if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+                    var exitFullScreen = getExitFullScreen();
+                    if (exitFullScreen) {
+                        exitFullScreen.call(document);
+                    }
                 }
             }
         }
