@@ -79,4 +79,65 @@ class ItemsHelperTest < ActionView::TestCase
     # TODO: find a text item and then write this
   end
 
+  test 'viewer_for_item() should render the 3D viewer for THREE_D_MODEL variant items' do
+    item = items(:compound_object_1002_page1)
+    item.variant = Item::Variants::THREE_D_MODEL
+
+    # Simulate the real-world case: OBJ and MTL binaries with nil master_type,
+    # which causes effective_viewer_binary to return nil and previously produced
+    # a blank panel.
+    item.binaries.build(
+      filename:       'model.obj',
+      media_category: Binary::MediaCategory::THREE_D,
+      media_type:     'text/plain',
+      master_type:    nil,
+      public:         true
+    )
+    item.binaries.build(
+      filename:       'model.mtl',
+      media_category: Binary::MediaCategory::THREE_D,
+      media_type:     'text/plain',
+      master_type:    nil,
+      public:         true
+    )
+
+    result = viewer_for_item(item)
+    assert result.include?('ThreeJSViewer'), 'Expected 3D viewer script but got blank/nil'
+    assert result.include?('dl-3d-viewer'),  'Expected 3D viewer container div'
+  end
+
+  test 'viewer_for_item() should render the 3D viewer, not the image viewer, when a THREE_D_MODEL item also has an image binary' do
+    item = items(:compound_object_1002_page1)
+    item.variant = Item::Variants::THREE_D_MODEL
+
+    # An image binary with ACCESS master_type — effective_viewer_binary would
+    # have previously picked this up and rendered the image viewer instead.
+    item.binaries.build(
+      filename:       'thumbnail.jpg',
+      media_category: Binary::MediaCategory::IMAGE,
+      media_type:     'image/jpeg',
+      master_type:    Binary::MasterType::ACCESS,
+      public:         true
+    )
+    item.binaries.build(
+      filename:       'model.obj',
+      media_category: Binary::MediaCategory::THREE_D,
+      media_type:     'text/plain',
+      master_type:    nil,
+      public:         true
+    )
+    item.binaries.build(
+      filename:       'model.mtl',
+      media_category: Binary::MediaCategory::THREE_D,
+      media_type:     'text/plain',
+      master_type:    nil,
+      public:         true
+    )
+
+    result = viewer_for_item(item)
+    assert result.include?('ThreeJSViewer'),     'Expected 3D viewer, not image viewer'
+    assert result.include?('dl-3d-viewer'),      'Expected 3D viewer container div'
+    assert_not result.include?('dl-image-viewer'), 'Image viewer should not render for 3D model items'
+  end
+
 end
