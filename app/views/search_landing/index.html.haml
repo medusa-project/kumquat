@@ -127,7 +127,8 @@
                     .col-sm-4 
                       = select_tag('criteria[0][match]', options_for_select([['All of the words', 'all'], 
                                                                             ['Any of the words', 'any'], 
-                                                                            ['Exact phrase', 'phrase']], 'all'), class: 'form-select')
+                                                                            ['Exact phrase', 'phrase'],
+                                                                            ['Fuzzy match', 'fuzzy']], 'all'), class: 'form-select')
 
                 #advanced-search-row-template{style: 'display:none'}
                   .row.g-2.mb-2
