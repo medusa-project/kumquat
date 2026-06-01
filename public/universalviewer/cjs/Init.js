@@ -4,11 +4,9 @@ exports.init = void 0;
 var Events_1 = require("./Events");
 var UniversalViewer_1 = require("./UniversalViewer");
 var init = function (el, data) {
-    console.log("[UV Init] fullscreen-exit fix v5 loaded - 2026-06-01");
     var uv;
     var isFullScreen = false;
     var overrideFullScreen = false;
-    var isProcessingFullscreenExit = false;
     var container = typeof el === "string" ? document.getElementById(el) : el;
     if (!container) {
         throw new Error("UV target element not found");
@@ -57,10 +55,8 @@ var init = function (el, data) {
         }, 100);
     }, false);
     uv.on(Events_1.Events.TOGGLE_FULLSCREEN, function (data) {
-        if (!isProcessingFullscreenExit) {
-            isFullScreen = data.isFullScreen;
-            overrideFullScreen = data.overrideFullScreen;
-        }
+        isFullScreen = data.isFullScreen;
+        overrideFullScreen = data.overrideFullScreen;
         if (!data.overrideFullScreen) {
             if (isFullScreen) {
                 var requestFullScreen = getRequestFullScreen(parent);
@@ -70,15 +66,14 @@ var init = function (el, data) {
                 }
             }
             else {
-              if (!isProcessingFullscreenExit && document.fullscreenElement) {
                 var exitFullScreen = getExitFullScreen();
                 if (exitFullScreen) {
-                  const result = exitFullScreen.call(document);
-                  if (result && typeof result.catch === "function") {
-                    result.catch(() => { });
-                  } 
+                    exitFullScreen.call(document);
+                    // firefox needs extra time when exiting a full screen embed
+                    // setTimeout(function() {
+                    //   resize();
+                    // }, 100);
                 }
-              }  
             }
         }
         setTimeout(function () {
@@ -89,26 +84,13 @@ var init = function (el, data) {
         console.error(message);
     }, false);
     function fullScreenChange(e) {
-      const isNowFullscreen = !!document.fullscreenElement;
-
-      if (!isNowFullscreen && isFullScreen && !isProcessingFullscreenExit) {
-        isProcessingFullscreenExit = true;
-        isFullScreen = false;
-
-        setTimeout(function () {
-          if (uv && typeof uv.exitFullScreen === "function") {
-            try {
-              uv.exitFullScreen();
-            } catch (err) {}
-          }
-        }, 0);
-
-        setTimeout(function () {
-          resize();
-          window.dispatchEvent(new Event("resize"));
-          isProcessingFullscreenExit = false;
-        }, 50);
-      }
+        if ((e.type === "webkitfullscreenchange" && !document.webkitIsFullScreen) ||
+            (e.type === "fullscreenchange" && !document.fullscreenElement) ||
+            (e.type === "MSFullscreenChange" && document.msFullscreenElement === null)) {
+            isFullScreen = false;
+            uv.exitFullScreen();
+            setTimeout(function() { resize(); }, 100);
+        }
     }
     document.addEventListener("fullscreenchange", fullScreenChange, false);
     document.addEventListener("webkitfullscreenchange", fullScreenChange, false);
@@ -117,17 +99,27 @@ var init = function (el, data) {
 };
 exports.init = init;
 function getRequestFullScreen(elem) {
-  if (elem.requestFullscreen) return elem.requestFullscreen;
-  if (elem.webkitRequestFullscreen) return elem.webkitRequestFullscreen;
-  if (elem.msRequestFullscreen) return elem.msRequestFullscreen;
-  return null;
+    if (elem.webkitRequestFullscreen) {
+        return elem.webkitRequestFullscreen;
+    }
+    if (elem.msRequestFullscreen) {
+        return elem.msRequestFullscreen;
+    }
+    if (elem.requestFullscreen) {
+        return elem.requestFullscreen;
+    }
+    return false;
 }
-
 function getExitFullScreen() {
-  if (document.exitFullscreen) return document.exitFullscreen;
-  if (document.webkitExitFullscreen) return document.webkitExitFullscreen;
-  if (document.msExitFullscreen) return document.msExitFullscreen;
-  return null;
+    if (document.webkitExitFullscreen) {
+        return document.webkitExitFullscreen;
+    }
+    if (document.msExitFullscreen) {
+        return document.msExitFullscreen;
+    }
+    if (document.exitFullscreen) {
+        return document.exitFullscreen;
+    }
+    return false;
 }
-
 //# sourceMappingURL=Init.js.map
