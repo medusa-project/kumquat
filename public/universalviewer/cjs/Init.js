@@ -7,8 +7,6 @@ var init = function (el, data) {
     var uv;
     var isFullScreen = false;
     var overrideFullScreen = false;
-    var savedContainerWidth = 0;
-    var savedContainerHeight = 0;
     var container = typeof el === "string" ? document.getElementById(el) : el;
     if (!container) {
         throw new Error("UV target element not found");
@@ -61,8 +59,6 @@ var init = function (el, data) {
         overrideFullScreen = data.overrideFullScreen;
         if (!data.overrideFullScreen) {
             if (isFullScreen) {
-                savedContainerWidth = container.offsetWidth;
-                savedContainerHeight = container.offsetHeight;
                 var requestFullScreen = getRequestFullScreen(parent);
                 if (requestFullScreen) {
                     requestFullScreen.call(parent);
@@ -70,11 +66,13 @@ var init = function (el, data) {
                 }
             }
             else {
-                if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
-                    var exitFullScreen = getExitFullScreen();
-                    if (exitFullScreen) {
-                        exitFullScreen.call(document);
-                    }
+                var exitFullScreen = getExitFullScreen();
+                if (exitFullScreen) {
+                    exitFullScreen.call(document);
+                    // firefox needs extra time when exiting a full screen embed
+                    // setTimeout(function() {
+                    //   resize();
+                    // }, 100);
                 }
             }
         }
@@ -90,8 +88,6 @@ var init = function (el, data) {
             (e.type === "fullscreenchange" && !document.fullscreenElement) ||
             (e.type === "MSFullscreenChange" && document.msFullscreenElement === null)) {
             isFullScreen = false;
-            parent.style.width = savedContainerWidth + "px";
-            parent.style.height = savedContainerHeight + "px";
             uv.exitFullScreen();
             setTimeout(function() { resize(); }, 100);
         }
