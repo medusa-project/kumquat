@@ -4,9 +4,11 @@ exports.init = void 0;
 var Events_1 = require("./Events");
 var UniversalViewer_1 = require("./UniversalViewer");
 var init = function (el, data) {
+    console.log("[UV Init] fullscreen-exit fix v5 loaded - 2026-06-01");
     var uv;
     var isFullScreen = false;
     var overrideFullScreen = false;
+    var isProcessingFullscreenExit = false;
     var container = typeof el === "string" ? document.getElementById(el) : el;
     if (!container) {
         throw new Error("UV target element not found");
@@ -55,8 +57,10 @@ var init = function (el, data) {
         }, 100);
     }, false);
     uv.on(Events_1.Events.TOGGLE_FULLSCREEN, function (data) {
-        isFullScreen = data.isFullScreen;
-        overrideFullScreen = data.overrideFullScreen;
+        if (!isProcessingFullscreenExit) {
+            isFullScreen = data.isFullScreen;
+            overrideFullScreen = data.overrideFullScreen;
+        }
         if (!data.overrideFullScreen) {
             if (isFullScreen) {
                 var requestFullScreen = getRequestFullScreen(parent);
@@ -66,7 +70,7 @@ var init = function (el, data) {
                 }
             }
             else {
-              if (document.fullscreenElement) {
+              if (!isProcessingFullscreenExit && document.fullscreenElement) {
                 var exitFullScreen = getExitFullScreen();
                 if (exitFullScreen) {
                   const result = exitFullScreen.call(document);
@@ -87,13 +91,22 @@ var init = function (el, data) {
     function fullScreenChange(e) {
       const isNowFullscreen = !!document.fullscreenElement;
 
-      if (!isNowFullscreen && isFullScreen) {
+      if (!isNowFullscreen && isFullScreen && !isProcessingFullscreenExit) {
+        isProcessingFullscreenExit = true;
         isFullScreen = false;
 
         setTimeout(function () {
-          resize();
+          if (uv && typeof uv.exitFullScreen === "function") {
+            try {
+              uv.exitFullScreen();
+            } catch (err) {}
+          }
+        }, 0);
 
+        setTimeout(function () {
+          resize();
           window.dispatchEvent(new Event("resize"));
+          isProcessingFullscreenExit = false;
         }, 50);
       }
     }
