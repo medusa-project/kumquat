@@ -28,8 +28,11 @@ class SpecialCollectionSearch
   # Executes the search and populates results
   #
   def execute!
+    clauses = build_criteria_clauses
+
     # Search collections
     collection_search = SimpleCollectionSearch.new(query: @search_query)
+    collection_search.query_clauses(clauses) if clauses.any?
     collection_search.facet_filters(@facet_filters)
     collection_search.start(@start).limit(@limit)
     collection_search.aggregations(true)
@@ -59,6 +62,7 @@ class SpecialCollectionSearch
     
     # Search items  
     item_search = SimpleItemSearch.new(query: @search_query)
+    item_search.query_clauses(clauses) if clauses.any?
     item_search.facet_filters(@facet_filters)
     item_search.start(@start).limit(@limit)
     item_search.aggregations(true)
