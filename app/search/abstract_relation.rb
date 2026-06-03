@@ -22,6 +22,7 @@ class AbstractRelation
     @limit        = OpensearchClient::MAX_RESULT_WINDOW
     @orders       = [] # Array<Hash<Symbol,String>> with :field and :direction keys
     @query        = nil # Hash<Symbol,String> Hash with :field and :query keys
+    @query_clauses = nil # Array of clause hashes for multi-field boolean search
     @start        = 0
 
     @loaded = false
