@@ -135,29 +135,11 @@ const Application = {
         form.addEventListener('submit', function(e) {
           e.preventDefault();
           const rows = criteria.querySelectorAll('.advanced-search-row');
-          const parts = [];
-          rows.forEach(function(row, index) {
-            const field = row.querySelector('select[name*="field"]').value;
-            const query = row.querySelector('input[type="text"]').value.trim();
-            const match = row.querySelector('select[name*="match"]').value;
-            const operator = index === 0 ? null : row.querySelector('select[name*="operator"]').value;
-            if (!query) return;
-            let term;
-            if (match === 'phrase') {
-              term = field === 'search_all' ? '"' + query + '"' : field + ':"' + query + '"';
-            } else if (match === 'any') {
-              term = field === 'search_all' ? query.split(' ').join(' | ') : field + ':(' + query.split(' ').join(' | ') + ')';
-            } else if (match === 'fuzzy') {
-              const fuzzyTerms = query.split(' ').map(function(w) { return w + '~'; }).join(' ');
-              term = field === 'search_all' ? fuzzyTerms : field + ':(' + fuzzyTerms + ')';
-            } else {
-              term = field === 'search_all' ? query : field + ':(' + query + ')';
-            }
-
-            parts.push(index === 0 ? term : operator + ' ' + term);
+          let hasQuery = false;
+          rows.forEach(function(row) {
+            if (row.querySelector('input[type="text"]').value.trim()) hasQuery = true;
           });
-
-          form.querySelector('input[name="q"]').value = parts.join(' ');
+          if (!hasQuery) return;
           form.submit();
         });
     },
