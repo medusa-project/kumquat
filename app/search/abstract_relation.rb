@@ -278,6 +278,27 @@ class AbstractRelation
     end
   end
 
+  ##
+  # Builds an OpenSearch query clause hash for a single criteria row.
+  #
+  # @param field [String] OpenSearch field name (e.g. 'metadata_title', 'search_all')
+  # @param query_text [String]
+  # @param match_type [String] 'all', 'any', 'phrase', or 'fuzzy'
+  # @return [Hash]
+  #
+  def build_clause_hash(field, query_text, match_type)
+    case match_type.to_s
+    when 'phrase'
+      { 'match_phrase' => { field => query_text } }
+    when 'fuzzy'
+      { 'match' => { field => { 'query' => query_text, 'fuzziness' => 'AUTO', 'operator' => 'AND', 'lenient' => true } } }
+    when 'any'
+      { 'simple_query_string' => { 'query' => query_text, 'fields' => [field], 'default_operator' => 'OR', 'lenient' => true } }
+    else # 'all'
+      { 'simple_query_string' => { 'query' => query_text, 'fields' => [field], 'default_operator' => 'AND', 'lenient' => true } }
+    end
+  end
+
   def get_response
     @request_json = build_query
     result = @client.query(@request_json)
