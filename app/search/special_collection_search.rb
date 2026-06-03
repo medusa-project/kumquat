@@ -109,6 +109,32 @@ class SpecialCollectionSearch
 
   private
   
+  ##
+  # Converts the @criteria params hash (keyed by row index) into an array of
+  # clause hashes suitable for AbstractRelation#query_clauses.
+  #
+  def build_criteria_clauses
+    return [] unless @criteria.present?
+
+    allowed_fields = %w[search_all metadata_title metadata_creator metadata_contributor
+                        metadata_subject metadata_description metadata_date metadata_language
+                        metadata_type metadata_identifier metadata_publisher metadata_format
+                        metadata_rights metadata_spatialCoverage]
+    allowed_matches = %w[all any phrase fuzzy]
+    allowed_operators = %w[AND OR NOT]
+
+    @criteria.to_unsafe_h.sort_by { |k, _| k.to_i }.filter_map do |_idx, row|
+      query_text = row['query'].to_s.strip
+      next if query_text.blank?
+
+      field    = allowed_fields.include?(row['field']) ? row['field'] : 'search_all'
+      match    = allowed_matches.include?(row['match']) ? row['match'] : 'all'
+      operator = allowed_operators.include?(row['operator']&.upcase) ? row['operator'].upcase : 'AND'
+
+      { field: field, query: query_text, match: match, operator: operator }
+    end
+  end
+
   def combine_and_sort_results
     # Simple approach: show collections first, then items
     # You could implement more sophisticated relevance scoring here
