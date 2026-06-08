@@ -294,8 +294,8 @@ class AbstractRelation
       { 'match' => { field => { 'query' => query_text, 'fuzziness' => 'AUTO', 'operator' => 'AND', 'lenient' => true } } }
     when 'any'
       { 'simple_query_string' => { 'query' => query_text, 'fields' => [field], 'default_operator' => 'OR', 'lenient' => true } }
-    else # 'all'
-      { 'simple_query_string' => { 'query' => query_text, 'fields' => [field], 'default_operator' => 'AND', 'lenient' => true } }
+    else # 'all' — fuzzy by default to handle spelling variations and diacritics
+      { 'match' => { field => { 'query' => query_text, 'fuzziness' => 'AUTO', 'operator' => 'AND', 'lenient' => true } } }
     end
   end
 
