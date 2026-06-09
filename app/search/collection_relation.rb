@@ -121,19 +121,8 @@ class CollectionRelation < AbstractRelation
   # @return [String] JSON string.
   #
   def build_query
-    # Pre-compute criteria clause arrays for multi-field boolean search
-    criteria_must, criteria_should, criteria_must_not = [], [], []
-    if @query_clauses.present?
-      @query_clauses.each_with_index do |clause, idx|
-        ch = build_clause_hash(clause[:field], clause[:query], clause[:match])
-        op = (idx == 0) ? 'AND' : clause[:operator].to_s.upcase
-        case op
-        when 'OR'  then criteria_should << ch
-        when 'NOT' then criteria_must_not << ch
-        else            criteria_must << ch
-        end
-      end
-    end
+    # Pre-compute must clauses for multi-field boolean search (all fields AND'd)
+    criteria_must = @query_clauses.present? ? @query_clauses.map { |c| build_clause_hash(c[:field], c[:query], c[:match]) } : []
 
     Jbuilder.encode do |j|
       j.track_total_hits true
@@ -141,11 +130,7 @@ class CollectionRelation < AbstractRelation
         j.bool do
           # Query
           if @query_clauses.present?
-            j.must criteria_must unless criteria_must.empty?
-            unless criteria_should.empty?
-              j.should criteria_should
-              j.minimum_should_match 1 unless criteria_must.any?
-            end
+            j.must criteria_must
           elsif @query.present?
             j.must do
               # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html
@@ -227,9 +212,6 @@ class CollectionRelation < AbstractRelation
                 j.exists do
                   j.field Collection::IndexFields::PARENT_COLLECTIONS
                 end
-              end
-              criteria_must_not.each do |clause_hash|
-                j.child! { j.merge!(clause_hash) }
               end
             end
           end
