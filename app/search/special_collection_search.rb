@@ -120,7 +120,7 @@ class SpecialCollectionSearch
                         metadata_subject metadata_description metadata_date metadata_language
                         metadata_type metadata_identifier metadata_publisher metadata_format
                         metadata_rights metadata_spatialCoverage]
-    allowed_matches = %w[all any phrase fuzzy]
+    allowed_matches = %w[all any phrase]
     allowed_operators = %w[AND OR NOT]
 
     @criteria.to_unsafe_h.sort_by { |k, _| k.to_i }.filter_map do |_idx, row|

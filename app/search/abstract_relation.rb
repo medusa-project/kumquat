@@ -290,8 +290,6 @@ class AbstractRelation
     case match_type.to_s
     when 'phrase'
       { 'match_phrase' => { field => query_text } }
-    when 'fuzzy'
-      { 'match' => { field => { 'query' => query_text, 'fuzziness' => 'AUTO', 'operator' => 'AND', 'lenient' => true } } }
     when 'any'
       { 'simple_query_string' => { 'query' => query_text, 'fields' => [field], 'default_operator' => 'OR', 'lenient' => true } }
     else # 'all' — fuzzy by default to handle spelling variations and diacritics
