@@ -163,7 +163,7 @@ class AbstractRelation
   ##
   # Adds a multi-clause boolean query for field-specific advanced search.
   #
-  # @param clauses [Array<Hash>] Each hash has :field, :query, :match, :operator keys
+  # @param clauses [Array<Hash>] Each hash has :field, :query, and :match keys
   # @return [self]
   #
   def query_clauses(clauses)
