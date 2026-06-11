@@ -11,7 +11,8 @@
           = submit_tag("Search", class: "btn btn-primary")
 
 %h1.mt-5= @repository.title
-%p.lead= 'Insert Repository Description Here'
+- if @repository.description.present?
+  %p.lead= @repository.description
 
 - if @permitted_params[:q].present?
   :javascript
