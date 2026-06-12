@@ -6,6 +6,7 @@
 :javascript
   $(document).ready(function() {
     Application.initFacets();
+    Application.initAdvancedSearch();
     
     // Re-initialize facets when tab navigation links are clicked
     $('.nav-link').on('click', function() {
@@ -91,5 +92,99 @@
 
   #advanced-search.tab-pane.fade{class: [('show active' if active_tab == 'advanced-search')], role: "tabpanel"}
     .row.justify-content-md-center.mt-4
-      .col-md-8
-        %p.text-center.text-muted Advanced search content will go here
+      .col-md-10 
+        = form_tag(search_landing_path, method: :get, id: 'advanced-search-form') do
+          = hidden_field_tag(:tab, 'advanced-search')
+          = hidden_field_tag(:q, '')
+
+          .card.mb-3 
+            .card-body
+              %h6.fw-bold.mb-3 Enter Search Term:
+
+              #advanced-search-criteria 
+
+                .advanced-search-row{data: {row:'0'}}
+                  .row.g-2.mb-2
+                    .col-12 
+                      = select_tag('criteria[0][field]', options_for_select([['Keyword', 'search_all'], 
+                                                                            ['Title', 'metadata_title'],
+                                                                            ['Creator', 'metadata_creator'],
+                                                                            ['Contributor', 'metadata_contributor'],
+                                                                            ['Subject', 'metadata_subject'], 
+                                                                            ['Description', 'metadata_description'],
+                                                                            ['Date', 'metadata_date'],
+                                                                            ['Language', 'metadata_language'],
+                                                                            ['Type', 'metadata_type'],
+                                                                            ['Identifier', 'metadata_identifier'],
+                                                                            ['Publisher', 'metadata_publisher'],
+                                                                            ['Format', 'metadata_format'],
+                                                                            ['Rights', 'metadata_rights'],
+                                                                            ['Spatial Coverage', 'metadata_spatialCoverage']]), class: 'form-select')
+                  
+                  .row.g-2 
+                    .col-sm-8 
+                      = text_field_tag('criteria[0][query]', nil, class: 'form-control', placeholder: 'Enter search term')
+                    .col-sm-4 
+                      = select_tag('criteria[0][match]', options_for_select([['All of the words', 'all'], 
+                                                                            ['Any of the words', 'any'], 
+                                                                            ['Exact phrase', 'phrase']], 'all'), class: 'form-select')
+
+                #advanced-search-row-template{style: 'display:none'}
+                  .row.g-2.mb-2
+                    .col-sm-2 
+                      = select_tag('criteria[N][operator]', options_for_select([['and', 'AND'], ['or', 'OR'], ['not', 'NOT']], 'AND'), 
+                                                                                class: 'form-select', disabled: true)
+                    .col-sm-10 
+                      = select_tag('criteria[N][field]', options_for_select([['Keyword', 'search_all'], 
+                                                                            ['Title', 'metadata_title'],
+                                                                            ['Creator', 'metadata_creator'],
+                                                                            ['Contributor', 'metadata_contributor'],
+                                                                            ['Subject', 'metadata_subject'], 
+                                                                            ['Description', 'metadata_description'],
+                                                                            ['Date', 'metadata_date'],
+                                                                            ['Language', 'metadata_language'],
+                                                                            ['Type', 'metadata_type'],
+                                                                            ['Identifier', 'metadata_identifier'],
+                                                                            ['Publisher', 'metadata_publisher'],
+                                                                            ['Format', 'metadata_format'],
+                                                                            ['Rights', 'metadata_rights'],
+                                                                            ['Spatial Coverage', 'metadata_spatialCoverage']]), class: 'form-select', disabled: true)
+                  .row.g-2
+                    .col-sm-7 
+                      = text_field_tag('criteria[N][query]', nil, class: 'form-control', placeholder: 'Enter search term', disabled: true)
+                    .col-sm-3
+                      = select_tag('criteria[N][match]', options_for_select([['All of the words', 'all'], 
+                                                                            ['Any of the words', 'any'], 
+                                                                            ['Exact phrase', 'phrase']], 'all'), class: 'form-select', disabled: true)
+                    .col-sm-2
+                      %button.btn.btn-outline-danger.btn-sm.remove-advanced-row-btn{type: 'button'} &minus; Remove
+          .d-flex.justify-content-end.mb-3 
+            %button.btn.btn-outline-secondary{type: 'button', id: 'add-advanced-search-row'} 
+              &plus; Add Row
+          %hr
+          .d-flex.justify-content-end.gap-2
+            %button.btn.btn-outline-secondary{type: 'button', id: 'advanced-search-clear'} Clear
+            = submit_tag('Search', class: 'btn btn-primary', id: 'advanced-search-submit')
+
+    .row.justify-content-md-center.mt-4
+      .col-md-auto
+        = paginate(@count, @limit, @current_page, SearchLandingController::PERMITTED_PARAMS)
+
+    = form_tag(@permitted_params.reject{ |k, v| k == 'start' }, method: :get, class: 'dl-filter') do
+      = hidden_field_tag 'dl-current-path', request.path
+      - @permitted_params.reject{ |k, v| k == 'start' }.each do |k, v|
+        - if v.is_a?(Array)
+          - v.each do |item|
+            = hidden_field_tag("#{k}[]", item)
+        - else
+          = hidden_field_tag(k, v)
+      = hidden_field_tag(:tab, 'advanced-search')
+      
+      .row
+        .col-sm-3.col-lg-2
+          .facets
+            = facets_as_cards(@facets, SearchLandingController::PERMITTED_PARAMS)
+
+        .col-sm-9.col-lg-10
+          #search-results-container
+            = render 'search_results'

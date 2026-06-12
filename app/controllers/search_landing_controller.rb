@@ -1,5 +1,5 @@
 class SearchLandingController < WebsiteController 
-  PERMITTED_PARAMS = [{ fq: [] }, :q, :sort, :start, :utf8, :commit, :tab, :'dl-current-path', :_, :format]
+  PERMITTED_PARAMS = [{ fq: [] }, :q, :sort, :start, :utf8, :commit, :tab, :'dl-current-path', :_, :format, {criteria: {}}]
 
   before_action :set_sanitized_params
   
@@ -15,6 +15,7 @@ class SearchLandingController < WebsiteController
     # Use unified search for both collections and items
     search = SpecialCollectionSearch.new(
       query: @permitted_params[:q],
+      criteria: @permitted_params[:criteria],
       start: @start,
       limit: @limit,
       facet_filters: @permitted_params[:fq]

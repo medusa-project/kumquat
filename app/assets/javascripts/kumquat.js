@@ -89,6 +89,61 @@ const Application = {
         });
     },
 
+    initAdvancedSearch: function() {
+        const form = document.getElementById('advanced-search-form');
+        if (!form) {
+            return;
+        }
+        const criteria = document.getElementById('advanced-search-criteria');
+        const template = document.getElementById('advanced-search-row-template');
+        const addBtn = document.getElementById('add-advanced-search-row');
+        const clearBtn = document.getElementById('advanced-search-clear');
+
+        let rowIndex = 1; 
+
+        addBtn.addEventListener('click', function() {
+            const clone = template.cloneNode(true);
+            clone.removeAttribute('id');
+            clone.classList.add('advanced-search-row');
+            clone.style.display = '';
+            clone.querySelectorAll('input, select').forEach(function(element) {
+                element.disabled = false;
+            });
+            clone.innerHTML = clone.innerHTML.replaceAll('[N]', '[' + rowIndex + ']');
+            criteria.appendChild(clone);
+            rowIndex++;
+        });
+
+        criteria.addEventListener('click', function(e) {
+          if (e.target.closest('.remove-advanced-row-btn')) {
+            e.target.closest('.advanced-search-row').remove();
+          }
+        });
+
+        clearBtn.addEventListener('click', function() {
+          document.querySelectorAll('#advanced-search-criteria .advanced-search-row').forEach(function(row) {
+            if (row.dataset.row === '0') {
+              row.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+              row.querySelector('input[type="text"]').value = '';
+            } else {
+              row.remove();
+            }
+          });
+          rowIndex = 1;
+        });
+
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const rows = criteria.querySelectorAll('.advanced-search-row');
+          let hasQuery = false;
+          rows.forEach(function(row) {
+            if (row.querySelector('input[type="text"]').value.trim()) hasQuery = true;
+          });
+          if (!hasQuery) return;
+          form.submit();
+        });
+    },
+
     /**
      * @returns {Boolean}
      */

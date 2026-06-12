@@ -43,6 +43,7 @@ settings:
         filter:
           - possessive_stemmer
           - lowercase
+          - asciifolding
           - custom_stopper
           - english_stemmer
           - decimal_digit

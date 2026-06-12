@@ -22,6 +22,7 @@ class AbstractRelation
     @limit        = OpensearchClient::MAX_RESULT_WINDOW
     @orders       = [] # Array<Hash<Symbol,String>> with :field and :direction keys
     @query        = nil # Hash<Symbol,String> Hash with :field and :query keys
+    @query_clauses = nil # Array of clause hashes for multi-field boolean search
     @start        = 0
 
     @loaded = false
@@ -160,6 +161,18 @@ class AbstractRelation
   end
 
   ##
+  # Adds a multi-clause boolean query for field-specific advanced search.
+  #
+  # @param clauses [Array<Hash>] Each hash has :field, :query, :match, :operator keys
+  # @return [self]
+  #
+  def query_clauses(clauses)
+    @query_clauses = clauses.select { |c| c[:query].present? }
+    @loaded = false
+    self
+  end
+
+  ##
   # Adds a query to search all fields.
   #
   # @param query [String]
@@ -262,6 +275,25 @@ class AbstractRelation
     parts = str.split(':')
     if parts.length == 2
       @filters[parts[0]] = parts[1]
+    end
+  end
+
+  ##
+  # Builds an OpenSearch query clause hash for a single criteria row.
+  #
+  # @param field [String] OpenSearch field name (e.g. 'metadata_title', 'search_all')
+  # @param query_text [String]
+  # @param match_type [String] 'all', 'any', 'phrase', or 'fuzzy'
+  # @return [Hash]
+  #
+  def build_clause_hash(field, query_text, match_type)
+    case match_type.to_s
+    when 'phrase'
+      { 'match_phrase' => { field => query_text } }
+    when 'any'
+      { 'simple_query_string' => { 'query' => query_text, 'fields' => [field], 'default_operator' => 'OR', 'lenient' => true } }
+    else # 'all' — fuzzy by default to handle spelling variations and diacritics
+      { 'match' => { field => { 'query' => query_text, 'fuzziness' => 'AUTO', 'operator' => 'AND', 'lenient' => true } } }
     end
   end
 

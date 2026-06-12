@@ -58,7 +58,7 @@ var init = function (el, data) {
         isFullScreen = data.isFullScreen;
         overrideFullScreen = data.overrideFullScreen;
         if (!data.overrideFullScreen) {
-            if (isFullScreen) {
+            if (data.isFullScreen) {
                 var requestFullScreen = getRequestFullScreen(parent);
                 if (requestFullScreen) {
                     requestFullScreen.call(parent);
@@ -67,13 +67,12 @@ var init = function (el, data) {
             }
             else {
                 var exitFullScreen = getExitFullScreen();
-                if (exitFullScreen) {
-                    exitFullScreen.call(document);
-                    // firefox needs extra time when exiting a full screen embed
-                    // setTimeout(function() {
-                    //   resize();
-                    // }, 100);
-                }
+                if (exitFullScreen && document.fullscreenElement) {
+                    const result = exitFullScreen.call(document);
+                    if (result && typeof result.catch === "function") {
+                        result.catch(() => {});
+                    }
+                  } 
             }
         }
         setTimeout(function () {
@@ -84,18 +83,22 @@ var init = function (el, data) {
         console.error(message);
     }, false);
     function fullScreenChange(e) {
-        if ((e.type === "webkitfullscreenchange" && !document.webkitIsFullScreen) ||
-            (e.type === "fullscreenchange" && !document.fullscreenElement) ||
-            (e.type === "mozfullscreenchange" && !document.mozFullScreen) ||
-            (e.type === "MSFullscreenChange" && document.msFullscreenElement === null)) {
-            isFullScreen = false;
-            uv.exitFullScreen();
-            setTimeout(function() { resize(); }, 100);
-        }
+        if (!document.fullscreenElement) {
+
+          setTimeout(function () {
+            parent.style.width = container.offsetWidth + "px";
+            parent.style.height = container.offsetHeight + "px";
+            
+            if (uv) {
+                uv.resize();
+            }
+
+            window.dispatchEvent(new Event("resize"));
+        }, 50);
+      }
     }
     document.addEventListener("fullscreenchange", fullScreenChange, false);
     document.addEventListener("webkitfullscreenchange", fullScreenChange, false);
-    document.addEventListener("mozfullscreenchange", fullScreenChange, false);
     document.addEventListener("MSFullscreenChange", fullScreenChange, false);
     return uv;
 };
@@ -103,9 +106,6 @@ exports.init = init;
 function getRequestFullScreen(elem) {
     if (elem.webkitRequestFullscreen) {
         return elem.webkitRequestFullscreen;
-    }
-    if (elem.mozRequestFullScreen) {
-        return elem.mozRequestFullScreen;
     }
     if (elem.msRequestFullscreen) {
         return elem.msRequestFullscreen;
@@ -121,9 +121,6 @@ function getExitFullScreen() {
     }
     if (document.msExitFullscreen) {
         return document.msExitFullscreen;
-    }
-    if (document.mozCancelFullScreen) {
-        return document.mozCancelFullScreen;
     }
     if (document.exitFullscreen) {
         return document.exitFullscreen;

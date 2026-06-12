@@ -4,13 +4,15 @@ class SpecialCollectionSearch
   
   ##
   # @param query [String] Search query string
+  # @param criteria [Hash] Advanced search criteria keyed by row index
   # @param start [Integer] Starting position for pagination
   # @param limit [Integer] Number of results per page
   # @param facet_filters [Array] Facet filters to apply
   # @param repository_id [Integer] Optional repository ID to scope search to specific repository
   #
-  def initialize(query: nil, start: 0, limit: 40, facet_filters: [], repository_id: nil)
+  def initialize(query: nil, criteria: nil, start: 0, limit: 40, facet_filters: [], repository_id: nil)
     @search_query = query
+    @criteria = criteria
     @start = start
     @limit = limit
     @facet_filters = facet_filters || []
@@ -26,8 +28,11 @@ class SpecialCollectionSearch
   # Executes the search and populates results
   #
   def execute!
+    clauses = build_criteria_clauses
+
     # Search collections
     collection_search = SimpleCollectionSearch.new(query: @search_query)
+    collection_search.query_clauses(clauses) if clauses.any?
     collection_search.facet_filters(@facet_filters)
     collection_search.start(@start).limit(@limit)
     collection_search.aggregations(true)
@@ -57,6 +62,7 @@ class SpecialCollectionSearch
     
     # Search items  
     item_search = SimpleItemSearch.new(query: @search_query)
+    item_search.query_clauses(clauses) if clauses.any?
     item_search.facet_filters(@facet_filters)
     item_search.start(@start).limit(@limit)
     item_search.aggregations(true)
@@ -103,6 +109,32 @@ class SpecialCollectionSearch
 
   private
   
+  ##
+  # Converts the @criteria params hash (keyed by row index) into an array of
+  # clause hashes suitable for AbstractRelation#query_clauses.
+  #
+  def build_criteria_clauses
+    return [] unless @criteria.present?
+
+    allowed_fields = %w[search_all metadata_title metadata_creator metadata_contributor
+                        metadata_subject metadata_description metadata_date metadata_language
+                        metadata_type metadata_identifier metadata_publisher metadata_format
+                        metadata_rights metadata_spatialCoverage]
+    allowed_matches = %w[all any phrase]
+    allowed_operators = %w[AND OR NOT]
+
+    @criteria.to_unsafe_h.sort_by { |k, _| k.to_i }.filter_map do |_idx, row|
+      query_text = row['query'].to_s.strip
+      next if query_text.blank?
+
+      field    = allowed_fields.include?(row['field']) ? row['field'] : 'search_all'
+      match    = allowed_matches.include?(row['match']) ? row['match'] : 'all'
+      operator = allowed_operators.include?(row['operator']&.upcase) ? row['operator'].upcase : 'AND'
+
+      { field: field, query: query_text, match: match, operator: operator }
+    end
+  end
+
   def combine_and_sort_results
     # Simple approach: show collections first, then items
     # You could implement more sophisticated relevance scoring here
