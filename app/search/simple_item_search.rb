@@ -30,6 +30,7 @@ class SimpleItemSearch < ItemRelation
     include_unpublished(false)
     include_restricted(false)
     include_publicly_inaccessible(false)
+    search_children(true)
 
     if @search_query.present?
       query_all(@search_query)
