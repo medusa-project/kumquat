@@ -178,20 +178,18 @@ class ItemRelation < AbstractRelation
           elsif @query.present?
             j.must do
               if !@exact_match
-                fields = if @include_children_in_results
-                           [@query[:field],
-                            ItemElement.new(name: EntityElement.element_name_for_indexed_field(@query[:field])).parent_indexed_field]
-                         else
-                           [@query[:field]]
-                         end
-                j.multi_match do
+                # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html
+                j.simple_query_string do
                   j.query @query[:query]
-                  j.fields fields
-                  j.operator 'AND'
-                  j.fuzziness 'AUTO'
-                  j.fuzzy_prefix_length 1
+                  j.default_operator 'AND'
+                  j.flags 'NONE'
                   j.lenient true
-                  j.analyzer 'custom_analyzer'
+                  if @include_children_in_results
+                    j.fields [@query[:field],
+                              ItemElement.new(name: EntityElement.element_name_for_indexed_field(@query[:field])).parent_indexed_field]
+                  else
+                    j.fields [@query[:field]]
+                  end
                 end
               else
                 j.term do
