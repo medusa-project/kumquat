@@ -85,16 +85,18 @@ class ItemsHelperTest < ActionView::TestCase
 
     # Simulate the real-world case: OBJ and MTL binaries with nil master_type,
     # which causes effective_viewer_binary to return nil and previously produced
-    # a blank panel.
+    # a blank panel. The filename is derived from object_key.
     item.binaries.build(
-      filename:       'model.obj',
+      object_key:     'models/model.obj',
+      medusa_uuid:    SecureRandom.uuid,
       media_category: Binary::MediaCategory::THREE_D,
       media_type:     'text/plain',
       master_type:    nil,
       public:         true
     )
     item.binaries.build(
-      filename:       'model.mtl',
+      object_key:     'models/model.mtl',
+      medusa_uuid:    SecureRandom.uuid,
       media_category: Binary::MediaCategory::THREE_D,
       media_type:     'text/plain',
       master_type:    nil,
@@ -113,21 +115,24 @@ class ItemsHelperTest < ActionView::TestCase
     # An image binary with ACCESS master_type — effective_viewer_binary would
     # have previously picked this up and rendered the image viewer instead.
     item.binaries.build(
-      filename:       'thumbnail.jpg',
+      object_key:     'thumbnails/thumbnail.jpg',
+      medusa_uuid:    SecureRandom.uuid,
       media_category: Binary::MediaCategory::IMAGE,
       media_type:     'image/jpeg',
       master_type:    Binary::MasterType::ACCESS,
       public:         true
     )
     item.binaries.build(
-      filename:       'model.obj',
+      object_key:     'models/model.obj',
+      medusa_uuid:    SecureRandom.uuid,
       media_category: Binary::MediaCategory::THREE_D,
       media_type:     'text/plain',
       master_type:    nil,
       public:         true
     )
     item.binaries.build(
-      filename:       'model.mtl',
+      object_key:     'models/model.mtl',
+      medusa_uuid:    SecureRandom.uuid,
       media_category: Binary::MediaCategory::THREE_D,
       media_type:     'text/plain',
       master_type:    nil,
