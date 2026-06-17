@@ -109,29 +109,33 @@ class SpecialCollectionSearch
 
   private
   
+  FIELD_MAP = {
+    'keyword'          => 'search_all',
+    'title'            => 'metadata_title',
+    'creator'          => 'metadata_creator',
+    'contributor'      => 'metadata_contributor',
+    'subject'          => 'metadata_subject',
+    'description'      => 'metadata_description',
+    'date'             => 'metadata_date',
+    'language'         => 'metadata_language',
+    'type'             => 'metadata_type',
+    'identifier'       => 'metadata_identifier',
+    'publisher'        => 'metadata_publisher',
+    'format'           => 'metadata_format',
+    'rights'           => 'metadata_rights',
+    'spatial_coverage' => 'metadata_spatialCoverage'
+  }.freeze
+
   ##
-  # Converts the @criteria params hash (keyed by row index) into an array of
+  # Converts the @criteria params hash (named field keys) into an array of
   # clause hashes suitable for AbstractRelation#query_clauses.
   #
   def build_criteria_clauses
     return [] unless @criteria.present?
-
-    allowed_fields = %w[search_all metadata_title metadata_creator metadata_contributor
-                        metadata_subject metadata_description metadata_date metadata_language
-                        metadata_type metadata_identifier metadata_publisher metadata_format
-                        metadata_rights metadata_spatialCoverage]
-    allowed_matches = %w[all any phrase]
-    allowed_operators = %w[AND OR NOT]
-
-    @criteria.to_unsafe_h.sort_by { |k, _| k.to_i }.filter_map do |_idx, row|
-      query_text = row['query'].to_s.strip
+    FIELD_MAP.filter_map do |key, field|
+      query_text = @criteria[key].to_s.strip
       next if query_text.blank?
-
-      field    = allowed_fields.include?(row['field']) ? row['field'] : 'search_all'
-      match    = allowed_matches.include?(row['match']) ? row['match'] : 'all'
-      operator = allowed_operators.include?(row['operator']&.upcase) ? row['operator'].upcase : 'AND'
-
-      { field: field, query: query_text, match: match, operator: operator }
+      { field: field, query: query_text, match: 'all', operator: 'AND' }
     end
   end
 
