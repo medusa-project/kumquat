@@ -13,7 +13,7 @@ class ActiveSupport::TestCase
   def setup_opensearch
     index  = Configuration.instance.opensearch_index
     client = OpensearchClient.instance
-    client.delete_index(index) if client.index_exists?(index)
+    client.delete_index(index, false)
     client.create_index(index)
   end
 
