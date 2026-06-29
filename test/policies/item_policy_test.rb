@@ -3,7 +3,7 @@ require 'test_helper'
 class ItemPolicyTest < ActiveSupport::TestCase
 
   setup do
-    @item    = items(:compound_object_1001)
+    @item    = Item.find(items(:compound_object_1001).id)
     @context = RequestContext.new(client_ip:       "127.0.0.1",
                                   client_hostname: "example.org")
   end
@@ -51,7 +51,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "binary?() does not authorize items whose owning collection is
   unpublished" do
-    @item.collection.update!(published_in_dls: false)
+    @item.collection.update!(published_in_dls: false, access_url: nil)
     @item.reload
     assert !ItemPolicy.new(@context, @item).binary?
   end
@@ -110,7 +110,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_annotation_list?() does not authorize items whose owning collection is
   unpublished" do
-    @item.collection.update!(published_in_dls: false)
+    @item.collection.update!(published_in_dls: false, access_url: nil)
     @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_annotation_list?
   end
@@ -169,7 +169,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_canvas?() does not authorize items whose owning collection is
   unpublished" do
-    @item.collection.update!(published_in_dls: false)
+    @item.collection.update!(published_in_dls: false, access_url: nil)
     @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_canvas?
   end
@@ -228,7 +228,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_image_resource?() does not authorize items whose owning collection is
   unpublished" do
-    @item.collection.update!(published_in_dls: false)
+    @item.collection.update!(published_in_dls: false, access_url: nil)
     @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_image_resource?
   end
@@ -287,7 +287,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_layer?() does not authorize items whose owning collection is
   unpublished" do
-    @item.collection.update!(published_in_dls: false)
+    @item.collection.update!(published_in_dls: false, access_url: nil)
     @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_layer?
   end
@@ -346,7 +346,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_manifest?() does not authorize items whose owning collection is
   unpublished" do
-    @item.collection.update!(published_in_dls: false)
+    @item.collection.update!(published_in_dls: false, access_url: nil)
     @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_manifest?
   end
@@ -405,7 +405,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_media_sequence?() does not authorize items whose owning collection is
   unpublished" do
-    @item.collection.update!(published_in_dls: false)
+    @item.collection.update!(published_in_dls: false, access_url: nil)
     @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_media_sequence?
   end
@@ -464,7 +464,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_range?() does not authorize items whose owning collection is
   unpublished" do
-    @item.collection.update!(published_in_dls: false)
+    @item.collection.update!(published_in_dls: false, access_url: nil)
     @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_range?
   end
@@ -523,7 +523,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_search?() does not authorize items whose owning collection is
   unpublished" do
-    @item.collection.update!(published_in_dls: false)
+    @item.collection.update!(published_in_dls: false, access_url: nil)
     @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_search?
   end
@@ -582,7 +582,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "iiif_sequence?() does not authorize items whose owning collection is
   unpublished" do
-    @item.collection.update!(published_in_dls: false)
+    @item.collection.update!(published_in_dls: false, access_url: nil)
     @item.reload
     assert !ItemPolicy.new(@context, @item).iiif_sequence?
   end
@@ -647,7 +647,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "item_tree_node?() does not authorize items whose owning collection is
   unpublished" do
-    @item.collection.update!(published_in_dls: false)
+    @item.collection.update!(published_in_dls: false, access_url: nil)
     @item.reload
     assert !ItemPolicy.new(@context, @item).item_tree_node?
   end
@@ -706,7 +706,7 @@ class ItemPolicyTest < ActiveSupport::TestCase
 
   test "show?() does not authorize items whose owning collection is
   unpublished" do
-    @item.collection.update!(published_in_dls: false)
+    @item.collection.update!(published_in_dls: false, access_url: nil)
     @item.reload
     assert !ItemPolicy.new(@context, @item).show?
   end
