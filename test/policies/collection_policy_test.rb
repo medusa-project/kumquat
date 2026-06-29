@@ -3,7 +3,7 @@ require 'test_helper'
 class CollectionPolicyTest < ActiveSupport::TestCase
 
   setup do
-    @collection = collections(:compound_object)
+    @collection = Collection.find(collections(:compound_object).id)
     @context    = RequestContext.new(client_hostname: "localhost",
                                      client_ip:       "127.0.0.1")
   end
@@ -18,7 +18,7 @@ class CollectionPolicyTest < ActiveSupport::TestCase
 
   test "iiif_presentation?() does not authorize non-Medusa admins to non-publicly-accessible
   collections" do
-    @collection.update!(published_in_dls: false)
+    @collection.update!(published_in_dls: false, access_url: nil)
     assert !CollectionPolicy.new(@context, @collection).iiif_presentation?
   end
 
@@ -55,7 +55,7 @@ class CollectionPolicyTest < ActiveSupport::TestCase
 
   test "show?() does not authorize non-Medusa admins to non-publicly-accessible
   collections" do
-    @collection.update!(published_in_dls: false)
+    @collection.update!(published_in_dls: false, access_url: nil)
     assert !CollectionPolicy.new(@context, @collection).show?
   end
 

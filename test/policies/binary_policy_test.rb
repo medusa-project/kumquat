@@ -3,7 +3,7 @@ require 'test_helper'
 class BinaryPolicyTest < ActiveSupport::TestCase
 
   setup do
-    @binary  = binaries(:compound_object_1001_access)
+    @binary  = Binary.find(binaries(:compound_object_1001_access).id)
     @context = RequestContext.new(client_ip:       "127.0.0.1",
                                   client_hostname: "example.org")
   end
@@ -30,7 +30,7 @@ class BinaryPolicyTest < ActiveSupport::TestCase
 
   test "object?() does not authorize binaries whose owning collection is not
   authorized" do
-    @binary.item.collection.update!(published_in_dls: false)
+    @binary.item.collection.update!(published_in_dls: false, access_url: nil)
     @binary.item.reload
     assert !BinaryPolicy.new(@context, @binary).object?
   end
@@ -61,7 +61,7 @@ class BinaryPolicyTest < ActiveSupport::TestCase
 
   test "show?() does not authorize binaries whose owning collection is not
   authorized" do
-    @binary.item.collection.update!(published_in_dls: false)
+    @binary.item.collection.update!(published_in_dls: false, access_url: nil)
     @binary.item.reload
     assert !BinaryPolicy.new(@context, @binary).show?
   end
@@ -92,7 +92,7 @@ class BinaryPolicyTest < ActiveSupport::TestCase
 
   test "stream?() does not authorize binaries whose owning collection is not
   authorized" do
-    @binary.item.collection.update!(published_in_dls: false)
+    @binary.item.collection.update!(published_in_dls: false, access_url: nil)
     @binary.item.reload
     assert !BinaryPolicy.new(@context, @binary).stream?
   end
