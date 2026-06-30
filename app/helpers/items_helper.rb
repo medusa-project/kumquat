@@ -1368,7 +1368,7 @@ module ItemsHelper
             // The collapse event doesn't always fire reliably, so we bind directly
             // to the button click and start the viewer only when the click is
             // expected to open (not close) the panel.
-            $('[aria-controls="dl-3d-viewer-container"]').on('click', function() {
+            $('[aria-controls=\"dl-3d-viewer-container\"]').on('click', function() {
               var willShow = !$('#dl-3d-viewer-container').hasClass('show');
               if (willShow) {
                 // Wait for the collapse toggle to complete before starting.
