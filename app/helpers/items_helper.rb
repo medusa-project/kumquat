@@ -1351,13 +1351,18 @@ module ItemsHelper
 
             Application.view.threeDViewerLoaded = false;
 
-              // Bind the collapse event handler after the viewer is initialized.
-              // This ensures the viewer exists when the handler tries to access it.
-              $('#dl-3d-viewer-container').on('shown.bs.collapse', function() {
-              if (!Application.view.threeDViewerLoaded && Application.view.threeDViewer) {
+            // Bind to the button that toggles the 3D viewer panel.
+            // The collapse event doesn't always fire reliably, so we bind directly
+            // to the button click and start the viewer when the panel becomes visible.
+            $('[aria-controls="dl-3d-viewer-container"]').on('click', function() {
+              // Use setTimeout to let the collapse animation start, then check if visible
+              setTimeout(function() {
+                var isVisible = $('#dl-3d-viewer-container').hasClass('show');
+                if (isVisible && !Application.view.threeDViewerLoaded && Application.view.threeDViewer) {
                       Application.view.threeDViewer.start();
                 Application.view.threeDViewerLoaded = true;
                   }
+              }, 50);
               });
           });
       </script>"
