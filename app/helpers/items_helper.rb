@@ -1348,13 +1348,15 @@ module ItemsHelper
                   'mtlFile': '#{mtl_binary.filename}',
                   'ambientLightIntensity': 2.0
               });
-              
+
+            Application.view.threeDViewerLoaded = false;
+
               // Bind the collapse event handler after the viewer is initialized.
               // This ensures the viewer exists when the handler tries to access it.
               $('#dl-3d-viewer-container').on('shown.bs.collapse', function() {
-                  if (!three_d_viewer_loaded && Application.view.threeDViewer) {
+              if (!Application.view.threeDViewerLoaded && Application.view.threeDViewer) {
                       Application.view.threeDViewer.start();
-                      three_d_viewer_loaded = true;
+                Application.view.threeDViewerLoaded = true;
                   }
               });
           });
