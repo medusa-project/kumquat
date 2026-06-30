@@ -1351,18 +1351,29 @@ module ItemsHelper
 
             Application.view.threeDViewerLoaded = false;
 
+            function startThreeDViewerIfNeeded() {
+              if (!Application.view.threeDViewerLoaded && Application.view.threeDViewer) {
+                Application.view.threeDViewer.start();
+                Application.view.threeDViewerLoaded = true;
+              }
+            }
+
+            // If the panel is already open (for example via URL hash),
+            // start immediately.
+            if ($('#dl-3d-viewer-container').hasClass('show')) {
+              startThreeDViewerIfNeeded();
+            }
+
             // Bind to the button that toggles the 3D viewer panel.
             // The collapse event doesn't always fire reliably, so we bind directly
-            // to the button click and start the viewer when the panel becomes visible.
+            // to the button click and start the viewer only when the click is
+            // expected to open (not close) the panel.
             $('[aria-controls="dl-3d-viewer-container"]').on('click', function() {
-              // Use setTimeout to let the collapse animation start, then check if visible
-              setTimeout(function() {
-                var isVisible = $('#dl-3d-viewer-container').hasClass('show');
-                if (isVisible && !Application.view.threeDViewerLoaded && Application.view.threeDViewer) {
-                      Application.view.threeDViewer.start();
-                Application.view.threeDViewerLoaded = true;
-                  }
-              }, 50);
+              var willShow = !$('#dl-3d-viewer-container').hasClass('show');
+              if (willShow) {
+                // Wait for the collapse toggle to complete before starting.
+                setTimeout(startThreeDViewerIfNeeded, 200);
+              }
               });
           });
       </script>"
