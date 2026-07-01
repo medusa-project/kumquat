@@ -14,7 +14,16 @@ class ActiveSupport::TestCase
     index  = Configuration.instance.opensearch_index
     client = OpensearchClient.instance
     client.delete_index(index, false)
-    client.create_index(index)
+    begin
+      client.create_index(index)
+    rescue IOError => e
+      raise unless e.message.include?('resource_already_exists')
+      # OpenSearch acknowledged the deletion but hasn't fully propagated it yet;
+      # wait briefly and retry once.
+      sleep(0.5)
+      client.delete_index(index, false)
+      client.create_index(index)
+    end
   end
 
   def sign_in_as(user)
