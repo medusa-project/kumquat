@@ -1,0 +1,17 @@
+# User-Agent substrings are treated as known bots/crawlers. 
+# If a request's User-Agent header contains any of these substrings, 
+# it will NOT trigger an admin "System Error" email.
+# The error will still be logged and rendered in the error page, 
+# but it will not be sent to the admin email address.
+
+- ClaudeBot
+- Anthropic
+- Applebot
+- Bingbot
+- AhrefsBot
+- SemrushBot
+- DataforseoBot
+- SogouwebSpider
+- FeedValidator
+- DuckDuckBot
+- Googlebot
