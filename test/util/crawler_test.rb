@@ -5,7 +5,7 @@ class CrawlerTest < ActiveSupport::TestCase
 
   test 'user_agents returns non empty array based on crawlers.yml content' do 
     
-    crawlers = Crawlers.user_agents
+    crawlers = Crawler.user_agents
 
     assert_instance_of Array, crawlers
     assert_not_empty crawlers
