@@ -27,11 +27,12 @@ class CrawlerTest < ActiveSupport::TestCase
 
   test 'matches? returns false if user agent is blank' do 
     ua = ''
-    assert false, Crawler.matches?(ua)
+    assert_equal false, Crawler.matches?(ua)
   end
 
   test 'matches? returns true if user agent matches any crawler element' do 
-    #todo
+    ua = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+    assert_equal true, Crawler.matches?(ua)
   end
 
 end
