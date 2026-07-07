@@ -111,7 +111,7 @@ class ApplicationController < ActionController::Base
                                         user:      current_user)
     Rails.logger.error(@message)
 
-    unless Rails.env.development?
+    unless Rails.env.development? || Crawler.matches?(request.user_agent)
       KumquatMailer.error(@message).deliver_now
     end
 
