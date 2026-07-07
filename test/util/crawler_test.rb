@@ -26,8 +26,8 @@ class CrawlerTest < ActiveSupport::TestCase
   end
 
   test 'matches? returns false if user agent is blank' do 
-    ua = ''
-    assert_equal false, Crawler.matches?(ua)
+    assert_equal false, Crawler.matches?('')
+    assert_equal false, Crawler.matches?(nil)
   end
 
   test 'matches? returns true if user agent matches any crawler element' do 
