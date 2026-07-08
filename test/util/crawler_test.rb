@@ -22,7 +22,13 @@ class CrawlerTest < ActiveSupport::TestCase
   end
 
   test 'missing file raises Errno::ENOENT' do
-    #todo
+    
+    Crawler.instance_variable_set(:@user_agents, nil)
+    YAML.stubs(:load_file).raises(Errno::ENOENT)
+
+    assert_raises(Errno::ENOENT) { Crawler.user_agents }
+  ensure
+    Crawler.instance_variable_set(:@user_agents, nil) # memoized nil value is cleared to avoid affecting other tests
   end
 
   test 'matches? returns false if user agent is blank' do 
