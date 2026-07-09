@@ -25,3 +25,4 @@ class Crawler
     ua = user_agent.downcase 
     user_agents.any? { | crawler| ua.include?(crawler) }
   end
+end
