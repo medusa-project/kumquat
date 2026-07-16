@@ -23,7 +23,10 @@
               Browse
             %ul.dropdown-menu
               %li
-                = link_to "Repositories", repositories_path, class: "dropdown-item"
+                = link_to repositories_path, class: "dropdown-item" do
+                  Repositories
+                  %span.badge.badge-beta.ml-1{"style" => "font-size: 0.6em; vertical-align: middle;"} New!
+
               %li
                 = link_to "Collections", collections_path, class: "dropdown-item"
               %li
@@ -31,7 +34,7 @@
             
     = link_to("Advanced Search", search_landing_path(tab: "advanced-search"), 
               id: "advanced-search-link")
-
+= render 'shared/beta_notice'
 %h1.mt-5 Digital Collections  
 %h5 Digitized manuscripts, photographs, maps, and other special collections research materials, as well as personal and organizational digital archives.
 
