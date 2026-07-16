@@ -35,6 +35,11 @@ div.alert ul {
   padding-left:0px;
 }
 
+.badge-beta {
+  color: #fff;
+  background-color: $color__darkest-orange;
+}
+
 .card {
   margin-bottom: 1em;
   .card-body {
