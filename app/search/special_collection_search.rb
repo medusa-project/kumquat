@@ -126,6 +126,7 @@ class SpecialCollectionSearch
     'spatial_coverage' => 'metadata_spatialCoverage'
   }.freeze
 
+  EXACT_MATCH_FIELDS = %w[date language spatial_coverage].freeze
   ##
   # Converts the @criteria params hash (named field keys) into an array of
   # clause hashes suitable for AbstractRelation#query_clauses.
@@ -135,7 +136,8 @@ class SpecialCollectionSearch
     FIELD_MAP.filter_map do |key, field|
       query_text = @criteria[key].to_s.strip
       next if query_text.blank?
-      { field: field, query: query_text, match: 'all', operator: 'AND' }
+      match_type = EXACT_MATCH_FIELDS.include?(key) ? 'exact' : 'all'
+      { field: field, query: query_text, match: match_type, operator: 'AND' }
     end
   end
 
