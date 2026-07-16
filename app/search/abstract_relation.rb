@@ -288,10 +288,12 @@ class AbstractRelation
   #
   def build_clause_hash(field, query_text, match_type)
     case match_type.to_s
-    when 'phrase'
-      { 'match_phrase' => { field => query_text } }
-    when 'any'
-      { 'simple_query_string' => { 'query' => query_text, 'fields' => [field], 'default_operator' => 'OR', 'lenient' => true } }
+    # when 'phrase'
+    #   { 'match_phrase' => { field => query_text } }
+    # when 'any'
+    #   { 'simple_query_string' => { 'query' => query_text, 'fields' => [field], 'default_operator' => 'OR', 'lenient' => true } }
+    when 'exact' # exact match (no fuzziness applied for keys like date, language, spatial_coverage)
+      { 'match' => { field => { 'query' => query_text, 'operator' => 'AND', 'lenient' => true } } }
     else # 'all' — fuzzy by default to handle spelling variations and diacritics
       { 'match' => { field => { 'query' => query_text, 'fuzziness' => 'AUTO', 'operator' => 'AND', 'lenient' => true } } }
     end
