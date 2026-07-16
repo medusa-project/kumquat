@@ -16,7 +16,7 @@
             = link_to repositories_path, class: 'nav-link' do 
               = icon_for(:repository)
               Repositories
-              %span.badge.badge-beta.ml-1{"style" => "font-size: 0.6em; vertical-align: middle;"} New!
+              %span.badge.badge-new.ml-1{"style" => "font-size: 0.6em; vertical-align: middle;"} New!
           %li#collections-nav.nav-item
             = link_to Configuration.instance.metadata_gateway_url + '/collections',
                       class: 'nav-link' do

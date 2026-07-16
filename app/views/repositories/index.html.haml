@@ -1,5 +1,11 @@
 - provide(:title, 'Repositories')
 
+.alert.alert-info.alert-dismissible.fade.show{role: "alert"}
+  %span.badge.badge-new New!
+  A new way to browse Digital Collections by Institutional Repository.
+  %button.close{"aria-label": "Close", "data-dismiss": "alert", type: "button"}
+    %span{"aria-hidden": "true"} &times;
+
 %h1 Digital Collections Repositories 
 
 - @repositories.each do |repository|
