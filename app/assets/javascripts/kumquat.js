@@ -602,7 +602,8 @@ var ready = function() {
 
 $(document).ready(ready);
 
-// Enable arrow key navigation for radio buttons in facet modal
+// Enable arrow key and tab key navigation for radio buttons in facet modal
+// Enable user to tab to submission once radio button selected 
 $(document).on('keydown', 'input[type="radio"][name="dl-facet-term"]', function(e) {
   var $radios = $('input[type="radio"][name="dl-facet-term"]:visible');
   var idx = $radios.index(this);
@@ -611,6 +612,12 @@ $(document).on('keydown', 'input[type="radio"][name="dl-facet-term"]', function(
     e.preventDefault();
   } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
     $radios.eq((idx - 1 + $radios.length) % $radios.length).focus().prop('checked', true);
+    e.preventDefault();
+  } else if (e.key === 'Tab' && !e.shiftKey && idx < $radios.length - 1 && !$(this).prop('checked')) {
+    $radios.eq(idx + 1).focus();
+    e.preventDefault();
+  } else if (e.key === 'Tab' && e.shiftKey && idx > 0 && !$(this).prop('checked')) {
+    $radios.eq(idx - 1).focus();
     e.preventDefault();
   }
 });
