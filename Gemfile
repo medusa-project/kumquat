@@ -50,6 +50,8 @@ group :development do
   gem 'yard'
 end
 
-group :production do
-  gem 'yarn' # capistrano seems to want this as of Rails 6.1
-end
+# group :production do
+#   gem 'yarn' # capistrano seems to want this as of Rails 6.1
+# end
+
+# Newer version of Rack is incompatible with yarn gem
