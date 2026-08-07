@@ -504,7 +504,7 @@ const DLItemView = function() {
 
         var initial_index = $('[name=dl-download-item-index]').val();
 
-        // Initialize Universal Viewer v4.0.25
+        // Initialize Universal Viewer v4.4.2
         var uvElement = document.getElementById('dl-compound-viewer') || document.getElementById('dl-image-viewer');
         if (uvElement && typeof UV !== 'undefined') {
             try {
@@ -556,7 +556,7 @@ const DLItemView = function() {
                     );
                 });
                 
-                console.log('Universal Viewer v4.0.25 initialized successfully');
+                console.log('Universal Viewer v4.4.2 initialized successfully');
             } catch (error) {
                 console.error('UV initialization failed:', error);
             }
