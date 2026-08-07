@@ -21,5 +21,6 @@
 /config/credentials/development.yml
 /config/credentials/test.yml
 
-# Ignore backup of UV v2.0.2
+# Ignore backup of UV versions 
 /public/universalviewer_backup_v2.0.2/
+/public/universalviewer_backup_v4.0.25/
