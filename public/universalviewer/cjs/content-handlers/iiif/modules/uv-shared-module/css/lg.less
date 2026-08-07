@@ -1,13 +1,38 @@
 .uv {
-
-    #debug {
-
-        #lg {
-
-            .lg-mediaquery({
+  #debug {
+    #lg {
+      .lg-mediaquery({
                 display: block !important;
             });
-
-        }
     }
+  }
+
+  .lg-mediaquery({
+        .headerPanel {
+            display: block;
+            visibility: visible;
+        }
+
+        .mainPanel {
+            .leftPanel {
+                display: block;
+                visibility: visible;
+            }
+
+            .rightPanel {
+                display: block;
+                visibility: visible;
+            }
+        }
+
+        .footerPanel {
+            display: block;
+            visibility: visible;
+        }
+
+        .mobileFooterPanel {
+            display: none;
+            visibility: hidden;
+        }
+    });
 }

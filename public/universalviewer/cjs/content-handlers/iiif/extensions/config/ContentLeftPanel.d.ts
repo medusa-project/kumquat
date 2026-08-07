@@ -1,12 +1,12 @@
 import { ModuleConfig } from "../../BaseConfig";
 import { ExpandPanelContent, ExpandPanelOptions } from "./ExpandPanel";
-declare type ThumbsCacheInvalidation = {
+type ThumbsCacheInvalidation = {
     /** Determines if cache invalidation is enabled */
     enabled: boolean;
     /** Type of the parameter for cache invalidation */
     paramType: string;
 };
-declare type ContentLeftPanelOptions = ExpandPanelOptions & {
+type ContentLeftPanelOptions = ExpandPanelOptions & {
     /** Determines if tree should expand automatically */
     autoExpandTreeEnabled: boolean;
     /** Number of items to auto expand tree */
@@ -17,10 +17,10 @@ declare type ContentLeftPanelOptions = ExpandPanelOptions & {
     branchNodesSelectable: boolean;
     /** Determines if tree is the default view */
     defaultToTreeEnabled: boolean;
-    /** Number of items to default to tree view */
+    /** Number of items to default to tree view (when defaultToTreeEnabled = true; defaults to 0) */
     defaultToTreeIfGreaterThan: number;
-    /** Number of characters to elide at */
-    elideCount: number;
+    /** Determines if collection should default to tree view (even if defaultToTreeEnabled = false) */
+    defaultToTreeIfCollection: boolean;
     /** Threshold for gallery thumb chunked resizing */
     galleryThumbChunkedResizingThreshold: number;
     /** Height of the gallery thumbnail */
@@ -54,7 +54,7 @@ declare type ContentLeftPanelOptions = ExpandPanelOptions & {
     /** Width of the two column thumbnail */
     twoColThumbWidth: number;
 };
-declare type ContentLeftPanelContent = ExpandPanelContent & {
+type ContentLeftPanelContent = ExpandPanelContent & {
     date: string;
     index: string;
     manifestRanges: string;
@@ -65,7 +65,7 @@ declare type ContentLeftPanelContent = ExpandPanelContent & {
     title: string;
     volume: string;
 };
-export declare type ContentLeftPanel = ModuleConfig & {
+export type ContentLeftPanel = ModuleConfig & {
     options: ContentLeftPanelOptions;
     content: ContentLeftPanelContent;
 };

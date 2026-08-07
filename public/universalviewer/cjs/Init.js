@@ -4,7 +4,6 @@ exports.init = void 0;
 var Events_1 = require("./Events");
 var UniversalViewer_1 = require("./UniversalViewer");
 var init = function (el, data) {
-    var uv;
     var isFullScreen = false;
     var overrideFullScreen = false;
     var container = typeof el === "string" ? document.getElementById(el) : el;
@@ -17,20 +16,25 @@ var init = function (el, data) {
     // extra div is needed for safari full screen
     var uvDiv = document.createElement("div");
     parent.appendChild(uvDiv);
+    var uv = new UniversalViewer_1.UniversalViewer({
+        target: uvDiv,
+        data: data,
+    });
     var resize = function () {
-        if (uv) {
-            if (isFullScreen && !overrideFullScreen) {
-                // is full screen and not overridden.
-                parent.style.width = window.innerWidth + "px";
-                parent.style.height = window.innerHeight + "px";
-            }
-            else {
-                // either we're not full screen or scaling to the window size is overridden
-                parent.style.width = container.offsetWidth + "px";
-                parent.style.height = container.offsetHeight + "px";
-            }
-            uv.resize();
+        if (!uv) {
+            return;
         }
+        if (isFullScreen && !overrideFullScreen) {
+            // is full screen and not overridden.
+            parent.style.width = window.innerWidth + "px";
+            parent.style.height = window.innerHeight + "px";
+        }
+        else {
+            // either we're not full screen or scaling to the window size is overridden
+            parent.style.width = container.offsetWidth + "px";
+            parent.style.height = container.offsetHeight + "px";
+        }
+        uv.resize();
     };
     window.addEventListener("resize", function () {
         resize();
@@ -39,10 +43,6 @@ var init = function (el, data) {
         setTimeout(function () {
             resize();
         }, 100);
-    });
-    uv = new UniversalViewer_1.UniversalViewer({
-        target: uvDiv,
-        data: data,
     });
     // todo: can we remove the following two event listeners
     // by using css to scale the parent div?

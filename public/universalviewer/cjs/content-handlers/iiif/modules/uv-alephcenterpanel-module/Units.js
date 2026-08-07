@@ -5,5 +5,5 @@ var Units;
 (function (Units) {
     Units["METERS"] = "m";
     Units["MILLIMETERS"] = "mm";
-})(Units = exports.Units || (exports.Units = {}));
+})(Units || (exports.Units = Units = {}));
 //# sourceMappingURL=Units.js.map

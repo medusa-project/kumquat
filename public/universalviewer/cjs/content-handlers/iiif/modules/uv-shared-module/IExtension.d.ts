@@ -5,11 +5,11 @@ import { IUVData } from "../../../../IUVData";
 import { Shell } from "./Shell";
 import { Helper } from "@iiif/manifold";
 import { BaseConfig, MetricType } from "../../BaseConfig";
-export declare type ExtensionLoader = {
+export type ExtensionLoader = {
     name: string;
     loader: () => Promise<any>;
 };
-export declare type LocaleRegistry = {
+export type LocaleRegistry = {
     [key: string]: any;
 };
 export interface IExtension {
@@ -50,7 +50,7 @@ export interface IExtension {
     isMobile(): boolean;
     isOverlayActive(): boolean;
     isRightPanelEnabled(): boolean;
-    isSeeAlsoEnabled(): boolean;
+    isMetric(metric: string | string[]): boolean;
     isMobileMetric(): boolean;
     lastCanvasIndex: number;
     locales: LocaleRegistry;

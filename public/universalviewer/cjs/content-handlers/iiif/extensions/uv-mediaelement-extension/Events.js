@@ -6,9 +6,11 @@ var MediaElementExtensionEvents = /** @class */ (function () {
     }
     MediaElementExtensionEvents.namespace = "mediaelementExtension.";
     MediaElementExtensionEvents.MEDIA_ENDED = MediaElementExtensionEvents.namespace + "mediaEnded";
+    MediaElementExtensionEvents.MEDIA_MUTED = MediaElementExtensionEvents.namespace + "mediaMuted";
     MediaElementExtensionEvents.MEDIA_PAUSED = MediaElementExtensionEvents.namespace + "mediaPaused";
     MediaElementExtensionEvents.MEDIA_PLAYED = MediaElementExtensionEvents.namespace + "mediaPlayed";
     MediaElementExtensionEvents.MEDIA_TIME_UPDATE = MediaElementExtensionEvents.namespace + "mediaTimeUpdate";
+    MediaElementExtensionEvents.MEDIA_UNMUTED = MediaElementExtensionEvents.namespace + "mediaUnmuted";
     return MediaElementExtensionEvents;
 }());
 exports.MediaElementExtensionEvents = MediaElementExtensionEvents;

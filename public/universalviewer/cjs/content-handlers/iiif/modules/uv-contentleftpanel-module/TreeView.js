@@ -19,35 +19,59 @@ exports.TreeView = void 0;
 var $ = require("jquery");
 var IIIFEvents_1 = require("../../IIIFEvents");
 var BaseView_1 = require("../uv-shared-module/BaseView");
-var iiif_tree_component_1 = require("@iiif/iiif-tree-component");
+var TreeComponent_1 = require("../uv-shared-module/TreeComponent");
 var TreeView = /** @class */ (function (_super) {
     __extends(TreeView, _super);
-    function TreeView($element) {
-        var _this = _super.call(this, $element, true, true) || this;
+    function TreeView($element, fitToParentWidth, fitToParentHeight) {
+        if (fitToParentWidth === void 0) { fitToParentWidth = true; }
+        if (fitToParentHeight === void 0) { fitToParentHeight = true; }
+        var _this = _super.call(this, $element, fitToParentWidth, fitToParentHeight) || this;
         _this.isOpen = false;
+        _this.expandedNodeIds = new Set();
         return _this;
     }
     TreeView.prototype.create = function () {
-        this.setConfig("leftPanel");
+        this.setConfig("contentLeftPanel");
         _super.prototype.create.call(this);
         this.$tree = $('<div class="iiif-tree-component"></div>');
         this.$element.append(this.$tree);
     };
     TreeView.prototype.setup = function () {
-        var that = this;
-        this.treeComponent = new iiif_tree_component_1.TreeComponent({
+        var _this = this;
+        this.treeComponent = new TreeComponent_1.TreeComponent({
             target: this.$tree[0],
             data: this.treeData,
         });
         this.treeComponent.on("treeNodeSelected", function (node) {
-            that.extensionHost.publish(IIIFEvents_1.IIIFEvents.TREE_NODE_SELECTED, node);
+            _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.TREE_NODE_SELECTED, node);
         }, false);
         this.treeComponent.on("treeNodeMultiSelected", function (node) {
-            that.extensionHost.publish(IIIFEvents_1.IIIFEvents.TREE_NODE_MULTISELECTED, node);
+            _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.TREE_NODE_MULTISELECTED, node);
         }, false);
     };
+    TreeView.prototype.saveState = function () {
+        var _this = this;
+        var allNodes = this.treeComponent.getAllNodes();
+        this.expandedNodeIds.clear();
+        allNodes.forEach(function (node) {
+            if (node.expanded) {
+                _this.expandedNodeIds.add(node.id);
+            }
+        });
+    };
+    TreeView.prototype.restoreState = function () {
+        var _this = this;
+        var allNodes = this.treeComponent.getAllNodes();
+        allNodes.forEach(function (node) {
+            if (_this.expandedNodeIds.has(node.id)) {
+                _this.treeComponent.expandNode(node, true);
+            }
+        });
+    };
     TreeView.prototype.databind = function () {
+        this.saveState();
         this.treeComponent.set(this.treeData);
+        this.restoreState();
         this.resize();
     };
     TreeView.prototype.show = function () {
@@ -60,16 +84,15 @@ var TreeView = /** @class */ (function (_super) {
     };
     TreeView.prototype.selectNode = function (node) {
         var _this = this;
-        if (!this.treeComponent.selectedNode) {
-            this.treeComponent.expandParents(node, true);
-            var link = this.$tree.find("#tree-link-" + node.id)[0];
-            if (link) {
-                // link.scrollIntoView({ inline: 'center' });
-            }
+        this.treeComponent.expandParents(node, true); // Expand node parents
+        var link = this.$tree.find("#tree-link-" + node.id)[0];
+        if (link) {
+            //commented out as bug where scrolls to wrong node eg in Villanova collection
+            // link.scrollIntoViewIfNeeded();
         }
-        setTimeout(function () {
+        Promise.resolve().then(function () {
             _this.treeComponent.selectNode(node);
-        }, 0);
+        });
     };
     TreeView.prototype.expandNode = function (node, expanded) {
         this.treeComponent.expandNode(node, expanded);

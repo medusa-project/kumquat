@@ -19,7 +19,7 @@ exports.FooterPanel = void 0;
 var $ = require("jquery");
 var IIIFEvents_1 = require("../../IIIFEvents");
 var BaseView_1 = require("./BaseView");
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../../Utils");
 var Events_1 = require("../../../../Events");
 var FooterPanel = /** @class */ (function (_super) {
     __extends(FooterPanel, _super);
@@ -48,22 +48,42 @@ var FooterPanel = /** @class */ (function (_super) {
         });
         this.$options = $('<div class="options"></div>');
         this.$element.append(this.$options);
+        this.$leftOptions = $('<div class="left-options"></div>');
+        this.$options.prepend(this.$leftOptions);
+        this.$mainOptions = $('<div class="main-options"></div>');
+        this.$options.append(this.$mainOptions);
+        this.$rightOptions = $('<div class="right-options"></div>');
+        this.$options.append(this.$rightOptions);
         this.$feedbackButton = $("\n          <button class=\"feedback btn imageBtn\" title=\"".concat(this.content.feedback, "\">\n            <i class=\"uv-icon uv-icon-feedback\" aria-hidden=\"true\"></i>\n            <span class=\"sr-only\">").concat(this.content.feedback, "</span>\n          </button>\n        "));
-        this.$options.prepend(this.$feedbackButton);
+        this.$mainOptions.prepend(this.$feedbackButton);
         this.$openButton = $("\n          <button class=\"open btn imageBtn\" title=\"".concat(this.content.open, "\">\n            <i class=\"uv-icon-open\" aria-hidden=\"true\"></i>\n            <span class=\"sr-only\">").concat(this.content.open, "</span>\n          </button>\n        "));
-        this.$options.prepend(this.$openButton);
+        this.$mainOptions.prepend(this.$openButton);
         this.$bookmarkButton = $("\n          <button class=\"bookmark btn imageBtn\" title=\"".concat(this.content.bookmark, "\">\n            <i class=\"uv-icon uv-icon-bookmark\" aria-hidden=\"true\"></i>\n            <span class=\"sr-only\">").concat(this.content.bookmark, "</span>\n          </button>\n        "));
-        this.$options.prepend(this.$bookmarkButton);
+        this.$mainOptions.prepend(this.$bookmarkButton);
         this.$shareButton = $("\n          <button class=\"share btn imageBtn\" title=\"".concat(this.content.share, "\">\n            <i class=\"uv-icon uv-icon-share\" aria-hidden=\"true\"></i>\n            <span class=\"sr-only\">").concat(this.content.share, "</span>\n          </button>\n        "));
-        this.$options.append(this.$shareButton);
+        this.$mainOptions.append(this.$shareButton);
         this.$embedButton = $("\n          <button class=\"embed btn imageBtn\" title=\"".concat(this.content.embed, "\">\n            <i class=\"uv-icon uv-icon-embed\" aria-hidden=\"true\"></i>\n            <span class=\"sr-only\">").concat(this.content.embed, "</span>\n          </button>\n        "));
-        this.$options.append(this.$embedButton);
+        this.$mainOptions.append(this.$embedButton);
         this.$downloadButton = $("\n          <button class=\"download btn imageBtn\" title=\"".concat(this.content.download, "\" id=\"download-btn\">\n            <i class=\"uv-icon uv-icon-download\" aria-hidden=\"true\"></i>\n            <span class=\"sr-only\">").concat(this.content.download, "</span>\n          </button>\n        "));
-        this.$options.prepend(this.$downloadButton);
-        this.$moreInfoButton = $("\n          <button class=\"moreInfo btn imageBtn\" title=\"".concat(this.content.moreInfo, "\">\n            <i class=\"uv-icon uv-icon-more-info\" aria-hidden=\"true\"></i>\n            <span class=\"sr-only\">").concat(this.content.moreInfo, "</span>\n          </button>\n        "));
-        this.$options.prepend(this.$moreInfoButton);
+        this.$mainOptions.prepend(this.$downloadButton);
         this.$fullScreenBtn = $("\n          <button class=\"fullScreen btn imageBtn\" title=\"".concat(this.content.fullScreen, "\">\n            <i class=\"uv-icon uv-icon-fullscreen\" aria-hidden=\"true\"></i>\n            <span class=\"sr-only\">").concat(this.content.fullScreen, "</span>\n          </button>\n        "));
-        this.$options.append(this.$fullScreenBtn);
+        this.$mainOptions.append(this.$fullScreenBtn);
+        this.$moreInfoButton = $("\n      <button class=\"moreInfo btn imageBtn\" title=\"".concat($(".mainPanel.rightPanelOpen").length !== 0
+            ? this.content.closeRightPanel
+            : this.content.openRightPanel, "\">\n        <i class=\"uv-icon uv-icon-more-info\" aria-hidden=\"true\"></i>\n        <span class=\"sr-only\">").concat($(".mainPanel.rightPanelOpen").length !== 0
+            ? this.content.closeRightPanel
+            : this.content.openRightPanel, "</span>\n      </button>\n    "));
+        this.$rightOptions.append(this.$moreInfoButton);
+        this.$toggleLeftPanelButton = $("\n      <button class=\"toggleLeftPanelButton btn imageBtn\" title=\"".concat($(".mainPanel.leftPanelOpen").length !== 0
+            ? this.content.closeLeftPanel
+            : this.content.openLeftPanel, "\">\n        <i class=\"uv-icon uv-icon-toggle-left-panel\" aria-hidden=\"true\"></i>\n        <span class=\"sr-only\">").concat($(".mainPanel.leftPanelOpen").length !== 0
+            ? this.content.closeLeftPanel
+            : this.content.openLeftPanel, "</span>\n      </button>\n    "));
+        this.$leftOptions.append(this.$toggleLeftPanelButton);
+        if ($(".leftPanel").css("display") === "none" ||
+            $(".leftPanel").contents().length === 0) {
+            this.$toggleLeftPanelButton.hide();
+        }
         this.$openButton.onPressed(function () {
             _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.OPEN);
         });
@@ -83,13 +103,26 @@ var FooterPanel = /** @class */ (function (_super) {
             _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.SHOW_DOWNLOAD_DIALOGUE, _this.$downloadButton);
         });
         this.$moreInfoButton.onPressed(function () {
-            _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.SHOW_MOREINFO_DIALOGUE, _this.$moreInfoButton);
+            _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.TOGGLE_RIGHT_PANEL, _this.$moreInfoButton);
+            var newLabel = $(".mainPanel.rightPanelOpen").length !== 0
+                ? _this.content.closeRightPanel
+                : _this.content.openRightPanel;
+            _this.$moreInfoButton.attr("title", newLabel);
+            _this.$moreInfoButton.find(".sr-only").text(newLabel);
+        });
+        this.$toggleLeftPanelButton.onPressed(function () {
+            _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.TOGGLE_LEFT_PANEL, _this.$moreInfoButton);
+            var newLabel = $(".mainPanel.leftPanelOpen").length !== 0
+                ? _this.content.closeLeftPanel
+                : _this.content.openLeftPanel;
+            _this.$toggleLeftPanelButton.attr("title", newLabel);
+            _this.$toggleLeftPanelButton.find(".sr-only").text(newLabel);
         });
         this.onAccessibleClick(this.$fullScreenBtn, function (e) {
             e.preventDefault();
             _this.extensionHost.publish(Events_1.Events.TOGGLE_FULLSCREEN);
         }, true);
-        if (!utils_1.Bools.getBool(this.options.embedEnabled, true)) {
+        if (!Utils_1.Bools.getBool(this.options.embedEnabled, true)) {
             this.$embedButton.hide();
         }
         this.updateMoreInfoButton();
@@ -104,16 +137,12 @@ var FooterPanel = /** @class */ (function (_super) {
     };
     FooterPanel.prototype.updateMinimisedButtons = function () {
         // if configured to always minimise buttons
-        if (utils_1.Bools.getBool(this.options.minimiseButtons, false)) {
-            this.$options.addClass("minimiseButtons");
-            return;
-        }
-        // otherwise, check metric
-        if (!this.extension.isDesktopMetric()) {
-            this.$options.addClass("minimiseButtons");
+        if (Utils_1.Bools.getBool(this.options.minimiseButtons, false) ||
+            !this.extension.isDesktopMetric()) {
+            this.$options.find("span").addClass("sr-only");
         }
         else {
-            this.$options.removeClass("minimiseButtons");
+            this.$options.find("span").removeClass("sr-only");
         }
     };
     FooterPanel.prototype.updateMoreInfoButton = function () {
@@ -128,8 +157,8 @@ var FooterPanel = /** @class */ (function (_super) {
         // }
     };
     FooterPanel.prototype.updateOpenButton = function () {
-        var configEnabled = utils_1.Bools.getBool(this.options.openEnabled, false);
-        if (configEnabled && utils_1.Documents.isInIFrame()) {
+        var configEnabled = Utils_1.Bools.getBool(this.options.openEnabled, false);
+        if (configEnabled && Utils_1.Documents.isInIFrame()) {
             this.$openButton.show();
         }
         else {
@@ -137,8 +166,8 @@ var FooterPanel = /** @class */ (function (_super) {
         }
     };
     FooterPanel.prototype.updateFullScreenButton = function () {
-        if (!utils_1.Bools.getBool(this.options.fullscreenEnabled, true) ||
-            !utils_1.Documents.supportsFullscreen()) {
+        if (!Utils_1.Bools.getBool(this.options.fullscreenEnabled, true) ||
+            !Utils_1.Documents.supportsFullscreen()) {
             this.$fullScreenBtn.hide();
             return;
         }
@@ -161,7 +190,7 @@ var FooterPanel = /** @class */ (function (_super) {
     };
     FooterPanel.prototype.updateEmbedButton = function () {
         if (this.extension.helper.isUIEnabled("embed") &&
-            utils_1.Bools.getBool(this.options.embedEnabled, false)) {
+            Utils_1.Bools.getBool(this.options.embedEnabled, false)) {
             // current jquery version sets display to 'inline' in mobile version, while this should remain hidden (see media query)
             if (!this.extension.isMobile()) {
                 this.$embedButton.show();
@@ -173,7 +202,7 @@ var FooterPanel = /** @class */ (function (_super) {
     };
     FooterPanel.prototype.updateShareButton = function () {
         if (this.extension.helper.isUIEnabled("share") &&
-            utils_1.Bools.getBool(this.options.shareEnabled, true)) {
+            Utils_1.Bools.getBool(this.options.shareEnabled, true)) {
             this.$shareButton.show();
         }
         else {
@@ -181,7 +210,7 @@ var FooterPanel = /** @class */ (function (_super) {
         }
     };
     FooterPanel.prototype.updateDownloadButton = function () {
-        var configEnabled = utils_1.Bools.getBool(this.options.downloadEnabled, true);
+        var configEnabled = Utils_1.Bools.getBool(this.options.downloadEnabled, true);
         if (configEnabled) {
             this.$downloadButton.show();
         }
@@ -190,7 +219,7 @@ var FooterPanel = /** @class */ (function (_super) {
         }
     };
     FooterPanel.prototype.updateFeedbackButton = function () {
-        var configEnabled = utils_1.Bools.getBool(this.options.feedbackEnabled, false);
+        var configEnabled = Utils_1.Bools.getBool(this.options.feedbackEnabled, false);
         if (configEnabled) {
             this.$feedbackButton.show();
         }
@@ -199,7 +228,7 @@ var FooterPanel = /** @class */ (function (_super) {
         }
     };
     FooterPanel.prototype.updateBookmarkButton = function () {
-        var configEnabled = utils_1.Bools.getBool(this.options.bookmarkEnabled, false);
+        var configEnabled = Utils_1.Bools.getBool(this.options.bookmarkEnabled, false);
         if (configEnabled) {
             this.$bookmarkButton.show();
         }

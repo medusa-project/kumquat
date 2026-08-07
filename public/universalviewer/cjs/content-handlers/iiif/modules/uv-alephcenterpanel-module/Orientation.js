@@ -6,5 +6,5 @@ var Orientation;
     Orientation["CORONAL"] = "coronal";
     Orientation["SAGGITAL"] = "saggital";
     Orientation["AXIAL"] = "axial";
-})(Orientation = exports.Orientation || (exports.Orientation = {}));
+})(Orientation || (exports.Orientation = Orientation = {}));
 //# sourceMappingURL=Orientation.js.map

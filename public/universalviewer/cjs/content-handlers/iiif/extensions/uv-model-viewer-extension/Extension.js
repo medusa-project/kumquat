@@ -26,13 +26,11 @@ var DownloadDialogue_1 = require("./DownloadDialogue");
 var FooterPanel_1 = require("../../modules/uv-shared-module/FooterPanel");
 var MobileFooter_1 = require("../../modules/uv-modelviewermobilefooterpanel-module/MobileFooter");
 var HeaderPanel_1 = require("../../modules/uv-shared-module/HeaderPanel");
-var MoreInfoDialogue_1 = require("../../modules/uv-dialogues-module/MoreInfoDialogue");
 var MoreInfoRightPanel_1 = require("../../modules/uv-moreinforightpanel-module/MoreInfoRightPanel");
 var SettingsDialogue_1 = require("./SettingsDialogue");
 var ShareDialogue_1 = require("./ShareDialogue");
 var ModelViewerCenterPanel_1 = require("../../modules/uv-modelviewercenterpanel-module/ModelViewerCenterPanel");
 var dist_commonjs_1 = require("@iiif/vocabulary/dist-commonjs/");
-var utils_1 = require("@edsilv/utils");
 var manifesto_js_1 = require("manifesto.js");
 var Events_1 = require("./Events");
 var Orbit_1 = require("./Orbit");
@@ -45,9 +43,6 @@ var ModelViewerExtension = /** @class */ (function (_super) {
     function ModelViewerExtension() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.defaultConfig = config_json_1.default;
-        _this.locales = {
-            "en-GB": config_json_1.default,
-        };
         return _this;
     }
     ModelViewerExtension.prototype.create = function () {
@@ -89,9 +84,6 @@ var ModelViewerExtension = /** @class */ (function (_super) {
         else {
             this.shell.$footerPanel.hide();
         }
-        this.$moreInfoDialogue = $('<div class="overlay moreInfo" aria-hidden="true"></div>');
-        this.shell.$overlays.append(this.$moreInfoDialogue);
-        this.moreInfoDialogue = new MoreInfoDialogue_1.MoreInfoDialogue(this.$moreInfoDialogue);
         this.$downloadDialogue = $('<div class="overlay download" aria-hidden="true"></div>');
         this.shell.$overlays.append(this.$downloadDialogue);
         this.downloadDialogue = new DownloadDialogue_1.DownloadDialogue(this.$downloadDialogue);
@@ -203,10 +195,13 @@ var ModelViewerExtension = /** @class */ (function (_super) {
         this.fire(IIIFEvents_1.IIIFEvents.BOOKMARK, bookmark);
     };
     ModelViewerExtension.prototype.getEmbedScript = function (template, width, height) {
-        var appUri = this.getAppUri();
-        var iframeSrc = "".concat(appUri, "#?manifest=").concat(this.helper.manifestUri, "&c=").concat(this.helper.collectionIndex, "&m=").concat(this.helper.manifestIndex, "&cv=").concat(this.helper.canvasIndex);
-        var script = utils_1.Strings.format(template, iframeSrc, width.toString(), height.toString());
-        return script;
+        var hashParams = new URLSearchParams({
+            manifest: this.helper.manifestUri,
+            c: this.helper.collectionIndex.toString(),
+            m: this.helper.manifestIndex.toString(),
+            cv: this.helper.canvasIndex.toString(),
+        });
+        return _super.prototype.buildEmbedScript.call(this, template, width, height, hashParams);
     };
     return ModelViewerExtension;
 }(BaseExtension_1.BaseExtension));

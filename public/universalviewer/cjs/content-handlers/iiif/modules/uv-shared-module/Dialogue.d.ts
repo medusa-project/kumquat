@@ -18,9 +18,10 @@ export declare class Dialogue<T extends BaseConfig["modules"]["dialogue"]> exten
     create(): void;
     enableClose(): void;
     disableClose(): void;
-    setDockedPosition(): void;
+    setDockedPosition(position?: "above" | "below"): void;
     open(triggerButton?: HTMLElement): void;
     afterFirstOpen(): void;
     close(): void;
     resize(): void;
+    private handleKeydown;
 }

@@ -24,7 +24,7 @@ var HeaderPanel_1 = require("../uv-shared-module/HeaderPanel");
 var Mode_1 = require("../../extensions/uv-openseadragon-extension/Mode");
 var Utils_1 = require("../../../../Utils");
 var dist_commonjs_1 = require("@iiif/vocabulary/dist-commonjs/");
-var utils_1 = require("@edsilv/utils");
+var Utils_2 = require("../../Utils");
 var manifesto_js_1 = require("manifesto.js");
 var PagingHeaderPanel = /** @class */ (function (_super) {
     __extends(PagingHeaderPanel, _super);
@@ -38,13 +38,16 @@ var PagingHeaderPanel = /** @class */ (function (_super) {
     }
     PagingHeaderPanel.prototype.create = function () {
         var _this = this;
-        this.setConfig("headerPanel");
+        this.setConfig("pagingHeaderPanel");
         _super.prototype.create.call(this);
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.CANVAS_INDEX_CHANGE, function (canvasIndex) {
             _this.canvasIndexChanged(canvasIndex);
         });
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.SETTINGS_CHANGE, function () {
             _this.modeChanged();
+            _this.updatePagingToggle();
+        });
+        this.extensionHost.subscribe(Events_1.OpenSeadragonExtensionEvents.PAGING_TOGGLED, function () {
             _this.updatePagingToggle();
         });
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.CANVAS_INDEX_CHANGE_FAILED, function () {
@@ -78,7 +81,7 @@ var PagingHeaderPanel = /** @class */ (function (_super) {
             this.content.pageSearchLabel +
             '"/>');
         this.$search.append(this.$searchText);
-        if (utils_1.Bools.getBool(this.options.autoCompleteBoxEnabled, true)) {
+        if (Utils_2.Bools.getBool(this.options.autoCompleteBoxEnabled, true)) {
             this.$searchText.hide();
             this.$autoCompleteBox = $('<input class="autocompleteText" type="text" maxlength="100" aria-label="' +
                 this.content.pageSearchLabel +
@@ -111,9 +114,9 @@ var PagingHeaderPanel = /** @class */ (function (_super) {
                 return results;
             }, function (terms) {
                 _this.search(terms);
-            }, 300, 0, utils_1.Bools.getBool(this.options.autocompleteAllowWords, false));
+            }, 300, 0, Utils_2.Bools.getBool(this.options.autocompleteAllowWords, false));
         }
-        else if (utils_1.Bools.getBool(this.options.imageSelectionBoxEnabled, true)) {
+        else if (Utils_2.Bools.getBool(this.options.imageSelectionBoxEnabled, true)) {
             this.$selectionBoxOptions = $('<div class="image-selectionbox-options"></div>');
             this.$centerOptions.append(this.$selectionBoxOptions);
             this.$imageSelectionBox = $('<select class="image-selectionbox" name="image-select" tabindex="0" ></select>');
@@ -130,7 +133,7 @@ var PagingHeaderPanel = /** @class */ (function (_super) {
         }
         this.$total = $('<span class="total"></span>');
         this.$search.append(this.$total);
-        this.$searchButton = $("<a class=\"go btn btn-primary\" tabindex=\"0\">".concat(this.content.go, "</a>"));
+        this.$searchButton = $("<button class=\"go btn btn-primary\" tabindex=\"0\">".concat(this.content.go, "</button>"));
         this.$search.append(this.$searchButton);
         this.$nextOptions = $('<div class="nextOptions"></div>');
         this.$centerOptions.append(this.$nextOptions);
@@ -155,13 +158,13 @@ var PagingHeaderPanel = /** @class */ (function (_super) {
         else {
             this.$pageModeLabel.text(this.content.page);
         }
-        this.$galleryButton = $("\n          <button class=\"btn imageBtn gallery\" title=\"".concat(this.content.gallery, "\">\n            <i class=\"uv-icon-gallery\" aria-hidden=\"true\"></i>\n            <span class=\"sr-only\">").concat(this.content.gallery, "</span>\n          </button>\n        "));
+        this.$galleryButton = $("\n          <button class=\"btn imageBtn gallery\" title=\"".concat(this.content.gallery, "\" aria-pressed=\"false\">\n            <i class=\"uv-icon-gallery\" aria-hidden=\"true\"></i>\n            <span class=\"sr-only\">").concat(this.content.gallery, "</span>\n          </button>\n        "));
         this.$rightOptions.prepend(this.$galleryButton);
         this.$pagingToggleButtons = $('<div class="pagingToggleButtons"></div>');
         this.$rightOptions.prepend(this.$pagingToggleButtons);
-        this.$oneUpButton = $("\n          <button class=\"btn imageBtn one-up\" title=\"".concat(this.content.oneUp, "\">\n            <i class=\"uv-icon-one-up\" aria-hidden=\"true\"></i>\n            <span class=\"sr-only\">").concat(this.content.oneUp, "</span>\n          </button>"));
+        this.$oneUpButton = $("\n          <button class=\"btn imageBtn one-up\" title=\"".concat(this.content.oneUp, "\" aria-pressed=\"false\">\n            <i class=\"uv-icon-one-up\" aria-hidden=\"true\"></i>\n            <span class=\"sr-only\">").concat(this.content.oneUp, "</span>\n          </button>"));
         this.$pagingToggleButtons.append(this.$oneUpButton);
-        this.$twoUpButton = $("\n          <button class=\"btn imageBtn two-up\" title=\"".concat(this.content.twoUp, "\">\n            <i class=\"uv-icon-two-up\" aria-hidden=\"true\"></i>\n            <span class=\"sr-only\">").concat(this.content.twoUp, "</span>\n          </button>\n        "));
+        this.$twoUpButton = $("\n          <button class=\"btn imageBtn two-up\" title=\"".concat(this.content.twoUp, "\" aria-pressed=\"false\">\n            <i class=\"uv-icon-two-up\" aria-hidden=\"true\"></i>\n            <span class=\"sr-only\">").concat(this.content.twoUp, "</span>\n          </button>\n        "));
         this.$pagingToggleButtons.append(this.$twoUpButton);
         this.updatePagingToggle();
         this.updateGalleryButton();
@@ -260,7 +263,7 @@ var PagingHeaderPanel = /** @class */ (function (_super) {
         this.$searchText.click(function () {
             $(this).select();
         });
-        this.$searchButton.onPressed(function () {
+        this.onAccessibleClick(this.$searchButton, function () {
             if (_this.options.autoCompleteBoxEnabled) {
                 _this.search(_this.$autoCompleteBox.val());
             }
@@ -276,9 +279,6 @@ var PagingHeaderPanel = /** @class */ (function (_super) {
         if (this.options.imageSelectionBoxEnabled === true &&
             this.options.autoCompleteBoxEnabled !== true) {
             this.$search.hide();
-        }
-        if (this.options.helpEnabled === false) {
-            this.$helpButton.hide();
         }
         // todo: discuss on community call
         // Get visible element in centerOptions with greatest tabIndex
@@ -298,18 +298,18 @@ var PagingHeaderPanel = /** @class */ (function (_super) {
         //         }, 100);
         //     }
         // });
-        if (!utils_1.Bools.getBool(this.options.pagingToggleEnabled, true)) {
+        if (!Utils_2.Bools.getBool(this.options.pagingToggleEnabled, true)) {
             this.$pagingToggleButtons.hide();
         }
     };
     PagingHeaderPanel.prototype.openGallery = function () {
-        this.$oneUpButton.removeClass("on");
-        this.$twoUpButton.removeClass("on");
-        this.$galleryButton.addClass("on");
+        this.$oneUpButton.removeClass("on").attr("aria-pressed", "false");
+        this.$twoUpButton.removeClass("on").attr("aria-pressed", "false");
+        this.$galleryButton.addClass("on").attr("aria-pressed", "true");
     };
     PagingHeaderPanel.prototype.closeGallery = function () {
         this.updatePagingToggle();
-        this.$galleryButton.removeClass("on");
+        this.$galleryButton.removeClass("on").attr("aria-pressed", "false");
     };
     PagingHeaderPanel.prototype.isPageModeEnabled = function () {
         return (this.config.options.pageModeEnabled &&
@@ -368,16 +368,16 @@ var PagingHeaderPanel = /** @class */ (function (_super) {
             return;
         }
         if (this.extension.isPagingSettingEnabled()) {
-            this.$oneUpButton.removeClass("on");
-            this.$twoUpButton.addClass("on");
+            this.$oneUpButton.removeClass("on").attr("aria-pressed", "false");
+            this.$twoUpButton.addClass("on").attr("aria-pressed", "true");
         }
         else {
-            this.$twoUpButton.removeClass("on");
-            this.$oneUpButton.addClass("on");
+            this.$twoUpButton.removeClass("on").attr("aria-pressed", "false");
+            this.$oneUpButton.addClass("on").attr("aria-pressed", "true");
         }
     };
     PagingHeaderPanel.prototype.pagingToggleIsVisible = function () {
-        return (utils_1.Bools.getBool(this.options.pagingToggleEnabled, true) &&
+        return (Utils_2.Bools.getBool(this.options.pagingToggleEnabled, true) &&
             this.extension.helper.isPagingAvailable());
     };
     PagingHeaderPanel.prototype.updateGalleryButton = function () {
@@ -386,16 +386,16 @@ var PagingHeaderPanel = /** @class */ (function (_super) {
         }
     };
     PagingHeaderPanel.prototype.galleryIsVisible = function () {
-        return (utils_1.Bools.getBool(this.options.galleryButtonEnabled, true) &&
+        return (Utils_2.Bools.getBool(this.options.galleryButtonEnabled, true) &&
             this.extension.isLeftPanelEnabled());
     };
     PagingHeaderPanel.prototype.setTotal = function () {
         var of = this.content.of;
         if (this.isPageModeEnabled()) {
-            this.$total.html(utils_1.Strings.format(of, this.extension.helper.getLastCanvasLabel(true)));
+            this.$total.html(Utils_2.Strings.format(of, this.extension.helper.getLastCanvasLabel(true)));
         }
         else {
-            this.$total.html(utils_1.Strings.format(of, this.extension.helper.getTotalCanvases().toString()));
+            this.$total.html(Utils_2.Strings.format(of, this.extension.helper.getTotalCanvases().toString()));
         }
     };
     PagingHeaderPanel.prototype.setSearchFieldValue = function (index) {
@@ -503,34 +503,42 @@ var PagingHeaderPanel = /** @class */ (function (_super) {
     PagingHeaderPanel.prototype.disableFirstButton = function () {
         this.firstButtonEnabled = false;
         this.$firstButton.disable();
+        this.$firstButton.attr("disabled", "disabled");
     };
     PagingHeaderPanel.prototype.enableFirstButton = function () {
         this.firstButtonEnabled = true;
         this.$firstButton.enable();
+        this.$firstButton.removeAttr("disabled");
     };
     PagingHeaderPanel.prototype.disableLastButton = function () {
         this.lastButtonEnabled = false;
         this.$lastButton.disable();
+        this.$lastButton.attr("disabled", "disabled");
     };
     PagingHeaderPanel.prototype.enableLastButton = function () {
         this.lastButtonEnabled = true;
         this.$lastButton.enable();
+        this.$lastButton.removeAttr("disabled");
     };
     PagingHeaderPanel.prototype.disablePrevButton = function () {
         this.prevButtonEnabled = false;
         this.$prevButton.disable();
+        this.$prevButton.attr("disabled", "disabled");
     };
     PagingHeaderPanel.prototype.enablePrevButton = function () {
         this.prevButtonEnabled = true;
         this.$prevButton.enable();
+        this.$prevButton.removeAttr("disabled");
     };
     PagingHeaderPanel.prototype.disableNextButton = function () {
         this.nextButtonEnabled = false;
         this.$nextButton.disable();
+        this.$nextButton.attr("disabled", "disabled");
     };
     PagingHeaderPanel.prototype.enableNextButton = function () {
         this.nextButtonEnabled = true;
         this.$nextButton.enable();
+        this.$nextButton.removeAttr("disabled");
     };
     PagingHeaderPanel.prototype.modeChanged = function () {
         this.setSearchFieldValue(this.extension.helper.canvasIndex);

@@ -1,45 +1,45 @@
 import { BaseConfig, CenterPanelContent, CenterPanelOptions, DownloadDialogueContent, DownloadDialogueOptions, ModuleConfig, SettingsDialogueContent, SettingsDialogueOptions, ShareDialogueContent, ShareDialogueOptions } from "@/content-handlers/iiif/BaseConfig";
 import { ExpandPanelContent, ExpandPanelOptions } from "../../config/ExpandPanel";
-declare type EbookLeftPanelOptions = ExpandPanelOptions & {};
-declare type EbookLeftPanelContent = ExpandPanelContent & {
+type EbookLeftPanelOptions = ExpandPanelOptions & {};
+type EbookLeftPanelContent = ExpandPanelContent & {
     title: string;
 };
-declare type EbookLeftPanel = {
+type EbookLeftPanel = {
     options: EbookLeftPanelOptions;
     content: EbookLeftPanelContent;
 };
-declare type EbookCenterPanelOptions = CenterPanelOptions & {};
-declare type EbookCenterPanelContent = CenterPanelContent & {};
-declare type EbookCenterPanel = {
+type EbookCenterPanelOptions = CenterPanelOptions & {};
+type EbookCenterPanelContent = CenterPanelContent & {};
+type EbookCenterPanel = {
     options: EbookCenterPanelOptions;
     content: EbookCenterPanelContent;
 };
-declare type EbookDownloadDialogueOptions = DownloadDialogueOptions & {};
-declare type EbookDownloadDialogueContent = DownloadDialogueContent & {};
-declare type EbookDownloadDialogue = ModuleConfig & {
+type EbookDownloadDialogueOptions = DownloadDialogueOptions & {};
+type EbookDownloadDialogueContent = DownloadDialogueContent & {};
+type EbookDownloadDialogue = ModuleConfig & {
     options: EbookDownloadDialogueOptions;
     content: EbookDownloadDialogueContent;
 };
-declare type EbookShareDialogueOptions = ShareDialogueOptions & {};
-declare type EbookShareDialogueContent = ShareDialogueContent & {};
-declare type EbookShareDialogue = ModuleConfig & {
+type EbookShareDialogueOptions = ShareDialogueOptions & {};
+type EbookShareDialogueContent = ShareDialogueContent & {};
+type EbookShareDialogue = ModuleConfig & {
     options: EbookShareDialogueOptions;
     content: EbookShareDialogueContent;
 };
-declare type EbookSettingsDialogueOptions = SettingsDialogueOptions & {};
-declare type EbookSettingsDialogueContent = SettingsDialogueContent & {};
-declare type EbookSettingsDialogue = ModuleConfig & {
+type EbookSettingsDialogueOptions = SettingsDialogueOptions & {};
+type EbookSettingsDialogueContent = SettingsDialogueContent & {};
+type EbookSettingsDialogue = ModuleConfig & {
     options: EbookSettingsDialogueOptions;
     content: EbookSettingsDialogueContent;
 };
-declare type Modules = {
-    leftPanel: EbookLeftPanel;
-    centerPanel: EbookCenterPanel;
+type Modules = {
+    ebookLeftPanel: EbookLeftPanel;
+    ebookCenterPanel: EbookCenterPanel;
     downloadDialogue: EbookDownloadDialogue;
     shareDialogue: EbookShareDialogue;
     settingsDialogue: EbookSettingsDialogue;
 };
-export declare type Config = BaseConfig & {
+export type Config = BaseConfig & {
     modules: Modules;
 };
 export {};

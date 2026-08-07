@@ -6,5 +6,5 @@ var DisplayMode;
     DisplayMode["SLICES"] = "slices";
     DisplayMode["VOLUME"] = "volume";
     DisplayMode["MESH"] = "mesh";
-})(DisplayMode = exports.DisplayMode || (exports.DisplayMode = {}));
+})(DisplayMode || (exports.DisplayMode = DisplayMode = {}));
 //# sourceMappingURL=DisplayMode.js.map

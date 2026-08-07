@@ -17,19 +17,19 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BaseExpandPanel = void 0;
 var $ = require("jquery");
+var Utils_1 = require("../../Utils");
 var BaseView_1 = require("./BaseView");
-var utils_1 = require("@edsilv/utils");
-var IIIFEvents_1 = require("../../IIIFEvents");
 var BaseExpandPanel = /** @class */ (function (_super) {
     __extends(BaseExpandPanel, _super);
-    function BaseExpandPanel($element) {
-        var _this = _super.call(this, $element, false, true) || this;
+    function BaseExpandPanel($element, fitToParentWidth, fitToParentHeight) {
+        if (fitToParentWidth === void 0) { fitToParentWidth = false; }
+        if (fitToParentHeight === void 0) { fitToParentHeight = true; }
+        var _this = _super.call(this, $element, fitToParentWidth, fitToParentHeight) || this;
         _this.isExpanded = false;
         _this.isFullyExpanded = false;
         _this.isUnopened = true;
         _this.autoToggled = false;
         _this.expandFullEnabled = true;
-        _this.reducedAnimation = false;
         return _this;
     }
     BaseExpandPanel.prototype.create = function () {
@@ -41,16 +41,18 @@ var BaseExpandPanel = /** @class */ (function (_super) {
         this.$top.append(this.$title);
         this.$expandFullButton = $('<a class="expandFullButton" tabindex="0"></a>');
         this.$top.append(this.$expandFullButton);
-        if (!utils_1.Bools.getBool(this.config.options.expandFullEnabled, true)) {
+        if (!Utils_1.Bools.getBool(this.config.options.expandFullEnabled, true)) {
             this.$expandFullButton.hide();
         }
-        this.$collapseButton = $('<div role="button" class="collapseButton" tabindex="0"></div>');
+        this.$collapseButton = $('<button role="button" class="collapseButton" tabindex="0" aria-expanded="true"></button>');
         this.$collapseButton.prop("title", this.content.collapse);
+        this.$collapseButton.attr("aria-label", this.content.collapse);
         this.$top.append(this.$collapseButton);
         this.$closed = $('<div class="closed"></div>');
         this.$element.append(this.$closed);
-        this.$expandButton = $('<a role="button" class="expandButton" tabindex="0"></a>');
+        this.$expandButton = $('<button role="button" class="expandButton" tabindex="0" aria-expanded="false"></button>');
         this.$expandButton.prop("title", this.content.expand);
+        this.$expandButton.attr("aria-label", this.content.expand);
         this.$closed.append(this.$expandButton);
         this.$closedTitle = $('<a class="title"></a>');
         this.$closed.append(this.$closedTitle);
@@ -81,12 +83,6 @@ var BaseExpandPanel = /** @class */ (function (_super) {
                 _this.toggle();
             }
         });
-        this.$top.hide();
-        this.$main.hide();
-        // Subscribe to settings change.
-        this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.SETTINGS_CHANGE, function (args) {
-            _this.reducedAnimation = args.reducedAnimation || false;
-        });
     };
     BaseExpandPanel.prototype.init = function () {
         _super.prototype.init.call(this);
@@ -97,31 +93,33 @@ var BaseExpandPanel = /** @class */ (function (_super) {
     };
     BaseExpandPanel.prototype.toggle = function (autoToggled) {
         var _this = this;
+        var _a, _b;
+        var settings = this.extension.getSettings();
+        var isReducedAnimation = settings.reducedAnimation;
+        var oldAnimationDuration = document.documentElement.style.getPropertyValue("--uv-animation-duration");
+        if (this.options.panelAnimationDuration) {
+            document.documentElement.style.setProperty("--uv-animation-duration", "".concat(this.options.panelAnimationDuration, "ms"));
+        }
         autoToggled ? (this.autoToggled = true) : (this.autoToggled = false);
-        // if collapsing, hide contents immediately.
+        this.$element.toggleClass("open");
         if (this.isExpanded) {
             this.$top.attr("aria-hidden", "true");
             this.$main.attr("aria-hidden", "true");
             this.$closed.attr("aria-hidden", "false");
-            this.$top.hide();
-            this.$main.hide();
-            this.$closed.show();
+            this.$collapseButton.attr("aria-expanded", "false");
+            this.$expandButton.attr("aria-expanded", "false");
         }
-        if (this.reducedAnimation) {
-            // This is reduced motion.
-            this.$element.css("width", this.getTargetWidth());
-            this.$element.css("left", this.getTargetLeft());
-            this.toggled();
+        var timeout = 0;
+        if (!isReducedAnimation) {
+            timeout =
+                ((_b = (_a = this.options.panelAnimationDuration) !== null && _a !== void 0 ? _a : settings.animationDuration) !== null && _b !== void 0 ? _b : 250) + 50;
         }
-        else {
-            // Otherwise animate.
-            this.$element.stop().animate({
-                width: this.getTargetWidth(),
-                left: this.getTargetLeft(),
-            }, this.options.panelAnimationDuration, function () {
-                _this.toggled();
-            });
-        }
+        setTimeout(function () {
+            _this.toggled();
+            if (oldAnimationDuration) {
+                document.documentElement.style.setProperty("--uv-animation-duration", "".concat(oldAnimationDuration));
+            }
+        }, timeout);
     };
     BaseExpandPanel.prototype.toggled = function () {
         this.toggleStart();
@@ -131,39 +129,64 @@ var BaseExpandPanel = /** @class */ (function (_super) {
             this.$top.attr("aria-hidden", "false");
             this.$main.attr("aria-hidden", "false");
             this.$closed.attr("aria-hidden", "true");
-            this.$closed.hide();
-            this.$top.show();
-            this.$main.show();
+            this.$collapseButton.attr("aria-expanded", "true");
+            this.$expandButton.attr("aria-expanded", "true");
         }
         this.toggleFinish();
         this.isUnopened = false;
     };
     BaseExpandPanel.prototype.expandFull = function () {
         var _this = this;
-        if (!this.isExpanded) {
-            this.toggled();
+        var _a, _b;
+        var settings = this.extension.getSettings();
+        var isReducedAnimation = settings.reducedAnimation;
+        var oldAnimationDuration = document.documentElement.style.getPropertyValue("--uv-animation-duration");
+        if (this.options.panelAnimationDuration) {
+            document.documentElement.style.setProperty("--uv-animation-duration", "".concat(this.options.panelAnimationDuration * 2, "ms"));
         }
-        var targetWidth = this.getFullTargetWidth();
-        var targetLeft = this.getFullTargetLeft();
         this.expandFullStart();
-        this.$element.stop().animate({
-            width: targetWidth,
-            left: targetLeft,
-        }, this.options.panelAnimationDuration, function () {
+        var timeout = 0;
+        if (!isReducedAnimation) {
+            timeout =
+                ((_b = (_a = this.options.panelAnimationDuration) !== null && _a !== void 0 ? _a : settings.animationDuration) !== null && _b !== void 0 ? _b : 250) + 50;
+            // double it because it's the full expand
+            timeout = timeout * 2;
+        }
+        setTimeout(function () {
+            if (!_this.isExpanded) {
+                _this.toggled();
+            }
             _this.expandFullFinish();
-        });
+            if (oldAnimationDuration) {
+                document.documentElement.style.setProperty("--uv-animation-duration", "".concat(oldAnimationDuration));
+            }
+        }, timeout);
     };
     BaseExpandPanel.prototype.collapseFull = function () {
         var _this = this;
-        var targetWidth = this.getTargetWidth();
-        var targetLeft = this.getTargetLeft();
+        var _a, _b;
+        var settings = this.extension.getSettings();
+        var isReducedAnimation = settings.reducedAnimation;
+        var oldAnimationDuration = document.documentElement.style.getPropertyValue("--uv-animation-duration");
+        if (this.options.panelAnimationDuration) {
+            document.documentElement.style.setProperty("--uv-animation-duration", "".concat(this.options.panelAnimationDuration * 2, "ms"));
+        }
         this.collapseFullStart();
-        this.$element.stop().animate({
-            width: targetWidth,
-            left: targetLeft,
-        }, this.options.panelAnimationDuration, function () {
+        // run a timeout either way, zero just means instant(ish)
+        var timeout = 0;
+        // if we're not reducing animation then set the correct timeout
+        if (!isReducedAnimation) {
+            timeout =
+                ((_b = (_a = this.options.panelAnimationDuration) !== null && _a !== void 0 ? _a : settings.animationDuration) !== null && _b !== void 0 ? _b : 250) + 50;
+            // double duration for full size anims
+            timeout = timeout * 2;
+        }
+        setTimeout(function () {
             _this.collapseFullFinish();
-        });
+            if (oldAnimationDuration) {
+                document.documentElement.style.setProperty("--uv-animation-duration", "".concat(oldAnimationDuration));
+            }
+        }, timeout);
     };
     BaseExpandPanel.prototype.getTargetWidth = function () {
         return 0;
@@ -179,7 +202,10 @@ var BaseExpandPanel = /** @class */ (function (_super) {
     };
     BaseExpandPanel.prototype.toggleStart = function () { };
     BaseExpandPanel.prototype.toggleFinish = function () {
-        if (this.isExpanded && !this.autoToggled) {
+        if (this.autoToggled) {
+            return;
+        }
+        if (this.isExpanded) {
             this.focusCollapseButton();
         }
         else {
@@ -190,7 +216,6 @@ var BaseExpandPanel = /** @class */ (function (_super) {
     BaseExpandPanel.prototype.expandFullFinish = function () {
         this.isFullyExpanded = true;
         this.$expandFullButton.hide();
-        this.focusCollapseButton();
     };
     BaseExpandPanel.prototype.collapseFullStart = function () { };
     BaseExpandPanel.prototype.collapseFullFinish = function () {
@@ -220,7 +245,7 @@ var BaseExpandPanel = /** @class */ (function (_super) {
     };
     BaseExpandPanel.prototype.resize = function () {
         _super.prototype.resize.call(this);
-        this.$main.height(this.$element.parent().height() - this.$top.outerHeight(true));
+        this.$main.height(this.$element.height() - this.$top.outerHeight(true));
     };
     return BaseExpandPanel;
 }(BaseView_1.BaseView));

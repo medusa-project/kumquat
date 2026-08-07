@@ -1,7 +1,7 @@
 import { CenterPanel } from "../uv-shared-module/CenterPanel";
 import { IExternalResource } from "manifesto.js";
 import { Config } from "../../extensions/uv-av-extension/config/Config";
-export declare class AVCenterPanel extends CenterPanel<Config["modules"]["centerPanel"]> {
+export declare class AVCenterPanel extends CenterPanel<Config["modules"]["avCenterPanel"]> {
     $avcomponent: JQuery;
     avcomponent: any;
     private _lastCanvasIndex;

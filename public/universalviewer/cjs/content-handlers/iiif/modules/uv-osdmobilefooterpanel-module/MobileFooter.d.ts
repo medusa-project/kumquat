@@ -4,7 +4,10 @@ export declare class FooterPanel extends BaseFooterPanel<Config["modules"]["mobi
     $rotateButton: JQuery;
     $zoomInButton: JQuery;
     $zoomOutButton: JQuery;
+    $helpButton: JQuery;
+    $choiceSwitchButton: JQuery;
     constructor($element: JQuery);
     create(): void;
+    updateChoiceSwitchVisibility(): void;
     resize(): void;
 }

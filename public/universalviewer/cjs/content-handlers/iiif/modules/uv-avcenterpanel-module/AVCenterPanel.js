@@ -23,7 +23,7 @@ var Position_1 = require("../uv-shared-module/Position");
 var Utils_1 = require("../../../../Utils");
 var manifesto_js_1 = require("manifesto.js");
 var dist_esmodule_1 = require("@iiif/iiif-av-component/dist-esmodule");
-var utils_1 = require("@edsilv/utils");
+var Utils_2 = require("../../Utils");
 var Events_1 = require("../../../../Events");
 var AVCenterPanel = /** @class */ (function (_super) {
     __extends(AVCenterPanel, _super);
@@ -37,7 +37,7 @@ var AVCenterPanel = /** @class */ (function (_super) {
     }
     AVCenterPanel.prototype.create = function () {
         var _this = this;
-        this.setConfig("centerPanel");
+        this.setConfig("avCenterPanel");
         _super.prototype.create.call(this);
         var that = this;
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.OPEN_EXTERNAL_RESOURCE, function (resources) {
@@ -191,7 +191,7 @@ var AVCenterPanel = /** @class */ (function (_super) {
         if (value) {
             title = value;
         }
-        if (utils_1.Bools.getBool(this.config.options.includeParentInTitleEnabled, false)) {
+        if (Utils_2.Bools.getBool(this.config.options.includeParentInTitleEnabled, false)) {
             // get the parent range or manifest's title
             if (currentRange) {
                 if (currentRange.parentRange) {
@@ -274,13 +274,13 @@ var AVCenterPanel = /** @class */ (function (_super) {
         });
     };
     AVCenterPanel.prototype._limitToRange = function () {
-        if (utils_1.Bools.getBool(this.config.options.limitToRange, false)) {
+        if (Utils_2.Bools.getBool(this.config.options.limitToRange, false)) {
             return true;
         }
         return !this.extension.isDesktopMetric();
     };
     AVCenterPanel.prototype._autoAdvanceRanges = function () {
-        return utils_1.Bools.getBool(this.config.options.autoAdvanceRanges, true);
+        return Utils_2.Bools.getBool(this.config.options.autoAdvanceRanges, true);
     };
     AVCenterPanel.prototype._whenMediaReady = function (cb) {
         if (this._mediaReady) {

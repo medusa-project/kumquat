@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseContentStateParameter = void 0;
+exports.parseContentStateParameter = parseContentStateParameter;
 var content_state_1 = require("./content-state/content-state");
 function parseContentStateParameter(contentState) {
     if (!contentState) {
@@ -18,5 +18,4 @@ function parseContentStateParameter(contentState) {
         return null;
     }
 }
-exports.parseContentStateParameter = parseContentStateParameter;
 //# sourceMappingURL=helpers.js.map

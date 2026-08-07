@@ -30,7 +30,7 @@ var MoreInfoRightPanel_1 = require("../../modules/uv-moreinforightpanel-module/M
 var SettingsDialogue_1 = require("./SettingsDialogue");
 var ShareDialogue_1 = require("./ShareDialogue");
 var dist_commonjs_1 = require("@iiif/vocabulary/dist-commonjs/");
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../../Utils");
 require("./theme/theme.less");
 var config_json_1 = __importDefault(require("./config/config.json"));
 var Extension = /** @class */ (function (_super) {
@@ -38,9 +38,6 @@ var Extension = /** @class */ (function (_super) {
     function Extension() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.defaultConfig = config_json_1.default;
-        _this.locales = {
-            "en-GB": config_json_1.default,
-        };
         return _this;
     }
     Extension.prototype.create = function () {
@@ -120,16 +117,21 @@ var Extension = /** @class */ (function (_super) {
         }
     };
     Extension.prototype.isLeftPanelEnabled = function () {
-        return utils_1.Bools.getBool(this.data.config.options.leftPanelEnabled, true);
+        return Utils_1.Bools.getBool(this.data.config.options.leftPanelEnabled, true);
     };
     Extension.prototype.render = function () {
         _super.prototype.render.call(this);
     };
     Extension.prototype.getEmbedScript = function (template, width, height) {
-        var appUri = this.getAppUri();
-        var iframeSrc = "".concat(appUri, "#?manifest=").concat(this.helper.manifestUri, "&c=").concat(this.helper.collectionIndex, "&m=").concat(this.helper.manifestIndex, "&cv=").concat(this.helper.canvasIndex, "&rid=").concat(this.helper.rangeId);
-        var script = utils_1.Strings.format(template, iframeSrc, width.toString(), height.toString());
-        return script;
+        var _a, _b;
+        var hashParams = new URLSearchParams({
+            manifest: this.helper.manifestUri,
+            c: this.helper.collectionIndex.toString(),
+            m: this.helper.manifestIndex.toString(),
+            cv: this.helper.canvasIndex.toString(),
+            rid: (_b = (_a = this.helper.rangeId) === null || _a === void 0 ? void 0 : _a.toString()) !== null && _b !== void 0 ? _b : "",
+        });
+        return _super.prototype.buildEmbedScript.call(this, template, width, height, hashParams);
     };
     Extension.prototype.treeNodeSelected = function (node) {
         var data = node.data;

@@ -20,7 +20,7 @@ var $ = require("jquery");
 var DownloadDialogue_1 = require("../../modules/uv-dialogues-module/DownloadDialogue");
 var DownloadOption_1 = require("../../modules/uv-shared-module/DownloadOption");
 var IIIFEvents_1 = require("../../IIIFEvents");
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../../Utils");
 var DownloadDialogue = /** @class */ (function (_super) {
     __extends(DownloadDialogue, _super);
     function DownloadDialogue($element) {
@@ -84,7 +84,7 @@ var DownloadDialogue = /** @class */ (function (_super) {
             !this._isAdaptive()) {
             var $input = this.$entireFileAsOriginal.find("input");
             var $label = this.$entireFileAsOriginal.find("label");
-            var label = utils_1.Strings.format(this.content.entireFileAsOriginalWithFormat, this.getCurrentResourceFormat());
+            var label = Utils_1.Strings.format(this.content.entireFileAsOriginalWithFormat, this.getCurrentResourceFormat());
             $label.text(label);
             $input.prop("title", label);
             this.$entireFileAsOriginal.show();

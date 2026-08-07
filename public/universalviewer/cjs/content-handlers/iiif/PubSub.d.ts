@@ -1,5 +1,5 @@
-export declare type EventHandler = (args: any, extra?: any) => void;
-export declare type EventHandlerWithName = (event: string, args: any) => void;
+export type EventHandler = (args: any, extra?: any) => void;
+export type EventHandlerWithName = (event: string, args: any) => void;
 export declare class PubSub {
     events: {
         [key: string]: EventHandler[];

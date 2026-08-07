@@ -11,7 +11,7 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.expandTarget = void 0;
+exports.expandTarget = expandTarget;
 var parse_selector_1 = require("./parse-selector");
 function expandTarget(target, options) {
     if (options === void 0) { options = {}; }
@@ -108,5 +108,4 @@ function expandTarget(target, options) {
         selectors: [],
     };
 }
-exports.expandTarget = expandTarget;
 //# sourceMappingURL=expand-target.js.map

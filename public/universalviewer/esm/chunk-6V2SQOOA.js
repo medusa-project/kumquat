@@ -1,0 +1,1 @@
+var i=function(u,f,s,r){var e=u.closest("ion-nav");if(e){if(f==="forward"){if(s!==void 0)return e.push(s,r,{skipIfBusy:!0})}else if(f==="root"){if(s!==void 0)return e.setRoot(s,r,{skipIfBusy:!0})}else if(f==="back")return e.pop({skipIfBusy:!0})}return Promise.resolve(!1)};export{i as a};

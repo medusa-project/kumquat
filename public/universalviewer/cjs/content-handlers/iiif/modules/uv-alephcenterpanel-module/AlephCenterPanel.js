@@ -24,12 +24,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -57,7 +57,7 @@ var CenterPanel_1 = require("../uv-shared-module/CenterPanel");
 var DisplayMode_1 = require("./DisplayMode");
 var Events_1 = require("../../extensions/uv-aleph-extension/Events");
 var Position_1 = require("../uv-shared-module/Position");
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../../Utils");
 var loader_1 = require("@universalviewer/aleph/loader");
 require("@universalviewer/aleph/dist/collection/assets/OrbitControls");
 var Events_2 = require("../../../../Events");
@@ -78,7 +78,7 @@ var AlephCenterPanel = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        this.setConfig("centerPanel");
+                        this.setConfig("alephCenterPanel");
                         _super.prototype.create.call(this);
                         return [4 /*yield*/, (0, loader_1.applyPolyfills)()];
                     case 1:
@@ -162,7 +162,7 @@ var AlephCenterPanel = /** @class */ (function (_super) {
                         this.extensionHost.subscribe(Events_1.AlephExtensionEvents.VOLUME_CONTRAST_CHANGE, function (contrast) {
                             _this._alViewer.setVolumeContrast(contrast);
                         });
-                        utils_1.Async.waitFor(function () {
+                        Utils_1.Async.waitFor(function () {
                             return window.customElements !== undefined;
                         }, function () {
                             customElements.whenDefined("al-viewer").then(function () {
@@ -222,7 +222,7 @@ var AlephCenterPanel = /** @class */ (function (_super) {
         var _this = this;
         this._state = Object.assign({}, this._state, s);
         if (this._state.src && this._state.src !== this._prevState.src) {
-            utils_1.Async.waitFor(function () {
+            Utils_1.Async.waitFor(function () {
                 return _this._alViewerReady;
             }, function () {
                 _this._alViewer.load(_this._state.src);

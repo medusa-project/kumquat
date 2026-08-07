@@ -8,6 +8,6 @@ export declare class Panel {
     constructor($element: JQuery, fitToParentWidth?: boolean, fitToParentHeight?: boolean);
     create(): void;
     whenResized(cb: () => void): void;
-    onAccessibleClick(el: JQuery, callback: (e: JQueryEventObject) => void, withClick?: boolean): void;
+    onAccessibleClick(el: JQuery, callback: (e: JQueryEventObject) => void, withClick?: boolean, treatAsButton?: boolean): void;
     resize(): void;
 }

@@ -20,7 +20,7 @@ var $ = require("jquery");
 var IIIFEvents_1 = require("../../IIIFEvents");
 var Dialogue_1 = require("../uv-shared-module/Dialogue");
 var DownloadOption_1 = require("../uv-shared-module/DownloadOption");
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../../Utils");
 var manifesto_js_1 = require("manifesto.js");
 var DownloadDialogue = /** @class */ (function (_super) {
     __extends(DownloadDialogue, _super);
@@ -106,7 +106,7 @@ var DownloadDialogue = /** @class */ (function (_super) {
     DownloadDialogue.prototype.addEntireFileDownloadOption = function (uri, label, format) {
         var fileType;
         if (format) {
-            fileType = utils_1.Files.simplifyMimeType(format);
+            fileType = Utils_1.Files.simplifyMimeType(format);
         }
         else {
             fileType = this.getFileExtension(uri);
@@ -142,8 +142,8 @@ var DownloadDialogue = /** @class */ (function (_super) {
                 else {
                     label = defaultLabel;
                 }
-                var mime = utils_1.Files.simplifyMimeType(rendering.getFormat().toString());
-                label = utils_1.Strings.format(label, mime);
+                var mime = Utils_1.Files.simplifyMimeType(rendering.getFormat().toString());
+                label = Utils_1.Strings.format(label, mime);
                 this.renderingUrls[currentId] = rendering.id;
                 var $button = $('<li class="option dynamic"><input id="' +
                     currentId +
@@ -191,7 +191,7 @@ var DownloadDialogue = /** @class */ (function (_super) {
     };
     DownloadDialogue.prototype.updateTermsOfUseButton = function () {
         var requiredStatement = this.extension.helper.getRequiredStatement();
-        if (utils_1.Bools.getBool(this.extension.data.config.options.termsOfUseEnabled, false) &&
+        if (Utils_1.Bools.getBool(this.extension.data.config.options.termsOfUseEnabled, false) &&
             requiredStatement &&
             requiredStatement.value) {
             this.$termsOfUseButton.show();

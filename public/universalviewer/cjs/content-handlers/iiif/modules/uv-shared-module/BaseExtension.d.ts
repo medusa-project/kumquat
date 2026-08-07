@@ -10,7 +10,7 @@ import { RestrictedDialogue } from "../uv-dialogues-module/RestrictedDialogue";
 import { Shell } from "./Shell";
 import { AnnotationGroup, Helper } from "@iiif/manifold";
 import { AnnotationBody, Canvas, Collection, IExternalResource, IExternalResourceData, Manifest, Range } from "manifesto.js";
-import { StoreApi } from "zustand/vanilla";
+import type { StoreApi } from "zustand/vanilla";
 import { ExtensionState } from "./ExtensionState";
 import { BaseConfig, Metric, MetricType } from "../../BaseConfig";
 export declare class BaseExtension<T extends BaseConfig> implements IExtension {
@@ -39,11 +39,12 @@ export declare class BaseExtension<T extends BaseConfig> implements IExtension {
     restrictedDialogue: RestrictedDialogue;
     shell: Shell;
     shifted: boolean;
-    store: StoreApi<ExtensionState>;
+    store: StoreApi<ExtensionState | null>;
     tabbing: boolean;
     browserDetect: BrowserDetect;
     locales: {};
     defaultConfig: T;
+    localeLoaders: Record<string, () => Promise<any>>;
     create(): void;
     loadConfig(locale: string, extension: string): Promise<any>;
     private translateLocale;
@@ -61,15 +62,15 @@ export declare class BaseExtension<T extends BaseConfig> implements IExtension {
     private _updateMetric;
     resize(): void;
     reload(data?: IUVData<T>): void;
-    isSeeAlsoEnabled(): boolean;
     getShareUrl(): string | null;
     getIIIFShareUrl(shareManifests?: boolean): string;
     getDomain(): string;
-    getAppUri(): string;
     getSettings(): ISettings;
     updateSettings(settings: ISettings): void;
     getLocale(): string;
     getSharePreview(): ISharePreview;
+    getAppUri(): string;
+    buildEmbedScript(template: string, width: number, height: number, hashParams: URLSearchParams): string;
     getPagedIndices(canvasIndex?: number): number[];
     getCurrentCanvases(): Canvas[];
     getCanvasLabels(label: string): string;
@@ -83,6 +84,7 @@ export declare class BaseExtension<T extends BaseConfig> implements IExtension {
     isOverlayActive(): boolean;
     isDesktopMetric(): boolean;
     isMobileMetric(): boolean;
+    isMetric(metric: string | string[]): boolean;
     viewManifest(manifest: Manifest): void;
     viewCollection(collection: Collection): void;
     isFullScreen(): boolean;

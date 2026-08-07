@@ -26,10 +26,12 @@ export declare class ContentLeftPanel extends LeftPanel<ContentLeftPanelConfig> 
     $treeViewOptions: JQuery;
     $treeSelect: JQuery;
     $views: JQuery;
+    $keyElement: JQuery;
     expandFullEnabled: boolean;
     galleryView: GalleryView;
     isThumbsViewOpen: boolean;
     isTreeViewOpen: boolean;
+    keyPress: boolean;
     treeData: TreeNode;
     treeSortType: TreeSortType;
     treeView: TreeView;

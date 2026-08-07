@@ -1,0 +1,1 @@
+var e=function(){var n=window.TapticEngine;n&&n.selection()},i=function(){var n=window.TapticEngine;n&&n.gestureSelectionStart()},t=function(){var n=window.TapticEngine;n&&n.gestureSelectionChanged()},a=function(){var n=window.TapticEngine;n&&n.gestureSelectionEnd()};export{e as a,i as b,t as c,a as d};
