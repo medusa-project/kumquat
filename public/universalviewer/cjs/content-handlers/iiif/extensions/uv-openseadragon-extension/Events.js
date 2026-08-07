@@ -6,6 +6,7 @@ var OpenSeadragonExtensionEvents = /** @class */ (function () {
     }
     OpenSeadragonExtensionEvents.namespace = "openseadragonExtension.";
     OpenSeadragonExtensionEvents.CURRENT_VIEW_URI = OpenSeadragonExtensionEvents.namespace + "currentViewUri";
+    OpenSeadragonExtensionEvents.CHOICE_CHANGE = OpenSeadragonExtensionEvents.namespace + "choiceChange";
     OpenSeadragonExtensionEvents.DOUBLECLICK = OpenSeadragonExtensionEvents.namespace + "doubleClick";
     OpenSeadragonExtensionEvents.IMAGE_SEARCH = OpenSeadragonExtensionEvents.namespace + "imageSearch";
     OpenSeadragonExtensionEvents.MODE_CHANGE = OpenSeadragonExtensionEvents.namespace + "modeChange";

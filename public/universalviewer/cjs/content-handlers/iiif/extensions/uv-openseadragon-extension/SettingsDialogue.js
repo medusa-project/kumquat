@@ -14,10 +14,14 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SettingsDialogue = void 0;
 var $ = require("jquery");
 var SettingsDialogue_1 = require("../../modules/uv-dialogues-module/SettingsDialogue");
+var config_json_1 = __importDefault(require("./config/config.json"));
 var SettingsDialogue = /** @class */ (function (_super) {
     __extends(SettingsDialogue, _super);
     function SettingsDialogue($element) {
@@ -42,6 +46,23 @@ var SettingsDialogue = /** @class */ (function (_super) {
         this.$pagingEnabled.append(this.$pagingEnabledCheckbox);
         this.$pagingEnabledLabel = $('<label for="pagingEnabled">' + this.content.pagingEnabled + "</label>");
         this.$pagingEnabled.append(this.$pagingEnabledLabel);
+        if (config_json_1.default.options.truncateThumbnailLabels) {
+            this.$truncateThumbnailLabels = $('<div class="setting truncateThumbnailLabels"></div>');
+            this.$scroll.append(this.$truncateThumbnailLabels);
+            this.$truncateThumbnailLabelsCheckbox = $('<input id="truncateThumbnailLabels" type="checkbox" tabindex="0" />');
+            this.$truncateThumbnailLabels.append(this.$truncateThumbnailLabelsCheckbox);
+            this.$truncateThumbnailLabelsLabel = $('<label for="truncateThumbnailLabels">' +
+                this.content.truncateThumbnailLabels +
+                "</label>");
+            this.$truncateThumbnailLabels.append(this.$truncateThumbnailLabelsLabel);
+            this.$truncateThumbnailLabelsCheckbox.prop("checked", config_json_1.default.options.truncateThumbnailLabels);
+            this.$truncateThumbnailLabelsCheckbox.change(function () {
+                var settings = {};
+                settings.truncateThumbnailLabels =
+                    _this.$truncateThumbnailLabelsCheckbox.is(":checked");
+                _this.updateSettings(settings);
+            });
+        }
         this.$clickToZoomEnabled = $('<div class="setting clickToZoom"></div>');
         this.$scroll.append(this.$clickToZoomEnabled);
         this.$clickToZoomEnabledCheckbox = $('<input id="clickToZoomEnabled" type="checkbox" />');
@@ -130,6 +151,14 @@ var SettingsDialogue = /** @class */ (function (_super) {
         }
         else {
             this.$preserveViewportCheckbox.removeAttr("checked");
+        }
+        if (this.$truncateThumbnailLabelsCheckbox) {
+            if (settings.truncateThumbnailLabels) {
+                this.$truncateThumbnailLabelsCheckbox.prop("checked", true);
+            }
+            else {
+                this.$truncateThumbnailLabelsCheckbox.prop("checked", false);
+            }
         }
     };
     return SettingsDialogue;

@@ -1,1 +1,2 @@
-export declare const init: (el: string | HTMLDivElement, data: any) => any;
+import { UniversalViewer } from "./UniversalViewer";
+export declare const init: (el: string | HTMLDivElement, data: any) => UniversalViewer;

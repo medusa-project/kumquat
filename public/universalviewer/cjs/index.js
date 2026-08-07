@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.init = exports.YouTubeEvents = exports.IIIFEvents = exports.Events = exports.Viewer = exports.IIIFURLAdapter = exports.IIIFURLAdaptor = void 0;
+exports.init = exports.YouTubeEvents = exports.IIIFEvents = exports.Events = exports.Viewer = exports.IIIFURLAdaptor = exports.IIIFURLAdapter = exports.ContentType = void 0;
 require("./shim-jquery");
+var ContentType_1 = require("./ContentType");
+Object.defineProperty(exports, "ContentType", { enumerable: true, get: function () { return ContentType_1.ContentType; } });
 var URLAdapter_1 = require("./content-handlers/iiif/URLAdapter");
+Object.defineProperty(exports, "IIIFURLAdapter", { enumerable: true, get: function () { return URLAdapter_1.URLAdapter; } });
 Object.defineProperty(exports, "IIIFURLAdaptor", { enumerable: true, get: function () { return URLAdapter_1.URLAdapter; } });
-var URLAdapter_2 = require("./content-handlers/iiif/URLAdapter");
-Object.defineProperty(exports, "IIIFURLAdapter", { enumerable: true, get: function () { return URLAdapter_2.URLAdapter; } });
 var UniversalViewer_1 = require("./UniversalViewer");
 Object.defineProperty(exports, "Viewer", { enumerable: true, get: function () { return UniversalViewer_1.UniversalViewer; } });
 var Events_1 = require("./Events");

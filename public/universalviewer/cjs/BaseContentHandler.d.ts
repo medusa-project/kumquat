@@ -1,7 +1,7 @@
 import { IContentHandler } from "./IContentHandler";
 import { IUVOptions } from "./UniversalViewer";
 import { UVAdapter } from "./UVAdapter";
-export declare type EventListener = {
+export type EventListener = {
     name: string;
     cb: Function;
     ctx?: any;

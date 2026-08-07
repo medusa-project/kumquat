@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = jqueryPlugins;
+var Utils_1 = require("../iiif/Utils");
 function jqueryPlugins($) {
     $.fn.checkboxButton = function (onClick) {
         return this.each(function () {
@@ -153,9 +155,7 @@ function jqueryPlugins($) {
         var $self = $(this);
         var maxTabIndex = 0;
         var $elementWithGreatestTabIndex = null;
-        $self
-            .find("*:visible[tabindex]")
-            .each(function (index, el) {
+        $self.find("*:visible[tabindex]").each(function (index, el) {
             var $el = $(el);
             var tabIndex = parseInt($el.attr("tabindex"));
             if (tabIndex > maxTabIndex) {
@@ -202,9 +202,7 @@ function jqueryPlugins($) {
         var result = false;
         this.eq(0).each(function () {
             var $current = $(this).is("iframe")
-                ? $(this)
-                    .contents()
-                    .find("body")
+                ? $(this).contents().find("body")
                 : $(this);
             var offset = $current.offset();
             result =
@@ -269,10 +267,7 @@ function jqueryPlugins($) {
             if ($self.contents().length > 0) {
                 var $lastElement = $self.contents().last();
                 if ($lastElement[0].nodeType === 3) {
-                    var words = $lastElement
-                        .text()
-                        .trim()
-                        .split(" ");
+                    var words = $lastElement.text().trim().split(" ");
                     if (words.length > 1) {
                         words.splice(words.length - 1, 1);
                         $lastElement[0].data = words.join(" "); // textnode.data
@@ -295,16 +290,12 @@ function jqueryPlugins($) {
     };
     $.fn.switchClass = function (class1, class2) {
         return this.each(function () {
-            $(this)
-                .removeClass(class1)
-                .addClass(class2);
+            $(this).removeClass(class1).addClass(class2);
         });
     };
     $.fn.targetBlank = function () {
         return this.each(function () {
-            $(this)
-                .find("a")
-                .prop("target", "_blank");
+            $(this).find("a").prop("target", "_blank");
         });
     };
     $.fn.toggleExpandText = function (chars, lessText, moreText, cb) {
@@ -342,56 +333,65 @@ function jqueryPlugins($) {
         });
     };
     // Toggle expansion by number of lines
-    $.fn.toggleExpandTextByLines = function (lines, lessText, moreText, cb) {
+    $.fn.toggleExpandTextByLines = function (lines, lessText, moreText, cb, lessAriaLabelTemplate, moreAriaLabelTemplate) {
+        if (lessAriaLabelTemplate === void 0) { lessAriaLabelTemplate = "Less information: Hide {0}"; }
+        if (moreAriaLabelTemplate === void 0) { moreAriaLabelTemplate = "More information: Reveal {0}"; }
         return this.each(function () {
             var $self = $(this);
-            var expandedText = $self.html();
+            var $label = $self.find(".label");
+            var $value = $self.find(".value");
+            var expandedText = $value.html();
+            var labelText = $label.html();
             // add 'pad' to account for the right margin in the sidebar
             var $buttonPad = $('<span>&hellip; <a href="#" class="toggle more">morepad</a></span>');
             // when height changes, store string, then pick from line counts
             var stringsByLine = [expandedText];
             var lastHeight = $self.height();
             // Until empty
-            while ($self.text().length > 0) {
-                $self.removeLastWord();
-                var html = $self.html();
-                $self.append($buttonPad);
-                if (lastHeight > $self.height()) {
+            while ($value.text().length > 0) {
+                $value.removeLastWord();
+                var html = $value.html();
+                $value.append($buttonPad);
+                if (lastHeight > $value.height()) {
                     stringsByLine.unshift(html);
-                    lastHeight = $self.height();
+                    lastHeight = $value.height();
                 }
                 $buttonPad.remove();
             }
             if (stringsByLine.length <= lines) {
-                $self.html(expandedText);
+                $value.html(expandedText);
                 return;
             }
             var collapsedText = stringsByLine[lines - 1];
             // Toggle function
             var expanded = false;
-            $self.toggle = function () {
-                $self.empty();
+            $value.toggle = function () {
+                $value.empty();
                 var $toggleButton = $('<a href="#" class="toggle"></a>');
                 if (expanded) {
-                    $self.html(expandedText + " ");
+                    var lessAriaLabel = Utils_1.Strings.format(lessAriaLabelTemplate, labelText);
+                    $value.html(expandedText + " ");
                     $toggleButton.text(lessText);
                     $toggleButton.switchClass("less", "more");
+                    $toggleButton.attr("aria-label", lessAriaLabel);
                 }
                 else {
-                    $self.html(collapsedText + "&hellip; ");
+                    var moreAriaLabel = Utils_1.Strings.format(moreAriaLabelTemplate, labelText);
+                    $value.html(collapsedText + "&hellip; ");
                     $toggleButton.text(moreText);
                     $toggleButton.switchClass("more", "less");
+                    $toggleButton.attr("aria-label", moreAriaLabel);
                 }
                 $toggleButton.one("click", function (e) {
                     e.preventDefault();
-                    $self.toggle();
+                    $value.toggle();
                 });
                 expanded = !expanded;
-                $self.append($toggleButton);
+                $value.append($toggleButton);
                 if (cb)
                     cb();
             };
-            $self.toggle();
+            $value.toggle();
         });
     };
     $.fn.toggleText = function (text1, text2) {
@@ -424,5 +424,4 @@ function jqueryPlugins($) {
         return (parseInt($self.css("paddingTop")) + parseInt($self.css("paddingBottom")));
     };
 }
-exports.default = jqueryPlugins;
 //# sourceMappingURL=JQueryPlugins.js.map

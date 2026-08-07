@@ -15,19 +15,29 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AutoComplete = void 0;
 var $ = require("jquery");
-var KeyCodes = __importStar(require("@edsilv/key-codes"));
-var utils_1 = require("@edsilv/utils");
-var Utils_1 = require("../../../../Utils");
+var KeyCodes = __importStar(require("../../KeyCodes"));
+var Utils_1 = require("../../Utils");
+var Utils_2 = require("../../../../Utils");
 var AutoComplete = /** @class */ (function () {
     function AutoComplete(element, autoCompleteFunc, parseResultsFunc, onSelect, delay, minChars, positionAbove, allowWords) {
         if (delay === void 0) { delay = 300; }
@@ -65,7 +75,7 @@ var AutoComplete = /** @class */ (function () {
         this._$element.on("keydown", function (e) {
             var originalEvent = e.originalEvent;
             //that._lastKeyDownWasNavigation = that._isNavigationKeyDown(originalEvent);
-            var charCode = utils_1.Keyboard.getCharCode(originalEvent);
+            var charCode = Utils_1.Keyboard.getCharCode(originalEvent);
             var cancelEvent = false;
             if (charCode === KeyCodes.KeyDown.LeftArrow) {
                 cancelEvent = true;
@@ -96,7 +106,7 @@ var AutoComplete = /** @class */ (function () {
                 return;
             }
             // If there are search results
-            if ((0, Utils_1.isVisible)(that._$searchResultsList) && that._results.length) {
+            if ((0, Utils_2.isVisible)(that._$searchResultsList) && that._results.length) {
                 if (e.keyCode === KeyCodes.KeyDown.Enter) {
                     that._searchForItem(that._getSelectedListItem());
                 }

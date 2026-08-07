@@ -1,0 +1,1 @@
+import{g as e}from"./chunk-3EE5OYDH.js";var o=class extends e{constructor(t){super(t)}create(){this.setConfig("mobileFooterPanel"),super.create()}resize(){super.resize(),this.$options.css("left",Math.floor(this.$element.width()/2-this.$options.width()/2))}};export{o as a};

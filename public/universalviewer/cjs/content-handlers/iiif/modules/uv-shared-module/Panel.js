@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Panel = void 0;
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../../Utils");
 var Events_1 = require("../../../../Events");
 var Panel = /** @class */ (function () {
     function Panel($element, fitToParentWidth, fitToParentHeight) {
@@ -20,19 +20,26 @@ var Panel = /** @class */ (function () {
     };
     Panel.prototype.whenResized = function (cb) {
         var _this = this;
-        utils_1.Async.waitFor(function () {
+        Utils_1.Async.waitFor(function () {
             return _this.isResized;
         }, cb);
     };
-    Panel.prototype.onAccessibleClick = function (el, callback, withClick) {
+    Panel.prototype.onAccessibleClick = function (el, callback, withClick, treatAsButton) {
         if (withClick === void 0) { withClick = true; }
+        if (treatAsButton === void 0) { treatAsButton = false; }
         if (withClick) {
             el.on("click", function (e) {
                 callback(e);
             });
         }
-        el.on("keyup", function (e) {
-            if (e.keyCode === 32) {
+        el.on("keydown", function (e) {
+            // by passing treatAsButton  as true this will become false
+            // and so an anchor won't be excluded from Space presses
+            var isAnchor = e.target.nodeName === "A" && !treatAsButton;
+            // 13 = Enter, 32 = Space
+            if ((e.which === 32 && !isAnchor) || e.which === 13) {
+                // stops space scrolling the page
+                e.preventDefault();
                 callback(e);
             }
         });

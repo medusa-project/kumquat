@@ -1,6 +1,6 @@
 import { ModuleConfig } from "../../BaseConfig";
 import { ExpandPanelContent, ExpandPanelOptions } from "./ExpandPanel";
-declare type ResourcesLeftPanelOptions = ExpandPanelOptions & {
+type ResourcesLeftPanelOptions = ExpandPanelOptions & {
     /** Determines if full expansion is enabled */
     expandFullEnabled: boolean;
     /** Duration of the panel animation */
@@ -20,10 +20,10 @@ declare type ResourcesLeftPanelOptions = ExpandPanelOptions & {
     /** Height of the thumbnail in one column view */
     oneColThumbHeight: number;
 };
-declare type ResourcesLeftPanelContent = ExpandPanelContent & {
+type ResourcesLeftPanelContent = ExpandPanelContent & {
     title: string;
 };
-export declare type ResourcesLeftPanel = ModuleConfig & {
+export type ResourcesLeftPanel = ModuleConfig & {
     options: ResourcesLeftPanelOptions;
     content: ResourcesLeftPanelContent;
 };

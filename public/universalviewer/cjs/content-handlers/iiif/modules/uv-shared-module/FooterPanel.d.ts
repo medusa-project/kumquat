@@ -10,6 +10,10 @@ export declare class FooterPanel<T extends BaseConfig["modules"]["footerPanel"]>
     $openButton: JQuery;
     $fullScreenBtn: JQuery;
     $options: JQuery;
+    $toggleLeftPanelButton: JQuery;
+    $mainOptions: JQuery;
+    $leftOptions: JQuery;
+    $rightOptions: JQuery;
     constructor($element: JQuery);
     create(): void;
     updateMinimisedButtons(): void;

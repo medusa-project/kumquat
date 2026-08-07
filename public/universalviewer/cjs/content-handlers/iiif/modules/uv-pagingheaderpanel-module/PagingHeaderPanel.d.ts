@@ -1,6 +1,6 @@
 import { HeaderPanel } from "../uv-shared-module/HeaderPanel";
 import { Config } from "../../extensions/uv-openseadragon-extension/config/Config";
-export declare class PagingHeaderPanel extends HeaderPanel<Config["modules"]["headerPanel"]> {
+export declare class PagingHeaderPanel extends HeaderPanel<Config["modules"]["pagingHeaderPanel"]> {
     $autoCompleteBox: JQuery;
     $firstButton: JQuery;
     $galleryButton: JQuery;

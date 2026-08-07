@@ -24,12 +24,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -65,7 +65,7 @@ var MoreInfoRightPanel_1 = require("../../modules/uv-moreinforightpanel-module/M
 var SettingsDialogue_1 = require("./SettingsDialogue");
 var ShareDialogue_1 = require("./ShareDialogue");
 var AlephLeftPanel_1 = require("../../modules/uv-alephleftpanel-module/AlephLeftPanel");
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../../Utils");
 require("./theme/theme.less");
 var config_json_1 = __importDefault(require("./config/config.json"));
 var Extension = /** @class */ (function (_super) {
@@ -73,9 +73,6 @@ var Extension = /** @class */ (function (_super) {
     function Extension() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.defaultConfig = config_json_1.default;
-        _this.locales = {
-            "en-GB": config_json_1.default,
-        };
         return _this;
     }
     Extension.prototype.create = function () {
@@ -144,13 +141,13 @@ var Extension = /** @class */ (function (_super) {
         _super.prototype.render.call(this);
     };
     Extension.prototype.isLeftPanelEnabled = function () {
-        return utils_1.Bools.getBool(this.data.config.options.leftPanelEnabled, true);
+        return Utils_1.Bools.getBool(this.data.config.options.leftPanelEnabled, true);
     };
     Extension.prototype.getEmbedScript = function (template, width, height) {
-        var appUri = this.getAppUri();
-        var iframeSrc = "".concat(appUri, "#?manifest=").concat(this.helper.manifestUri);
-        var script = utils_1.Strings.format(template, iframeSrc, width.toString(), height.toString());
-        return script;
+        var hashParams = new URLSearchParams({
+            manifest: this.helper.manifestUri,
+        });
+        return _super.prototype.buildEmbedScript.call(this, template, width, height, hashParams);
     };
     return Extension;
 }(BaseExtension_1.BaseExtension));

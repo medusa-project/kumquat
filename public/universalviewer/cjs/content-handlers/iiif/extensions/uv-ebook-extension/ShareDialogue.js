@@ -28,8 +28,8 @@ var ShareDialogue = /** @class */ (function (_super) {
     };
     ShareDialogue.prototype.update = function () {
         _super.prototype.update.call(this);
-        this.code = this.extension.getEmbedScript(this.options.embedTemplate, this.currentWidth, this.currentHeight);
-        this.$code.val(this.code);
+        this.embedCode = this.extension.getEmbedScript(this.options.embedTemplate, this.currentWidth, this.currentHeight);
+        this.$embedCode.val(this.embedCode);
     };
     ShareDialogue.prototype.resize = function () {
         _super.prototype.resize.call(this);

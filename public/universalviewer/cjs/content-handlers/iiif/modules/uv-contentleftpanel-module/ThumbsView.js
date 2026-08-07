@@ -15,29 +15,45 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var react_1 = __importStar(require("react"));
 var vocabulary_1 = require("@iiif/vocabulary");
-var react_intersection_observer_1 = require("react-intersection-observer");
 var classnames_1 = __importDefault(require("classnames"));
+var react_1 = __importStar(require("react"));
+var react_intersection_observer_1 = require("react-intersection-observer");
 var ThumbImage = function (_a) {
-    var first = _a.first, onClick = _a.onClick, paged = _a.paged, selected = _a.selected, thumb = _a.thumb, viewingDirection = _a.viewingDirection;
+    var first = _a.first, onClick = _a.onClick, onKeyDown = _a.onKeyDown, paged = _a.paged, selected = _a.selected, thumb = _a.thumb, truncateThumbnailLabels = _a.truncateThumbnailLabels, viewingDirection = _a.viewingDirection;
     var _b = (0, react_intersection_observer_1.useInView)({
         threshold: 0,
         rootMargin: "0px 0px 0px 0px",
         triggerOnce: true,
     }), ref = _b[0], inView = _b[1];
-    return (react_1.default.createElement("div", { onClick: function () { return onClick(thumb); }, className: (0, classnames_1.default)("thumb", {
+    var keydownHandler = function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onKeyDown(thumb);
+        }
+    };
+    return (react_1.default.createElement("div", { onClick: function () { return onClick(thumb); }, onKeyDown: keydownHandler, className: (0, classnames_1.default)("thumb", {
             first: first,
             placeholder: !thumb.uri,
             twoCol: paged &&
@@ -45,18 +61,17 @@ var ThumbImage = function (_a) {
                     viewingDirection === vocabulary_1.ViewingDirection.RIGHT_TO_LEFT),
             oneCol: !paged,
             selected: selected,
-        }), tabIndex: 0 },
+            "truncate-labels": truncateThumbnailLabels,
+        }), tabIndex: 0, role: "option", "aria-selected": selected, "aria-label": thumb.label },
         react_1.default.createElement("div", { ref: ref, className: "wrap", style: {
                 height: thumb.height + 8 + "px",
             } }, inView && react_1.default.createElement("img", { src: thumb.uri, alt: thumb.label })),
         react_1.default.createElement("div", { className: "info" },
-            react_1.default.createElement("span", { className: "label", title: thumb.label },
-                thumb.label,
-                "\u00A0"),
+            react_1.default.createElement("span", { className: "label", title: thumb.label }, thumb.label),
             thumb.data.searchResults && (react_1.default.createElement("span", { className: "searchResults" }, thumb.data.searchResults)))));
 };
 var Thumbnails = function (_a) {
-    var onClick = _a.onClick, paged = _a.paged, selected = _a.selected, thumbs = _a.thumbs, viewingDirection = _a.viewingDirection;
+    var onClick = _a.onClick, onKeyDown = _a.onKeyDown, paged = _a.paged, selected = _a.selected, thumbs = _a.thumbs, thumbnailsLabel = _a.thumbnailsLabel, viewingDirection = _a.viewingDirection, truncateThumbnailLabels = _a.truncateThumbnailLabels;
     var ref = (0, react_1.useRef)(null);
     (0, react_1.useEffect)(function () {
         var _a, _b;
@@ -65,7 +80,7 @@ var Thumbnails = function (_a) {
         (_b = ref.current) === null || _b === void 0 ? void 0 : _b.parentElement.scrollTo({
             top: y,
             left: 0,
-            behavior: 'smooth'
+            behavior: "smooth",
         });
     }, [selected]);
     function showSeparator(paged, viewingHint, index) {
@@ -85,8 +100,9 @@ var Thumbnails = function (_a) {
             "left-to-right": viewingDirection === vocabulary_1.ViewingDirection.LEFT_TO_RIGHT,
             "right-to-left": viewingDirection === vocabulary_1.ViewingDirection.RIGHT_TO_LEFT,
             paged: paged,
-        }) }, thumbs.map(function (thumb, index) { return (react_1.default.createElement("span", { key: "thumb-".concat(index), id: "thumb-".concat(index) },
-        react_1.default.createElement(ThumbImage, { first: index === firstNonPagedIndex, onClick: onClick, paged: paged, selected: selected.includes(index), thumb: thumb, viewingDirection: viewingDirection }),
+            "truncate-labels": truncateThumbnailLabels,
+        }), role: "listbox", "aria-label": thumbnailsLabel }, thumbs.map(function (thumb, index) { return (react_1.default.createElement("span", { key: "thumb-".concat(index), id: "thumb-".concat(index), className: "thumb-container" },
+        react_1.default.createElement(ThumbImage, { first: index === firstNonPagedIndex, onClick: onClick, onKeyDown: onKeyDown, paged: paged, selected: selected.includes(index), thumb: thumb, truncateThumbnailLabels: truncateThumbnailLabels, viewingDirection: viewingDirection }),
         showSeparator(paged, thumb.viewingHint, index) && (react_1.default.createElement("div", { className: "separator" })))); })));
 };
 exports.default = Thumbnails;

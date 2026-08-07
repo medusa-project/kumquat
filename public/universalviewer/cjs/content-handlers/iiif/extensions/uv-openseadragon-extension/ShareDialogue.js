@@ -38,8 +38,8 @@ var ShareDialogue = /** @class */ (function (_super) {
         _super.prototype.update.call(this);
         var xywh = (this.extension.getViewportBounds());
         var rotation = (this.extension.getViewerRotation());
-        this.code = this.extension.getEmbedScript(this.options.embedTemplate, this.currentWidth, this.currentHeight, xywh, rotation);
-        this.$code.val(this.code);
+        this.embedCode = this.extension.getEmbedScript(this.options.embedTemplate, this.currentWidth, this.currentHeight, xywh, rotation);
+        this.$embedCode.val(this.embedCode);
     };
     ShareDialogue.prototype.resize = function () {
         _super.prototype.resize.call(this);

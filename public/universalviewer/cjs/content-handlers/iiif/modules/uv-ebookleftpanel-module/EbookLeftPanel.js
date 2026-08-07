@@ -24,12 +24,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -56,7 +56,7 @@ var $ = require("jquery");
 var IIIFEvents_1 = require("../../IIIFEvents");
 var LeftPanel_1 = require("../uv-shared-module/LeftPanel");
 var Events_1 = require("../../extensions/uv-ebook-extension/Events");
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../../Utils");
 var loader_1 = require("@universalviewer/uv-ebook-components/loader");
 var EbookLeftPanel = /** @class */ (function (_super) {
     __extends(EbookLeftPanel, _super);
@@ -69,7 +69,7 @@ var EbookLeftPanel = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        this.setConfig("leftPanel");
+                        this.setConfig("ebookLeftPanel");
                         _super.prototype.create.call(this);
                         this._$container = $('<div class="container"></div>');
                         return [4 /*yield*/, (0, loader_1.applyPolyfills)()];
@@ -92,8 +92,12 @@ var EbookLeftPanel = /** @class */ (function (_super) {
                         });
                         this._ebookTOC.addEventListener("itemClicked", function (e) {
                             _this.extensionHost.publish(Events_1.EbookExtensionEvents.ITEM_CLICKED, e.detail);
-                        }, false);
-                        utils_1.Async.waitFor(function () {
+                            if (_this.extension.isMetric("sm")) {
+                                _this.toggle(true);
+                            }
+                            false;
+                        });
+                        Utils_1.Async.waitFor(function () {
                             return window.customElements !== undefined;
                         }, function () {
                             customElements.whenDefined("uv-ebook-toc").then(function () {

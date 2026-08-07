@@ -26,11 +26,12 @@ var FooterPanel_1 = require("../../modules/uv-shared-module/FooterPanel");
 var MoreInfoRightPanel_1 = require("../../modules/uv-moreinforightpanel-module/MoreInfoRightPanel");
 var PDFCenterPanel_1 = require("../../modules/uv-pdfcenterpanel-module/PDFCenterPanel");
 var PDFHeaderPanel_1 = require("../../modules/uv-pdfheaderpanel-module/PDFHeaderPanel");
+var MobileFooter_1 = require("../../modules/uv-pdfmobilefooterpanel-module/MobileFooter");
 var ResourcesLeftPanel_1 = require("../../modules/uv-resourcesleftpanel-module/ResourcesLeftPanel");
 var SettingsDialogue_1 = require("./SettingsDialogue");
 var ShareDialogue_1 = require("./ShareDialogue");
 var dist_commonjs_1 = require("@iiif/vocabulary/dist-commonjs/");
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../../Utils");
 var manifesto_js_1 = require("manifesto.js");
 require("./theme/theme.less");
 var config_json_1 = __importDefault(require("./config/config.json"));
@@ -40,9 +41,6 @@ var Extension = /** @class */ (function (_super) {
     function Extension() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.defaultConfig = config_json_1.default;
-        _this.locales = {
-            "en-GB": config_json_1.default,
-        };
         return _this;
     }
     Extension.prototype.create = function () {
@@ -74,7 +72,7 @@ var Extension = /** @class */ (function (_super) {
     };
     Extension.prototype.isHeaderPanelEnabled = function () {
         return (_super.prototype.isHeaderPanelEnabled.call(this) &&
-            utils_1.Bools.getBool(this.data.config.modules.centerPanel.options.usePdfJs, true));
+            Utils_1.Bools.getBool(this.data.config.modules.pdfCenterPanel.options.usePdfJs, true));
     };
     Extension.prototype.createModules = function () {
         _super.prototype.createModules.call(this);
@@ -93,6 +91,7 @@ var Extension = /** @class */ (function (_super) {
         }
         if (this.isFooterPanelEnabled()) {
             this.footerPanel = new FooterPanel_1.FooterPanel(this.shell.$footerPanel);
+            this.mobileFooterPanel = new MobileFooter_1.FooterPanel(this.shell.$mobileFooterPanel);
         }
         else {
             this.shell.$footerPanel.hide();
@@ -131,10 +130,16 @@ var Extension = /** @class */ (function (_super) {
         }
     };
     Extension.prototype.getEmbedScript = function (template, width, height) {
-        var appUri = this.getAppUri();
-        var iframeSrc = "".concat(appUri, "#?manifest=").concat(this.helper.manifestUri, "&c=").concat(this.helper.collectionIndex, "&m=").concat(this.helper.manifestIndex, "&cv=").concat(this.helper.canvasIndex);
-        var script = utils_1.Strings.format(template, iframeSrc, width.toString(), height.toString());
-        return script;
+        var hashParams = new URLSearchParams({
+            manifest: this.helper.manifestUri,
+            c: this.helper.collectionIndex.toString(),
+            m: this.helper.manifestIndex.toString(),
+            cv: this.helper.canvasIndex.toString(),
+        });
+        return _super.prototype.buildEmbedScript.call(this, template, width, height, hashParams);
+    };
+    Extension.prototype.isPdfJsEnabled = function () {
+        return Utils_1.Bools.getBool(this.data.config.modules.pdfCenterPanel.options.usePdfJs, true);
     };
     return Extension;
 }(BaseExtension_1.BaseExtension));

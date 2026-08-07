@@ -1,7 +1,7 @@
 import { CenterPanel } from "../uv-shared-module/CenterPanel";
 import { IExternalResource } from "manifesto.js";
 import { Config } from "../../extensions/uv-pdf-extension/config/Config";
-export declare class PDFCenterPanel extends CenterPanel<Config["modules"]["centerPanel"]> {
+export declare class PDFCenterPanel extends CenterPanel<Config["modules"]["pdfCenterPanel"]> {
     private _$canvas;
     private _$nextButton;
     private _$pdfContainer;
@@ -12,8 +12,6 @@ export declare class PDFCenterPanel extends CenterPanel<Config["modules"]["cente
     private _canvas;
     private _ctx;
     private _lastMediaUri;
-    private _maxScale;
-    private _minScale;
     private _nextButtonEnabled;
     private _pageIndex;
     private _pageIndexPending;
@@ -25,6 +23,10 @@ export declare class PDFCenterPanel extends CenterPanel<Config["modules"]["cente
     private _scale;
     private _viewport;
     constructor($element: JQuery);
+    private _getDecreasedScale;
+    private _getIncreasedScale;
+    private _getMinScale;
+    private _getMaxScale;
     create(): void;
     disablePrevButton(): void;
     enablePrevButton(): void;

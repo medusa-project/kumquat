@@ -1,7 +1,7 @@
 import { CenterPanel } from "../uv-shared-module/CenterPanel";
 import { IExternalResource } from "manifesto.js";
 import { Config } from "../../extensions/uv-default-extension/config/Config";
-export declare class FileLinkCenterPanel extends CenterPanel<Config["modules"]["centerPanel"]> {
+export declare class FileLinkCenterPanel extends CenterPanel<Config["modules"]["fileLinkCenterPanel"]> {
     $scroll: JQuery;
     $downloadItems: JQuery;
     $downloadItemTemplate: JQuery;

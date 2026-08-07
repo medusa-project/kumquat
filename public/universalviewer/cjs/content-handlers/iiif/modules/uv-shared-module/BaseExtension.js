@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -32,12 +42,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -69,10 +79,9 @@ var LoginDialogue_1 = require("../uv-dialogues-module/LoginDialogue");
 var RestrictedDialogue_1 = require("../uv-dialogues-module/RestrictedDialogue");
 var Shell_1 = require("./Shell");
 var manifold_1 = require("@iiif/manifold");
-var dist_commonjs_1 = require("@iiif/vocabulary/dist-commonjs/");
-var KeyCodes = __importStar(require("@edsilv/key-codes"));
-var utils_1 = require("@edsilv/utils");
-var Utils_1 = require("../../../../Utils");
+var KeyCodes = __importStar(require("../../KeyCodes"));
+var Utils_1 = require("../../Utils");
+var Utils_2 = require("../../../../Utils");
 var IIIFEvents_1 = require("../../IIIFEvents");
 var Events_1 = require("../../../../Events");
 var BaseExtension = /** @class */ (function () {
@@ -84,6 +93,14 @@ var BaseExtension = /** @class */ (function () {
         this.shifted = false;
         this.tabbing = false;
         this.locales = {};
+        this.defaultConfig = {};
+        this.localeLoaders = {
+            "en-GB": function () { return Promise.resolve().then(function () { return __importStar(require("../../../../locales/en-GB.json")); }); },
+            "cy-GB": function () { return Promise.resolve().then(function () { return __importStar(require("../../../../locales/cy-GB.json")); }); },
+            "fr-FR": function () { return Promise.resolve().then(function () { return __importStar(require("../../../../locales/fr-FR.json")); }); },
+            "pl-PL": function () { return Promise.resolve().then(function () { return __importStar(require("../../../../locales/pl-PL.json")); }); },
+            "sv-SE": function () { return Promise.resolve().then(function () { return __importStar(require("../../../../locales/sv-SE.json")); }); },
+        };
     }
     BaseExtension.prototype.create = function () {
         var _this = this;
@@ -95,6 +112,7 @@ var BaseExtension = /** @class */ (function () {
         this.$element = $(this.extensionHost.options.target);
         this.$element.data("component", this.extensionHost);
         this._parseMetrics();
+        this._updateMetric();
         this._initLocales();
         // add/remove classes.
         this.$element.empty();
@@ -103,6 +121,10 @@ var BaseExtension = /** @class */ (function () {
         this.$element.addClass("loading");
         if (this.data.locales) {
             this.$element.addClass(this.data.locales[0].name.toLowerCase());
+            this.$element.prop("lang", this.data.locales[0].name.substring(0, 2));
+        }
+        else {
+            this.$element.prop("lang", Utils_2.defaultLocale[0].name.substring(0, 2));
         }
         if (this.isRightPanelEnabled()) {
             this.$element.addClass("right-panel-enabled");
@@ -123,7 +145,7 @@ var BaseExtension = /** @class */ (function () {
         if (this.isMobile()) {
             this.$element.addClass("mobile");
         }
-        if (utils_1.Documents.supportsFullscreen()) {
+        if (Utils_1.Documents.supportsFullscreen()) {
             this.$element.addClass("fullscreen-supported");
         }
         if (this.isFullScreen()) {
@@ -135,25 +157,25 @@ var BaseExtension = /** @class */ (function () {
         });
         // if this is the first load
         if (!this.data.isReload) {
-            var visibilityProp = utils_1.Documents.getHiddenProp();
+            var visibilityProp = Utils_1.Documents.getHiddenProp();
             if (visibilityProp) {
                 var event_1 = visibilityProp.replace(/[H|h]idden/, "") + "visibilitychange";
                 document.addEventListener(event_1, function () {
                     // resize after a tab has been shown (fixes safari layout issue)
-                    if (!utils_1.Documents.isHidden()) {
+                    if (!Utils_1.Documents.isHidden()) {
                         _this.resize();
                     }
                 });
             }
-            if (utils_1.Bools.getBool(this.data.config.options.dropEnabled, true)) {
+            if (Utils_1.Bools.getBool(this.data.config.options.dropEnabled, true)) {
                 this.$element.on("drop", function (e) {
                     e.preventDefault();
                     var dropUrl = e.originalEvent.dataTransfer.getData("URL");
-                    var a = utils_1.Urls.getUrlParts(dropUrl);
-                    var manifestUri = utils_1.Urls.getQuerystringParameterFromString("manifest", a.search);
+                    var a = Utils_1.Urls.getUrlParts(dropUrl);
+                    var manifestUri = Utils_1.Urls.getQuerystringParameterFromString("manifest", a.search);
                     if (!manifestUri) {
                         // look for collection param
-                        manifestUri = utils_1.Urls.getQuerystringParameterFromString("collection", a.search);
+                        manifestUri = Utils_1.Urls.getQuerystringParameterFromString("collection", a.search);
                     }
                     //var canvasUri = Urls.getQuerystringParameterFromString('canvas', url.search);
                     if (manifestUri) {
@@ -230,7 +252,7 @@ var BaseExtension = /** @class */ (function () {
             _this.extensionHost.publish(Events_1.Events.RESIZE);
         });
         // this.$element.append('<a href="/" id="top"></a>');
-        this.$element.append('<iframe id="commsFrame" style="display:none"></iframe>');
+        this.$element.append('<iframe id="commsFrame"></iframe>');
         this.extensionHost.subscribeAll(function (event, args) {
             // subscribe to all UV events except those handled below with their own fire() calls
             var exceptions = [
@@ -307,7 +329,7 @@ var BaseExtension = /** @class */ (function () {
             _this.data.manifestIndex = manifestIndex;
         });
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.OPEN, function () {
-            var openUri = utils_1.Strings.format(_this.data.config.options.openTemplate, _this.helper.manifestUri);
+            var openUri = Utils_1.Strings.format(_this.data.config.options.openTemplate, _this.helper.manifestUri);
             window.open(openUri);
         });
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.OPEN_LEFT_PANEL, function () {
@@ -349,8 +371,7 @@ var BaseExtension = /** @class */ (function () {
             }
         });
         this.extensionHost.subscribe(Events_1.Events.TOGGLE_FULLSCREEN, function () {
-            var overrideFullScreen = _this.data.config.options
-                .overrideFullScreen;
+            var overrideFullScreen = _this.data.config.options.overrideFullScreen;
             _this.extensionHost.isFullScreen = !_this.extensionHost.isFullScreen;
             if (!overrideFullScreen) {
                 $("#top").focus();
@@ -378,44 +399,21 @@ var BaseExtension = /** @class */ (function () {
     };
     BaseExtension.prototype.loadConfig = function (locale, extension) {
         return __awaiter(this, void 0, void 0, function () {
-            var uv_locale, config;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        uv_locale = locale;
-                        if (extension) {
-                            uv_locale = "_";
-                            this.locales["_"] = function () {
-                                return Promise.resolve().then(function () { return __importStar(require("../../extensions/".concat(extension, "/config/config.json"))); });
-                            };
-                        }
-                        config = this.locales[uv_locale];
-                        if (!config) {
-                            throw new Error("Unable to load config");
-                        }
-                        if (!(typeof config === "object")) return [3 /*break*/, 1];
-                        config = JSON.parse(JSON.stringify(config));
-                        return [3 /*break*/, 3];
-                    case 1:
-                        if (!(typeof config === "function")) return [3 /*break*/, 3];
-                        return [4 /*yield*/, config()];
-                    case 2:
-                        config = _a.sent();
-                        config = JSON.parse(JSON.stringify(config));
-                        _a.label = 3;
-                    case 3: return [2 /*return*/, this.translateLocale(config, locale)];
-                }
+                return [2 /*return*/, this.translateLocale(this.defaultConfig, locale)];
             });
         });
     };
     BaseExtension.prototype.translateLocale = function (config, locale) {
         return __awaiter(this, void 0, void 0, function () {
-            var localeStrings, conf, str, replaceStr, re;
+            var loader, localeStrings, conf, str, replaceStr, re;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, Promise.resolve().then(function () { return __importStar(require("../../../../locales/".concat(locale, ".json"))); })];
+                    case 0:
+                        loader = this.localeLoaders[locale] || this.localeLoaders["en-GB"];
+                        return [4 /*yield*/, loader()];
                     case 1:
-                        localeStrings = _a.sent();
+                        localeStrings = (_a.sent()) || {};
                         conf = JSON.stringify(config);
                         for (str in localeStrings) {
                             replaceStr = str.replace("$", "");
@@ -530,7 +528,7 @@ var BaseExtension = /** @class */ (function () {
                     finalLocales.push(m);
                 }
             });
-            var limitLocales = utils_1.Bools.getBool(this.data.config.options.limitLocales, false);
+            var limitLocales = Utils_1.Bools.getBool(this.data.config.options.limitLocales, false);
             if (!limitLocales) {
                 availableLocales.forEach(function (availableLocale) {
                     if (!availableLocale.added) {
@@ -555,28 +553,25 @@ var BaseExtension = /** @class */ (function () {
         }
     };
     BaseExtension.prototype._updateMetric = function () {
-        var _this = this;
-        setTimeout(function () {
-            // loop through all metrics
-            // find one that matches the current dimensions
-            // when a metric is found that isn't the current metric, set it to be the current metric and publish a METRIC_CHANGE event
-            for (var i = _this.metrics.length - 1; i >= 0; i--) {
-                var metric = _this.metrics[i];
-                var width = window.innerWidth;
-                if (width >= metric.minWidth) {
-                    if (_this.metric !== metric.type) {
-                        _this.metric = metric.type;
-                        // remove current metric class
-                        for (var j = 0; j < _this.metrics.length; j++) {
-                            _this.$element.removeClass(_this.metrics[j].type);
-                        }
-                        _this.$element.addClass(metric.type);
-                        _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.METRIC_CHANGE);
+        // loop through all metrics
+        // find one that matches the current dimensions
+        // when a metric is found that isn't the current metric, set it to be the current metric and publish a METRIC_CHANGE event
+        for (var i = this.metrics.length - 1; i >= 0; i--) {
+            var metric = this.metrics[i];
+            var width = window.innerWidth;
+            if (width >= metric.minWidth) {
+                if (this.metric !== metric.type) {
+                    this.metric = metric.type;
+                    // remove current metric class
+                    for (var j = 0; j < this.metrics.length; j++) {
+                        this.$element.removeClass(this.metrics[j].type);
                     }
-                    break;
+                    this.$element.addClass(metric.type);
+                    this.extensionHost.publish(IIIFEvents_1.IIIFEvents.METRIC_CHANGE);
                 }
+                break;
             }
-        }, 1);
+        }
     };
     BaseExtension.prototype.resize = function () {
         this._updateMetric();
@@ -586,15 +581,19 @@ var BaseExtension = /** @class */ (function () {
     BaseExtension.prototype.reload = function (data) {
         this.extensionHost.publish(Events_1.Events.RELOAD, data);
     };
-    BaseExtension.prototype.isSeeAlsoEnabled = function () {
-        return this.data.config.options.seeAlsoEnabled !== false;
-    };
     BaseExtension.prototype.getShareUrl = function () {
         // If not embedded on an external domain (this causes CORS errors when fetching parent url)
         if (!this.data.embedded) {
             // Use the current page URL with hash params
-            if (utils_1.Documents.isInIFrame()) {
-                return parent.document.location.href;
+            if (Utils_1.Documents.isInIFrame()) {
+                try {
+                    return parent.document.location.href;
+                }
+                catch (e) {
+                    // Cross-origin browser security may prevent us from getting the href; in that case,
+                    // just disable the share URL.
+                    return null;
+                }
             }
             else {
                 return document.location.href;
@@ -637,19 +636,12 @@ var BaseExtension = /** @class */ (function () {
     //   return uri + "?t=" + Dates.getTimeStamp();
     // }
     BaseExtension.prototype.getDomain = function () {
-        var parts = utils_1.Urls.getUrlParts(this.helper.manifestUri);
+        var parts = Utils_1.Urls.getUrlParts(this.helper.manifestUri);
         return parts.host;
     };
-    BaseExtension.prototype.getAppUri = function () {
-        var appUri = window.location.protocol +
-            "//" +
-            window.location.hostname +
-            (window.location.port ? ":" + window.location.port : "");
-        return appUri + "/uv.html";
-    };
     BaseExtension.prototype.getSettings = function () {
-        if (utils_1.Bools.getBool(this.data.config.options.saveUserSettings, false)) {
-            var settings = utils_1.Storage.get("uv.settings", utils_1.StorageType.LOCAL);
+        if (Utils_1.Bools.getBool(this.data.config.options.saveUserSettings, false)) {
+            var settings = Utils_1.Storage.get("uv.settings", Utils_1.StorageType.LOCAL);
             if (settings) {
                 return $.extend(this.data.config.options, settings.value);
             }
@@ -657,13 +649,13 @@ var BaseExtension = /** @class */ (function () {
         return this.data.config.options;
     };
     BaseExtension.prototype.updateSettings = function (settings) {
-        if (utils_1.Bools.getBool(this.data.config.options.saveUserSettings, false)) {
-            var storedSettings = utils_1.Storage.get("uv.settings", utils_1.StorageType.LOCAL);
+        if (Utils_1.Bools.getBool(this.data.config.options.saveUserSettings, false)) {
+            var storedSettings = Utils_1.Storage.get("uv.settings", Utils_1.StorageType.LOCAL);
             if (storedSettings) {
                 settings = $.extend(storedSettings.value, settings);
             }
             // store for ten years
-            utils_1.Storage.set("uv.settings", settings, 315360000, utils_1.StorageType.LOCAL);
+            Utils_1.Storage.set("uv.settings", settings, 315360000, Utils_1.StorageType.LOCAL);
         }
         this.data.config.options = $.extend(this.data.config.options, settings);
     };
@@ -682,6 +674,24 @@ var BaseExtension = /** @class */ (function () {
             title: title,
             image: thumbnail,
         };
+    };
+    BaseExtension.prototype.getAppUri = function () {
+        var _a, _b, _c;
+        var options = this.data.config.modules.shareDialogue.options;
+        var host = (_a = options === null || options === void 0 ? void 0 : options.embedHost) !== null && _a !== void 0 ? _a : "".concat(window.location.protocol, "//").concat(window.location.hostname);
+        var port = (_b = options === null || options === void 0 ? void 0 : options.embedPort) !== null && _b !== void 0 ? _b : window.location.port;
+        var path = (_c = options === null || options === void 0 ? void 0 : options.embedPath) !== null && _c !== void 0 ? _c : "/uv.html";
+        return "".concat(host).concat(port ? ":".concat(port) : "").concat(path);
+    };
+    BaseExtension.prototype.buildEmbedScript = function (template, width, height, hashParams) {
+        var _a, _b;
+        var appUri = this.getAppUri();
+        var title = (_a = this.helper.getLabel()) !== null && _a !== void 0 ? _a : "";
+        if (((_b = hashParams === null || hashParams === void 0 ? void 0 : hashParams.size) !== null && _b !== void 0 ? _b : 0) > 0) {
+            appUri += "#?".concat(hashParams.toString());
+        }
+        var script = Utils_1.Strings.format(template, appUri, width.toString(), height.toString(), title);
+        return script;
     };
     BaseExtension.prototype.getPagedIndices = function (canvasIndex) {
         if (canvasIndex === void 0) { canvasIndex = this.helper.canvasIndex; }
@@ -791,7 +801,7 @@ var BaseExtension = /** @class */ (function () {
             resource.data.height = resource.height;
         }
         resource.data.index = resource.index;
-        return utils_1.Objects.toPlainObject(resource.data);
+        return Utils_1.Objects.toPlainObject(resource.data);
     };
     BaseExtension.prototype.getMediaFormats = function (canvas) {
         var annotations = canvas.getContent();
@@ -831,13 +841,20 @@ var BaseExtension = /** @class */ (function () {
         this.extensionHost.publish(IIIFEvents_1.IIIFEvents.CLOSE_ACTIVE_DIALOGUE);
     };
     BaseExtension.prototype.isOverlayActive = function () {
-        return (0, Utils_1.isVisible)(this.shell.$overlays);
+        return (0, Utils_2.isVisible)(this.shell.$overlays);
     };
     BaseExtension.prototype.isDesktopMetric = function () {
         return this.metric === "lg" || this.metric === "xl";
     };
     BaseExtension.prototype.isMobileMetric = function () {
         return this.metric === "sm" || this.metric === "md";
+    };
+    BaseExtension.prototype.isMetric = function (metric) {
+        var _this = this;
+        if (typeof metric === "string") {
+            return this.metric === metric;
+        }
+        return metric.some(function (item) { return _this.metric === item; });
     };
     // todo: use redux in manifold to get reset state
     BaseExtension.prototype.viewManifest = function (manifest) {
@@ -864,17 +881,15 @@ var BaseExtension = /** @class */ (function () {
         return this.extensionHost.isFullScreen;
     };
     BaseExtension.prototype.isHeaderPanelEnabled = function () {
-        return utils_1.Bools.getBool(this.data.config.options.headerPanelEnabled, true);
+        return Utils_1.Bools.getBool(this.data.config.options.headerPanelEnabled, true);
     };
     BaseExtension.prototype.isLeftPanelEnabled = function () {
-        if (utils_1.Bools.getBool(this.data.config.options.leftPanelEnabled, true)) {
+        if (Utils_1.Bools.getBool(this.data.config.options.leftPanelEnabled, true)) {
             if (this.helper.hasParentCollection()) {
                 return true;
             }
             else if (this.helper.isMultiCanvas()) {
-                var viewingHint = this.helper.getViewingHint();
-                if (!viewingHint ||
-                    (viewingHint && viewingHint !== dist_commonjs_1.ViewingHint.CONTINUOUS)) {
+                if (!this.helper.isContinuous()) {
                     return true;
                 }
             }
@@ -882,10 +897,10 @@ var BaseExtension = /** @class */ (function () {
         return false;
     };
     BaseExtension.prototype.isRightPanelEnabled = function () {
-        return utils_1.Bools.getBool(this.data.config.options.rightPanelEnabled, true);
+        return Utils_1.Bools.getBool(this.data.config.options.rightPanelEnabled, true);
     };
     BaseExtension.prototype.isFooterPanelEnabled = function () {
-        return utils_1.Bools.getBool(this.data.config.options.footerPanelEnabled, true);
+        return Utils_1.Bools.getBool(this.data.config.options.footerPanelEnabled, true);
     };
     // isMobile(): boolean {
     //   return $.browser.mobile;
@@ -901,7 +916,7 @@ var BaseExtension = /** @class */ (function () {
         return isMobile;
     };
     BaseExtension.prototype.useArrowKeysToNavigate = function () {
-        return utils_1.Bools.getBool(this.data.config.options.useArrowKeysToNavigate, true);
+        return Utils_1.Bools.getBool(this.data.config.options.useArrowKeysToNavigate, true);
     };
     BaseExtension.prototype.bookmark = function () {
         // override for each extension
@@ -950,7 +965,7 @@ var BaseExtension = /** @class */ (function () {
     };
     BaseExtension.prototype.dispose = function () {
         var _a;
-        (_a = this.store) === null || _a === void 0 ? void 0 : _a.destroy();
+        (_a = this.store) === null || _a === void 0 ? void 0 : _a.setState(null);
     };
     return BaseExtension;
 }());

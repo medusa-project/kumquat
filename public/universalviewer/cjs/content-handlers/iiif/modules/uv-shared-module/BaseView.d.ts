@@ -1,6 +1,6 @@
 import { Panel } from "./Panel";
 import { IExtension } from "./IExtension";
-import { BaseConfig, ModuleConfig } from "../../BaseConfig";
+import { ModuleConfig } from "../../BaseConfig";
 export declare class BaseView<T extends ModuleConfig> extends Panel {
     config: T;
     content: T["content"];
@@ -10,6 +10,6 @@ export declare class BaseView<T extends ModuleConfig> extends Panel {
     constructor($element: JQuery, fitToParentWidth?: boolean, fitToParentHeight?: boolean);
     create(): void;
     init(): void;
-    setConfig<T extends BaseConfig>(moduleName: keyof T["modules"]): void;
+    setConfig(moduleName: string): void;
     resize(): void;
 }

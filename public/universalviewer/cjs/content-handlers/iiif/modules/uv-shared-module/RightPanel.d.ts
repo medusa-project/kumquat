@@ -8,4 +8,6 @@ export declare class RightPanel<T extends ExpandPanel> extends BaseExpandPanel<T
     getTargetLeft(): number;
     toggleFinish(): void;
     resize(): void;
+    toggle(autoToggled?: boolean): void;
+    expandFull(): void;
 }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseSelector = void 0;
+exports.parseSelector = parseSelector;
 var BOX_SELECTOR = /&?(xywh=)?(pixel:|percent:)?([0-9]+(?:\.[0-9]+)?),([0-9]+(?:\.[0-9]+)?),([0-9]+(?:\.[0-9]+)?),([0-9]+(?:\.[0-9]+)?)/;
 // Does not support 00:00:00 or 00:00 formats.
 var TEMPORAL_SELECTOR = /&?(t=)(npt:)?([0-9]+(.[0-9]+)?)?(,([0-9]+(.[0-9]+)?))?/;
@@ -88,5 +88,4 @@ function parseSelector(source) {
         selectors: [],
     };
 }
-exports.parseSelector = parseSelector;
 //# sourceMappingURL=parse-selector.js.map

@@ -20,8 +20,8 @@ var $ = require("jquery");
 var IIIFEvents_1 = require("../../IIIFEvents");
 var BaseView_1 = require("./BaseView");
 var InformationFactory_1 = require("./InformationFactory");
-var utils_1 = require("@edsilv/utils");
-var Utils_1 = require("../../../../Utils");
+var Utils_1 = require("../../Utils");
+var Utils_2 = require("../../../../Utils");
 var HeaderPanel = /** @class */ (function (_super) {
     __extends(HeaderPanel, _super);
     function HeaderPanel($element) {
@@ -43,24 +43,26 @@ var HeaderPanel = /** @class */ (function (_super) {
         this.$options.append(this.$centerOptions);
         this.$rightOptions = $('<div class="rightOptions"></div>');
         this.$options.append(this.$rightOptions);
-        //this.$helpButton = $('<a href="#" class="action help">' + this.content.help + '</a>');
-        //this.$rightOptions.append(this.$helpButton);
         this.$localeToggleButton = $('<a class="localeToggle" tabindex="0"></a>');
         this.$rightOptions.append(this.$localeToggleButton);
         this.$settingsButton = $("\n          <button class=\"btn imageBtn settings\" tabindex=\"0\" title=\"".concat(this.content.settings, "\">\n            <i class=\"uv-icon-settings\" aria-hidden=\"true\"></i>\n          </button>\n        "));
         this.$settingsButton.attr("title", this.content.settings);
         this.$rightOptions.append(this.$settingsButton);
+        this.$helpButton = $("\n      <a class=\"btn imageBtn help\" tabindex=\"0\" title=\"".concat(this.content.help, "\" role=\"button\">\n        <i class=\"uv-icon-help\" aria-hidden=\"true\"></i>\n      </a>\n    "));
+        this.$rightOptions.append(this.$helpButton);
         this.$informationBox = $('<div class="informationBox" aria-hidden="true"> \
                                     <div class="message"></div> \
                                     <div class="actions"></div> \
-                                    <button type="button" class="close" aria-label="Close"> \
+                                    <button type="button" class="close"> \
                                         <span aria-hidden="true">&#215;</span>\
                                     </button> \
                                   </div>');
         this.$element.append(this.$informationBox);
         this.$informationBox.hide();
-        this.$informationBox.find(".close").attr("title", this.content.close);
-        this.$informationBox.find(".close").on("click", function (e) {
+        var $closeButton = this.$informationBox.find(".close");
+        $closeButton.attr("aria-label", this.content.close);
+        $closeButton.attr("title", this.content.close);
+        $closeButton.on("click", function (e) {
             e.preventDefault();
             _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.HIDE_INFORMATION);
         });
@@ -70,7 +72,7 @@ var HeaderPanel = /** @class */ (function (_super) {
         this.$settingsButton.onPressed(function () {
             _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.SHOW_SETTINGS_DIALOGUE, _this.$settingsButton);
         });
-        if (!utils_1.Bools.getBool(this.options.centerOptionsEnabled, true)) {
+        if (!Utils_1.Bools.getBool(this.options.centerOptionsEnabled, true)) {
             this.$centerOptions.hide();
         }
         this.updateLocaleToggle();
@@ -88,7 +90,7 @@ var HeaderPanel = /** @class */ (function (_super) {
         this.$localeToggleButton.text(text);
     };
     HeaderPanel.prototype.updateSettingsButton = function () {
-        var settingsEnabled = utils_1.Bools.getBool(this.options.settingsButtonEnabled, true);
+        var settingsEnabled = Utils_1.Bools.getBool(this.options.settingsButtonEnabled, true);
         if (!settingsEnabled) {
             this.$settingsButton.hide();
         }
@@ -100,7 +102,7 @@ var HeaderPanel = /** @class */ (function (_super) {
         var locales = this.extension.data.locales;
         if (locales) {
             return (locales.length > 1 &&
-                utils_1.Bools.getBool(this.options.localeToggleEnabled, false));
+                Utils_1.Bools.getBool(this.options.localeToggleEnabled, false));
         }
         return false;
     };
@@ -110,10 +112,7 @@ var HeaderPanel = /** @class */ (function (_super) {
         if (!this.information)
             return;
         var $message = this.$informationBox.find(".message");
-        $message
-            .html(this.information.message)
-            .find("a")
-            .attr("target", "_top");
+        $message.html(this.information.message).find("a").attr("target", "_top");
         var $actions = this.$informationBox.find(".actions");
         $actions.empty();
         for (var i = 0; i < this.information.actions.length; i++) {
@@ -142,6 +141,7 @@ var HeaderPanel = /** @class */ (function (_super) {
         this.extensionHost.publish(IIIFEvents_1.IIIFEvents.UPDATE_SETTINGS, settings);
     };
     HeaderPanel.prototype.resize = function () {
+        var _this = this;
         _super.prototype.resize.call(this);
         var headerWidth = this.$element.width();
         var center = headerWidth / 2;
@@ -150,7 +150,7 @@ var HeaderPanel = /** @class */ (function (_super) {
         this.$centerOptions.css({
             left: pos,
         });
-        if ((0, Utils_1.isVisible)(this.$informationBox)) {
+        if ((0, Utils_2.isVisible)(this.$informationBox)) {
             var $actions = this.$informationBox.find(".actions");
             var $message = this.$informationBox.find(".message");
             $message.width(Math.floor(this.$element.width()) -
@@ -161,6 +161,15 @@ var HeaderPanel = /** @class */ (function (_super) {
             if (this.information) {
                 $message.text(this.information.message);
             }
+        }
+        this.$helpButton.onPressed(function () {
+            window.open(_this.options.helpUrl);
+        });
+        if (this.options.helpEnabled && this.options.helpUrl) {
+            this.$helpButton.show();
+        }
+        else {
+            this.$helpButton.hide();
         }
         // hide toggle buttons below minimum width
         if (this.extension.isMobileMetric()) {

@@ -30,13 +30,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FooterPanel = void 0;
 var $ = require("jquery");
@@ -46,8 +56,8 @@ var Events_1 = require("../../extensions/uv-openseadragon-extension/Events");
 var FooterPanel_1 = require("../uv-shared-module/FooterPanel");
 var Mode_1 = require("../../extensions/uv-openseadragon-extension/Mode");
 var Utils_1 = require("../../../../Utils");
-var utils_1 = require("@edsilv/utils");
-var KeyCodes = __importStar(require("@edsilv/key-codes"));
+var Utils_2 = require("../../Utils");
+var KeyCodes = __importStar(require("../../KeyCodes"));
 var manifesto_js_1 = require("manifesto.js");
 var FooterPanel = /** @class */ (function (_super) {
     __extends(FooterPanel, _super);
@@ -58,7 +68,7 @@ var FooterPanel = /** @class */ (function (_super) {
     }
     FooterPanel.prototype.create = function () {
         var _this = this;
-        this.setConfig("footerPanel");
+        this.setConfig("searchFooterPanel");
         _super.prototype.create.call(this);
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.CANVAS_INDEX_CHANGE, function () {
             _this.canvasIndexChanged();
@@ -111,6 +121,8 @@ var FooterPanel = /** @class */ (function (_super) {
             '"/>');
         this.$searchTextContainer.append(this.$searchText);
         this.$searchButton = $('<button class="imageButton searchButton"></button>');
+        this.$searchButton.attr("aria-label", this.content.searchWithin);
+        this.$searchButton.attr("title", this.content.searchWithin);
         this.$searchTextContainer.append(this.$searchButton);
         // search results.
         this.$searchPagerContainer = $('<div class="searchPager"></div>');
@@ -134,7 +146,7 @@ var FooterPanel = /** @class */ (function (_super) {
         this.$searchResultsContainer.append(this.$line);
         this.$pagePositionMarker = $('<div class="positionPlacemarker"></div>');
         this.$searchResultsContainer.append(this.$pagePositionMarker);
-        this.$pagePositionLabel = $('<div class="label"></div>');
+        this.$pagePositionLabel = $('<label class="label"></label>');
         this.$searchResultsContainer.append(this.$pagePositionLabel);
         this.$placemarkerDetails = $('<div class="placeMarkerDetails"></div>');
         this.$searchResultsContainer.append(this.$placemarkerDetails);
@@ -198,7 +210,7 @@ var FooterPanel = /** @class */ (function (_super) {
         var autocompleteService = (this.extension).getAutoCompleteUri();
         if (autocompleteService) {
             new AutoComplete_1.AutoComplete(this.$searchText, function (terms, cb) {
-                fetch(utils_1.Strings.format(autocompleteService, terms))
+                fetch(Utils_2.Strings.format(autocompleteService, terms))
                     .then(function (response) { return response.json(); })
                     .then(function (results) {
                     cb(results);
@@ -209,7 +221,7 @@ var FooterPanel = /** @class */ (function (_super) {
                 });
             }, function (terms) {
                 _this.search(terms);
-            }, 300, 2, true, utils_1.Bools.getBool(this.options.autocompleteAllowWords, false));
+            }, 300, 2, true, Utils_2.Bools.getBool(this.options.autocompleteAllowWords, false));
         }
         else {
             this.$searchText.on("keyup", function (e) {
@@ -222,7 +234,7 @@ var FooterPanel = /** @class */ (function (_super) {
             that.extensionHost.publish(Events_1.OpenSeadragonExtensionEvents.PRINT);
         });
         this.updatePrintButton();
-        var positionMarkerEnabled = utils_1.Bools.getBool(this.config.options.positionMarkerEnabled, true);
+        var positionMarkerEnabled = Utils_2.Bools.getBool(this.config.options.positionMarkerEnabled, true);
         if (!positionMarkerEnabled) {
             this.$pagePositionMarker.hide();
             this.$pagePositionLabel.hide();
@@ -232,7 +244,7 @@ var FooterPanel = /** @class */ (function (_super) {
         return this.extension.isSearchEnabled();
     };
     FooterPanel.prototype.isZoomToSearchResultEnabled = function () {
-        return utils_1.Bools.getBool(this.extension.data.config.options.zoomToSearchResultEnabled, true);
+        return Utils_2.Bools.getBool(this.extension.data.config.options.zoomToSearchResultEnabled, true);
     };
     FooterPanel.prototype.isPreviousButtonEnabled = function () {
         var currentCanvasIndex = this.extension.helper.canvasIndex;
@@ -261,16 +273,19 @@ var FooterPanel = /** @class */ (function (_super) {
         if (this.isZoomToSearchResultEnabled() &&
             this.extension.currentAnnotationRect) {
             if (currentCanvasIndex > lastSearchResultCanvasIndex) {
+                //if you've moved past final result page
                 return false;
             }
             else if (currentCanvasIndex === lastSearchResultCanvasIndex) {
-                if (currentSearchResultRectIndex === this.getLastSearchResultRectIndex()) {
+                // if you're on the final result page
+                if (currentSearchResultRectIndex === this.getLastSearchResultRectIndex() //and you're on the last result
+                ) {
                     return false;
                 }
             }
             return true;
         }
-        return currentCanvasIndex < lastSearchResultCanvasIndex;
+        return currentCanvasIndex <= lastSearchResultCanvasIndex;
     };
     FooterPanel.prototype.getSearchResults = function () {
         return this.extension.annotations;
@@ -318,7 +333,7 @@ var FooterPanel = /** @class */ (function (_super) {
         }
     };
     FooterPanel.prototype.updatePrintButton = function () {
-        var configEnabled = utils_1.Bools.getBool(this.options.printEnabled, false);
+        var configEnabled = Utils_2.Bools.getBool(this.options.printEnabled, false);
         //var printService: manifesto.Service = this.extension.helper.manifest.getService(manifesto.ServiceProfile.printExtensions());
         //if (configEnabled && printService && this.extension.isOnHomeDomain()){
         if (configEnabled) {
@@ -346,10 +361,7 @@ var FooterPanel = /** @class */ (function (_super) {
     };
     FooterPanel.prototype.setCurrentSearchResultPlacemarker = function () {
         var placemarkers = this.getSearchResultPlacemarkers();
-        placemarkers
-            .parent()
-            .find(".current")
-            .removeClass("current");
+        placemarkers.parent().find(".current").removeClass("current");
         var $current = $('.searchResultPlacemarker[data-index="' +
             this.extension.helper.canvasIndex +
             '"]');
@@ -443,11 +455,11 @@ var FooterPanel = /** @class */ (function (_super) {
                 label = that.extension.helper.manifest.options.defaultLabel;
             }
             if (label) {
-                title = utils_1.Strings.format(title, that.content.pageCaps, label);
+                title = Utils_2.Strings.format(title, that.content.pageCaps, label);
             }
         }
         else {
-            title = utils_1.Strings.format(title, that.content.imageCaps, String(canvasIndex + 1));
+            title = Utils_2.Strings.format(title, that.content.imageCaps, String(canvasIndex + 1));
         }
         that.$placemarkerDetailsTop.html(title);
         var searchResults = that.getSearchResults();
@@ -455,17 +467,17 @@ var FooterPanel = /** @class */ (function (_super) {
             var result = searchResults[elemIndex];
             var terms = "";
             if (that.terms) {
-                terms = utils_1.Strings.ellipsis(that.terms, that.options.elideDetailsTermsCount);
+                terms = Utils_2.Strings.ellipsis(that.terms, that.options.elideDetailsTermsCount);
             }
             var instanceFoundText = that.content.instanceFound;
             var instancesFoundText = that.content.instancesFound;
             var text = "";
             if (result.rects.length === 1) {
-                text = utils_1.Strings.format(instanceFoundText, terms);
+                text = Utils_2.Strings.format(instanceFoundText, terms);
                 that.$placemarkerDetailsBottom.html(text);
             }
             else {
-                text = utils_1.Strings.format(instancesFoundText, String(result.rects.length), terms);
+                text = Utils_2.Strings.format(instancesFoundText, String(result.rects.length), terms);
                 that.$placemarkerDetailsBottom.html(text);
             }
         }
@@ -494,8 +506,7 @@ var FooterPanel = /** @class */ (function (_super) {
         that.extensionHost.publish(Events_1.OpenSeadragonExtensionEvents.SEARCH_PREVIEW_FINISH);
         var $placemarker = $(this);
         var newElement = e.toElement || e.relatedTarget;
-        var isChild = $(newElement).closest(that.$placemarkerDetails)
-            .length;
+        var isChild = $(newElement).closest(that.$placemarkerDetails).length;
         if (newElement != that.$placemarkerDetails.get(0) && isChild === 0) {
             that.$placemarkerDetails.hide();
             $placemarker.removeClass("hover");
@@ -572,18 +583,18 @@ var FooterPanel = /** @class */ (function (_super) {
             }
             var lastCanvasOrderLabel = this.extension.helper.getLastCanvasLabel(true);
             if (lastCanvasOrderLabel) {
-                this.$pagePositionLabel.html(utils_1.Strings.format(displaying, this.content.page, (0, Utils_1.sanitize)(label), (0, Utils_1.sanitize)(lastCanvasOrderLabel)));
+                this.$pagePositionLabel.html(Utils_2.Strings.format(displaying, this.content.page, (0, Utils_1.sanitize)(label), (0, Utils_1.sanitize)(lastCanvasOrderLabel)));
             }
         }
         else {
-            this.$pagePositionLabel.html(utils_1.Strings.format(displaying, this.content.image, String(index + 1), this.extension.helper.getTotalCanvases().toString()));
+            this.$pagePositionLabel.html(Utils_2.Strings.format(displaying, this.content.image, String(index + 1), this.extension.helper.getTotalCanvases().toString()));
         }
     };
     FooterPanel.prototype.isPageModeEnabled = function () {
         return (this.config.options.pageModeEnabled &&
             this.extension.getMode().toString() ===
                 Mode_1.Mode.page.toString() &&
-            !utils_1.Bools.getBool(this.config.options.forceImageMode, false));
+            !Utils_2.Bools.getBool(this.config.options.forceImageMode, false));
     };
     FooterPanel.prototype.showSearchSpinner = function () {
         this.$searchText.addClass("searching");
@@ -615,7 +626,7 @@ var FooterPanel = /** @class */ (function (_super) {
             else {
                 $foundFor.html(this.content.resultsFoundFor);
             }
-            $terms.html(utils_1.Strings.ellipsis(terms, this.options.elideResultsTermsCount));
+            $terms.html(Utils_2.Strings.ellipsis(terms, this.options.elideResultsTermsCount));
             $terms.prop("title", terms);
         }
         else {

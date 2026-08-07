@@ -1,6 +1,6 @@
 import { BaseConfig, CenterPanelContent, CenterPanelOptions, DownloadDialogueContent, DownloadDialogueOptions, ModuleConfig, SettingsDialogueContent, SettingsDialogueOptions, ShareDialogueContent, ShareDialogueOptions } from "@/content-handlers/iiif/BaseConfig";
 import { ExpandPanelContent, ExpandPanelOptions } from "../../config/ExpandPanel";
-declare type AlephLeftPanelOptions = ExpandPanelOptions & {
+type AlephLeftPanelOptions = ExpandPanelOptions & {
     /** Determines if the console tab is enabled */
     consoleTabEnabled: boolean;
     /** Determines if the graph tab is enabled */
@@ -10,45 +10,45 @@ declare type AlephLeftPanelOptions = ExpandPanelOptions & {
     /** Determines if the source tab is enabled */
     srcTabEnabled: boolean;
 };
-declare type AlephLeftPanelContent = ExpandPanelContent & {
+type AlephLeftPanelContent = ExpandPanelContent & {
     title: string;
 };
-declare type AlephLeftPanel = {
+type AlephLeftPanel = {
     options: AlephLeftPanelOptions;
     content: AlephLeftPanelContent;
 };
-declare type AlephCenterPanelOptions = CenterPanelOptions & {};
-declare type AlephCenterPanelContent = CenterPanelContent & {};
-declare type AlephCenterPanel = {
+type AlephCenterPanelOptions = CenterPanelOptions & {};
+type AlephCenterPanelContent = CenterPanelContent & {};
+type AlephCenterPanel = {
     options: AlephCenterPanelOptions;
     content: AlephCenterPanelContent;
 };
-declare type AlephDownloadDialogueOptions = DownloadDialogueOptions & {};
-declare type AlephDownloadDialogueContent = DownloadDialogueContent & {};
-declare type AlephDownloadDialogue = ModuleConfig & {
+type AlephDownloadDialogueOptions = DownloadDialogueOptions & {};
+type AlephDownloadDialogueContent = DownloadDialogueContent & {};
+type AlephDownloadDialogue = ModuleConfig & {
     options: AlephDownloadDialogueOptions;
     content: AlephDownloadDialogueContent;
 };
-declare type AlephShareDialogueOptions = ShareDialogueOptions & {};
-declare type AlephShareDialogueContent = ShareDialogueContent & {};
-declare type AlephShareDialogue = ModuleConfig & {
+type AlephShareDialogueOptions = ShareDialogueOptions & {};
+type AlephShareDialogueContent = ShareDialogueContent & {};
+type AlephShareDialogue = ModuleConfig & {
     options: AlephShareDialogueOptions;
     content: AlephShareDialogueContent;
 };
-declare type AlephSettingsDialogueOptions = SettingsDialogueOptions & {};
-declare type AlephSettingsDialogueContent = SettingsDialogueContent & {};
-declare type AlephSettingsDialogue = ModuleConfig & {
+type AlephSettingsDialogueOptions = SettingsDialogueOptions & {};
+type AlephSettingsDialogueContent = SettingsDialogueContent & {};
+type AlephSettingsDialogue = ModuleConfig & {
     options: AlephSettingsDialogueOptions;
     content: AlephSettingsDialogueContent;
 };
-declare type Modules = {
-    leftPanel: AlephLeftPanel;
-    centerPanel: AlephCenterPanel;
+type Modules = {
+    alephLeftPanel: AlephLeftPanel;
+    alephCenterPanel: AlephCenterPanel;
     downloadDialogue: AlephDownloadDialogue;
     shareDialogue: AlephShareDialogue;
     settingsDialogue: AlephSettingsDialogue;
 };
-export declare type Config = BaseConfig & {
+export type Config = BaseConfig & {
     modules: Modules;
 };
 export {};

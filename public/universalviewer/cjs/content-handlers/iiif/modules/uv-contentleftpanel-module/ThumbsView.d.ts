@@ -1,10 +1,14 @@
-import { Thumb } from "manifesto.js";
 import { ViewingDirection } from "@iiif/vocabulary";
-declare const Thumbnails: ({ onClick, paged, selected, thumbs, viewingDirection, }: {
+import { Thumb } from "manifesto.js";
+import React from "react";
+declare const Thumbnails: ({ onClick, onKeyDown, paged, selected, thumbs, thumbnailsLabel, viewingDirection, truncateThumbnailLabels, }: {
     onClick: (thumb: Thumb) => void;
+    onKeyDown: (thumb: Thumb) => void;
     paged: boolean;
     selected: number[];
     thumbs: Thumb[];
+    thumbnailsLabel: string;
     viewingDirection: ViewingDirection;
-}) => JSX.Element;
+    truncateThumbnailLabels: boolean;
+}) => React.JSX.Element;
 export default Thumbnails;

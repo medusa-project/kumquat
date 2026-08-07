@@ -21,7 +21,7 @@ var IIIFEvents_1 = require("../../IIIFEvents");
 var LeftPanel_1 = require("../uv-shared-module/LeftPanel");
 var ThumbsView_1 = require("./ThumbsView");
 var dist_commonjs_1 = require("@iiif/vocabulary/dist-commonjs/");
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../../Utils");
 var manifesto_js_1 = require("manifesto.js");
 var ResourcesLeftPanel = /** @class */ (function (_super) {
     __extends(ResourcesLeftPanel, _super);
@@ -29,7 +29,7 @@ var ResourcesLeftPanel = /** @class */ (function (_super) {
         return _super.call(this, $element) || this;
     }
     ResourcesLeftPanel.prototype.create = function () {
-        this.setConfig("leftPanel");
+        this.setConfig("resourcesLeftPanel");
         _super.prototype.create.call(this);
         this.setTitle(this.content.title);
         /*
@@ -72,7 +72,7 @@ var ResourcesLeftPanel = /** @class */ (function (_super) {
             if (resource) {
                 var label = manifesto_js_1.LanguageMap.getValue(resource.getLabel());
                 if (label) {
-                    var mime = utils_1.Files.simplifyMimeType(resource.getFormat().toString());
+                    var mime = Utils_1.Files.simplifyMimeType(resource.getFormat().toString());
                     var $listItem = $('<li><a href="' +
                         resource.id +
                         '" target="_blank">' +

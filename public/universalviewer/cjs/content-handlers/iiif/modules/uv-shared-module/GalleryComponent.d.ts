@@ -1,0 +1,72 @@
+import { ViewingDirection } from "@iiif/vocabulary";
+import { AnnotationGroup, Helper } from "@iiif/manifold";
+import { BaseComponent, IBaseComponentOptions } from "@iiif/base-component";
+export interface IGalleryComponentContent {
+    searchResult: string;
+    searchResults: string;
+    download: string;
+    selectAll: string;
+}
+export interface IGalleryComponentData {
+    chunkedResizingThreshold?: number;
+    content?: IGalleryComponentContent;
+    debug?: boolean;
+    helper?: Helper | null;
+    imageFadeInDuration?: number;
+    initialZoom?: number;
+    minLabelWidth?: number;
+    pageModeEnabled?: boolean;
+    searchResults?: AnnotationGroup[];
+    scrollStopDuration?: number;
+    sizingEnabled?: boolean;
+    thumbHeight?: number;
+    thumbLoadPadding?: number;
+    thumbWidth?: number;
+    viewingDirection?: ViewingDirection;
+}
+export declare class GalleryComponent extends BaseComponent {
+    options: IBaseComponentOptions;
+    private _$element;
+    private _$header;
+    private _$leftOptions;
+    private _$main;
+    private _$multiSelectOptions;
+    private _$rightOptions;
+    private _$selectAllButton;
+    private _$selectAllButtonCheckbox;
+    private _$downloadButton;
+    private _$selectedThumb;
+    private _$sizeDownButton;
+    private _$sizeRange;
+    private _$sizeUpButton;
+    private _$thumbs;
+    private _data;
+    private _range;
+    private _thumbs;
+    private _thumbsCache;
+    constructor(options: IBaseComponentOptions);
+    protected _init(): boolean;
+    data(): IGalleryComponentData;
+    set(data: IGalleryComponentData): void;
+    private _update;
+    private _getMultiSelectState;
+    private _escapeHtml;
+    private _galleryThumbsTemplate;
+    private _galleryThumbClassName;
+    private _galleryThumbSearchResultsTitle;
+    private _createThumbs;
+    private _getThumbMultiSelected;
+    private _getThumbByCanvas;
+    private _sizeThumb;
+    private _loadThumb;
+    private _getThumbsByRange;
+    private _updateThumbs;
+    private _getSelectedThumbIndex;
+    private _getAllThumbs;
+    private _getThumbByIndex;
+    private _scrollToThumb;
+    selectIndex(index: number): void;
+    private _setRange;
+    private _updateThumbHtmlMultiSelected;
+    protected _resize(): void;
+}

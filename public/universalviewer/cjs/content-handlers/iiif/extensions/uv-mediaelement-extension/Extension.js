@@ -24,6 +24,7 @@ var Bookmark_1 = require("../../modules/uv-shared-module/Bookmark");
 var DownloadDialogue_1 = require("./DownloadDialogue");
 var Events_1 = require("./Events");
 var FooterPanel_1 = require("../../modules/uv-shared-module/FooterPanel");
+var MobileFooter_1 = require("../../modules/uv-mediaelementmobilefooterpanel-module/MobileFooter");
 var HeaderPanel_1 = require("../../modules/uv-shared-module/HeaderPanel");
 var HelpDialogue_1 = require("../../modules/uv-dialogues-module/HelpDialogue");
 var MediaElementCenterPanel_1 = require("../../modules/uv-mediaelementcenterpanel-module/MediaElementCenterPanel");
@@ -31,7 +32,7 @@ var MoreInfoRightPanel_1 = require("../../modules/uv-moreinforightpanel-module/M
 var ResourcesLeftPanel_1 = require("../../modules/uv-resourcesleftpanel-module/ResourcesLeftPanel");
 var SettingsDialogue_1 = require("./SettingsDialogue");
 var ShareDialogue_1 = require("./ShareDialogue");
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../../Utils");
 var dist_commonjs_1 = require("@iiif/vocabulary/dist-commonjs/");
 var manifesto_js_1 = require("manifesto.js");
 var TFragment_1 = require("../../modules/uv-shared-module/TFragment");
@@ -43,9 +44,6 @@ var Extension = /** @class */ (function (_super) {
     function Extension() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.defaultConfig = config_json_1.default;
-        _this.locales = {
-            "en-GB": config_json_1.default,
-        };
         return _this;
     }
     Extension.prototype.create = function () {
@@ -107,6 +105,7 @@ var Extension = /** @class */ (function (_super) {
         }
         if (this.isFooterPanelEnabled()) {
             this.footerPanel = new FooterPanel_1.FooterPanel(this.shell.$footerPanel);
+            this.mobileFooterPanel = new MobileFooter_1.FooterPanel(this.shell.$mobileFooterPanel);
         }
         else {
             this.shell.$footerPanel.hide();
@@ -133,6 +132,7 @@ var Extension = /** @class */ (function (_super) {
     Extension.prototype.render = function () {
         _super.prototype.render.call(this);
         this.checkForTarget();
+        this.checkForMuted();
     };
     Extension.prototype.checkForTarget = function () {
         if (this.data.target) {
@@ -149,8 +149,11 @@ var Extension = /** @class */ (function (_super) {
             this.extensionHost.publish(IIIFEvents_1.IIIFEvents.SET_TARGET, TFragment_1.TFragment.fromString(selector));
         }
     };
+    Extension.prototype.checkForMuted = function () {
+        this.extensionHost.publish(IIIFEvents_1.IIIFEvents.SET_MUTED, this.data.muted || false);
+    };
     Extension.prototype.isLeftPanelEnabled = function () {
-        return (utils_1.Bools.getBool(this.data.config.options.leftPanelEnabled, true) &&
+        return (Utils_1.Bools.getBool(this.data.config.options.leftPanelEnabled, true) &&
             (this.helper.isMultiCanvas() ||
                 this.helper.isMultiSequence() ||
                 this.helper.hasResources()));
@@ -173,21 +176,46 @@ var Extension = /** @class */ (function (_super) {
         this.fire(IIIFEvents_1.IIIFEvents.BOOKMARK, bookmark);
     };
     Extension.prototype.getEmbedScript = function (template, width, height) {
-        var appUri = this.getAppUri();
-        var iframeSrc = "".concat(appUri, "#?manifest=").concat(this.helper.manifestUri, "&c=").concat(this.helper.collectionIndex, "&m=").concat(this.helper.manifestIndex, "&cv=").concat(this.helper.canvasIndex);
-        var script = utils_1.Strings.format(template, iframeSrc, width.toString(), height.toString());
-        return script;
+        var hashParams = new URLSearchParams({
+            manifest: this.helper.manifestUri,
+            c: this.helper.collectionIndex.toString(),
+            m: this.helper.manifestIndex.toString(),
+            cv: this.helper.canvasIndex.toString(),
+        });
+        return _super.prototype.buildEmbedScript.call(this, template, width, height, hashParams);
     };
-    // todo: use canvas.getThumbnail()
     Extension.prototype.getPosterImageUri = function () {
+        var _a;
+        var posterUri = null;
         var canvas = this.helper.getCurrentCanvas();
-        var annotations = canvas.getContent();
-        if (annotations && annotations.length) {
-            return annotations[0].getProperty("thumbnail");
+        // if there's an accompanying canvas, use that.
+        var accompanyingCanvas = canvas.getProperty("accompanyingCanvas");
+        if (accompanyingCanvas) {
+            if (accompanyingCanvas.items && accompanyingCanvas.items.length) {
+                var annotationPage = accompanyingCanvas.items[0];
+                if (annotationPage.items && annotationPage.items.length) {
+                    var annotation = annotationPage.items[0];
+                    posterUri = (_a = annotation.body) === null || _a === void 0 ? void 0 : _a.id;
+                }
+            }
         }
         else {
-            return canvas.getProperty("thumbnail");
+            var annotations = canvas.getContent();
+            if (annotations && annotations.length) {
+                var annotationUri = annotations[0].getProperty("thumbnail");
+                if (typeof annotationUri === "string") {
+                    posterUri = annotationUri;
+                }
+                else if ((annotationUri === null || annotationUri === void 0 ? void 0 : annotationUri.length) &&
+                    typeof annotationUri[0].id === "string") {
+                    posterUri = annotationUri[0].id;
+                }
+            }
+            else {
+                posterUri = canvas.getProperty("thumbnail");
+            }
         }
+        return posterUri;
     };
     Extension.prototype.isVideoFormat = function (type) {
         var videoFormats = [dist_commonjs_1.MediaType.VIDEO_MP4, dist_commonjs_1.MediaType.WEBM];

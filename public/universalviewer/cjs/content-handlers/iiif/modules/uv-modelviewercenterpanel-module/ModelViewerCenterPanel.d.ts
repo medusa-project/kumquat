@@ -2,7 +2,7 @@ import "@google/model-viewer/dist/model-viewer";
 import { IExternalResource } from "manifesto.js";
 import { CenterPanel } from "../uv-shared-module/CenterPanel";
 import { Config } from "../../extensions/uv-model-viewer-extension/config/Config";
-export declare class ModelViewerCenterPanel extends CenterPanel<Config["modules"]["centerPanel"]> {
+export declare class ModelViewerCenterPanel extends CenterPanel<Config["modules"]["modelViewerCenterPanel"]> {
     $modelviewer: JQuery;
     $spinner: JQuery;
     isLoaded: boolean;

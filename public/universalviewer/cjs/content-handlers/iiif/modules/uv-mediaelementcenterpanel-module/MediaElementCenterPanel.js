@@ -24,12 +24,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -52,36 +52,72 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MediaElementCenterPanel = void 0;
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../../Utils");
 var $ = require("jquery");
 var IIIFEvents_1 = require("../../IIIFEvents");
 var Events_1 = require("../../extensions/uv-mediaelement-extension/Events");
 var CenterPanel_1 = require("../uv-shared-module/CenterPanel");
-var Utils_1 = require("../../../../Utils");
+var Utils_2 = require("../../../../Utils");
 require("mediaelement/build/mediaelement-and-player");
-require("mediaelement-plugins/dist/source-chooser/source-chooser");
+require("mediaelement/build/mediaelementplayer.min.css");
+require("./js/source-chooser-fixed.js");
 require("mediaelement-plugins/dist/source-chooser/source-chooser.css");
 var Events_2 = require("../../../../Events");
 var MediaElementCenterPanel = /** @class */ (function (_super) {
     __extends(MediaElementCenterPanel, _super);
     function MediaElementCenterPanel($element) {
-        return _super.call(this, $element) || this;
+        var _this = _super.call(this, $element) || this;
+        _this.pauseTimeoutId = null;
+        _this.muted = false;
+        return _this;
     }
     MediaElementCenterPanel.prototype.create = function () {
         var _this = this;
-        this.setConfig("centerPanel");
+        this.setConfig("mediaElementCenterPanel");
         _super.prototype.create.call(this);
         var that = this;
         this.extensionHost.subscribe(Events_2.Events.TOGGLE_FULLSCREEN, function () {
             _this.resize();
         });
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.SET_TARGET, function (target) {
+            // Clear any existing timeout
+            if (that.pauseTimeoutId !== null) {
+                clearTimeout(that.pauseTimeoutId);
+                that.pauseTimeoutId = null;
+            }
             var t = target.t;
             if (Array.isArray(t)) {
-                t = t[0];
+                if (t.length === 1) {
+                    t = t[0];
+                }
+                else {
+                    var startTime = t[0], endTime = t[1];
+                    if (endTime <= startTime) {
+                        console.error("endTime must be greater than startTime");
+                        return;
+                    }
+                    that.player.setCurrentTime(startTime);
+                    if (that.config.options.autoPlayOnSetTarget) {
+                        var duration = (endTime - startTime) * 1000;
+                        that.pauseTimeoutId = setTimeout(function () {
+                            that.player.pause();
+                            that.pauseTimeoutId = null; // Clear the timeout ID after execution
+                        }, duration);
+                        that.player.play();
+                    }
+                    return;
+                }
             }
             that.player.setCurrentTime(t);
-            that.player.play();
+            if (that.config.options.autoPlayOnSetTarget) {
+                that.player.play();
+            }
+        });
+        this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.SET_MUTED, function (muted) {
+            if (that.player) {
+                that.player.setMuted(muted);
+                that.updateMutedAttribute(muted);
+            }
         });
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.OPEN_EXTERNAL_RESOURCE, function (resources) {
             that.openMedia(resources);
@@ -92,17 +128,25 @@ var MediaElementCenterPanel = /** @class */ (function (_super) {
         this.$wrapper.append(this.$container);
         this.title = this.extension.helper.getLabel();
     };
+    MediaElementCenterPanel.prototype.updateMutedAttribute = function (muted) {
+        if (muted) {
+            this.$media.attr("muted", "");
+        }
+        else {
+            this.$media.removeAttr("muted");
+        }
+    };
     MediaElementCenterPanel.prototype.openMedia = function (resources) {
         return __awaiter(this, void 0, void 0, function () {
-            var that, canvas, poster, sources, subtitles, renderings, formats, _i, subtitles_1, subtitle, _a, sources_1, source, _b, sources_2, source;
+            var that, canvas, poster, sources, subtitles, renderings, formats;
             var _this = this;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         that = this;
                         return [4 /*yield*/, this.extension.getExternalResources(resources)];
                     case 1:
-                        _c.sent();
+                        _a.sent();
                         this.$container.empty();
                         canvas = this.extension.helper.getCurrentCanvas();
                         this.mediaHeight = this.options.defaultHeight;
@@ -113,16 +157,17 @@ var MediaElementCenterPanel = /** @class */ (function (_super) {
                         renderings = canvas.getRenderings();
                         if (renderings && renderings.length) {
                             canvas.getRenderings().forEach(function (rendering) {
-                                var _a;
+                                var _a, _b;
                                 if (_this.isTypeMedia(rendering)) {
                                     sources.push({
+                                        label: (_a = rendering.getLabel().getValue()) !== null && _a !== void 0 ? _a : rendering.getFormat().toString(),
                                         type: rendering.getFormat().toString(),
                                         src: rendering.id,
                                     });
                                 }
                                 if (_this.isTypeCaption(rendering)) {
                                     subtitles.push({
-                                        label: (_a = rendering.getLabel().getValue()) !== null && _a !== void 0 ? _a : rendering.getFormat().toString(),
+                                        label: (_b = rendering.getLabel().getValue()) !== null && _b !== void 0 ? _b : rendering.getFormat().toString(),
                                         id: rendering.id,
                                     });
                                 }
@@ -149,21 +194,15 @@ var MediaElementCenterPanel = /** @class */ (function (_super) {
                                 });
                             }
                         }
+                        if (subtitles.length > 0) {
+                            // Show captions options popover for better interface feedback
+                            subtitles.unshift({ id: "none" });
+                        }
                         if (this.isVideo()) {
                             this.$media = $('<video controls="controls" preload="none" style="width:100%;height:100%;" width="100%" height="100%"></video>');
                             // Add VTT subtitles/captions.
-                            if (subtitles.length > 0) {
-                                // Show captions options popover for better interface feedback
-                                subtitles.unshift({ id: "none" });
-                            }
-                            for (_i = 0, subtitles_1 = subtitles; _i < subtitles_1.length; _i++) {
-                                subtitle = subtitles_1[_i];
-                                this.$media.append($("<track label=\"".concat(subtitle.label, "\" kind=\"subtitles\" srclang=\"").concat(subtitle.language, "\" src=\"").concat(subtitle.id, "\" ").concat(subtitles.indexOf(subtitle) === 0 ? "default" : "", ">\n")));
-                            }
-                            for (_a = 0, sources_1 = sources; _a < sources_1.length; _a++) {
-                                source = sources_1[_a];
-                                this.$media.append($("<source src=\"".concat(source.src, "\" type=\"").concat(source.type, "\" title=\"").concat(source.label, "\">")));
-                            }
+                            this.appendTextTracks(subtitles);
+                            this.appendMediaSources(sources);
                             this.$container.append(this.$media);
                             this.player = new MediaElementPlayer($("video")[0], {
                                 poster: poster,
@@ -178,6 +217,7 @@ var MediaElementCenterPanel = /** @class */ (function (_super) {
                                     "fullscreen",
                                 ],
                                 success: function (mediaElement, originalNode) {
+                                    var _this = this;
                                     mediaElement.addEventListener("loadstart", function () {
                                         // console.log("loadstart");
                                         that.resize();
@@ -186,6 +226,10 @@ var MediaElementCenterPanel = /** @class */ (function (_super) {
                                         that.extensionHost.publish(Events_1.MediaElementExtensionEvents.MEDIA_PLAYED, Math.floor(mediaElement.currentTime));
                                     });
                                     mediaElement.addEventListener("pause", function () {
+                                        if (_this.pauseTimeoutId !== null) {
+                                            clearTimeout(_this.pauseTimeoutId);
+                                            _this.pauseTimeoutId = null;
+                                        }
                                         // mediaelement creates a pause event before the ended event. ignore this.
                                         if (Math.floor(mediaElement.currentTime) !=
                                             Math.floor(mediaElement.duration)) {
@@ -198,16 +242,27 @@ var MediaElementCenterPanel = /** @class */ (function (_super) {
                                     mediaElement.addEventListener("timeupdate", function () {
                                         that.extensionHost.publish(Events_1.MediaElementExtensionEvents.MEDIA_TIME_UPDATE, Math.floor(mediaElement.currentTime));
                                     });
+                                    mediaElement.addEventListener("volumechange", function (volume) {
+                                        var muted = volume.detail.target.getMuted();
+                                        if (that.muted === false && muted === true) {
+                                            that.muted = true;
+                                            that.extensionHost.fire(Events_1.MediaElementExtensionEvents.MEDIA_MUTED);
+                                        }
+                                        if (that.muted === true && muted === false) {
+                                            that.muted = false;
+                                            that.extensionHost.fire(Events_1.MediaElementExtensionEvents.MEDIA_UNMUTED);
+                                        }
+                                        that.updateMutedAttribute(that.muted);
+                                    });
                                 },
                             });
                         }
                         else {
                             // audio
                             this.$media = $('<audio controls="controls" preload="none" style="width:100%;height:100%;" width="100%" height="100%"></audio>');
-                            for (_b = 0, sources_2 = sources; _b < sources_2.length; _b++) {
-                                source = sources_2[_b];
-                                this.$media.append($("<source src=\"".concat(source.src, "\" type=\"").concat(source.type, "\" title=\"").concat(source.label, "\">")));
-                            }
+                            // Add VTT subtitles/captions.
+                            this.appendTextTracks(subtitles);
+                            this.appendMediaSources(sources);
                             this.$container.append(this.$media);
                             this.player = new MediaElementPlayer($("audio")[0], {
                                 poster: poster,
@@ -222,13 +277,19 @@ var MediaElementCenterPanel = /** @class */ (function (_super) {
                                 ],
                                 stretching: "responsive",
                                 defaultAudioHeight: "auto",
+                                hideVolumeOnTouchDevices: false,
                                 showPosterWhenPaused: true,
                                 showPosterWhenEnded: true,
                                 success: function (mediaElement, originalNode) {
+                                    var _this = this;
                                     mediaElement.addEventListener("play", function () {
                                         that.extensionHost.publish(Events_1.MediaElementExtensionEvents.MEDIA_PLAYED, Math.floor(mediaElement.currentTime));
                                     });
                                     mediaElement.addEventListener("pause", function () {
+                                        if (_this.pauseTimeoutId !== null) {
+                                            clearTimeout(_this.pauseTimeoutId);
+                                            _this.pauseTimeoutId = null;
+                                        }
                                         // mediaelement creates a pause event before the ended event. ignore this.
                                         if (Math.floor(mediaElement.currentTime) !=
                                             Math.floor(mediaElement.duration)) {
@@ -241,6 +302,18 @@ var MediaElementCenterPanel = /** @class */ (function (_super) {
                                     mediaElement.addEventListener("timeupdate", function () {
                                         that.extensionHost.publish(Events_1.MediaElementExtensionEvents.MEDIA_TIME_UPDATE, Math.floor(mediaElement.currentTime));
                                     });
+                                    mediaElement.addEventListener("volumechange", function (volume) {
+                                        var muted = volume.detail.target.getMuted();
+                                        if (that.muted === false && muted === true) {
+                                            that.muted = true;
+                                            that.extensionHost.fire(Events_1.MediaElementExtensionEvents.MEDIA_MUTED);
+                                        }
+                                        if (that.muted === true && muted === false) {
+                                            that.muted = false;
+                                            that.extensionHost.fire(Events_1.MediaElementExtensionEvents.MEDIA_UNMUTED);
+                                        }
+                                        that.updateMutedAttribute(that.muted);
+                                    });
                                 },
                             });
                         }
@@ -250,6 +323,18 @@ var MediaElementCenterPanel = /** @class */ (function (_super) {
                 }
             });
         });
+    };
+    MediaElementCenterPanel.prototype.appendTextTracks = function (subtitles) {
+        for (var _i = 0, subtitles_1 = subtitles; _i < subtitles_1.length; _i++) {
+            var subtitle = subtitles_1[_i];
+            this.$media.append($("<track label=\"".concat(subtitle.label, "\" kind=\"subtitles\" srclang=\"").concat(subtitle.language, "\" src=\"").concat(subtitle.id, "\" ").concat(subtitles.indexOf(subtitle) === 0 ? "default" : "", ">\n")));
+        }
+    };
+    MediaElementCenterPanel.prototype.appendMediaSources = function (sources) {
+        for (var _i = 0, sources_1 = sources; _i < sources_1.length; _i++) {
+            var source = sources_1[_i];
+            this.$media.append($("<source src=\"".concat(source.src, "\" type=\"").concat(source.type, "\" title=\"").concat(source.label, "\">")));
+        }
     };
     // audio/video
     MediaElementCenterPanel.prototype.isTypeMedia = function (element) {
@@ -279,9 +364,9 @@ var MediaElementCenterPanel = /** @class */ (function (_super) {
             return;
         }
         if (this.title) {
-            this.$title.text((0, Utils_1.sanitize)(this.title));
+            this.$title.text((0, Utils_2.sanitize)(this.title));
         }
-        var size = utils_1.Dimensions.fitRect(this.mediaWidth, this.mediaHeight, this.$content.width(), this.$content.height());
+        var size = Utils_1.Dimensions.fitRect(this.mediaWidth, this.mediaHeight, this.$content.width(), this.$content.height());
         this.$container.height(size.height);
         this.$container.width(size.width);
         if (this.player) {

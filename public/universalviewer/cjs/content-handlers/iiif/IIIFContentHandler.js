@@ -41,13 +41,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -58,12 +68,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -187,6 +197,7 @@ var IIIFContentHandler = /** @class */ (function (_super) {
         this._extensionRegistry[dist_commonjs_1.ExternalResourceType.SOUND] =
             Extension.MEDIAELEMENT;
         this._extensionRegistry[dist_commonjs_1.MediaType.AUDIO_MP4] = Extension.AV;
+        this._extensionRegistry[dist_commonjs_1.MediaType.AUDIO_OGG] = Extension.AV;
         this._extensionRegistry[dist_commonjs_1.MediaType.DICOM] = Extension.ALEPH;
         this._extensionRegistry[dist_commonjs_1.MediaType.DRACO] = Extension.MODELVIEWER;
         this._extensionRegistry[dist_commonjs_1.MediaType.EPUB] = Extension.EBOOK;
@@ -195,11 +206,14 @@ var IIIFContentHandler = /** @class */ (function (_super) {
         this._extensionRegistry[dist_commonjs_1.MediaType.GLTF] = Extension.MODELVIEWER;
         this._extensionRegistry[dist_commonjs_1.MediaType.JPG] = Extension.OSD;
         this._extensionRegistry[dist_commonjs_1.MediaType.MP3] = Extension.AV;
+        this._extensionRegistry[dist_commonjs_1.MediaType.MPEG] = Extension.AV;
         this._extensionRegistry[dist_commonjs_1.MediaType.MPEG_DASH] = Extension.AV;
         this._extensionRegistry[dist_commonjs_1.MediaType.OPF] = Extension.EBOOK;
         this._extensionRegistry[dist_commonjs_1.MediaType.PDF] = Extension.PDF;
+        this._extensionRegistry[dist_commonjs_1.MediaType.PNG] = Extension.OSD;
         this._extensionRegistry[dist_commonjs_1.MediaType.USDZ] = Extension.MODELVIEWER;
         this._extensionRegistry[dist_commonjs_1.MediaType.VIDEO_MP4] = Extension.AV;
+        this._extensionRegistry[dist_commonjs_1.MediaType.VIDEO_OGG] = Extension.AV;
         this._extensionRegistry[dist_commonjs_1.MediaType.WAV] = Extension.AV;
         this._extensionRegistry[dist_commonjs_1.MediaType.WEBM] = Extension.AV;
         this._extensionRegistry[dist_commonjs_1.RenderingFormat.PDF] = Extension.PDF;
@@ -293,22 +307,40 @@ var IIIFContentHandler = /** @class */ (function (_super) {
     };
     IIIFContentHandler.prototype.dispose = function () {
         var _a;
-        // console.log("dispose IIIFContentHandler");
         _super.prototype.dispose.call(this);
         this._pubsub.dispose();
         (_a = this.extension) === null || _a === void 0 ? void 0 : _a.dispose();
         this.disposed = true;
-        // const $elem: JQuery = $(this.options.target);
-        // $elem.empty();
-        // remove all classes
-        // $elem.attr("class", "");
+    };
+    IIIFContentHandler.prototype._loadAndApplyConfigToExtension = function (that, data, extension) {
+        return __awaiter(this, void 0, void 0, function () {
+            var config, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        // import the config file
+                        if (!data.locales) {
+                            data.locales = [];
+                            data.locales.push(Utils_1.defaultLocale);
+                        }
+                        return [4 /*yield*/, extension.loadConfig(data.locales[0].name, extension === null || extension === void 0 ? void 0 : extension.type.name)];
+                    case 1:
+                        config = _b.sent();
+                        _a = data;
+                        return [4 /*yield*/, that.configure(config)];
+                    case 2:
+                        _a.config = _b.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     IIIFContentHandler.prototype._reload = function (data) {
         return __awaiter(this, void 0, void 0, function () {
-            var $elem, that, helper, trackingLabel, canvas, extension, content, format, annotation, body, type, type, canvasType, format_1, hasRanges, config, _a, e_1;
+            var $elem, that, helper, trackingLabel, canvas, extension, content, format, annotation, body, type, type, canvasType, format_1, hasRanges, e_1;
             var _this = this;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         this._pubsub.dispose(); // remove any existing event listeners
                         data.target = ""; // clear target
@@ -319,12 +351,12 @@ var IIIFContentHandler = /** @class */ (function (_super) {
                         // empty the containing element
                         $elem.empty();
                         that = this;
-                        _b.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _b.trys.push([1, 20, , 21]);
+                        _a.trys.push([1, 21, , 22]);
                         return [4 /*yield*/, (0, manifold_1.loadManifest)({
                                 manifestUri: data.iiifManifestId,
-                                collectionIndex: data.collectionIndex,
+                                collectionIndex: data.collectionIndex, // this has to be undefined by default otherwise it's assumed that the first manifest is within a collection
                                 manifestIndex: data.manifestIndex || 0,
                                 canvasId: data.canvasId,
                                 canvasIndex: data.canvasIndex || 0,
@@ -332,7 +364,7 @@ var IIIFContentHandler = /** @class */ (function (_super) {
                                 locale: data.locales ? data.locales[0].name : undefined,
                             })];
                     case 2:
-                        helper = _b.sent();
+                        helper = _a.sent();
                         trackingLabel = helper.getTrackingLabel();
                         if (trackingLabel) {
                             trackingLabel +=
@@ -341,7 +373,6 @@ var IIIFContentHandler = /** @class */ (function (_super) {
                                     : document.location;
                             window.trackingLabel = trackingLabel;
                         }
-                        canvas = void 0;
                         canvas = helper.getCurrentCanvas();
                         if (!canvas) {
                             that._error("Canvas ".concat(data.canvasIndex, " not found."));
@@ -358,22 +389,22 @@ var IIIFContentHandler = /** @class */ (function (_super) {
                         if (!format) return [3 /*break*/, 6];
                         return [4 /*yield*/, that._getExtensionByFormat(format)];
                     case 3:
-                        extension = _b.sent();
+                        extension = _a.sent();
                         if (!!extension) return [3 /*break*/, 5];
                         type = body[0].getType();
                         if (!type) return [3 /*break*/, 5];
                         return [4 /*yield*/, that._getExtensionByFormat(type)];
                     case 4:
-                        extension = _b.sent();
-                        _b.label = 5;
+                        extension = _a.sent();
+                        _a.label = 5;
                     case 5: return [3 /*break*/, 8];
                     case 6:
                         type = body[0].getType();
                         if (!type) return [3 /*break*/, 8];
                         return [4 /*yield*/, that._getExtensionByFormat(type)];
                     case 7:
-                        extension = _b.sent();
-                        _b.label = 8;
+                        extension = _a.sent();
+                        _a.label = 8;
                     case 8: return [3 /*break*/, 13];
                     case 9:
                         canvasType = canvas.getType();
@@ -381,48 +412,47 @@ var IIIFContentHandler = /** @class */ (function (_super) {
                         return [4 /*yield*/, that._getExtensionByFormat(canvasType)];
                     case 10:
                         // try using canvasType
-                        extension = _b.sent();
-                        _b.label = 11;
+                        extension = _a.sent();
+                        _a.label = 11;
                     case 11:
                         if (!!extension) return [3 /*break*/, 13];
                         format_1 = canvas.getProperty("format");
                         return [4 /*yield*/, that._getExtensionByFormat(format_1)];
                     case 12:
-                        extension = _b.sent();
-                        _b.label = 13;
-                    case 13:
-                        hasRanges = helper.getRanges().length > 0;
-                        if (!(extension.type === Extension.AV && !hasRanges)) return [3 /*break*/, 15];
-                        return [4 /*yield*/, that._getExtensionByType(Extension.MEDIAELEMENT, format)];
+                        extension = _a.sent();
+                        _a.label = 13;
+                    case 13: return [4 /*yield*/, this._loadAndApplyConfigToExtension(that, data, extension)];
                     case 14:
-                        extension = _b.sent();
-                        _b.label = 15;
+                        _a.sent();
+                        hasRanges = helper.getRanges().length > 0;
+                        if (!(extension.type === Extension.AV &&
+                            (!hasRanges || data.config.options.preferMediaElementExtension))) return [3 /*break*/, 17];
+                        return [4 /*yield*/, that._getExtensionByType(Extension.MEDIAELEMENT, format)];
                     case 15:
-                        if (!!extension) return [3 /*break*/, 17];
-                        return [4 /*yield*/, that._getExtensionByFormat(Extension.DEFAULT.name)];
+                        extension = _a.sent();
+                        return [4 /*yield*/, this._loadAndApplyConfigToExtension(that, data, extension)];
                     case 16:
-                        extension = _b.sent();
-                        _b.label = 17;
+                        _a.sent();
+                        _a.label = 17;
                     case 17:
-                        if (!data.locales) {
-                            data.locales = [];
-                            data.locales.push(Utils_1.defaultLocale);
-                        }
-                        return [4 /*yield*/, extension.loadConfig(data.locales[0].name, extension === null || extension === void 0 ? void 0 : extension.type.name)];
+                        if (!!extension) return [3 /*break*/, 20];
+                        return [4 /*yield*/, that._getExtensionByFormat(Extension.DEFAULT.name)];
                     case 18:
-                        config = _b.sent();
-                        _a = data;
-                        return [4 /*yield*/, that.configure(config)];
+                        extension = _a.sent();
+                        return [4 /*yield*/, this._loadAndApplyConfigToExtension(that, data, extension)];
                     case 19:
-                        _a.config = _b.sent();
-                        that._createExtension(extension, data, helper);
-                        return [3 /*break*/, 21];
+                        _a.sent();
+                        _a.label = 20;
                     case 20:
-                        e_1 = _b.sent();
+                        that._createExtension(extension, data, helper);
+                        return [3 /*break*/, 22];
+                    case 21:
+                        e_1 = _a.sent();
                         this.hideSpinner();
                         alert("Unable to load manifest");
-                        return [3 /*break*/, 21];
-                    case 21: return [2 /*return*/];
+                        console.error(e_1);
+                        return [3 /*break*/, 22];
+                    case 22: return [2 /*return*/];
                 }
             });
         });

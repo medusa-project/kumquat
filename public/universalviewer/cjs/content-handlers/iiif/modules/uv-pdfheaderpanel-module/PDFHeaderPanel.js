@@ -20,7 +20,7 @@ var $ = require("jquery");
 var IIIFEvents_1 = require("../../IIIFEvents");
 var Events_1 = require("../../extensions/uv-pdf-extension/Events");
 var HeaderPanel_1 = require("../uv-shared-module/HeaderPanel");
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../../Utils");
 var PDFHeaderPanel = /** @class */ (function (_super) {
     __extends(PDFHeaderPanel, _super);
     function PDFHeaderPanel($element) {
@@ -35,7 +35,7 @@ var PDFHeaderPanel = /** @class */ (function (_super) {
     }
     PDFHeaderPanel.prototype.create = function () {
         var _this = this;
-        this.setConfig("headerPanel");
+        this.setConfig("pdfHeaderPanel");
         _super.prototype.create.call(this);
         this.extensionHost.subscribe(Events_1.PDFExtensionEvents.PAGE_INDEX_CHANGE, function (pageIndex) {
             _this._pageIndex = pageIndex;
@@ -60,7 +60,9 @@ var PDFHeaderPanel = /** @class */ (function (_super) {
         this.$search.append(this.$searchText);
         this.$total = $('<span class="total"></span>');
         this.$search.append(this.$total);
-        this.$searchButton = $('<a class="go btn btn-primary" tabindex="0">' + this.content.go + "</a>");
+        this.$searchButton = $('<button class="go btn btn-primary" tabindex="0">' +
+            this.content.go +
+            "</button>");
         this.$search.append(this.$searchButton);
         this.$searchButton.disable();
         this.$nextOptions = $('<div class="nextOptions"></div>');
@@ -91,7 +93,7 @@ var PDFHeaderPanel = /** @class */ (function (_super) {
         this.$searchText.click(function () {
             $(this).select();
         });
-        this.$searchButton.onPressed(function () {
+        this.onAccessibleClick(this.$searchButton, function () {
             _this.search(_this.$searchText.val());
         });
     };
@@ -105,23 +107,31 @@ var PDFHeaderPanel = /** @class */ (function (_super) {
         }
         this.$searchText.val(this._pageIndex);
         var of = this.content.of;
-        this.$total.html(utils_1.Strings.format(of, this._pdfDoc.numPages.toString()));
+        this.$total.html(Utils_1.Strings.format(of, this._pdfDoc.numPages.toString()));
         this.$searchButton.enable();
         if (this._pageIndex === 1) {
             this.$firstButton.disable();
+            this.$firstButton.attr("disabled", "disabled");
             this.$prevButton.disable();
+            this.$prevButton.attr("disabled", "disabled");
         }
         else {
             this.$firstButton.enable();
+            this.$firstButton.removeAttr("disabled");
             this.$prevButton.enable();
+            this.$prevButton.removeAttr("disabled");
         }
         if (this._pageIndex === this._pdfDoc.numPages) {
             this.$lastButton.disable();
+            this.$lastButton.attr("disabled", "disabled");
             this.$nextButton.disable();
+            this.$nextButton.attr("disabled", "disabled");
         }
         else {
             this.$lastButton.enable();
+            this.$lastButton.removeAttr("disabled");
             this.$nextButton.enable();
+            this.$nextButton.removeAttr("disabled");
         }
     };
     PDFHeaderPanel.prototype.search = function (value) {

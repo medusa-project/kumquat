@@ -14,7 +14,7 @@ export default class IIIFContentHandler extends BaseContentHandler<IIIFData> imp
     adapter?: UVAdapter | undefined;
     private _extensionRegistry;
     private _pubsub;
-    extension: IExtension | null;
+    extension: IExtension | undefined;
     isFullScreen: boolean;
     disposed: boolean;
     private extra;
@@ -27,6 +27,7 @@ export default class IIIFContentHandler extends BaseContentHandler<IIIFData> imp
     subscribe(event: string, handler: any): () => void;
     subscribeAll(handler: EventHandlerWithName): () => void;
     dispose(): void;
+    private _loadAndApplyConfigToExtension;
     private _reload;
     private _error;
     private _createExtension;

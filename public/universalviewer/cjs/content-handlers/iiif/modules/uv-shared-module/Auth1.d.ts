@@ -1,5 +1,5 @@
 import { IExternalResource, IAccessToken, IManifestoOptions, Service } from "manifesto.js";
-import { StorageType } from "@edsilv/utils";
+import { StorageType } from "../../Utils";
 export declare class Auth1 {
     static messages: any;
     static storageStrategy: StorageType;

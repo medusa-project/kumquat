@@ -1,6 +1,6 @@
 import { LeftPanel } from "../uv-shared-module/LeftPanel";
 import { Config } from "../../extensions/uv-ebook-extension/config/Config";
-export declare class EbookLeftPanel extends LeftPanel<Config["modules"]["leftPanel"]> {
+export declare class EbookLeftPanel extends LeftPanel<Config["modules"]["ebookLeftPanel"]> {
     private _ebookTOC;
     private _$container;
     private _$ebookTOC;

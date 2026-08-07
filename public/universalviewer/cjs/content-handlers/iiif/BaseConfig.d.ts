@@ -1,13 +1,13 @@
-import { StorageType } from "@edsilv/utils";
+import { StorageType } from "../iiif/Utils";
 import { ExpandPanel, ExpandPanelContent, ExpandPanelOptions } from "./extensions/config/ExpandPanel";
-export { StorageType } from "@edsilv/utils";
-export declare type MetricType = string | "sm" | "md" | "lg" | "xl";
+export { StorageType } from "../iiif/Utils";
+export type MetricType = string | "sm" | "md" | "lg" | "xl";
 export declare class Metric {
     type: MetricType;
     minWidth: number;
     constructor(type: MetricType, minWidth: number);
 }
-export declare type Options = {
+export type Options = {
     /** Determines if the focus can be stolen */
     allowStealFocus?: boolean;
     /** Version of the authentication API */
@@ -40,10 +40,8 @@ export declare type Options = {
     overrideFullScreen: boolean;
     /** Determines if paging is enabled */
     pagingEnabled?: boolean;
-    /** Determines if paging option is enabled */
-    pagingOptionEnabled?: boolean;
-    /** Determines if access control is pessimistic */
-    pessimisticAccessControl?: boolean;
+    /** Determines if the mediaelement extension should be preferred */
+    preferMediaElementExtension?: boolean;
     /** Determines if viewport is preserved */
     preserveViewport?: boolean;
     /** Determines if the right panel is enabled */
@@ -54,12 +52,8 @@ export declare type Options = {
     clickToZoomEnabled?: boolean;
     /** Determines if search within is enabled */
     searchWithinEnabled?: boolean;
-    /** Determines if seealso content is enabled */
-    seeAlsoEnabled?: boolean;
     /** Determines if terms of use are enabled */
     termsOfUseEnabled: boolean;
-    /** Theme string */
-    theme: string;
     /** Storage for tokens */
     tokenStorage: string | StorageType;
     /** Determines if arrow keys can be used to navigate */
@@ -68,52 +62,62 @@ export declare type Options = {
     zoomToSearchResultEnabled?: boolean;
     /** Determines if zoom to bounds is enabled */
     zoomToBoundsEnabled?: boolean;
+    /** Controls whether to have animations or not */
+    reducedAnimation?: boolean;
+    /** A default animation duration */
+    animationDuration?: number;
 };
-declare type Locale = {
+type Locale = {
     name: string;
     label: string;
 };
-export declare type ModuleOptions = {};
-export declare type ModuleContent = {};
-export declare type ModuleConfig = {
+export type ModuleOptions = {};
+export type ModuleContent = {};
+export type ModuleConfig = {
     options: ModuleOptions;
     content: ModuleContent;
 };
-export declare type Localisation = {
+export type Localisation = {
     label: string;
     locales: Locale[];
 };
-export declare type HeaderPanelOptions = {
+export type HeaderPanelOptions = {
     /** Determines if center options are enabled */
     centerOptionsEnabled: boolean;
     /** Determines if locale toggle is enabled */
     localeToggleEnabled: boolean;
     /** Determines if settings button is enabled */
     settingsButtonEnabled: boolean;
+    /** Determines if help is enabled */
+    helpEnabled?: boolean;
+    helpUrl?: string;
 };
-export declare type HeaderPanelContent = {
+export type HeaderPanelContent = {
     close: string;
     settings: string;
+    help: string;
 };
-declare type HeaderPanel = ModuleConfig & {
+type HeaderPanel = ModuleConfig & {
     options: HeaderPanelOptions;
     content: HeaderPanelContent;
 };
-declare type LeftPanel = ExpandPanel & {};
-export declare type CenterPanelOptions = {
+type LeftPanel = ExpandPanel & {};
+export type CenterPanelOptions = {
     titleEnabled: boolean;
     subtitleEnabled: boolean;
     mostSpecificRequiredStatement: boolean;
     requiredStatementEnabled: boolean;
 };
-export declare type CenterPanelContent = {
+export type CenterPanelContent = {
     attribution: string;
+    close: string;
+    closeAttribution: string;
 };
-declare type CenterPanel = ModuleConfig & {
+type CenterPanel = ModuleConfig & {
     options: CenterPanelOptions;
     content: CenterPanelContent;
 };
-export declare type FooterPanelOptions = {
+export type FooterPanelOptions = {
     /** Determines if bookmarking is enabled */
     bookmarkEnabled: boolean;
     /** Determines if downloading is enabled */
@@ -135,7 +139,7 @@ export declare type FooterPanelOptions = {
     /** Determines if sharing is enabled */
     shareEnabled: boolean;
 };
-export declare type FooterPanelContent = {
+export type FooterPanelContent = {
     bookmark: string;
     download: string;
     embed: string;
@@ -143,79 +147,113 @@ export declare type FooterPanelContent = {
     feedback: string;
     fullScreen: string;
     moreInfo: string;
+    openLeftPanel: string;
+    closeLeftPanel: string;
+    openRightPanel: string;
+    closeRightPanel: string;
     open: string;
     share: string;
 };
-declare type FooterPanel = ModuleConfig & {
+type FooterPanel = ModuleConfig & {
     options: FooterPanelOptions;
     content: FooterPanelContent;
 };
-export declare type DialogueOptions = {
+export type DialogueOptions = {
     topCloseButtonEnabled: boolean;
 };
-export declare type DialogueContent = {
+export type DialogueContent = {
     close: string;
 };
-export declare type Dialogue = ModuleConfig & {
+type Dialogue = ModuleConfig & {
     options?: DialogueOptions;
     content: DialogueContent;
 };
-export declare type SettingsDialogueOptions = DialogueOptions & {};
-export declare type SettingsDialogueContent = DialogueContent & {
+export type SettingsDialogueOptions = DialogueOptions & {};
+export type SettingsDialogueContent = DialogueContent & {
     locale: string;
     navigatorEnabled: string;
     clickToZoomEnabled: string;
-    pagingEnabled: string;
+    pagingEnabled?: string;
     reducedMotion: string;
+    truncateThumbnailLabels: string;
     preserveViewport: string;
     title: string;
     website: string;
 };
-declare type SettingsDialogue = ModuleConfig & {
+type SettingsDialogue = ModuleConfig & {
     options: SettingsDialogueOptions;
     content: SettingsDialogueContent;
 };
-export declare type ShareDialogueOptions = DialogueOptions & {
+export type ShareDialogueOptions = DialogueOptions & {
+    /** Determines if copy buttons are enabled */
+    copyToClipboardEnabled: boolean;
     /** Determines if embed is enabled */
     embedEnabled: boolean;
+    /** Set host for embed code (default: window.location.hostname) */
+    embedHost?: string;
+    /** Set port for embed code (default: window.location.protocol) */
+    embedPort?: number;
+    /** Set path to uv.html on embed host (default: /uv.html) */
+    embedPath: string;
     /** Template for embedding */
     embedTemplate: string;
-    /** Determines if instructions are enabled */
-    instructionsEnabled: boolean;
     /** Determines if sharing is enabled */
     shareEnabled: boolean;
-    /** Determines if sharing frame is enabled */
-    shareFrameEnabled: boolean;
     /** Determines if sharing manifests is enabled */
     shareManifestsEnabled: boolean;
 };
-export declare type ShareDialogueContent = DialogueContent & {
+export type ShareDialogueContent = DialogueContent & {
+    copyBtn: string;
+    copyToClipboard: string;
     customSize: string;
     embed: string;
     embedInstructions: string;
     height: string;
     iiif: string;
     share: string;
+    shareLink: string;
     shareInstructions: string;
     size: string;
     width: string;
     shareUrl: string;
 };
-declare type ShareDialogue = ModuleConfig & {
+type ShareDialogue = ModuleConfig & {
     options: ShareDialogueOptions;
     content: ShareDialogueContent;
 };
-declare type AuthDialogueOptions = DialogueOptions & {};
-declare type AuthDialogueContent = DialogueContent & {
+type AuthDialogueOptions = DialogueOptions & {};
+type AuthDialogueContent = DialogueContent & {
     cancel: string;
     confirm: string;
 };
-declare type AuthDialogue = ModuleConfig & {
+type AuthDialogue = ModuleConfig & {
     options: AuthDialogueOptions;
     content: AuthDialogueContent;
 };
-export declare type DownloadDialogueOptions = DialogueOptions & {};
-export declare type DownloadDialogueContent = DialogueContent & {
+type AdjustImageDialogueOptions = DialogueOptions & {};
+type AdjustImageDialogueContent = DialogueContent & {
+    title: string;
+    brightness: string;
+    contrast: string;
+    saturation: string;
+    reset: string;
+    remember: string;
+};
+export type AdjustImageDialogue = ModuleConfig & {
+    options: AdjustImageDialogueOptions;
+    content: AdjustImageDialogueContent;
+};
+type ChoiceSwitchDialogueOptions = DialogueOptions & {};
+type ChoiceSwitchDialogueContent = DialogueContent & {
+    canvas: string;
+    choice: string;
+};
+export type ChoiceSwitchDialogue = ModuleConfig & {
+    options: ChoiceSwitchDialogueOptions;
+    content: ChoiceSwitchDialogueContent;
+};
+export type DownloadDialogueOptions = DialogueOptions & {};
+export type DownloadDialogueContent = DialogueContent & {
     download: string;
     entireDocument: string;
     entireFileAsOriginal: string;
@@ -223,38 +261,38 @@ export declare type DownloadDialogueContent = DialogueContent & {
     noneAvailable: string;
     title: string;
 };
-export declare type DownloadDialogue = ModuleConfig & {
+export type DownloadDialogue = ModuleConfig & {
     options: DownloadDialogueOptions;
     content: DownloadDialogueContent;
 };
-declare type ClickThroughDialogueOptions = DialogueOptions & {};
-declare type ClickThroughDialogueContent = DialogueContent & {
+type ClickThroughDialogueOptions = DialogueOptions & {};
+type ClickThroughDialogueContent = DialogueContent & {
     viewTerms: string;
 };
-declare type ClickThroughDialogue = ModuleConfig & {
+type ClickThroughDialogue = ModuleConfig & {
     options: ClickThroughDialogueOptions;
     content: ClickThroughDialogueContent;
 };
-declare type LoginDialogueOptions = DialogueOptions & {};
-declare type LoginDialogueContent = DialogueContent & {
+type LoginDialogueOptions = DialogueOptions & {};
+type LoginDialogueContent = DialogueContent & {
     login: string;
     logout: string;
     cancel: string;
 };
-declare type LoginDialogue = ModuleConfig & {
+type LoginDialogue = ModuleConfig & {
     options: LoginDialogueOptions;
     content: LoginDialogueContent;
 };
-declare type RestrictedDialogueOptions = DialogueOptions & {};
-declare type RestrictedDialogueContent = DialogueContent & {
+type RestrictedDialogueOptions = DialogueOptions & {};
+type RestrictedDialogueContent = DialogueContent & {
     cancel: string;
 };
-declare type RestrictedDialogue = ModuleConfig & {
+type RestrictedDialogue = ModuleConfig & {
     options: RestrictedDialogueOptions;
     content: RestrictedDialogueContent;
 };
-declare type GenericDialogueOptions = DialogueOptions & {};
-declare type GenericDialogueContent = DialogueContent & {
+type GenericDialogueOptions = DialogueOptions & {};
+type GenericDialogueContent = DialogueContent & {
     emptyValue: string;
     invalidNumber: string;
     noMatches: string;
@@ -262,20 +300,20 @@ declare type GenericDialogueContent = DialogueContent & {
     pageNotFound: string;
     refresh: string;
 };
-declare type GenericDialogue = ModuleConfig & {
+type GenericDialogue = ModuleConfig & {
     options: GenericDialogueOptions;
     content: GenericDialogueContent;
 };
-declare type HelpDialogueOptions = DialogueOptions & {};
-declare type HelpDialogueContent = DialogueContent & {
+type HelpDialogueOptions = DialogueOptions & {};
+type HelpDialogueContent = DialogueContent & {
     text: string;
     title: string;
 };
-declare type HelpDialogue = ModuleConfig & {
+type HelpDialogue = ModuleConfig & {
     options: HelpDialogueOptions;
     content: HelpDialogueContent;
 };
-declare type MoreInfoRightPanelOptions = DialogueOptions & ExpandPanelOptions & {
+type MoreInfoRightPanelOptions = DialogueOptions & ExpandPanelOptions & {
     /** Order in which canvases are displayed */
     canvasDisplayOrder: string;
     /** Canvases to exclude from display */
@@ -297,7 +335,7 @@ declare type MoreInfoRightPanelOptions = DialogueOptions & ExpandPanelOptions & 
     /** Type of the text limit */
     textLimitType: string;
 };
-declare type MoreInfoRightPanelContent = DialogueContent & ExpandPanelContent & {
+type MoreInfoRightPanelContent = DialogueContent & ExpandPanelContent & {
     attribution: string;
     canvasHeader: string;
     collapse: string;
@@ -318,11 +356,11 @@ declare type MoreInfoRightPanelContent = DialogueContent & ExpandPanelContent & 
     rangeHeader: string;
     title: string;
 };
-export declare type MoreInfoRightPanel = ModuleConfig & {
+export type MoreInfoRightPanel = ModuleConfig & {
     options: MoreInfoRightPanelOptions;
     content: MoreInfoRightPanelContent;
 };
-export declare type Content = {
+export type Content = {
     authCORSError: string;
     authorisationFailedMessage: string;
     canvasIndexOutOfRange: string;
@@ -333,7 +371,7 @@ export declare type Content = {
     skipToDownload: string;
     termsOfUse: string;
 };
-export declare type BaseConfig = {
+export type BaseConfig = {
     uri?: string;
     options: Options;
     modules: {
@@ -348,11 +386,12 @@ export declare type BaseConfig = {
         helpDialogue: HelpDialogue;
         leftPanel: LeftPanel;
         loginDialogue: LoginDialogue;
-        mobileFooterPanel: FooterPanel;
         moreInfoRightPanel: MoreInfoRightPanel;
         restrictedDialogue: RestrictedDialogue;
         settingsDialogue: SettingsDialogue;
         shareDialogue: ShareDialogue;
+        adjustImageDialogue: AdjustImageDialogue;
+        choiceSwitchDialogue: ChoiceSwitchDialogue;
     };
     localisation: Localisation;
     content: Content;

@@ -30,13 +30,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -47,12 +57,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -79,17 +89,15 @@ var $ = require("jquery");
 var IIIFEvents_1 = require("../../IIIFEvents");
 var CenterPanel_1 = require("../uv-shared-module/CenterPanel");
 var Events_1 = require("../../extensions/uv-pdf-extension/Events");
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../../Utils");
 var Events_2 = require("../../../../Events");
-var Utils_1 = require("../../../../Utils");
+var Utils_2 = require("../../../../Utils");
 // declare var PDFJS: any;
 var PDFCenterPanel = /** @class */ (function (_super) {
     __extends(PDFCenterPanel, _super);
     function PDFCenterPanel($element) {
         var _this = _super.call(this, $element) || this;
         _this._lastMediaUri = null;
-        _this._maxScale = 5;
-        _this._minScale = 0.7;
         _this._nextButtonEnabled = false;
         _this._pageIndex = 1;
         _this._pageIndexPending = null;
@@ -100,9 +108,23 @@ var PDFCenterPanel = /** @class */ (function (_super) {
         _this._scale = 0.7;
         return _this;
     }
+    PDFCenterPanel.prototype._getDecreasedScale = function () {
+        return this._scale > 0.5 ? this._scale - 0.5 : this._scale / 1.5;
+    };
+    PDFCenterPanel.prototype._getIncreasedScale = function () {
+        return this._scale >= 0.5 ? this._scale + 0.5 : this._scale * 1.5;
+    };
+    PDFCenterPanel.prototype._getMinScale = function () {
+        var minScale = Number(this.options.minScale);
+        return minScale > 0 ? minScale : 0.7;
+    };
+    PDFCenterPanel.prototype._getMaxScale = function () {
+        var maxScale = Number(this.options.maxScale);
+        return maxScale > 0 ? maxScale : 5;
+    };
     PDFCenterPanel.prototype.create = function () {
         var _this = this;
-        this.setConfig("centerPanel");
+        this.setConfig("pdfCenterPanel");
         _super.prototype.create.call(this);
         this._$pdfContainer = $('<div class="pdfContainer"></div>');
         this._$canvas = $("<canvas></canvas>");
@@ -110,14 +132,18 @@ var PDFCenterPanel = /** @class */ (function (_super) {
         this._$progress = $('<progress max="100" value="0"></progress>');
         this._canvas = this._$canvas[0];
         this._ctx = this._canvas.getContext("2d");
-        this._$prevButton = $('<div class="btn prev" tabindex="0"></div>');
-        this._$nextButton = $('<div class="btn next" tabindex="0"></div>');
-        this._$zoomInButton = $('<div class="btn zoomIn" tabindex="0"></div>');
-        this._$zoomOutButton = $('<div class="btn zoomOut" tabindex="0"></div>');
+        this._$prevButton = $("<button class=\"btn btn-default paging prev\" title=\"".concat(this.content.previous, "\">\n        <i class=\"uv-icon-prev\" aria-hidden=\"true\"></i>\n        <span class=\"sr-only\">").concat(this.content.previous, "</span>\n      </button>"));
+        this._$nextButton = $("<button class=\"btn btn-default paging next\" title=\"".concat(this.content.next, "\">\n        <i class=\"uv-icon-next\" aria-hidden=\"true\"></i>\n        <span class=\"sr-only\">").concat(this.content.next, "</span>\n      </button>"));
+        this._$zoomInButton = $('<button class="btn zoomIn" tabindex="0"></button>');
+        this._$zoomInButton.attr("title", this.content.zoomIn);
+        this._$zoomInButton.attr("aria-label", this.content.zoomIn);
+        this._$zoomOutButton = $('<button class="btn zoomOut" tabindex="0"></button>');
+        this._$zoomOutButton.attr("title", this.content.zoomOut);
+        this._$zoomOutButton.attr("aria-label", this.content.zoomOut);
         // Only attach PDF controls if we're using PDF.js; they have no meaning in
         // PDFObject. However, we still create the objects above so that references
         // to them do not cause errors (simpler than putting usePdfJs checks all over):
-        if (utils_1.Bools.getBool(this.options.usePdfJs, false)) {
+        if (Utils_1.Bools.getBool(this.options.usePdfJs, false)) {
             // this.$content.append(this._$spinner);
             this.$content.append(this._$progress);
             this.$content.append(this._$prevButton);
@@ -181,6 +207,28 @@ var PDFCenterPanel = /** @class */ (function (_super) {
             _this._pageIndex = pageIndex;
             _this._queueRenderPage(_this._pageIndex);
         });
+        this.extensionHost.subscribe(Events_1.PDFExtensionEvents.ZOOM_IN, function () {
+            var newScale = _this._getIncreasedScale();
+            var maxScale = _this._getMaxScale();
+            if (newScale < maxScale) {
+                _this._scale = newScale;
+            }
+            else {
+                _this._scale = maxScale;
+            }
+            _this._render(_this._pageIndex);
+        });
+        this.extensionHost.subscribe(Events_1.PDFExtensionEvents.ZOOM_OUT, function () {
+            var newScale = _this._getDecreasedScale();
+            var minScale = _this._getMinScale();
+            if (newScale > minScale) {
+                _this._scale = newScale;
+            }
+            else {
+                _this._scale = minScale;
+            }
+            _this._render(_this._pageIndex);
+        });
         this._$prevButton.onPressed(function (e) {
             e.preventDefault();
             if (!_this._prevButtonEnabled)
@@ -195,27 +243,11 @@ var PDFCenterPanel = /** @class */ (function (_super) {
             _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.NEXT);
         });
         this.disableNextButton();
-        this._$zoomInButton.onPressed(function (e) {
-            e.preventDefault();
-            var newScale = _this._scale + 0.5;
-            if (newScale < _this._maxScale) {
-                _this._scale = newScale;
-            }
-            else {
-                _this._scale = _this._maxScale;
-            }
-            _this._render(_this._pageIndex);
+        this.onAccessibleClick(this._$zoomInButton, function () {
+            _this.extensionHost.publish(Events_1.PDFExtensionEvents.ZOOM_IN);
         });
-        this._$zoomOutButton.onPressed(function (e) {
-            e.preventDefault();
-            var newScale = _this._scale - 0.5;
-            if (newScale > _this._minScale) {
-                _this._scale = newScale;
-            }
-            else {
-                _this._scale = _this._minScale;
-            }
-            _this._render(_this._pageIndex);
+        this.onAccessibleClick(this._$zoomOutButton, function () {
+            _this.extensionHost.publish(Events_1.PDFExtensionEvents.ZOOM_OUT);
         });
     };
     PDFCenterPanel.prototype.disablePrevButton = function () {
@@ -276,7 +308,7 @@ var PDFCenterPanel = /** @class */ (function (_super) {
                             return [2 /*return*/];
                         }
                         this._lastMediaUri = mediaUri;
-                        if (!!utils_1.Bools.getBool(this.options.usePdfJs, false)) return [3 /*break*/, 3];
+                        if (!!Utils_1.Bools.getBool(this.options.usePdfJs, false)) return [3 /*break*/, 3];
                         _a = window;
                         return [4 /*yield*/, Promise.resolve().then(function () { return __importStar(require(
                             /* webpackChunkName: "pdfobject" */ /* webpackMode: "lazy" */ "pdfobject")); })];
@@ -286,7 +318,7 @@ var PDFCenterPanel = /** @class */ (function (_super) {
                         return [3 /*break*/, 7];
                     case 3:
                         if (!!this._pdfjsLib) return [3 /*break*/, 5];
-                        return [4 /*yield*/, (0, Utils_1.loadScripts)([
+                        return [4 /*yield*/, (0, Utils_2.loadScripts)([
                                 "//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
                             ])];
                     case 4:
@@ -330,20 +362,28 @@ var PDFCenterPanel = /** @class */ (function (_super) {
     };
     PDFCenterPanel.prototype._render = function (num) {
         var _this = this;
-        if (!utils_1.Bools.getBool(this.options.usePdfJs, false)) {
+        if (!Utils_1.Bools.getBool(this.options.usePdfJs, false)) {
             return;
         }
         this._pageRendering = true;
         this._$zoomOutButton.enable();
         this._$zoomInButton.enable();
-        //disable zoom if not possible
-        var lowScale = this._scale - 0.5;
-        var highScale = this._scale + 0.5;
-        if (lowScale < this._minScale) {
+        // disable zoom if not possible
+        var lowScale = this._getDecreasedScale();
+        var highScale = this._getIncreasedScale();
+        if (lowScale < this._getMinScale()) {
             this._$zoomOutButton.disable();
         }
-        if (highScale > this._maxScale) {
+        if (highScale > this._getMaxScale()) {
             this._$zoomInButton.disable();
+        }
+        if (this.extension.isMetric("sm")) {
+            this._$zoomOutButton.hide();
+            this._$zoomInButton.hide();
+        }
+        else {
+            this._$zoomOutButton.show();
+            this._$zoomInButton.show();
         }
         //this._pdfDoc.getPage(num).then((page: any) => {
         this._pdfDoc.getPage(num).then(function (page) {

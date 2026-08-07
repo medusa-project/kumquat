@@ -1,6 +1,6 @@
 import { SupportedSelectors } from "./selector-extensions";
 import { Selector } from "@iiif/presentation-3";
-export declare type ParsedSelector = {
+export type ParsedSelector = {
     selector: SupportedSelectors | null;
     selectors: SupportedSelectors[];
 };

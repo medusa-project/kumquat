@@ -8,6 +8,7 @@ export declare class IIIFEvents {
     static BOOKMARK: string;
     static CANVAS_INDEX_CHANGE_FAILED: string;
     static CANVAS_INDEX_CHANGE: string;
+    static CHOICE_CHANGE: string;
     static CLEAR_ANNOTATIONS: string;
     static CLICKTHROUGH: string;
     static CLOSE_ACTIVE_DIALOGUE: string;
@@ -37,7 +38,6 @@ export declare class IIIFEvents {
     static HIDE_HELP_DIALOGUE: string;
     static HIDE_INFORMATION: string;
     static HIDE_LOGIN_DIALOGUE: string;
-    static HIDE_MOREINFO_DIALOGUE: string;
     static HIDE_MULTISELECT_DIALOGUE: string;
     static HIDE_OVERLAY: string;
     static HIDE_RESTRICTED_DIALOGUE: string;
@@ -85,9 +85,11 @@ export declare class IIIFEvents {
     static RIGHTPANEL_EXPAND_FULL_START: string;
     static SET_ROTATION: string;
     static SET_TARGET: string;
+    static SET_MUTED: string;
     static SETTINGS_CHANGE: string;
     static SHOW_AUTH_DIALOGUE: string;
     static SHOW_CLICKTHROUGH_DIALOGUE: string;
+    static SHOW_CHOICE_SWITCH_DIALOGUE: string;
     static SHOW_DOWNLOAD_DIALOGUE: string;
     static SHOW_EMBED_DIALOGUE: string;
     static SHOW_EXTERNALCONTENT_DIALOGUE: string;
@@ -97,7 +99,6 @@ export declare class IIIFEvents {
     static SHOW_LOGIN_DIALOGUE: string;
     static SHOW_MESSAGE: string;
     static MESSAGE_DISPLAYED: string;
-    static SHOW_MOREINFO_DIALOGUE: string;
     static SHOW_MULTISELECT_DIALOGUE: string;
     static SHOW_OVERLAY: string;
     static SHOW_RESTRICTED_DIALOGUE: string;
@@ -105,6 +106,8 @@ export declare class IIIFEvents {
     static SHOW_SHARE_DIALOGUE: string;
     static SHOW_TERMS_OF_USE: string;
     static TARGET_CHANGE: string;
+    static TOGGLE_RIGHT_PANEL: string;
+    static TOGGLE_LEFT_PANEL: string;
     static THUMB_MULTISELECTED: string;
     static THUMB_SELECTED: string;
     static TOGGLE_EXPAND_LEFT_PANEL: string;
@@ -115,4 +118,6 @@ export declare class IIIFEvents {
     static UPDATE_SETTINGS: string;
     static VIEW_FULL_TERMS: string;
     static WINDOW_UNLOAD: string;
+    static SHOW_ADJUSTIMAGE_DIALOGUE: string;
+    static HIDE_ADJUSTIMAGE_DIALOGUE: string;
 }
