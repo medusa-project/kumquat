@@ -1,5 +1,5 @@
 import { BaseConfig, CenterPanelContent, CenterPanelOptions, DownloadDialogueContent, DownloadDialogueOptions, ModuleConfig, SettingsDialogueContent, SettingsDialogueOptions, ShareDialogueContent, ShareDialogueOptions } from "@/content-handlers/iiif/BaseConfig";
-declare type ModelViewerCenterPanelOptions = CenterPanelOptions & {
+type ModelViewerCenterPanelOptions = CenterPanelOptions & {
     /** Determines if auto rotation is enabled */
     autoRotateEnabled: boolean;
     /** Delay in camera change */
@@ -9,36 +9,36 @@ declare type ModelViewerCenterPanelOptions = CenterPanelOptions & {
     /** Determines if interaction prompt is enabled */
     interactionPromptEnabled: boolean;
 };
-declare type ModelViewerCenterPanelContent = CenterPanelContent & {};
-declare type ModelViewerCenterPanel = {
+type ModelViewerCenterPanelContent = CenterPanelContent & {};
+type ModelViewerCenterPanel = {
     options: ModelViewerCenterPanelOptions;
     content: ModelViewerCenterPanelContent;
 };
-declare type ModelViewerDownloadDialogueOptions = DownloadDialogueOptions & {};
-declare type ModelViewerDownloadDialogueContent = DownloadDialogueContent & {};
-declare type ModelViewerDownloadDialogue = ModuleConfig & {
+type ModelViewerDownloadDialogueOptions = DownloadDialogueOptions & {};
+type ModelViewerDownloadDialogueContent = DownloadDialogueContent & {};
+type ModelViewerDownloadDialogue = ModuleConfig & {
     options: ModelViewerDownloadDialogueOptions;
     content: ModelViewerDownloadDialogueContent;
 };
-declare type ModelViewerShareDialogueOptions = ShareDialogueOptions & {};
-declare type ModelViewerShareDialogueContent = ShareDialogueContent & {};
-declare type ModelViewerShareDialogue = ModuleConfig & {
+type ModelViewerShareDialogueOptions = ShareDialogueOptions & {};
+type ModelViewerShareDialogueContent = ShareDialogueContent & {};
+type ModelViewerShareDialogue = ModuleConfig & {
     options: ModelViewerShareDialogueOptions;
     content: ModelViewerShareDialogueContent;
 };
-declare type ModelViewerSettingsDialogueOptions = SettingsDialogueOptions & {};
-declare type ModelViewerSettingsDialogueContent = SettingsDialogueContent & {};
-declare type ModelViewerSettingsDialogue = ModuleConfig & {
+type ModelViewerSettingsDialogueOptions = SettingsDialogueOptions & {};
+type ModelViewerSettingsDialogueContent = SettingsDialogueContent & {};
+type ModelViewerSettingsDialogue = ModuleConfig & {
     options: ModelViewerSettingsDialogueOptions;
     content: ModelViewerSettingsDialogueContent;
 };
-declare type Modules = {
-    centerPanel: ModelViewerCenterPanel;
+type Modules = {
+    modelViewerCenterPanel: ModelViewerCenterPanel;
     downloadDialogue: ModelViewerDownloadDialogue;
     shareDialogue: ModelViewerShareDialogue;
     settingsDialogue: ModelViewerSettingsDialogue;
 };
-export declare type Config = BaseConfig & {
+export type Config = BaseConfig & {
     modules: Modules;
 };
 export {};

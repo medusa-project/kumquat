@@ -30,13 +30,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -47,12 +57,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -80,18 +90,12 @@ var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UniversalViewer = void 0;
 var BaseContentHandler_1 = __importDefault(require("./BaseContentHandler"));
-var ContentType;
-(function (ContentType) {
-    ContentType["IIIFLEGACY"] = "manifest";
-    ContentType["IIIF"] = "iiifManifestId";
-    ContentType["YOUTUBE"] = "youTubeVideoId";
-    ContentType["UNKNOWN"] = "unknown";
-})(ContentType || (ContentType = {}));
+var ContentType_1 = require("./ContentType");
 var ContentHandler = (_a = {},
-    _a[ContentType.IIIF] = function () {
+    _a[ContentType_1.ContentType.IIIF] = function () {
         /* webpackMode: "lazy" */ return Promise.resolve().then(function () { return __importStar(require("./content-handlers/iiif/IIIFContentHandler")); });
     },
-    _a[ContentType.YOUTUBE] = function () {
+    _a[ContentType_1.ContentType.YOUTUBE] = function () {
         /* webpackMode: "lazy" */ return Promise.resolve().then(function () { return __importStar(require("./content-handlers/youtube/YouTubeContentHandler")); });
     },
     _a);
@@ -100,13 +104,15 @@ var UniversalViewer = /** @class */ (function (_super) {
     function UniversalViewer(options) {
         var _this = _super.call(this, options) || this;
         _this.options = options;
-        _this._contentType = ContentType.UNKNOWN;
+        _this.contentType = ContentType_1.ContentType.UNKNOWN;
+        // include _contentType for backwards compat, remove in next major version (UV5)
+        _this._contentType = _this.contentType;
         _this._externalEventListeners = [];
         _this._assignContentHandler(_this.options.data);
         return _this;
     }
     UniversalViewer.prototype.get = function () {
-        return this._assignedContentHandler;
+        return this.assignedContentHandler;
     };
     UniversalViewer.prototype.on = function (name, cb, ctx) {
         this._externalEventListeners.push({
@@ -116,46 +122,48 @@ var UniversalViewer = /** @class */ (function (_super) {
         });
     };
     UniversalViewer.prototype._assignContentHandler = function (data) {
-        var _a;
         return __awaiter(this, void 0, void 0, function () {
             var contentType, handlerChanged, m;
+            var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        if (data[ContentType.IIIFLEGACY]) {
+                        if (data[ContentType_1.ContentType.IIIFLEGACY]) {
                             // if using "manifest" not "iiifManifestId"
-                            data.iiifManifestId = data[ContentType.IIIFLEGACY];
-                            delete data[ContentType.IIIFLEGACY];
-                            contentType = ContentType.IIIF;
+                            data.iiifManifestId = data[ContentType_1.ContentType.IIIFLEGACY];
+                            delete data[ContentType_1.ContentType.IIIFLEGACY];
+                            contentType = ContentType_1.ContentType.IIIF;
                         }
-                        else if (data[ContentType.IIIF]) {
-                            contentType = ContentType.IIIF;
+                        else if (data[ContentType_1.ContentType.IIIF]) {
+                            contentType = ContentType_1.ContentType.IIIF;
                         }
-                        else if (data[ContentType.YOUTUBE]) {
-                            contentType = ContentType.YOUTUBE;
+                        else if (data[ContentType_1.ContentType.YOUTUBE]) {
+                            contentType = ContentType_1.ContentType.YOUTUBE;
                         }
-                        else if (this._contentType) {
-                            contentType = this._contentType;
+                        else if (this.contentType) {
+                            contentType = this.contentType;
                         }
                         else {
-                            contentType = ContentType.UNKNOWN;
+                            contentType = ContentType_1.ContentType.UNKNOWN;
                         }
-                        handlerChanged = this._contentType !== contentType;
-                        if (!(contentType === ContentType.UNKNOWN)) return [3 /*break*/, 1];
+                        handlerChanged = this.contentType !== contentType;
+                        if (!(contentType === ContentType_1.ContentType.UNKNOWN)) return [3 /*break*/, 1];
                         console.error("Unknown content type");
                         return [3 /*break*/, 3];
                     case 1:
                         if (!handlerChanged) return [3 /*break*/, 3];
-                        this._contentType = contentType; // set content type
-                        (_a = this._assignedContentHandler) === null || _a === void 0 ? void 0 : _a.dispose(); // dispose previous content handler
+                        this.contentType = this._contentType = contentType; // set content type
+                        (_a = this.assignedContentHandler) === null || _a === void 0 ? void 0 : _a.dispose(); // dispose previous content handler
                         return [4 /*yield*/, ContentHandler[contentType]()];
                     case 2:
                         m = _b.sent();
                         this.showSpinner(); // show spinner
-                        this._assignedContentHandler = new m.default({
-                            target: this._el,
-                            data: data,
-                        }, this.adapter, this._externalEventListeners); // create content handler
+                        // include _assignedContentHandler for backwards compat, remove in next major version (UV5)
+                        this.assignedContentHandler = this._assignedContentHandler =
+                            new m.default({
+                                target: this._el,
+                                data: data,
+                            }, this.adapter, this._externalEventListeners); // create content handler
                         _b.label = 3;
                     case 3: return [2 /*return*/, handlerChanged];
                 }
@@ -173,21 +181,21 @@ var UniversalViewer = /** @class */ (function (_super) {
             else {
                 // the handler didn't change, therefore handler's initial set didn't run
                 // so we need to call set
-                _this._assignedContentHandler.set(data, initial);
+                _this.assignedContentHandler.set(data, initial);
             }
         });
     };
     UniversalViewer.prototype.exitFullScreen = function () {
         var _a;
-        (_a = this._assignedContentHandler) === null || _a === void 0 ? void 0 : _a.exitFullScreen();
+        (_a = this.assignedContentHandler) === null || _a === void 0 ? void 0 : _a.exitFullScreen();
     };
     UniversalViewer.prototype.resize = function () {
         var _a;
-        (_a = this._assignedContentHandler) === null || _a === void 0 ? void 0 : _a.resize();
+        (_a = this.assignedContentHandler) === null || _a === void 0 ? void 0 : _a.resize();
     };
     UniversalViewer.prototype.dispose = function () {
         var _a;
-        (_a = this._assignedContentHandler) === null || _a === void 0 ? void 0 : _a.dispose();
+        (_a = this.assignedContentHandler) === null || _a === void 0 ? void 0 : _a.dispose();
     };
     return UniversalViewer;
 }(BaseContentHandler_1.default));

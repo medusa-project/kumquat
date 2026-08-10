@@ -21,13 +21,14 @@ var $ = require("jquery");
 var BaseView_1 = require("./BaseView");
 var Position_1 = require("./Position");
 var Utils_1 = require("../../../../Utils");
-var utils_1 = require("@edsilv/utils");
+var Utils_2 = require("../../Utils");
 var CenterPanel = /** @class */ (function (_super) {
     __extends(CenterPanel, _super);
     function CenterPanel($element) {
         var _this = _super.call(this, $element, false, true) || this;
         _this.subtitleExpanded = false;
         _this.isAttributionOpen = false;
+        _this.attributionExplicitlyClosed = false;
         _this.attributionPosition = Position_1.Position.BOTTOM_LEFT;
         _this.isAttributionLoaded = false;
         return _this;
@@ -44,14 +45,15 @@ var CenterPanel = /** @class */ (function (_super) {
         this.$subtitleText = this.$subtitle.find(".text");
         this.$content = $('<div id="content" class="content"></div>');
         this.$element.append(this.$content);
-        this.$attribution = $("\n                                <div class=\"attribution\">\n                                  <div class=\"header\">\n                                    <div class=\"title\"></div>\n                                    <button type=\"button\" class=\"close\" aria-label=\"Close\">\n                                      <span aria-hidden=\"true\">&#215;</span>\n                                    </button>\n                                  </div>\n                                  <div class=\"main\">\n                                    <div class=\"attribution-text\"></div>\n                                    <div class=\"license\"></div>\n                                    <div class=\"logo\"></div>\n                                  </div>\n                                </div>\n        ");
+        this.$attribution = $("\n                                <div class=\"attribution\">\n                                  <div class=\"header\">\n                                    <div class=\"title\"></div>\n                                    <button type=\"button\" class=\"close\">\n                                      <span aria-hidden=\"true\">&#215;</span>\n                                    </button>\n                                  </div>\n                                  <div class=\"main\">\n                                    <div class=\"attribution-text\"></div>\n                                    <div class=\"license\"></div>\n                                    <div class=\"logo\"></div>\n                                  </div>\n                                </div>\n        ");
         this.$attribution.find(".header .title").text(this.content.attribution);
         this.$content.append(this.$attribution);
         this.closeAttribution();
         this.$closeAttributionButton = this.$attribution.find(".header .close");
+        this.$closeAttributionButton.attr("aria-label", this.content.closeAttribution);
         this.$closeAttributionButton.on("click", function (e) {
             e.preventDefault();
-            _this.closeAttribution();
+            _this.closeAttribution(true);
         });
         this.$subtitleExpand.on("click", function (e) {
             e.preventDefault();
@@ -66,13 +68,13 @@ var CenterPanel = /** @class */ (function (_super) {
             }
             _this.resize();
         });
-        if (utils_1.Bools.getBool(this.options.titleEnabled, true)) {
+        if (Utils_2.Bools.getBool(this.options.titleEnabled, true)) {
             this.$title.show();
         }
         else {
             this.$title.hide();
         }
-        if (utils_1.Bools.getBool(this.options.subtitleEnabled, false)) {
+        if (Utils_2.Bools.getBool(this.options.subtitleEnabled, false)) {
             this.$subtitle.show();
         }
         else {
@@ -92,10 +94,19 @@ var CenterPanel = /** @class */ (function (_super) {
         });
     };
     CenterPanel.prototype.openAttribution = function () {
+        // If the user explicitly closed the box, don't reopen it:
+        if (this.attributionExplicitlyClosed) {
+            return;
+        }
         this.$attribution.show();
         this.isAttributionOpen = true;
     };
-    CenterPanel.prototype.closeAttribution = function () {
+    CenterPanel.prototype.closeAttribution = function (explicitlyClosed) {
+        if (explicitlyClosed === void 0) { explicitlyClosed = false; }
+        // If the user explicitly closes the box once, remember that state; this
+        // will get reset in the viewer reload when a different manifest is loaded.
+        this.attributionExplicitlyClosed =
+            this.attributionExplicitlyClosed || explicitlyClosed;
         this.$attribution.hide();
         this.isAttributionOpen = false;
     };
@@ -104,14 +115,14 @@ var CenterPanel = /** @class */ (function (_super) {
         if (this.isAttributionLoaded) {
             return;
         }
-        var mostSpecific = utils_1.Bools.getBool(this.config.options.mostSpecificRequiredStatement, false);
+        var mostSpecific = Utils_2.Bools.getBool(this.config.options.mostSpecificRequiredStatement, false);
         var requiredStatement = mostSpecific
             ? this.extension.helper.getMostSpecificRequiredStatement()
             : this.extension.helper.getRequiredStatement();
         // isAttributionLoaded
         //var license = this.provider.getLicense();
         //var logo = this.provider.getLogo();
-        var enabled = utils_1.Bools.getBool(this.options.requiredStatementEnabled, true);
+        var enabled = Utils_2.Bools.getBool(this.options.requiredStatementEnabled, true);
         if (!requiredStatement || !requiredStatement.value || !enabled) {
             return;
         }
@@ -146,9 +157,6 @@ var CenterPanel = /** @class */ (function (_super) {
             });
             $attributionText.targetBlank();
         }
-        // $attribution.toggleExpandText(this.options.trimAttributionCount, () => {
-        //     this.resize();
-        // });
         //if (license){
         //    $license.append('<a href="' + license + '">' + license + '</a>');
         //} else {
@@ -168,17 +176,6 @@ var CenterPanel = /** @class */ (function (_super) {
     };
     CenterPanel.prototype.resize = function () {
         _super.prototype.resize.call(this);
-        var leftPanelWidth = (0, Utils_1.isVisible)(this.extension.shell.$leftPanel)
-            ? Math.floor(this.extension.shell.$leftPanel.width())
-            : 0;
-        var rightPanelWidth = (0, Utils_1.isVisible)(this.extension.shell.$rightPanel)
-            ? Math.floor(this.extension.shell.$rightPanel.width())
-            : 0;
-        var width = Math.floor(this.$element.parent().width() - leftPanelWidth - rightPanelWidth);
-        this.$element.css({
-            left: leftPanelWidth,
-            width: width,
-        });
         var titleHeight;
         var subtitleHeight;
         if ((this.options && this.options.titleEnabled === false) ||

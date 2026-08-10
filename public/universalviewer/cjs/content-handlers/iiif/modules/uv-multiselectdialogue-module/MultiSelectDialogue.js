@@ -20,8 +20,8 @@ var $ = require("jquery");
 var IIIFEvents_1 = require("../../IIIFEvents");
 var Dialogue_1 = require("../uv-shared-module/Dialogue");
 var Mode_1 = require("../../extensions/uv-openseadragon-extension/Mode");
-var utils_1 = require("@edsilv/utils");
-var iiif_gallery_component_1 = require("@iiif/iiif-gallery-component");
+var Utils_1 = require("../../Utils");
+var GalleryComponent_1 = require("../uv-shared-module/GalleryComponent");
 var MultiSelectDialogue = /** @class */ (function (_super) {
     __extends(MultiSelectDialogue, _super);
     function MultiSelectDialogue($element) {
@@ -52,8 +52,7 @@ var MultiSelectDialogue = /** @class */ (function (_super) {
         this.$content.append(this.$gallery);
         this.data = {
             helper: this.extension.helper,
-            chunkedResizingThreshold: this.config.options
-                .galleryThumbChunkedResizingThreshold,
+            chunkedResizingThreshold: this.config.options.galleryThumbChunkedResizingThreshold,
             content: this.config.content,
             debug: false,
             imageFadeInDuration: 300,
@@ -68,11 +67,12 @@ var MultiSelectDialogue = /** @class */ (function (_super) {
             thumbWidth: this.config.options.galleryThumbWidth,
             viewingDirection: this.extension.helper.getViewingDirection(),
         };
-        this.galleryComponent = new iiif_gallery_component_1.GalleryComponent({
+        this.galleryComponent = new GalleryComponent_1.GalleryComponent({
             target: this.$gallery[0],
+            data: this.data,
         });
-        var $selectButton = this.$gallery.find("a.select");
-        $selectButton.addClass("btn btn-primary");
+        var $downloadButton = this.$gallery.find("a.download");
+        $downloadButton.addClass("btn btn-primary");
         this.galleryComponent.on("multiSelectionMade", function (ids) {
             _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.MULTISELECTION_MADE, ids);
             that.close();
@@ -80,7 +80,7 @@ var MultiSelectDialogue = /** @class */ (function (_super) {
         this.$element.hide();
     };
     MultiSelectDialogue.prototype.isPageModeEnabled = function () {
-        return (utils_1.Bools.getBool(this.config.options.pageModeEnabled, true) &&
+        return (Utils_1.Bools.getBool(this.config.options.pageModeEnabled, true) &&
             this.extension.getMode().toString() ===
                 Mode_1.Mode.page.toString());
     };

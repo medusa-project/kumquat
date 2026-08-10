@@ -1,7 +1,7 @@
 import { FooterPanel as BaseFooterPanel } from "../uv-shared-module/FooterPanel";
 import { AnnotationGroup } from "@iiif/manifold";
 import { Config } from "../../extensions/uv-openseadragon-extension/config/Config";
-export declare class FooterPanel extends BaseFooterPanel<Config["modules"]["footerPanel"]> {
+export declare class FooterPanel extends BaseFooterPanel<Config["modules"]["searchFooterPanel"]> {
     $clearSearchResultsButton: JQuery;
     $line: JQuery;
     $nextResultButton: JQuery;

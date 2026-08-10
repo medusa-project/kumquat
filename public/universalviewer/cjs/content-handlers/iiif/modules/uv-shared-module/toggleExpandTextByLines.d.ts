@@ -1,0 +1,1 @@
+export default function toggleExpandTextByLines(items: JQuery, lines: number, lessText: string, moreText: string, cb: () => void, lessAriaLabelTemplate?: string, moreAriaLabelTemplate?: string): JQuery<HTMLElement>;

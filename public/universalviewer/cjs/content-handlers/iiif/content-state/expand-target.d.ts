@@ -1,6 +1,6 @@
 import { ExternalWebResource, W3CAnnotationTarget } from "@iiif/presentation-3";
 import { SupportedSelectors } from "./selector-extensions";
-export declare type SupportedTarget = {
+export type SupportedTarget = {
     type: "SpecificResource";
     source: ExternalWebResource | {
         id: string;

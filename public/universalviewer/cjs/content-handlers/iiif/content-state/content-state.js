@@ -9,7 +9,12 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.normaliseContentState = exports.decodeContentState = exports.encodeContentState = exports.parseContentState = exports.serialiseContentState = exports.validateContentState = void 0;
+exports.validateContentState = validateContentState;
+exports.serialiseContentState = serialiseContentState;
+exports.parseContentState = parseContentState;
+exports.encodeContentState = encodeContentState;
+exports.decodeContentState = decodeContentState;
+exports.normaliseContentState = normaliseContentState;
 var expand_target_1 = require("./expand-target");
 function validateContentState(annotation, strict) {
     if (strict === void 0) { strict = false; }
@@ -45,11 +50,9 @@ function validateContentState(annotation, strict) {
     }
     return [true];
 }
-exports.validateContentState = validateContentState;
 function serialiseContentState(annotation) {
     return encodeContentState(typeof annotation === "string" ? annotation : JSON.stringify(annotation));
 }
-exports.serialiseContentState = serialiseContentState;
 function parseContentState(state, asyncOrFetcher) {
     state = state.trim();
     if (state[0] === "{") {
@@ -67,7 +70,6 @@ function parseContentState(state, asyncOrFetcher) {
     }
     return parseContentState(decodeContentState(state), asyncOrFetcher);
 }
-exports.parseContentState = parseContentState;
 function encodeContentState(state) {
     var uriEncoded = encodeURIComponent(state); // using built in function
     var base64 = typeof btoa === "undefined"
@@ -76,7 +78,6 @@ function encodeContentState(state) {
     var base64url = base64.replace(/\+/g, "-").replace(/\//g, "_");
     return base64url.replace(/=/g, "");
 }
-exports.encodeContentState = encodeContentState;
 function decodeContentState(encodedContentState) {
     var base64url = restorePadding(encodedContentState);
     var base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
@@ -85,7 +86,6 @@ function decodeContentState(encodedContentState) {
         : atob(base64); // using built in function
     return decodeURIComponent(base64Decoded).trim(); // using built in function
 }
-exports.decodeContentState = decodeContentState;
 function restorePadding(s) {
     // The length of the restored string must be a multiple of 4
     var pad = s.length % 4;
@@ -147,5 +147,4 @@ function normaliseContentState(state) {
         extensions: {},
     };
 }
-exports.normaliseContentState = normaliseContentState;
 //# sourceMappingURL=content-state.js.map

@@ -28,9 +28,9 @@ var __assign = (this && this.__assign) || function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.URLAdapter = void 0;
 var UVAdapter_1 = require("../../UVAdapter");
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../iiif/Utils");
 var IIIFEvents_1 = require("./IIIFEvents");
-var Utils_1 = require("../../Utils");
+var Utils_2 = require("../../Utils");
 var helpers_1 = require("./helpers");
 var URLAdapter = /** @class */ (function (_super) {
     __extends(URLAdapter, _super);
@@ -39,7 +39,7 @@ var URLAdapter = /** @class */ (function (_super) {
         return _super.call(this, readonly) || this;
     }
     URLAdapter.prototype.get = function (key, defaultValue) {
-        var hashParameter = utils_1.Urls.getHashParameter(key, document);
+        var hashParameter = Utils_1.Urls.getHashParameter(key, document);
         if (hashParameter === null) {
             return defaultValue;
         }
@@ -53,12 +53,12 @@ var URLAdapter = /** @class */ (function (_super) {
     URLAdapter.prototype.set = function (key, value) {
         if (!this.readonly) {
             if (value) {
-                utils_1.Urls.setHashParameter(key, value, document);
+                Utils_1.Urls.setHashParameter(key, value, document);
             }
             else {
-                var existing = utils_1.Urls.getHashParameter(key);
+                var existing = Utils_1.Urls.getHashParameter(key);
                 if (existing !== null) {
-                    utils_1.Urls.setHashParameter(key, "", document);
+                    Utils_1.Urls.setHashParameter(key, "", document);
                 }
             }
         }
@@ -74,7 +74,7 @@ var URLAdapter = /** @class */ (function (_super) {
             }
         }
         else {
-            formattedLocales.push(Utils_1.defaultLocale);
+            formattedLocales.push(Utils_2.defaultLocale);
         }
         function numberOrUndefined(num) {
             if (num === undefined) {

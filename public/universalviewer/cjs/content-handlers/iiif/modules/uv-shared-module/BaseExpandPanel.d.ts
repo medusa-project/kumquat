@@ -1,12 +1,11 @@
-import { BaseView } from "./BaseView";
 import { ExpandPanel } from "../../extensions/config/ExpandPanel";
+import { BaseView } from "./BaseView";
 export declare class BaseExpandPanel<T extends ExpandPanel> extends BaseView<T> {
     isExpanded: boolean;
     isFullyExpanded: boolean;
     isUnopened: boolean;
     autoToggled: boolean;
     expandFullEnabled: boolean;
-    reducedAnimation: boolean;
     $closed: JQuery;
     $closedTitle: JQuery;
     $collapseButton: JQuery;
@@ -15,7 +14,7 @@ export declare class BaseExpandPanel<T extends ExpandPanel> extends BaseView<T> 
     $main: JQuery;
     $title: JQuery;
     $top: JQuery;
-    constructor($element: JQuery);
+    constructor($element: JQuery, fitToParentWidth?: boolean, fitToParentHeight?: boolean);
     create(): void;
     init(): void;
     setTitle(title: string): void;

@@ -31,7 +31,6 @@ var MobileFooter_1 = require("../../modules/uv-osdmobilefooterpanel-module/Mobil
 var FooterPanel_1 = require("../../modules/uv-searchfooterpanel-module/FooterPanel");
 var HelpDialogue_1 = require("../../modules/uv-dialogues-module/HelpDialogue");
 var Mode_1 = require("./Mode");
-var MoreInfoDialogue_1 = require("../../modules/uv-dialogues-module/MoreInfoDialogue");
 var MoreInfoRightPanel_1 = require("../../modules/uv-moreinforightpanel-module/MoreInfoRightPanel");
 var MultiSelectDialogue_1 = require("../../modules/uv-multiselectdialogue-module/MultiSelectDialogue");
 var MultiSelectionArgs_1 = require("./MultiSelectionArgs");
@@ -40,7 +39,7 @@ var Point_1 = require("../../modules/uv-shared-module/Point");
 var OpenSeadragonCenterPanel_1 = require("../../modules/uv-openseadragoncenterpanel-module/OpenSeadragonCenterPanel");
 var SettingsDialogue_1 = require("./SettingsDialogue");
 var ShareDialogue_1 = require("./ShareDialogue");
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../../Utils");
 var dist_commonjs_1 = require("@iiif/vocabulary/dist-commonjs/");
 var manifold_1 = require("@iiif/manifold");
 var manifesto_js_1 = require("manifesto.js");
@@ -50,8 +49,10 @@ var Events_2 = require("../../../../Events");
 var client_1 = require("react-dom/client");
 var react_1 = require("react");
 var Store_1 = require("./Store");
-var Utils_1 = require("../../../../Utils");
+var Utils_2 = require("../../../../Utils");
 var config_json_1 = __importDefault(require("./config/config.json"));
+var AdjustImageDialogue_1 = require("../../modules/uv-dialogues-module/AdjustImageDialogue");
+var ChoiceSwitchDialogue_1 = require("./ChoiceSwitchDialogue");
 var OpenSeadragonExtension = /** @class */ (function (_super) {
     __extends(OpenSeadragonExtension, _super);
     function OpenSeadragonExtension() {
@@ -59,9 +60,6 @@ var OpenSeadragonExtension = /** @class */ (function (_super) {
         _this.currentRotation = 0;
         _this.isAnnotating = false;
         _this.defaultConfig = config_json_1.default;
-        _this.locales = {
-            "en-GB": config_json_1.default,
-        };
         return _this;
     }
     OpenSeadragonExtension.prototype.create = function () {
@@ -141,10 +139,6 @@ var OpenSeadragonExtension = /** @class */ (function (_super) {
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.LEFTPANEL_COLLAPSE_FULL_FINISH, function () {
             _this.shell.$centerPanel.show();
             _this.resize();
-        });
-        this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.LEFTPANEL_EXPAND_FULL_START, function () {
-            _this.shell.$centerPanel.hide();
-            _this.shell.$rightPanel.hide();
         });
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.MINUS, function () {
             _this.centerPanel.setFocus();
@@ -291,20 +285,28 @@ var OpenSeadragonExtension = /** @class */ (function (_super) {
         });
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.UPDATE_SETTINGS, function () {
             _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.CANVAS_INDEX_CHANGE, _this.helper.canvasIndex);
-            var settings = _this.getSettings();
-            _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.SETTINGS_CHANGE, settings);
         });
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.SHOW_DOWNLOAD_DIALOGUE, function (triggerButton) {
-            _this.store.getState().openDownloadDialogue(triggerButton[0]);
+            var state = _this.store.getState();
+            if (state !== null) {
+                state.openDownloadDialogue(triggerButton[0]);
+            }
         });
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.HIDE_DOWNLOAD_DIALOGUE, function () {
-            _this.store.getState().closeDialogue();
+            _this.closeActiveDialogue();
         });
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.CLOSE_ACTIVE_DIALOGUE, function () {
-            _this.store.getState().closeDialogue();
+            _this.closeActiveDialogue();
         });
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.ESCAPE, function () {
-            _this.store.getState().closeDialogue();
+            _this.closeActiveDialogue();
+        });
+        this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.CHOICE_CHANGE, function (_a) {
+            var canvasId = _a.canvasId, choiceIndex = _a.choiceIndex;
+            _this.extensionHost.publish(Events_1.OpenSeadragonExtensionEvents.CHOICE_CHANGE, {
+                canvasId: canvasId,
+                choiceIndex: choiceIndex,
+            });
         });
         // this.component.subscribe(Events.VIEW_PAGE, (e: any, index: number) => {
         //     this.fire(Events.VIEW_PAGE, index);
@@ -342,15 +344,15 @@ var OpenSeadragonExtension = /** @class */ (function (_super) {
         this.$helpDialogue = $('<div class="overlay help" aria-hidden="true"></div>');
         this.shell.$overlays.append(this.$helpDialogue);
         this.helpDialogue = new HelpDialogue_1.HelpDialogue(this.$helpDialogue);
-        this.$moreInfoDialogue = $('<div class="overlay moreInfo" aria-hidden="true"></div>');
-        this.shell.$overlays.append(this.$moreInfoDialogue);
-        this.moreInfoDialogue = new MoreInfoDialogue_1.MoreInfoDialogue(this.$moreInfoDialogue);
         this.$multiSelectDialogue = $('<div class="overlay multiSelect" aria-hidden="true"></div>');
         this.shell.$overlays.append(this.$multiSelectDialogue);
         this.multiSelectDialogue = new MultiSelectDialogue_1.MultiSelectDialogue(this.$multiSelectDialogue);
         this.$shareDialogue = $('<div class="overlay share" aria-hidden="true"></div>');
         this.shell.$overlays.append(this.$shareDialogue);
         this.shareDialogue = new ShareDialogue_1.ShareDialogue(this.$shareDialogue);
+        this.$adjustImageDialogue = $('<div class="overlay adjustImage" aria-hidden="true"></div>');
+        this.shell.$overlays.append(this.$adjustImageDialogue);
+        this.adjustImageDialogue = new AdjustImageDialogue_1.AdjustImageDialogue(this.$adjustImageDialogue, this.shell);
         this.$downloadDialogue = $("<div></div>");
         this.shell.$overlays.append(this.$downloadDialogue);
         this.downloadDialogueRoot = (0, client_1.createRoot)(this.$downloadDialogue[0]);
@@ -372,6 +374,9 @@ var OpenSeadragonExtension = /** @class */ (function (_super) {
         if (this.isFooterPanelEnabled()) {
             this.footerPanel.init();
         }
+        this.$choiceSwitchDialogue = $('<div class="overlay choiceSwitch" aria-hidden="true"></div>');
+        this.shell.$overlays.append(this.$choiceSwitchDialogue);
+        this.choiceSwitchDialogue = new ChoiceSwitchDialogue_1.ChoiceSwitchDialogue(this.$choiceSwitchDialogue, this.shell);
     };
     OpenSeadragonExtension.prototype.render = function () {
         _super.prototype.render.call(this);
@@ -385,7 +390,12 @@ var OpenSeadragonExtension = /** @class */ (function (_super) {
         var _a;
         // todo: can this be added to store?
         var paged = this.isPagingSettingEnabled();
-        var _b = this.store.getState(), downloadDialogueOpen = _b.downloadDialogueOpen, dialogueTriggerButton = _b.dialogueTriggerButton;
+        // Try to initialize using the stored state; exit early if the state is not ready yet:
+        var state = this.store.getState();
+        if (state === null) {
+            return;
+        }
+        var downloadDialogueOpen = state.downloadDialogueOpen, dialogueTriggerButton = state.dialogueTriggerButton;
         // todo: can the overlay visibility be added to the store?
         if (downloadDialogueOpen) {
             this.extensionHost.publish(IIIFEvents_1.IIIFEvents.SHOW_OVERLAY);
@@ -399,7 +409,7 @@ var OpenSeadragonExtension = /** @class */ (function (_super) {
             .filter(function (_canvas, index) {
             return pagedIndices.includes(index);
         });
-        var config = (0, Utils_1.merge)(this.data.config.modules.dialogue, this.data.config.modules.downloadDialogue);
+        var config = (0, Utils_2.merge)(this.data.config.modules.dialogue, this.data.config.modules.downloadDialogue);
         var downloadService = this.helper.manifest.getService(dist_commonjs_1.ServiceProfile.DOWNLOAD_EXTENSIONS);
         var selectionEnabled = config.options.selectionEnabled &&
             (downloadService === null || downloadService === void 0 ? void 0 : downloadService.__jsonld.selectionEnabled);
@@ -413,6 +423,7 @@ var OpenSeadragonExtension = /** @class */ (function (_super) {
             locale: this.getLocale(),
             manifest: this.helper.manifest,
             maxImageWidth: config.options.maxImageWidth,
+            minImageWidth: config.options.minImageWidth,
             mediaDownloadEnabled: this.helper.isUIEnabled("mediaDownload"),
             open: downloadDialogueOpen,
             paged: paged,
@@ -434,21 +445,33 @@ var OpenSeadragonExtension = /** @class */ (function (_super) {
                 return _this.getConfinedImageUri(canvas, config.options.confinedImageSize);
             },
             onClose: function () {
-                _this.store.getState().closeDialogue();
+                _this.closeActiveDialogue();
+            },
+            onDownload: function (type, label) {
+                _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.DOWNLOAD, {
+                    type: type,
+                    label: label,
+                });
             },
             onDownloadCurrentView: function (canvas) {
                 var viewer = _this.getViewer();
                 window.open(_this.getCroppedImageUri(canvas, viewer));
             },
             onDownloadSelection: function () {
-                _this.store.getState().closeDialogue();
+                _this.closeActiveDialogue();
                 _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.SHOW_MULTISELECT_DIALOGUE);
             },
             onShowTermsOfUse: function () {
-                _this.store.getState().closeDialogue();
+                _this.closeActiveDialogue();
                 _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.SHOW_TERMS_OF_USE);
             },
         }));
+    };
+    OpenSeadragonExtension.prototype.closeActiveDialogue = function () {
+        var state = this.store.getState();
+        if (state !== null) {
+            state.closeDialogue();
+        }
     };
     OpenSeadragonExtension.prototype.checkForTarget = function () {
         if (this.data.target) {
@@ -866,12 +889,12 @@ var OpenSeadragonExtension = /** @class */ (function (_super) {
         var dimensions = new manifesto_js_1.Size(0, 0);
         if (resourceWidth > resourceHeight) {
             dimensions.width = longestSide;
-            var normWidth = utils_1.Maths.normalise(longestSide, 0, resourceWidth);
+            var normWidth = Utils_1.Maths.normalise(longestSide, 0, resourceWidth);
             dimensions.height = Math.floor(resourceHeight * normWidth);
         }
         else {
             dimensions.height = longestSide;
-            var normHeight = utils_1.Maths.normalise(longestSide, 0, resourceHeight);
+            var normHeight = Utils_1.Maths.normalise(longestSide, 0, resourceHeight);
             dimensions.width = Math.floor(resourceWidth * normHeight);
         }
         return dimensions;
@@ -892,7 +915,7 @@ var OpenSeadragonExtension = /** @class */ (function (_super) {
     };
     OpenSeadragonExtension.prototype.getImageId = function (canvas) {
         if (canvas.externalResource) {
-            var id = canvas.externalResource.data["@id"];
+            var id = canvas.externalResource.data["@id"] || canvas.externalResource.data.id;
             if (id) {
                 return id.substr(id.lastIndexOf("/") + 1);
             }
@@ -937,7 +960,8 @@ var OpenSeadragonExtension = /** @class */ (function (_super) {
                     if (!id.endsWith("/")) {
                         id += "/";
                     }
-                    if (manifesto_js_1.Utils.isImageProfile(service.getProfile())) {
+                    if (manifesto_js_1.Utils.isImageProfile(service.getProfile()) ||
+                        manifesto_js_1.Utils.isImageServiceType(service.getIIIFResourceType())) {
                         infoUri = id + "info.json";
                     }
                 }
@@ -950,15 +974,23 @@ var OpenSeadragonExtension = /** @class */ (function (_super) {
         return infoUri;
     };
     OpenSeadragonExtension.prototype.getEmbedScript = function (template, width, height, zoom, rotation) {
-        var config = this.data.config.uri || "";
-        var locales = this.getSerializedLocales();
-        var appUri = this.getAppUri();
-        var iframeSrc = "".concat(appUri, "#?manifest=").concat(this.helper.manifestUri, "&c=").concat(this.helper.collectionIndex, "&m=").concat(this.helper.manifestIndex, "&cv=").concat(this.helper.canvasIndex, "&config=").concat(config, "&locales=").concat(locales, "&xywh=").concat(zoom, "&r=").concat(rotation);
-        var script = utils_1.Strings.format(template, iframeSrc, width.toString(), height.toString());
-        return script;
+        var _a, _b, _c;
+        var config = (_b = (_a = this.data.config) === null || _a === void 0 ? void 0 : _a.uri) !== null && _b !== void 0 ? _b : "";
+        var locales = (_c = this.getSerializedLocales()) !== null && _c !== void 0 ? _c : "";
+        var hashParams = new URLSearchParams({
+            manifest: this.helper.manifestUri,
+            c: this.helper.collectionIndex.toString(),
+            m: this.helper.manifestIndex.toString(),
+            cv: this.helper.canvasIndex.toString(),
+            config: config,
+            locales: locales,
+            xywh: zoom,
+            r: rotation.toString(),
+        });
+        return _super.prototype.buildEmbedScript.call(this, template, width, height, hashParams);
     };
     OpenSeadragonExtension.prototype.isSearchEnabled = function () {
-        if (!utils_1.Bools.getBool(this.data.config.options.searchWithinEnabled, false)) {
+        if (!Utils_1.Bools.getBool(this.data.config.options.searchWithinEnabled, false)) {
             return false;
         }
         if (!this.helper.getSearchService()) {
@@ -1005,7 +1037,7 @@ var OpenSeadragonExtension = /** @class */ (function (_super) {
         var searchUri = this.getSearchServiceUri();
         if (!searchUri)
             return;
-        searchUri = utils_1.Strings.format(searchUri, encodeURIComponent(terms));
+        searchUri = Utils_1.Strings.format(searchUri, encodeURIComponent(terms));
         this.getSearchResults(searchUri, terms, this.annotations, function (annotations) {
             that.isAnnotating = false;
             if (annotations.length) {
@@ -1112,7 +1144,7 @@ var OpenSeadragonExtension = /** @class */ (function (_super) {
         var viewingDirection = this.helper.getViewingDirection();
         var indices = [];
         // if it's a continuous manifest, get all resources.
-        if (sequence.getViewingHint() === dist_commonjs_1.ViewingHint.CONTINUOUS) {
+        if (this.helper.isContinuous()) {
             // get all canvases to be displayed inline
             indices = canvases.map(function (_canvas, index) {
                 return index;

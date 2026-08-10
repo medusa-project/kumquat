@@ -23,7 +23,7 @@ var ThumbsView = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     ThumbsView.prototype.create = function () {
-        this.setConfig("leftPanel");
+        this.setConfig("resourcesLeftPanel");
         _super.prototype.create.call(this);
     };
     return ThumbsView;

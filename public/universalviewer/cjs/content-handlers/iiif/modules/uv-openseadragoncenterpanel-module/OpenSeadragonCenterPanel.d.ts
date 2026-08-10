@@ -2,9 +2,15 @@ import { AnnotationGroup, AnnotationRect } from "@iiif/manifold";
 import { IExternalResource, IExternalResourceData } from "manifesto.js";
 import { XYWHFragment } from "../uv-shared-module/XYWHFragment";
 import { CenterPanel } from "../uv-shared-module/CenterPanel";
+import OpenSeadragon from "openseadragon";
 import "@openseadragon-imaging/openseadragon-viewerinputhook";
 import { Config } from "../../extensions/uv-openseadragon-extension/config/Config";
-export declare class OpenSeadragonCenterPanel extends CenterPanel<Config["modules"]["centerPanel"]> {
+interface AnnotationOverlayRect extends OpenSeadragon.Rect {
+    canvasIndex: number;
+    resultIndex: number;
+    chars: string;
+}
+export declare class OpenSeadragonCenterPanel extends CenterPanel<Config["modules"]["openSeadragonCenterPanel"]> {
     controlsVisible: boolean;
     currentAnnotationRect: AnnotationRect;
     currentBounds: XYWHFragment | null;
@@ -22,6 +28,7 @@ export declare class OpenSeadragonCenterPanel extends CenterPanel<Config["module
     userData: any;
     viewer: any;
     viewerId: string;
+    showAdjustImageButton: boolean;
     $canvas: JQuery;
     $goHomeButton: JQuery;
     $navigator: JQuery;
@@ -34,6 +41,8 @@ export declare class OpenSeadragonCenterPanel extends CenterPanel<Config["module
     $viewportNavButtons: JQuery;
     $zoomInButton: JQuery;
     $zoomOutButton: JQuery;
+    $adjustImageButton: JQuery;
+    $choiceSwitchButton: JQuery;
     constructor($element: JQuery);
     create(): void;
     whenCreated(cb: () => void): void;
@@ -44,10 +53,12 @@ export declare class OpenSeadragonCenterPanel extends CenterPanel<Config["module
     updateResponsiveView(): void;
     createUI(): Promise<void>;
     createNavigationButtons(): void;
+    createChoiceSwitch(): void;
     getGirderTileSource(): Promise<any>;
     openMedia(resources?: IExternalResource[]): Promise<void>;
     getPagePositions(resources: IExternalResourceData[]): IExternalResourceData[];
     openPagesHandler(): void;
+    private resizeNavigatorForContinuous;
     zoomToInitialAnnotation(): void;
     overlayAnnotations(): void;
     updateBounds(): void;
@@ -70,14 +81,19 @@ export declare class OpenSeadragonCenterPanel extends CenterPanel<Config["module
     updateVisibleAnnotationRects(): void;
     getAnnotationRectIndex(annotationRect: AnnotationRect): number;
     isZoomToSearchResultEnabled(): boolean;
+    shouldZoomToInitialAnnotation(): boolean;
     prevAnnotation(): void;
     nextAnnotation(): void;
     getAnnotationRectByIndex(index: number): AnnotationRect | null;
     getInitialAnnotationRect(): AnnotationRect | null;
     zoomToAnnotation(annotationRect: AnnotationRect): void;
     highlightAnnotationRect(annotationRect: AnnotationRect): void;
-    getAnnotationOverlayRects(annotationGroup: AnnotationGroup): any[];
+    getAnnotationOverlayRects(annotationGroup: AnnotationGroup): AnnotationOverlayRect[];
     resize(): void;
     setFocus(): void;
     setNavigatorVisible(): void;
+    getControlsFadeLength(): number;
+    indicesIncludeChoices(indices: number[]): boolean;
+    updateChoiceSwitchVisibility(): void;
 }
+export {};

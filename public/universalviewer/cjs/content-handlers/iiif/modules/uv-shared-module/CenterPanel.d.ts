@@ -14,12 +14,13 @@ export declare class CenterPanel<T extends BaseConfig["modules"]["centerPanel"]>
     $subtitleExpand: JQuery;
     $subtitleText: JQuery;
     isAttributionOpen: boolean;
+    attributionExplicitlyClosed: boolean;
     attributionPosition: Position;
     isAttributionLoaded: boolean;
     constructor($element: JQuery);
     create(): void;
     openAttribution(): void;
-    closeAttribution(): void;
+    closeAttribution(explicitlyClosed?: boolean): void;
     updateRequiredStatement(): void;
     resize(): void;
 }

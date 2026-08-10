@@ -24,12 +24,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -61,7 +61,7 @@ var IIIFEvents_1 = require("../../IIIFEvents");
 var CenterPanel_1 = require("../uv-shared-module/CenterPanel");
 var Events_1 = require("../../extensions/uv-model-viewer-extension/Events");
 var Orbit_1 = require("../../extensions/uv-model-viewer-extension/Orbit");
-var utils_1 = require("@edsilv/utils");
+var Utils_2 = require("../../Utils");
 var Events_2 = require("../../../../Events");
 var ModelViewerCenterPanel = /** @class */ (function (_super) {
     __extends(ModelViewerCenterPanel, _super);
@@ -72,7 +72,7 @@ var ModelViewerCenterPanel = /** @class */ (function (_super) {
     }
     ModelViewerCenterPanel.prototype.create = function () {
         var _this = this;
-        this.setConfig("centerPanel");
+        this.setConfig("modelViewerCenterPanel");
         _super.prototype.create.call(this);
         var that = this;
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.OPEN_EXTERNAL_RESOURCE, function (resources) {
@@ -121,7 +121,7 @@ var ModelViewerCenterPanel = /** @class */ (function (_super) {
     };
     ModelViewerCenterPanel.prototype.whenLoaded = function (cb) {
         var _this = this;
-        utils_1.Async.waitFor(function () {
+        Utils_2.Async.waitFor(function () {
             return _this.isLoaded;
         }, cb);
     };
@@ -129,8 +129,7 @@ var ModelViewerCenterPanel = /** @class */ (function (_super) {
         var _this = this;
         // clear existing annotations
         this.clearAnnotations();
-        var annotationGroups = this
-            .extension.annotations;
+        var annotationGroups = this.extension.annotations;
         annotationGroups.forEach(function (annoGroup) {
             annoGroup.points3D.forEach(function (point, index) {
                 var div = document.createElement("DIV");

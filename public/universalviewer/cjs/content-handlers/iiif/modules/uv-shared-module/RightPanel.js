@@ -16,22 +16,21 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RightPanel = void 0;
+var Utils_1 = require("../../Utils");
 var IIIFEvents_1 = require("../../IIIFEvents");
 var BaseExpandPanel_1 = require("./BaseExpandPanel");
-var utils_1 = require("@edsilv/utils");
 var RightPanel = /** @class */ (function (_super) {
     __extends(RightPanel, _super);
     function RightPanel($element) {
-        return _super.call(this, $element) || this;
+        return _super.call(this, $element, false, false) || this;
     }
     RightPanel.prototype.create = function () {
         _super.prototype.create.call(this);
-        this.$element.width(this.options.panelCollapsedWidth);
     };
     RightPanel.prototype.init = function () {
         var _this = this;
         _super.prototype.init.call(this);
-        var shouldOpenPanel = utils_1.Bools.getBool(this.extension.getSettings().rightPanelOpen, this.options.panelOpen);
+        var shouldOpenPanel = Utils_1.Bools.getBool(this.extension.getSettings().rightPanelOpen, this.options.panelOpen);
         if (shouldOpenPanel) {
             this.toggle(true);
         }
@@ -41,6 +40,14 @@ var RightPanel = /** @class */ (function (_super) {
             }
             else {
                 _this.expandFull();
+            }
+        });
+        this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.TOGGLE_RIGHT_PANEL, function () {
+            _this.toggle();
+        });
+        this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.TOGGLE_LEFT_PANEL, function () {
+            if (_this.extension.isMetric("sm") && _this.isExpanded) {
+                _this.toggle(true);
             }
         });
     };
@@ -55,6 +62,7 @@ var RightPanel = /** @class */ (function (_super) {
             : this.$element.parent().width() - this.options.panelExpandedWidth;
     };
     RightPanel.prototype.toggleFinish = function () {
+        var _this = this;
         _super.prototype.toggleFinish.call(this);
         if (this.isExpanded) {
             this.extensionHost.publish(IIIFEvents_1.IIIFEvents.OPEN_RIGHT_PANEL);
@@ -63,12 +71,27 @@ var RightPanel = /** @class */ (function (_super) {
             this.extensionHost.publish(IIIFEvents_1.IIIFEvents.CLOSE_RIGHT_PANEL);
         }
         this.extension.updateSettings({ rightPanelOpen: this.isExpanded });
+        // there's a strange rendering issue due to the right panel being transformed by 100% to the right
+        // for some reason a 100ms timeout on removing open-finished solves the problem
+        // this can't be in the base panel class or the timeout interferes with test running even though it works fine
+        setTimeout(function () {
+            _this.$element.toggleClass("open-finished");
+        }, 100);
     };
     RightPanel.prototype.resize = function () {
         _super.prototype.resize.call(this);
-        this.$element.css({
-            left: Math.floor(this.$element.parent().width() - this.$element.outerWidth()),
-        });
+    };
+    RightPanel.prototype.toggle = function (autoToggled) {
+        if (this.isExpanded) {
+            this.$element.parent().removeClass("rightPanelOpen");
+        }
+        else {
+            this.$element.parent().addClass("rightPanelOpen");
+        }
+        _super.prototype.toggle.call(this, autoToggled);
+    };
+    RightPanel.prototype.expandFull = function () {
+        _super.prototype.expandFull.call(this);
     };
     return RightPanel;
 }(BaseExpandPanel_1.BaseExpandPanel));

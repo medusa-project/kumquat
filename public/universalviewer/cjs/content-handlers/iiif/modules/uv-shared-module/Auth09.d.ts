@@ -1,5 +1,5 @@
 import { IAccessToken, IExternalResource } from "manifesto.js";
-import { StorageType } from "@edsilv/utils";
+import { StorageType } from "../../Utils";
 export declare class Auth09 {
     static publish: (event: string, args?: any) => void;
     static loadExternalResources(resourcesToLoad: IExternalResource[], storageStrategy: string): Promise<IExternalResource[]>;

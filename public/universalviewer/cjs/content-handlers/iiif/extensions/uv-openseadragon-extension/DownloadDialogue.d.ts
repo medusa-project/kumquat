@@ -1,6 +1,8 @@
+import React from "react";
 import { Canvas, Size, IExternalResourceData, Sequence, Manifest } from "manifesto.js";
+import { DownloadOption } from "../../modules/uv-shared-module/DownloadOption";
 import { CroppedImageDimensions } from "./CroppedImageDimensions";
-declare const DownloadDialogue: ({ canvases, confinedImageSize, content, downloadCurrentViewEnabled, downloadWholeImageHighResEnabled, downloadWholeImageLowResEnabled, getConfinedImageDimensions, getConfinedImageUri, getCroppedImageDimensions, locale, manifest, maxImageWidth, mediaDownloadEnabled, onClose, onDownloadCurrentView, onDownloadSelection, onShowTermsOfUse, open, paged, parent, resources, requiredStatement, rotation, selectionEnabled, sequence, termsOfUseEnabled, triggerButton, }: {
+declare const DownloadDialogue: ({ canvases, confinedImageSize, content, downloadCurrentViewEnabled, downloadWholeImageHighResEnabled, downloadWholeImageLowResEnabled, getConfinedImageDimensions, getConfinedImageUri, getCroppedImageDimensions, locale, manifest, maxImageWidth, minImageWidth, mediaDownloadEnabled, onClose, onDownload, onDownloadCurrentView, onDownloadSelection, onShowTermsOfUse, open, paged, parent, resources, requiredStatement, rotation, selectionEnabled, sequence, termsOfUseEnabled, triggerButton, }: {
     canvases: Canvas[];
     confinedImageSize: number;
     content: {
@@ -15,8 +17,10 @@ declare const DownloadDialogue: ({ canvases, confinedImageSize, content, downloa
     locale: string;
     manifest: Manifest;
     maxImageWidth: number;
+    minImageWidth: number;
     mediaDownloadEnabled: boolean;
     onClose: () => void;
+    onDownload: (type: DownloadOption, label: string) => void;
     onDownloadCurrentView: (canvas: Canvas) => void;
     onDownloadSelection: () => void;
     onShowTermsOfUse: () => void;
@@ -30,5 +34,5 @@ declare const DownloadDialogue: ({ canvases, confinedImageSize, content, downloa
     sequence: Sequence;
     termsOfUseEnabled: boolean;
     triggerButton: HTMLElement;
-}) => JSX.Element | null;
+}) => React.JSX.Element | null;
 export default DownloadDialogue;

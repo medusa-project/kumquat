@@ -1,13 +1,27 @@
 .uv {
-
-    #debug {
-
-        #sm {
-            .sm-mediaquery({
+  #debug {
+    #sm {
+      .sm-mediaquery({
                 display: block !important;
                 visibility: visible !important;
             });
-        }
     }
+  }
 
+  .sm-mediaquery({
+        .headerPanel {
+            display: none;
+            visibility: hidden;
+        }
+
+        .footerPanel {
+            display: none;
+            visibility: hidden;
+        }
+
+        .mobileFooterPanel {
+            display: block;
+            visibility: visible;
+        }
+    });
 }

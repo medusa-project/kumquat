@@ -1,38 +1,39 @@
 import { BaseConfig, CenterPanelContent, CenterPanelOptions, DownloadDialogueContent, DownloadDialogueOptions, ModuleConfig, SettingsDialogueContent, SettingsDialogueOptions, ShareDialogueContent, ShareDialogueOptions } from "@/content-handlers/iiif/BaseConfig";
-declare type MediaElementCenterPanelOptions = CenterPanelOptions & {
+type MediaElementCenterPanelOptions = CenterPanelOptions & {
+    autoPlayOnSetTarget: boolean;
     defaultHeight: number;
     defaultWidth: number;
 };
-declare type MediaElementCenterPanelContent = CenterPanelContent & {};
-declare type MediaElementCenterPanel = {
+type MediaElementCenterPanelContent = CenterPanelContent & {};
+type MediaElementCenterPanel = {
     options: MediaElementCenterPanelOptions;
     content: MediaElementCenterPanelContent;
 };
-declare type MediaElementDownloadDialogueOptions = DownloadDialogueOptions & {};
-declare type MediaElementDownloadDialogueContent = DownloadDialogueContent & {};
-declare type MediaElementDownloadDialogue = ModuleConfig & {
+type MediaElementDownloadDialogueOptions = DownloadDialogueOptions & {};
+type MediaElementDownloadDialogueContent = DownloadDialogueContent & {};
+type MediaElementDownloadDialogue = ModuleConfig & {
     options: MediaElementDownloadDialogueOptions;
     content: MediaElementDownloadDialogueContent;
 };
-declare type MediaElementShareDialogueOptions = ShareDialogueOptions & {};
-declare type MediaElementShareDialogueContent = ShareDialogueContent & {};
-declare type MediaElementShareDialogue = ModuleConfig & {
+type MediaElementShareDialogueOptions = ShareDialogueOptions & {};
+type MediaElementShareDialogueContent = ShareDialogueContent & {};
+type MediaElementShareDialogue = ModuleConfig & {
     options: MediaElementShareDialogueOptions;
     content: MediaElementShareDialogueContent;
 };
-declare type MediaElementSettingsDialogueOptions = SettingsDialogueOptions & {};
-declare type MediaElementSettingsDialogueContent = SettingsDialogueContent & {};
-declare type MediaElementSettingsDialogue = ModuleConfig & {
+type MediaElementSettingsDialogueOptions = SettingsDialogueOptions & {};
+type MediaElementSettingsDialogueContent = SettingsDialogueContent & {};
+type MediaElementSettingsDialogue = ModuleConfig & {
     options: MediaElementSettingsDialogueOptions;
     content: MediaElementSettingsDialogueContent;
 };
-declare type Modules = {
-    centerPanel: MediaElementCenterPanel;
+type Modules = {
+    mediaElementCenterPanel: MediaElementCenterPanel;
     downloadDialogue: MediaElementDownloadDialogue;
     shareDialogue: MediaElementShareDialogue;
     settingsDialogue: MediaElementSettingsDialogue;
 };
-export declare type Config = BaseConfig & {
+export type Config = BaseConfig & {
     modules: Modules;
 };
 export {};

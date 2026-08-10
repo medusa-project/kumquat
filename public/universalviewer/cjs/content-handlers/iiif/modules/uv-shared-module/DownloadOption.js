@@ -17,5 +17,5 @@ var DownloadOption;
     DownloadOption["WHOLE_IMAGE_HIGH_RES"] = "wholeImageHighRes";
     DownloadOption["WHOLE_IMAGE_LOW_RES"] = "wholeImageLowRes";
     DownloadOption["WHOLE_IMAGES_HIGH_RES"] = "wholeImagesHighRes";
-})(DownloadOption = exports.DownloadOption || (exports.DownloadOption = {}));
+})(DownloadOption || (exports.DownloadOption = DownloadOption = {}));
 //# sourceMappingURL=DownloadOption.js.map

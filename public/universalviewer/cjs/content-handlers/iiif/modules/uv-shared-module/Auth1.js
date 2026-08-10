@@ -1,27 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Auth1 = void 0;
 var $ = require("jquery");
@@ -30,10 +7,8 @@ var Utils_1 = require("../../../../Utils");
 var InformationArgs_1 = require("./InformationArgs");
 var InformationType_1 = require("./InformationType");
 var manifesto_js_1 = require("manifesto.js");
-var utils_1 = require("@edsilv/utils");
-// import { Urls } from "@edsilv/utils";
-// import { Storage, StorageType, StorageItem } from "../../../../Utils";
-var HTTPStatusCode = __importStar(require("@edsilv/http-status-codes"));
+var Utils_2 = require("../../Utils");
+var HTTPStatusCodes_1 = require("../../HTTPStatusCodes");
 var Auth1 = /** @class */ (function () {
     function Auth1() {
     }
@@ -118,7 +93,7 @@ var Auth1 = /** @class */ (function () {
     Auth1.storeAccessToken = function (resource, token) {
         return new Promise(function (resolve, reject) {
             if (resource.tokenService) {
-                utils_1.Storage.set(resource.tokenService.id, token, token.expiresIn || 3600, // default to 1 hour
+                Utils_2.Storage.set(resource.tokenService.id, token, token.expiresIn || 3600, // default to 1 hour
                 Auth1.storageStrategy);
                 resolve();
             }
@@ -133,16 +108,15 @@ var Auth1 = /** @class */ (function () {
             var item = null;
             // try to match on the tokenService, if the resource has one:
             if (resource.tokenService) {
-                item = utils_1.Storage.get(resource.tokenService.id, Auth1.storageStrategy);
+                item = Utils_2.Storage.get(resource.tokenService.id, Auth1.storageStrategy);
             }
             if (item) {
                 foundItems.push(item);
             }
             else {
                 // find an access token for the domain
-                var domain = utils_1.Urls.getUrlParts(resource.dataUri)
-                    .hostname;
-                var items = utils_1.Storage.getItems(Auth1.storageStrategy);
+                var domain = Utils_2.Urls.getUrlParts(resource.dataUri).hostname;
+                var items = Utils_2.Storage.getItems(Auth1.storageStrategy);
                 for (var i = 0; i < items.length; i++) {
                     item = items[i];
                     if (item.key.includes(domain)) {
@@ -170,7 +144,8 @@ var Auth1 = /** @class */ (function () {
             }
             else if (resource.authHoldingPage) {
                 // redirect holding page
-                resource.authHoldingPage.location.href = Auth1.getCookieServiceUrl(service);
+                resource.authHoldingPage.location.href =
+                    Auth1.getCookieServiceUrl(service);
                 resolve(resource.authHoldingPage);
             }
             else {
@@ -247,7 +222,7 @@ var Auth1 = /** @class */ (function () {
     };
     Auth1.showOutOfOptionsMessages = function (resource, service) {
         // if the UV is already showing the info bar, no need to show an error message.
-        if (resource.status == HTTPStatusCode.MOVED_TEMPORARILY) {
+        if (resource.status == HTTPStatusCodes_1.HTTPStatusCode.MOVED_TEMPORARILY) {
             return;
         }
         var errorMessage = "";

@@ -1,6 +1,6 @@
 import { Config } from "../../extensions/uv-pdf-extension/config/Config";
 import { HeaderPanel } from "../uv-shared-module/HeaderPanel";
-export declare class PDFHeaderPanel extends HeaderPanel<Config["modules"]["headerPanel"]> {
+export declare class PDFHeaderPanel extends HeaderPanel<Config["modules"]["pdfHeaderPanel"]> {
     $firstButton: JQuery;
     $lastButton: JQuery;
     $nextButton: JQuery;

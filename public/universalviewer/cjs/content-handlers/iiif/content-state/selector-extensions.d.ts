@@ -1,4 +1,4 @@
-export declare type BoxSelector = {
+export type BoxSelector = {
     type: "BoxSelector";
     unit?: "percent" | "pixel";
     x: number;
@@ -6,12 +6,12 @@ export declare type BoxSelector = {
     width: number;
     height: number;
 };
-export declare type TemporalSelector = {
+export type TemporalSelector = {
     type: "TemporalSelector";
     startTime: number;
     endTime?: number;
 };
-export declare type TemporalBoxSelector = {
+export type TemporalBoxSelector = {
     type: "TemporalBoxSelector";
     x: number;
     y: number;
@@ -20,4 +20,4 @@ export declare type TemporalBoxSelector = {
     startTime: number;
     endTime?: number;
 };
-export declare type SupportedSelectors = TemporalSelector | BoxSelector | TemporalBoxSelector;
+export type SupportedSelectors = TemporalSelector | BoxSelector | TemporalBoxSelector;

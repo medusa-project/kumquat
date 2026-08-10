@@ -5,5 +5,5 @@ var ControlsType;
 (function (ControlsType) {
     ControlsType["ORBIT"] = "orbit";
     ControlsType["TRACKBALL"] = "trackball";
-})(ControlsType = exports.ControlsType || (exports.ControlsType = {}));
+})(ControlsType || (exports.ControlsType = ControlsType = {}));
 //# sourceMappingURL=ControlsType.js.map

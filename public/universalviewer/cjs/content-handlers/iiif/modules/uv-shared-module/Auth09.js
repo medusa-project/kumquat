@@ -1,27 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Auth09 = void 0;
 var $ = require("jquery");
@@ -30,8 +7,8 @@ var InformationArgs_1 = require("./InformationArgs");
 var InformationType_1 = require("./InformationType");
 var LoginWarningMessages_1 = require("./LoginWarningMessages");
 var manifesto_js_1 = require("manifesto.js");
-var utils_1 = require("@edsilv/utils");
-var HTTPStatusCode = __importStar(require("@edsilv/http-status-codes"));
+var Utils_1 = require("../../Utils");
+var HTTPStatusCodes_1 = require("../../HTTPStatusCodes");
 var Events_1 = require("../../../../Events");
 var Auth09 = /** @class */ (function () {
     function Auth09() {
@@ -95,7 +72,7 @@ var Auth09 = /** @class */ (function () {
     Auth09.login = function (resource) {
         return new Promise(function (resolve) {
             var options = {};
-            if (resource.status === HTTPStatusCode.FORBIDDEN) {
+            if (resource.status === HTTPStatusCodes_1.HTTPStatusCode.FORBIDDEN) {
                 options.warningMessage = LoginWarningMessages_1.LoginWarningMessages.FORBIDDEN;
                 options.showCancelButton = true;
             }
@@ -165,7 +142,7 @@ var Auth09 = /** @class */ (function () {
     Auth09.storeAccessToken = function (resource, token, storageStrategy) {
         return new Promise(function (resolve, reject) {
             if (resource.tokenService) {
-                utils_1.Storage.set(resource.tokenService.id, token, token.expiresIn, storageStrategy);
+                Utils_1.Storage.set(resource.tokenService.id, token, token.expiresIn, storageStrategy);
                 resolve();
             }
             else {
@@ -179,16 +156,15 @@ var Auth09 = /** @class */ (function () {
             var item = null;
             // try to match on the tokenService, if the resource has one:
             if (resource.tokenService) {
-                item = utils_1.Storage.get(resource.tokenService.id, storageStrategy);
+                item = Utils_1.Storage.get(resource.tokenService.id, storageStrategy);
             }
             if (item) {
                 foundItems.push(item);
             }
             else {
                 // find an access token for the domain
-                var domain = utils_1.Urls.getUrlParts(resource.dataUri)
-                    .hostname;
-                var items = utils_1.Storage.getItems(storageStrategy);
+                var domain = Utils_1.Urls.getUrlParts(resource.dataUri).hostname;
+                var items = Utils_1.Storage.getItems(storageStrategy);
                 for (var i = 0; i < items.length; i++) {
                     item = items[i];
                     if (item.key.includes(domain)) {
@@ -210,16 +186,16 @@ var Auth09 = /** @class */ (function () {
     Auth09.handleExternalResourceResponse = function (resource) {
         return new Promise(function (resolve, reject) {
             resource.isResponseHandled = true;
-            if (resource.status === HTTPStatusCode.OK) {
+            if (resource.status === HTTPStatusCodes_1.HTTPStatusCode.OK) {
                 resolve(resource);
             }
-            else if (resource.status === HTTPStatusCode.MOVED_TEMPORARILY) {
+            else if (resource.status === HTTPStatusCodes_1.HTTPStatusCode.MOVED_TEMPORARILY) {
                 resolve(resource);
                 Auth09.publish(IIIFEvents_1.IIIFEvents.RESOURCE_DEGRADED, [resource]);
             }
             else {
-                if (resource.error.status === HTTPStatusCode.UNAUTHORIZED ||
-                    resource.error.status === HTTPStatusCode.INTERNAL_SERVER_ERROR) {
+                if (resource.error.status === HTTPStatusCodes_1.HTTPStatusCode.UNAUTHORIZED ||
+                    resource.error.status === HTTPStatusCodes_1.HTTPStatusCode.INTERNAL_SERVER_ERROR) {
                     // if the browser doesn't support CORS
                     // if (!Modernizr.cors) {
                     //     const informationArgs: InformationArgs = new InformationArgs(InformationType.AUTH_CORS_ERROR, null);
@@ -230,7 +206,7 @@ var Auth09 = /** @class */ (function () {
                     reject(resource.error.statusText);
                     //}
                 }
-                else if (resource.error.status === HTTPStatusCode.FORBIDDEN) {
+                else if (resource.error.status === HTTPStatusCodes_1.HTTPStatusCode.FORBIDDEN) {
                     var error = new Error();
                     error.message = "Forbidden";
                     error.name = manifesto_js_1.StatusCode.FORBIDDEN.toString();

@@ -3,6 +3,9 @@ export declare class SettingsDialogue extends BaseSettingsDialogue {
     $clickToZoomEnabled: JQuery;
     $clickToZoomEnabledCheckbox: JQuery;
     $clickToZoomEnabledLabel: JQuery;
+    $truncateThumbnailLabels: JQuery;
+    $truncateThumbnailLabelsLabel: JQuery;
+    $truncateThumbnailLabelsCheckbox: JQuery;
     $navigatorEnabled: JQuery;
     $navigatorEnabledCheckbox: JQuery;
     $navigatorEnabledLabel: JQuery;

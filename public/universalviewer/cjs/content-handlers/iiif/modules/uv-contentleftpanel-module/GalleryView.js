@@ -14,28 +14,33 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GalleryView = void 0;
-var $ = require("jquery");
 var IIIFEvents_1 = require("../../IIIFEvents");
 var BaseView_1 = require("../uv-shared-module/BaseView");
-var iiif_gallery_component_1 = require("@iiif/iiif-gallery-component");
+var GalleryComponent_1 = require("../uv-shared-module/GalleryComponent");
+var jquery_1 = __importDefault(require("jquery"));
 var GalleryView = /** @class */ (function (_super) {
     __extends(GalleryView, _super);
-    function GalleryView($element) {
-        var _this = _super.call(this, $element, true, true) || this;
+    function GalleryView($element, fitToParentWidth, fitToParentHeight) {
+        if (fitToParentWidth === void 0) { fitToParentWidth = true; }
+        if (fitToParentHeight === void 0) { fitToParentHeight = true; }
+        var _this = _super.call(this, $element, fitToParentWidth, fitToParentHeight) || this;
         _this.isOpen = false;
         return _this;
     }
     GalleryView.prototype.create = function () {
-        this.setConfig("leftPanel");
+        this.setConfig("contentLeftPanel");
         _super.prototype.create.call(this);
-        this.$gallery = $('<div class="iiif-gallery-component"></div>');
+        this.$gallery = (0, jquery_1.default)('<div class="iiif-gallery-component"></div>');
         this.$element.append(this.$gallery);
     };
     GalleryView.prototype.setup = function () {
         var that = this;
-        this.galleryComponent = new iiif_gallery_component_1.GalleryComponent({
+        this.galleryComponent = new GalleryComponent_1.GalleryComponent({
             target: this.$gallery[0],
         });
         this.galleryComponent.on("thumbSelected", function (thumb) {
@@ -61,6 +66,7 @@ var GalleryView = /** @class */ (function (_super) {
         // todo: would be better to have no imperative methods on components and use a reactive pattern
         setTimeout(function () {
             _this.galleryComponent.selectIndex(_this.extension.helper.canvasIndex);
+            _this.applyExtendedLabelsStyles();
         }, 10);
     };
     GalleryView.prototype.hide = function () {
@@ -72,6 +78,9 @@ var GalleryView = /** @class */ (function (_super) {
         var $main = this.$gallery.find(".main");
         var $header = this.$gallery.find(".header");
         $main.height(this.$element.height() - $header.height());
+    };
+    GalleryView.prototype.applyExtendedLabelsStyles = function () {
+        this.$gallery.addClass("label-extended");
     };
     return GalleryView;
 }(BaseView_1.BaseView));

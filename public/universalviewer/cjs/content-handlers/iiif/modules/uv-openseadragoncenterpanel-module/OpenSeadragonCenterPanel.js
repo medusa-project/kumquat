@@ -24,12 +24,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -56,8 +56,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OpenSeadragonCenterPanel = void 0;
 var $ = require("jquery");
-var utils_1 = require("@edsilv/utils");
-var Utils_1 = require("../../../../Utils");
+var Utils_1 = require("../../Utils");
+var Utils_2 = require("../../../../Utils");
 var vocabulary_1 = require("@iiif/vocabulary");
 var IIIFEvents_1 = require("../../IIIFEvents");
 var XYWHFragment_1 = require("../uv-shared-module/XYWHFragment");
@@ -83,17 +83,17 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
     }
     OpenSeadragonCenterPanel.prototype.create = function () {
         var _this = this;
-        this.setConfig("centerPanel");
+        this.setConfig("openSeadragonCenterPanel");
         _super.prototype.create.call(this);
         this.viewerId = "osd" + new Date().getTime();
         this.$viewer = $('<div id="' + this.viewerId + '" class="viewer"></div>');
         this.$content.prepend(this.$viewer);
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.ANNOTATIONS, function (args) {
             _this.overlayAnnotations();
-            // this.zoomToInitialAnnotation();
         });
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.SETTINGS_CHANGE, function (args) {
             _this.viewer.gestureSettingsMouse.clickToZoom = args.clickToZoomEnabled;
+            _this.viewer.controlsFadeLength = _this.getControlsFadeLength();
         });
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.OPEN_EXTERNAL_RESOURCE, function (resources) {
             _this.whenResized(function () { return __awaiter(_this, void 0, void 0, function () {
@@ -162,16 +162,42 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
                 _this.viewer.viewport.setRotation(rotation);
             });
         });
+        this.extensionHost.subscribe(Events_1.OpenSeadragonExtensionEvents.CHOICE_CHANGE, function (_a) {
+            var canvasId = _a.canvasId, choiceIndex = _a.choiceIndex;
+            _this.whenCreated(function () {
+                var world = _this.viewer.world;
+                var indices = _this.extension.getPagedIndices();
+                var worldIndex = 0;
+                indices.forEach(function (index) {
+                    var canvas = _this.extension.helper.getCanvasByIndex(index);
+                    var numChoices = canvas.getChoices().length;
+                    // need to count a canvas with "zero" choices as 1
+                    var worldItemCount = numChoices === 0 ? 1 : numChoices;
+                    if (canvas.id === canvasId) {
+                        for (var c = 0; c < numChoices; c++) {
+                            var item = world.getItemAt(worldIndex);
+                            if (item) {
+                                item.setOpacity(c === choiceIndex ? 1 : 0);
+                            }
+                            worldIndex++;
+                        }
+                    }
+                    else {
+                        worldIndex += worldItemCount;
+                    }
+                });
+            });
+        });
     };
     OpenSeadragonCenterPanel.prototype.whenCreated = function (cb) {
         var _this = this;
-        utils_1.Async.waitFor(function () {
+        Utils_1.Async.waitFor(function () {
             return _this.isCreated;
         }, cb);
     };
     OpenSeadragonCenterPanel.prototype.whenLoaded = function (cb) {
         var _this = this;
-        utils_1.Async.waitFor(function () {
+        Utils_1.Async.waitFor(function () {
             return _this.isLoaded;
         }, cb);
     };
@@ -185,47 +211,67 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
         this.viewer.viewport.setRotation(this.viewer.viewport.getRotation() + 90);
     };
     OpenSeadragonCenterPanel.prototype.updateResponsiveView = function () {
+        var _this = this;
         this.setNavigatorVisible();
-        if (!this.extension.isDesktopMetric()) {
-            this.viewer.autoHideControls = false;
-        }
-        else {
-            this.viewer.autoHideControls = true;
-        }
+        this.viewer.autoHideControls = this.extension.isDesktopMetric();
+        var enableAutoHide = function (event) {
+            _this.viewer.autoHideControls = true;
+        };
+        var disableAutoHide = function () {
+            _this.viewer.autoHideControls = false;
+        };
+        var buttons = [
+            this.$zoomInButton,
+            this.$zoomOutButton,
+            this.$goHomeButton,
+            this.$rotateButton,
+            this.$adjustImageButton,
+        ];
+        buttons.forEach(function (button) {
+            button.on("focus", disableAutoHide);
+            button.on("focusout", enableAutoHide);
+        });
     };
     OpenSeadragonCenterPanel.prototype.createUI = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var pixel, that, debouncedDoubleClick;
+            var pixel, that, debouncedDoubleClick, $oldZoomIn, $oldZoomOut, $oldGoHome, $oldRotate, settings, contrastPercent, brightnessPercent, saturationPercent;
             var _this = this;
-            return __generator(this, function (_a) {
+            var _a;
+            return __generator(this, function (_b) {
                 this.$spinner = $('<div class="spinner"></div>');
                 this.$content.append(this.$spinner);
+                this.showAdjustImageButton = Utils_1.Bools.getBool(this.config.options.showAdjustImageControl, false);
                 pixel = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
                 this.viewer = (0, openseadragon_1.default)({
                     // id: this.viewerId,
                     element: this.$viewer[0],
-                    // crossOriginPolicy: "Anonymous",
+                    drawer: "auto",
+                    crossOriginPolicy: "Anonymous",
                     showNavigationControl: true,
                     showNavigator: true,
                     showRotationControl: true,
-                    showHomeControl: utils_1.Bools.getBool(this.config.options.showHomeControl, false),
+                    showHomeControl: Utils_1.Bools.getBool(this.config.options.showHomeControl, false),
                     showFullPageControl: false,
                     defaultZoomLevel: this.config.options.defaultZoomLevel || 0,
                     maxZoomPixelRatio: this.config.options.maxZoomPixelRatio || 2,
                     controlsFadeDelay: this.config.options.controlsFadeDelay || 250,
-                    controlsFadeLength: this.config.options.controlsFadeLength || 250,
-                    navigatorPosition: this.config.options.navigatorPosition || "BOTTOM_RIGHT",
+                    controlsFadeLength: this.getControlsFadeLength(),
+                    navigatorPosition: (this.extension.helper.isContinuous()
+                        ? "BOTTOM_LEFT"
+                        : this.config.options.navigatorPosition ||
+                            "BOTTOM_RIGHT"),
                     navigatorHeight: "100px",
                     navigatorWidth: "100px",
+                    navigatorMaintainSizeRatio: false,
                     animationTime: this.config.options.animationTime || 1.2,
                     visibilityRatio: this.config.options.visibilityRatio || 0.5,
-                    constrainDuringPan: utils_1.Bools.getBool(this.config.options.constrainDuringPan, false),
-                    immediateRender: utils_1.Bools.getBool(this.config.options.immediateRender, false),
+                    constrainDuringPan: Utils_1.Bools.getBool(this.config.options.constrainDuringPan, false),
+                    immediateRender: Utils_1.Bools.getBool(this.config.options.immediateRender, false),
                     blendTime: this.config.options.blendTime || 0,
-                    autoHideControls: utils_1.Bools.getBool(this.config.options.autoHideControls, true),
-                    prefixUrl: null,
+                    autoHideControls: Utils_1.Bools.getBool(this.config.options.autoHideControls, true),
+                    prefixUrl: undefined,
                     gestureSettingsMouse: {
-                        clickToZoom: utils_1.Bools.getBool(this.extension.data.config.options.clickToZoomEnabled, true),
+                        clickToZoom: Utils_1.Bools.getBool(this.extension.data.config.options.clickToZoomEnabled, true),
                     },
                     navImages: {
                         zoomIn: {
@@ -270,10 +316,24 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
                             HOVER: pixel,
                             DOWN: pixel,
                         },
+                        fullpage: {
+                            REST: pixel,
+                            GROUP: pixel,
+                            HOVER: pixel,
+                            DOWN: pixel,
+                        },
+                        flip: {
+                            REST: pixel,
+                            GROUP: pixel,
+                            HOVER: pixel,
+                            DOWN: pixel,
+                        },
                     },
+                    // The max number of milliseconds that an image job may take to complete.
+                    timeout: this.config.options.tileTimeout || 30000,
                 });
                 that = this;
-                debouncedDoubleClick = (0, Utils_1.debounce)(function (e) {
+                debouncedDoubleClick = (0, Utils_2.debounce)(function (e) {
                     var canvas = that.extension.helper.getCurrentCanvas();
                     var viewportPoint = that.viewer.viewport.pointFromPixel(e.position);
                     var imagePoint = that.viewer.viewport.viewportToImageCoordinates(viewportPoint.x, viewportPoint.y);
@@ -299,30 +359,99 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
                         },
                     ],
                 });
-                this.$zoomInButton = this.$viewer.find('div[title="Zoom in"]');
+                $oldZoomIn = this.$viewer.find('div[title="Zoom in"]');
+                this.$zoomInButton = $("<button />").append($oldZoomIn.contents());
+                this.$zoomInButton.insertAfter($oldZoomIn);
+                $oldZoomIn.remove();
                 this.$zoomInButton.attr("tabindex", 0);
-                this.$zoomInButton.prop("title", this.content.zoomIn);
-                this.$zoomInButton.prop("aria-label", this.content.zoomIn);
+                this.$zoomInButton.attr("title", this.content.zoomIn);
+                this.$zoomInButton.attr("aria-label", this.content.zoomIn);
                 this.$zoomInButton.addClass("zoomIn viewportNavButton");
-                this.$zoomOutButton = this.$viewer.find('div[title="Zoom out"]');
+                this.onAccessibleClick(this.$zoomInButton, function () {
+                    if (_this.viewer.viewport.getZoom() < _this.viewer.viewport.getMaxZoom())
+                        _this.zoomIn();
+                });
+                $oldZoomOut = this.$viewer.find('div[title="Zoom out"]');
+                this.$zoomOutButton = $("<button />").append($oldZoomOut.contents());
+                this.$zoomOutButton.insertAfter($oldZoomOut);
+                $oldZoomIn.remove();
                 this.$zoomOutButton.attr("tabindex", 0);
-                this.$zoomOutButton.prop("title", this.content.zoomOut);
-                this.$zoomOutButton.prop("aria-label", this.content.zoomOut);
+                this.$zoomOutButton.attr("title", this.content.zoomOut);
+                this.$zoomOutButton.attr("aria-label", this.content.zoomOut);
                 this.$zoomOutButton.addClass("zoomOut viewportNavButton");
-                this.$goHomeButton = this.$viewer.find('div[title="Go home"]');
+                this.onAccessibleClick(this.$zoomOutButton, function () {
+                    if (_this.viewer.viewport.getZoom() > _this.viewer.viewport.getMinZoom())
+                        _this.zoomOut();
+                });
+                $oldGoHome = this.$viewer.find('div[title="Go home"]');
+                this.$goHomeButton = $("<button />").append($oldGoHome.contents());
+                this.$goHomeButton.insertAfter($oldGoHome);
+                $oldGoHome.remove();
                 this.$goHomeButton.attr("tabindex", 0);
-                this.$goHomeButton.prop("title", this.content.goHome);
-                this.$goHomeButton.prop("aria-label", this.content.goHome);
+                this.$goHomeButton.attr("title", this.content.goHome);
+                this.$goHomeButton.attr("aria-label", this.content.goHome);
                 this.$goHomeButton.addClass("goHome viewportNavButton");
-                this.$rotateButton = this.$viewer.find('div[title="Rotate right"]');
+                this.onAccessibleClick(this.$goHomeButton, function () {
+                    _this.goHome();
+                });
+                $oldRotate = this.$viewer.find('div[title="Rotate right"]');
+                this.$rotateButton = $("<button />").append($oldRotate.contents());
+                this.$rotateButton.insertAfter($oldRotate);
+                $oldRotate.remove();
                 this.$rotateButton.attr("tabindex", 0);
-                this.$rotateButton.prop("title", this.content.rotateRight);
-                this.$rotateButton.prop("aria-label", this.content.rotateRight);
+                this.$rotateButton.attr("title", this.content.rotateRight);
+                this.$rotateButton.attr("aria-label", this.content.rotateRight);
                 this.$rotateButton.addClass("rotate viewportNavButton");
+                this.onAccessibleClick(this.$rotateButton, function () {
+                    _this.rotateRight();
+                });
+                if (this.showAdjustImageButton) {
+                    this.$adjustImageButton = this.$rotateButton.clone();
+                    this.$adjustImageButton.attr("title", this.content.adjustImage);
+                    this.$adjustImageButton.attr("aria-label", this.content.adjustImage);
+                    this.$adjustImageButton.switchClass("rotate", "adjustImage");
+                    this.$adjustImageButton.attr("tabindex", 0);
+                    this.$adjustImageButton.onPressed(function () {
+                        _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.SHOW_ADJUSTIMAGE_DIALOGUE);
+                    });
+                    this.$adjustImageButton.insertAfter(this.$rotateButton);
+                    this.onAccessibleClick(this.$adjustImageButton, function () {
+                        _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.SHOW_ADJUSTIMAGE_DIALOGUE);
+                    });
+                }
+                this.$zoomInButton
+                    .add(this.$zoomOutButton)
+                    .add(this.$goHomeButton)
+                    .add(this.$rotateButton)
+                    .add(this.$adjustImageButton)
+                    .on("focus", function () {
+                    if (_this.controlsVisible)
+                        return;
+                    _this.controlsVisible = true;
+                    _this.viewer.setControlsEnabled(true);
+                });
+                this.$zoomInButton.add(this.$adjustImageButton).on("blur", function () {
+                    if (!_this.controlsVisible)
+                        return;
+                    _this.controlsVisible = false;
+                    _this.viewer.setControlsEnabled(false);
+                });
                 this.$viewportNavButtonsContainer = this.$viewer.find(".openseadragon-container > div:not(.openseadragon-canvas):first");
                 //this.$viewportNavButtonsContainer.addClass("viewportControls");
-                this.$viewportNavButtons = this.$viewportNavButtonsContainer.find(".viewportNavButton");
+                this.$viewportNavButtons =
+                    this.$viewportNavButtonsContainer.find(".viewportNavButton");
                 this.$canvas = $(this.viewer.canvas);
+                this.$canvas.attr("role", "application");
+                this.$canvas.attr("aria-label", this.content.mediaViewer);
+                settings = this.extension.getSettings();
+                if (((_a = this.extension.data.config) === null || _a === void 0 ? void 0 : _a.options.saveUserSettings) &&
+                    settings.rememberSettings) {
+                    contrastPercent = settings.contrastPercent;
+                    brightnessPercent = settings.brightnessPercent;
+                    saturationPercent = settings.saturationPercent;
+                    this.$canvas[0].children[0].style.filter =
+                        "contrast(".concat(contrastPercent, "%) brightness(").concat(brightnessPercent, "%) saturate(").concat(saturationPercent, "%)");
+                }
                 // disable right click on canvas
                 this.$canvas.on("contextmenu", function () {
                     return false;
@@ -339,6 +468,9 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
                 this.$element.on("mouseleave", function () {
                     if (!_this.controlsVisible)
                         return;
+                    // don't hide controls if a dialog overlay (e.g. choice menu) is visible
+                    if ($(".overlay:visible").length)
+                        return;
                     _this.controlsVisible = false;
                     _this.viewer.setControlsEnabled(false);
                 });
@@ -354,6 +486,9 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
                     if (_this.$nextButton.ismouseover()) {
                         return;
                     }
+                    // don't hide controls if a dialog overlay (e.g. choice menu) is visible
+                    if ($(".overlay:visible").length)
+                        return;
                     if (!_this.$viewer.find(".navigator").ismouseover()) {
                         if (!_this.controlsVisible)
                             return;
@@ -361,9 +496,6 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
                         _this.viewer.setControlsEnabled(false);
                     }
                 }, this.config.options.controlsFadeAfterInactive);
-                this.viewer.addHandler("tile-drawn", function () {
-                    _this.$spinner.hide();
-                });
                 //this.viewer.addHandler("open-failed", () => {
                 //});
                 this.viewer.addHandler("resize", function (viewer) {
@@ -389,7 +521,24 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
                 this.createNavigationButtons();
                 this.hidePrevButton();
                 this.hideNextButton();
+                this.createChoiceSwitch();
                 this.isCreated = true;
+                //this.resize();
+                // check if initial interaction is keyboard navigation or mouse
+                // this prevents blue focus border from appearing on first mouse interaction
+                document.addEventListener("keydown", function (e) {
+                    var _a;
+                    if (e.key === "Tab") {
+                        (_a = _this.$canvas) === null || _a === void 0 ? void 0 : _a.addClass("keyboard-nav");
+                    }
+                }, { capture: true });
+                document.addEventListener("pointerdown", function () {
+                    var _a;
+                    (_a = _this.$canvas) === null || _a === void 0 ? void 0 : _a.removeClass("keyboard-nav");
+                }, { capture: true });
+                this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.CLOSE_ACTIVE_DIALOGUE, function () {
+                    _this.$viewer.removeClass("dialogue-open");
+                });
                 return [2 /*return*/];
             });
         });
@@ -398,19 +547,27 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
         var _this = this;
         var viewingDirection = this.extension.helper.getViewingDirection() ||
             vocabulary_1.ViewingDirection.LEFT_TO_RIGHT;
-        this.$prevButton = $('<div class="paging btn prev" tabindex="0"></div>');
+        this.$prevButton = $("<button class=\"btn btn-default paging prev\" title=\"".concat(this.content.previousImage, "\">\n          <i class=\"uv-icon-prev\" aria-hidden=\"true\"></i>\n          <span class=\"sr-only\">").concat(this.content.previousImage, "</span>\n        </button>"));
         if (this.extension.helper.isRightToLeft()) {
-            this.$prevButton.prop("title", this.content.next);
+            this.$prevButton
+                .prop("title", this.content.nextImage)
+                .attr("aria-label", this.content.nextImage);
         }
         else {
-            this.$prevButton.prop("title", this.content.previous);
+            this.$prevButton
+                .prop("title", this.content.previousImage)
+                .attr("aria-label", this.content.previousImage);
         }
-        this.$nextButton = $('<div class="paging btn next" tabindex="0"></div>');
+        this.$nextButton = $("<button class=\"btn btn-default paging next\" title=\"".concat(this.content.nextImage, "\">\n        <i class=\"uv-icon-next\" aria-hidden=\"true\"></i>\n        <span class=\"sr-only\">").concat(this.content.nextImage, "</span>\n      </button>"));
         if (this.extension.helper.isRightToLeft()) {
-            this.$nextButton.prop("title", this.content.previous);
+            this.$nextButton
+                .prop("title", this.content.previousImage)
+                .attr("aria-label", this.content.previousImage);
         }
         else {
-            this.$nextButton.prop("title", this.content.next);
+            this.$nextButton
+                .prop("title", this.content.nextImage)
+                .attr("aria-label", this.content.nextImage);
         }
         this.viewer.addControl(this.$prevButton[0], {
             anchor: openseadragon_1.default.ControlAnchor.TOP_LEFT,
@@ -459,17 +616,34 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
             }
         });
         // When Prev/Next buttons are focused, make sure the controls are enabled
-        this.$prevButton.on("focus", function () {
+        this.$prevButton.add(this.$nextButton).on("focus", function () {
             if (_this.controlsVisible)
                 return;
             _this.controlsVisible = true;
             _this.viewer.setControlsEnabled(true);
         });
-        this.$nextButton.on("focus", function () {
-            if (_this.controlsVisible)
+        this.$prevButton.add(this.$nextButton).on("blur", function () {
+            if (!_this.controlsVisible)
                 return;
-            _this.controlsVisible = true;
-            _this.viewer.setControlsEnabled(true);
+            _this.controlsVisible = false;
+            _this.viewer.setControlsEnabled(false);
+        });
+    };
+    OpenSeadragonCenterPanel.prototype.createChoiceSwitch = function () {
+        var _this = this;
+        this.$choiceSwitchButton = this.$rotateButton.clone();
+        this.$choiceSwitchButton.attr("aria-label", this.content.layers);
+        this.$choiceSwitchButton.attr("title", this.content.layers);
+        this.$choiceSwitchButton.switchClass("rotate", "choiceSwitch");
+        this.$choiceSwitchButton.attr("tabindex", 0);
+        if (this.showAdjustImageButton && this.$adjustImageButton) {
+            this.$choiceSwitchButton.insertAfter(this.$adjustImageButton);
+        }
+        else {
+            this.$choiceSwitchButton.insertAfter(this.$rotateButton);
+        }
+        this.onAccessibleClick(this.$choiceSwitchButton, function () {
+            _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.SHOW_CHOICE_SWITCH_DIALOGUE);
         });
     };
     OpenSeadragonCenterPanel.prototype.getGirderTileSource = function () {
@@ -529,7 +703,7 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
     };
     OpenSeadragonCenterPanel.prototype.openMedia = function (resources) {
         return __awaiter(this, void 0, void 0, function () {
-            var images, isGirder, i, data, tileSource, _a;
+            var spinnerTimeout, images, indices, hasChoices, canvasData, positioned, totalItems_1, _i, canvasData_1, data, loadedItems_1, isGirder, i, data, tileSource, _a;
             var _this = this;
             return __generator(this, function (_b) {
                 switch (_b.label) {
@@ -538,11 +712,127 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
                         if (!this.viewer) {
                             return [2 /*return*/];
                         }
-                        this.$spinner.show();
+                        this.viewer.close();
                         this.items = [];
+                        spinnerTimeout = setTimeout(function () {
+                            _this.$spinner.show();
+                        }, 200);
                         return [4 /*yield*/, this.extension.getExternalResources(resources)];
                     case 1:
                         images = _b.sent();
+                        indices = this.extension.getPagedIndices();
+                        hasChoices = indices.some(function (index) {
+                            var canvas = _this.extension.helper.getCanvasByIndex(index);
+                            return canvas.getChoices().length > 0;
+                        });
+                        if (hasChoices) {
+                            try {
+                                canvasData = indices.map(function (index) {
+                                    var canvas = _this.extension.helper.getCanvasByIndex(index);
+                                    return {
+                                        index: index,
+                                        canvas: canvas,
+                                        choices: canvas.getChoices(),
+                                        width: canvas.getWidth(),
+                                        height: canvas.getHeight(),
+                                        x: 0,
+                                        y: 0,
+                                    };
+                                });
+                                positioned = this.getPagePositions(canvasData);
+                                totalItems_1 = 0;
+                                for (_i = 0, canvasData_1 = canvasData; _i < canvasData_1.length; _i++) {
+                                    data = canvasData_1[_i];
+                                    totalItems_1 += data.choices.length;
+                                }
+                                loadedItems_1 = 0;
+                                positioned.forEach(function (data) {
+                                    if (data.choices.length === 0) {
+                                        // no choices on this canvas, load as regular image
+                                        var content = data.canvas.getContent();
+                                        if (content.length) {
+                                            var body = content[0].getBody();
+                                            if (body.length) {
+                                                var services = body[0].getServices();
+                                                var tileSource = void 0;
+                                                if (services.length) {
+                                                    var id = services[0].id;
+                                                    if (!id.endsWith("/"))
+                                                        id += "/";
+                                                    tileSource = id + "info.json";
+                                                }
+                                                else {
+                                                    tileSource = {
+                                                        type: "image",
+                                                        url: body[0].id,
+                                                        buildPyramid: false,
+                                                    };
+                                                }
+                                                totalItems_1++;
+                                                _this.viewer.addTiledImage({
+                                                    tileSource: tileSource,
+                                                    x: data.x,
+                                                    y: data.y,
+                                                    width: data.width,
+                                                    success: function (item) {
+                                                        _this.items.push(item);
+                                                        loadedItems_1++;
+                                                        if (loadedItems_1 === totalItems_1) {
+                                                            clearTimeout(spinnerTimeout);
+                                                            _this.$spinner.hide();
+                                                            _this.openPagesHandler();
+                                                            _this.resize();
+                                                            _this.goHome();
+                                                        }
+                                                    },
+                                                });
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        data.choices.forEach(function (choice, index) {
+                                            var services = choice.getServices();
+                                            var tileSource;
+                                            if (services.length) {
+                                                var id = services[0].id;
+                                                if (!id.endsWith("/"))
+                                                    id += "/";
+                                                tileSource = id + "info.json";
+                                            }
+                                            else {
+                                                tileSource = {
+                                                    type: "image",
+                                                    url: choice.id,
+                                                    buildPyramid: false,
+                                                };
+                                            }
+                                            _this.viewer.addTiledImage({
+                                                tileSource: tileSource,
+                                                x: data.x,
+                                                y: data.y,
+                                                width: data.width,
+                                                opacity: index === 0 ? 1 : 0,
+                                                success: function (item) {
+                                                    _this.items.push(item);
+                                                    loadedItems_1++;
+                                                    if (loadedItems_1 === totalItems_1) {
+                                                        clearTimeout(spinnerTimeout);
+                                                        _this.$spinner.hide();
+                                                        _this.openPagesHandler();
+                                                        _this.resize();
+                                                        _this.goHome();
+                                                    }
+                                                },
+                                            });
+                                        });
+                                    }
+                                });
+                            }
+                            catch (e) {
+                                console.error(e);
+                            }
+                            return [2 /*return*/];
+                        }
                         isGirder = this.extension.format === dist_commonjs_1.MediaType.GIRDER;
                         _b.label = 2;
                     case 2:
@@ -583,6 +873,8 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
                             success: function (item) {
                                 _this.items.push(item);
                                 if (_this.items.length === images.length) {
+                                    clearTimeout(spinnerTimeout);
+                                    _this.$spinner.hide();
                                     _this.openPagesHandler();
                                 }
                                 _this.resize();
@@ -673,6 +965,7 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
         return resources;
     };
     OpenSeadragonCenterPanel.prototype.openPagesHandler = function () {
+        var _this = this;
         this.extensionHost.publish(Events_1.OpenSeadragonExtensionEvents.OPENSEADRAGON_OPEN);
         if (this.extension.helper.isMultiCanvas() &&
             !this.extension.helper.isContinuous()) {
@@ -711,6 +1004,12 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
             }
         }
         this.setNavigatorVisible();
+        // resize navigator for continuous manifests
+        if (this.extension.helper.isContinuous()) {
+            setTimeout(function () {
+                _this.resizeNavigatorForContinuous();
+            }, 200);
+        }
         this.overlayAnnotations();
         this.updateBounds();
         // this only happens if prev/next search result were clicked and caused a reload
@@ -719,6 +1018,50 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
             this.zoomToInitialAnnotation();
         }
         this.isFirstLoad = false;
+        this.updateChoiceSwitchVisibility();
+    };
+    OpenSeadragonCenterPanel.prototype.resizeNavigatorForContinuous = function () {
+        if (!this.viewer || !this.viewer.navigator)
+            return;
+        var homeBounds = this.viewer.world.getHomeBounds();
+        var contentAspectRatio = homeBounds.width / homeBounds.height;
+        var viewportWidth = this.$viewer.width();
+        var viewportHeight = this.$viewer.height();
+        var maxNavigatorWidth = 100;
+        var maxNavigatorHeight = 100;
+        var minVerticalNavigatorWidth = 60;
+        var minHorizontalNavigatorHeight = 40;
+        var navigatorWidth;
+        var navigatorHeight;
+        if (this.extension.helper.isVerticallyAligned()) {
+            navigatorHeight = viewportHeight - this.$zoomInButton.height() - 4;
+            navigatorWidth = navigatorHeight * contentAspectRatio;
+            // Enforce max width
+            if (navigatorWidth > maxNavigatorWidth) {
+                navigatorWidth = maxNavigatorWidth;
+            }
+            // Enforce min width
+            if (navigatorWidth < minVerticalNavigatorWidth) {
+                navigatorWidth = minVerticalNavigatorWidth;
+            }
+        }
+        else {
+            navigatorWidth = viewportWidth;
+            navigatorHeight = navigatorWidth / contentAspectRatio;
+            // Enforce max height
+            if (navigatorHeight > maxNavigatorHeight) {
+                navigatorHeight = maxNavigatorHeight;
+            }
+            // Enforce min height
+            if (navigatorHeight < minHorizontalNavigatorHeight) {
+                navigatorHeight = minHorizontalNavigatorHeight;
+            }
+        }
+        var navigatorElement = this.viewer.navigator.element;
+        navigatorElement.style.width = "".concat(navigatorWidth, "px");
+        navigatorElement.style.height = "".concat(navigatorHeight, "px");
+        this.viewer.navigator.viewport.fitBounds(homeBounds, true);
+        this.viewer.navigator.updateSize();
     };
     OpenSeadragonCenterPanel.prototype.zoomToInitialAnnotation = function () {
         var annotationRect = this.getInitialAnnotationRect();
@@ -740,7 +1083,7 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
                 var rect = rects[k];
                 var div = document.createElement("DIV");
                 div.id = "annotation-" + rect.canvasIndex + "-" + rect.resultIndex;
-                div.title = (0, Utils_1.sanitize)(rect.chars);
+                div.title = (0, Utils_2.sanitize)(rect.chars);
                 // if it's a pin
                 if (rect.width === 1 && rect.height === 1) {
                     div.className = "annotationPin";
@@ -763,6 +1106,9 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
                 _loop_1(k);
             }
         }
+        if (annotations.length && this.shouldZoomToInitialAnnotation()) {
+            this.zoomToInitialAnnotation();
+        }
     };
     OpenSeadragonCenterPanel.prototype.updateBounds = function () {
         var settings = this.extension.getSettings();
@@ -772,8 +1118,7 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
             if (this.initialRotation) {
                 this.viewer.viewport.setRotation(parseInt(this.initialRotation));
             }
-            var xywh = this.extension
-                .data.xywh;
+            var xywh = this.extension.data.xywh;
             if (xywh) {
                 this.initialBounds = XYWHFragment_1.XYWHFragment.fromString(xywh);
                 this.currentBounds = this.initialBounds;
@@ -794,10 +1139,12 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
     OpenSeadragonCenterPanel.prototype.disablePrevButton = function () {
         this.prevButtonEnabled = false;
         this.$prevButton.addClass("disabled");
+        this.$prevButton.attr("tabindex", -1);
     };
     OpenSeadragonCenterPanel.prototype.enablePrevButton = function () {
         this.prevButtonEnabled = true;
         this.$prevButton.removeClass("disabled");
+        this.$prevButton.attr("tabindex", 0);
     };
     OpenSeadragonCenterPanel.prototype.hidePrevButton = function () {
         this.disablePrevButton();
@@ -810,10 +1157,12 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
     OpenSeadragonCenterPanel.prototype.disableNextButton = function () {
         this.nextButtonEnabled = false;
         this.$nextButton.addClass("disabled");
+        this.$nextButton.attr("tabindex", -1);
     };
     OpenSeadragonCenterPanel.prototype.enableNextButton = function () {
         this.nextButtonEnabled = true;
         this.$nextButton.removeClass("disabled");
+        this.$nextButton.attr("tabindex", 0);
     };
     OpenSeadragonCenterPanel.prototype.hideNextButton = function () {
         this.disableNextButton();
@@ -839,8 +1188,7 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
         if (!this.viewer || !this.viewer.viewport)
             return null;
         var canvas = this.extension.helper.getCurrentCanvas();
-        var dimensions = this
-            .extension.getCroppedImageDimensions(canvas, this.viewer);
+        var dimensions = this.extension.getCroppedImageDimensions(canvas, this.viewer);
         if (dimensions) {
             var bounds = new XYWHFragment_1.XYWHFragment(dimensions.regionPos.x, dimensions.regionPos.y, dimensions.region.width, dimensions.region.height);
             return bounds.toString();
@@ -870,8 +1218,7 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
     };
     OpenSeadragonCenterPanel.prototype.getAnnotationsForCurrentImages = function () {
         var annotationsForCurrentImages = [];
-        var annotations = this
-            .extension.annotations;
+        var annotations = this.extension.annotations;
         if (!annotations || !annotations.length)
             return annotationsForCurrentImages;
         var indices = this.extension.getPagedIndices();
@@ -905,7 +1252,7 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
         for (var i = 0; i < annotationRects.length; i++) {
             var rect = annotationRects[i];
             var viewportBounds = this.viewer.viewport.getBounds();
-            rect.isVisible = utils_1.Dimensions.hitRect(viewportBounds.x, viewportBounds.y, viewportBounds.width, viewportBounds.height, rect.viewportX, rect.viewportY);
+            rect.isVisible = Utils_1.Dimensions.hitRect(viewportBounds.x, viewportBounds.y, viewportBounds.width, viewportBounds.height, rect.viewportX, rect.viewportY);
         }
     };
     OpenSeadragonCenterPanel.prototype.getAnnotationRectIndex = function (annotationRect) {
@@ -913,12 +1260,14 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
         return annotationRects.indexOf(annotationRect);
     };
     OpenSeadragonCenterPanel.prototype.isZoomToSearchResultEnabled = function () {
-        return utils_1.Bools.getBool(this.extension.data.config.options.zoomToSearchResultEnabled, true);
+        return Utils_1.Bools.getBool(this.extension.data.config.options.zoomToSearchResultEnabled, true);
+    };
+    OpenSeadragonCenterPanel.prototype.shouldZoomToInitialAnnotation = function () {
+        return Utils_1.Bools.getBool(this.config.options.zoomToInitialAnnotation, true);
     };
     OpenSeadragonCenterPanel.prototype.prevAnnotation = function () {
         var annotationRects = this.getAnnotationRectsForCurrentImages();
-        var currentAnnotationRect = this
-            .extension.currentAnnotationRect;
+        var currentAnnotationRect = this.extension.currentAnnotationRect;
         var currentAnnotationRectIndex = currentAnnotationRect
             ? this.getAnnotationRectIndex(currentAnnotationRect)
             : annotationRects.length;
@@ -940,8 +1289,8 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
         if (foundRect && this.isZoomToSearchResultEnabled()) {
             // if the rect's canvasIndex is less than the current canvasIndex
             if (foundRect.canvasIndex < this.extension.helper.canvasIndex) {
-                this
-                    .extension.currentAnnotationRect = foundRect;
+                this.extension.currentAnnotationRect =
+                    foundRect;
                 this.navigatedFromSearch = true;
                 this.extensionHost.publish(IIIFEvents_1.IIIFEvents.ANNOTATION_CANVAS_CHANGE, [
                     foundRect,
@@ -958,8 +1307,7 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
     };
     OpenSeadragonCenterPanel.prototype.nextAnnotation = function () {
         var annotationRects = this.getAnnotationRectsForCurrentImages();
-        var currentAnnotationRect = this
-            .extension.currentAnnotationRect;
+        var currentAnnotationRect = this.extension.currentAnnotationRect;
         var currentAnnotationRectIndex = currentAnnotationRect
             ? this.getAnnotationRectIndex(currentAnnotationRect)
             : -1;
@@ -980,8 +1328,8 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
         if (foundRect && this.isZoomToSearchResultEnabled()) {
             // if the rect's canvasIndex is greater than the current canvasIndex
             if (foundRect.canvasIndex > this.extension.helper.canvasIndex) {
-                this
-                    .extension.currentAnnotationRect = foundRect;
+                this.extension.currentAnnotationRect =
+                    foundRect;
                 this.navigatedFromSearch = true;
                 this.extensionHost.publish(IIIFEvents_1.IIIFEvents.ANNOTATION_CANVAS_CHANGE, [
                     foundRect,
@@ -1012,8 +1360,7 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
         // if greater than, select the last annotation on the current page
         // if less than, select the first annotation on the current page
         // otherwise default to the first annotation
-        var previousAnnotationRect = this
-            .extension.previousAnnotationRect;
+        var previousAnnotationRect = this.extension.previousAnnotationRect;
         if (!previousAnnotationRect) {
             if (this.extension.lastCanvasIndex > this.extension.helper.canvasIndex) {
                 var result = annotationRects.filter(function (x) { return x.canvasIndex === _this.extension.helper.canvasIndex; });
@@ -1026,11 +1373,11 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
         this.extension.previousAnnotationRect =
             this.extension.currentAnnotationRect ||
                 annotationRect;
-        this
-            .extension.currentAnnotationRect = annotationRect;
+        this.extension.currentAnnotationRect =
+            annotationRect;
         // if zoomToBoundsEnabled, zoom to the annotation's bounds.
         // otherwise, pan into view preserving the current zoom level.
-        if (utils_1.Bools.getBool(this.extension.data.config.options.zoomToBoundsEnabled, false)) {
+        if (Utils_1.Bools.getBool(this.extension.data.config.options.zoomToBoundsEnabled, false)) {
             this.fitToBounds(new XYWHFragment_1.XYWHFragment(annotationRect.viewportX, annotationRect.viewportY, annotationRect.width, annotationRect.height), false);
         }
         else if (this.currentBounds) {
@@ -1049,9 +1396,7 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
     OpenSeadragonCenterPanel.prototype.highlightAnnotationRect = function (annotationRect) {
         var $rect = $("#annotation-" + annotationRect.canvasIndex + "-" + annotationRect.index);
         $rect.addClass("current");
-        $(".annotationRect")
-            .not($rect)
-            .removeClass("current");
+        $(".annotationRect").not($rect).removeClass("current");
     };
     OpenSeadragonCenterPanel.prototype.getAnnotationOverlayRects = function (annotationGroup) {
         var newRects = [];
@@ -1088,7 +1433,7 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
         if (!this.isCreated)
             return;
         if (this.title) {
-            this.$title.text((0, Utils_1.sanitize)(this.title));
+            this.$title.text((0, Utils_2.sanitize)(this.title));
         }
         this.$spinner.css("top", this.$content.height() / 2 - this.$spinner.height() / 2);
         this.$spinner.css("left", this.$content.width() / 2 - this.$spinner.width() / 2);
@@ -1122,19 +1467,13 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
                     this.$nextButton.css("top", (this.$content.height() - this.$nextButton.height()) / 2);
                     break;
             }
-        }
-        // stretch navigator, allowing time for OSD to resize
-        setTimeout(function () {
-            if (_this.extension.helper.isContinuous()) {
-                if (_this.extension.helper.isHorizontallyAligned()) {
-                    var width = _this.$viewer.width() - _this.$viewer.rightMargin();
-                    _this.$navigator.width(width);
-                }
-                else {
-                    _this.$navigator.height(_this.$viewer.height());
-                }
+            // resize navigator for continuous manifests
+            if (this.extension.helper.isContinuous()) {
+                setTimeout(function () {
+                    _this.resizeNavigatorForContinuous();
+                }, 200);
             }
-        }, 100);
+        }
     };
     OpenSeadragonCenterPanel.prototype.setFocus = function () {
         if (this.$canvas && !this.$canvas.is(":focus")) {
@@ -1144,7 +1483,7 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
         }
     };
     OpenSeadragonCenterPanel.prototype.setNavigatorVisible = function () {
-        var navigatorEnabled = utils_1.Bools.getBool(this.extension.getSettings().navigatorEnabled, true) &&
+        var navigatorEnabled = Utils_1.Bools.getBool(this.extension.getSettings().navigatorEnabled, true) &&
             this.extension.isDesktopMetric();
         if (this.viewer && this.viewer.navigator) {
             this.viewer.navigator.setVisible(navigatorEnabled);
@@ -1155,6 +1494,25 @@ var OpenSeadragonCenterPanel = /** @class */ (function (_super) {
                 this.$navigator.hide();
             }
         }
+    };
+    OpenSeadragonCenterPanel.prototype.getControlsFadeLength = function () {
+        return this.extension.getSettings().reducedAnimation
+            ? 0
+            : this.config.options.controlsFadeLength || 250;
+    };
+    OpenSeadragonCenterPanel.prototype.indicesIncludeChoices = function (indices) {
+        var _this = this;
+        return indices.some(function (index) {
+            var canvas = _this.extension.helper.getCanvasByIndex(index);
+            return canvas.getChoices().length > 0;
+        });
+    };
+    OpenSeadragonCenterPanel.prototype.updateChoiceSwitchVisibility = function () {
+        if (!this.$choiceSwitchButton)
+            return;
+        var indices = this.extension.getPagedIndices();
+        var hasChoices = this.indicesIncludeChoices(indices);
+        this.$choiceSwitchButton.css("visibility", hasChoices ? "visible" : "hidden");
     };
     return OpenSeadragonCenterPanel;
 }(CenterPanel_1.CenterPanel));

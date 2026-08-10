@@ -30,21 +30,31 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ThumbsView = void 0;
 var $ = require("jquery");
 var IIIFEvents_1 = require("../../IIIFEvents");
 var BaseView_1 = require("./BaseView");
 var dist_commonjs_1 = require("@iiif/vocabulary/dist-commonjs/");
-var KeyCodes = __importStar(require("@edsilv/key-codes"));
-var utils_1 = require("@edsilv/utils");
+var KeyCodes = __importStar(require("../../KeyCodes"));
+var Utils_1 = require("../../Utils");
 var ThumbsView = /** @class */ (function (_super) {
     __extends(ThumbsView, _super);
     function ThumbsView($element) {
@@ -73,16 +83,16 @@ var ThumbsView = /** @class */ (function (_super) {
         var that = this;
         $.templates({
             thumbsTemplate: '<a id="thumb{{>index}}" class="{{:~className()}}" data-src="{{>uri}}" data-visible="{{>visible}}" data-index="{{>index}}" tabindex="0">\
-                                <div class="wrap" style="height:{{>height + ~extraHeight()}}px"></div>\
-                                <div class="info">\
-                                    <span class="index">{{:#index + 1}}</span>\
-                                    <span class="label" title="{{>label}}">{{>label}}&nbsp;</span>\
-                                    <span class="searchResults" title="{{:~searchResultsTitle()}}">{{>data.searchResults}}</span>\
-                                </div>\
-                             </a>\
-                             {{if ~separator()}} \
-                                 <div class="separator"></div> \
-                             {{/if}}',
+          <div class="wrap" style="height:{{>height + ~extraHeight()}}px"></div>\
+          <div class="info">\
+            <span class="index">{{:#index + 1}}</span>\
+            <span class="label" title="{{>label}}" style="white-space: normal;">{{>label}}&nbsp;</span>\
+            <span class="searchResults" title="{{:~searchResultsTitle()}}">{{>data.searchResults}}</span>\
+          </div>\
+        </a>\
+        {{if ~separator()}} \
+          <div class="separator"></div> \
+        {{/if}}',
         });
         var extraHeight = this.options.thumbsExtraHeight;
         $.views.helpers({
@@ -118,9 +128,9 @@ var ThumbsView = /** @class */ (function (_super) {
                 var searchResults = Number(this.data.data.searchResults);
                 if (searchResults) {
                     if (searchResults > 1) {
-                        return utils_1.Strings.format(that.content.searchResults, searchResults.toString());
+                        return Utils_1.Strings.format(that.content.searchResults, searchResults.toString());
                     }
-                    return utils_1.Strings.format(that.content.searchResult, searchResults.toString());
+                    return Utils_1.Strings.format(that.content.searchResult, searchResults.toString());
                 }
                 return "";
             },
@@ -152,7 +162,7 @@ var ThumbsView = /** @class */ (function (_super) {
             var thumb = this.thumbs[i];
             heights.push(thumb.height);
         }
-        var medianHeight = utils_1.Maths.median(heights);
+        var medianHeight = Utils_1.Maths.median(heights);
         for (var i = 0; i < this.thumbs.length; i++) {
             var thumb = this.thumbs[i];
             thumb.height = medianHeight;
@@ -169,7 +179,7 @@ var ThumbsView = /** @class */ (function (_super) {
         // Support keyboard navigation (spacebar / enter)
         this.$thumbs.delegate(".thumb", "keydown", function (e) {
             var originalEvent = e.originalEvent;
-            var charCode = utils_1.Keyboard.getCharCode(originalEvent);
+            var charCode = Utils_1.Keyboard.getCharCode(originalEvent);
             if (charCode === KeyCodes.KeyDown.Spacebar ||
                 charCode === KeyCodes.KeyDown.Enter) {
                 e.preventDefault();
@@ -233,22 +243,18 @@ var ThumbsView = /** @class */ (function (_super) {
                     var src = $thumb.attr("data-src");
                     if (that.config.options.thumbsCacheInvalidation &&
                         that.config.options.thumbsCacheInvalidation.enabled) {
-                        src += "".concat(that.config.options.thumbsCacheInvalidation.paramType, "t=").concat(utils_1.Dates.getTimeStamp());
+                        src += "".concat(that.config.options.thumbsCacheInvalidation.paramType, "t=").concat(Utils_1.Dates.getTimeStamp());
                     }
                     var $img = $('<img src="' + src + '" alt=""/>');
                     // fade in on load.
                     $img.hide();
                     $img.on("load", function () {
                         $(this).fadeIn(fadeDuration, function () {
-                            $(this)
-                                .parent()
-                                .switchClass("loading", "loaded");
+                            $(this).parent().switchClass("loading", "loaded");
                         });
                     });
                     $img.on("error", function () {
-                        $(this)
-                            .parent()
-                            .switchClass("loading", "loadingFailed");
+                        $(this).parent().switchClass("loading", "loadingFailed");
                     });
                     $wrap.append($img);
                 }
@@ -279,12 +285,8 @@ var ThumbsView = /** @class */ (function (_super) {
         return false;
     };
     ThumbsView.prototype.setLabel = function () {
-        $(this.$thumbs)
-            .find("span.index")
-            .hide();
-        $(this.$thumbs)
-            .find("span.label")
-            .show();
+        $(this.$thumbs).find("span.index").hide();
+        $(this.$thumbs).find("span.label").show();
     };
     ThumbsView.prototype.addSelectedClassToThumbs = function (index) {
         this.getThumbByIndex(index).addClass("selected");
@@ -321,7 +323,11 @@ var ThumbsView = /** @class */ (function (_super) {
         this.$element.scrollTop($thumb.position().top);
     };
     ThumbsView.prototype.resize = function () {
+        var _this = this;
         _super.prototype.resize.call(this);
+        setTimeout(function () {
+            _this.$element.width("100%");
+        }, 1);
     };
     return ThumbsView;
 }(BaseView_1.BaseView));

@@ -12,5 +12,5 @@ var Position;
     Position[Position["BOTTOM_LEFT"] = 6] = "BOTTOM_LEFT";
     Position[Position["BOTTOM_CENTER"] = 7] = "BOTTOM_CENTER";
     Position[Position["BOTTOM_RIGHT"] = 8] = "BOTTOM_RIGHT";
-})(Position = exports.Position || (exports.Position = {}));
+})(Position || (exports.Position = Position = {}));
 //# sourceMappingURL=Position.js.map

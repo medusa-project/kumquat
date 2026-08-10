@@ -23,10 +23,9 @@ var $ = require("jquery");
 var react_1 = require("react");
 var client_1 = require("react-dom/client");
 var ThumbsView_1 = __importDefault(require("./ThumbsView"));
-var ViewingDirectionEnum = require("@iiif/vocabulary/dist-commonjs/")
-    .ViewingDirection;
+var ViewingDirectionEnum = require("@iiif/vocabulary/dist-commonjs/").ViewingDirection;
 // const ViewingHintEnum = require("@iiif/vocabulary/dist-commonjs/").ViewingHint;
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../../Utils");
 var dist_commonjs_1 = require("@iiif/vocabulary/dist-commonjs/");
 var IIIFEvents_1 = require("../../IIIFEvents");
 var GalleryView_1 = require("./GalleryView");
@@ -35,7 +34,7 @@ var Mode_1 = require("../../extensions/uv-openseadragon-extension/Mode");
 var TreeView_1 = require("./TreeView");
 var manifesto_js_1 = require("manifesto.js");
 var manifold_1 = require("@iiif/manifold");
-var Utils_1 = require("../../../../Utils");
+var Utils_2 = require("../../../../Utils");
 var ContentLeftPanel = /** @class */ (function (_super) {
     __extends(ContentLeftPanel, _super);
     function ContentLeftPanel($element) {
@@ -43,12 +42,13 @@ var ContentLeftPanel = /** @class */ (function (_super) {
         _this.expandFullEnabled = false;
         _this.isThumbsViewOpen = false;
         _this.isTreeViewOpen = false;
+        _this.keyPress = false;
         _this.treeSortType = manifold_1.TreeSortType.NONE;
         return _this;
     }
     ContentLeftPanel.prototype.create = function () {
         var _this = this;
-        this.setConfig("leftPanel");
+        this.setConfig("contentLeftPanel");
         _super.prototype.create.call(this);
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.SETTINGS_CHANGE, function () {
             _this.render();
@@ -82,15 +82,23 @@ var ContentLeftPanel = /** @class */ (function (_super) {
             if (_this.isFullyExpanded) {
                 _this.collapseFull();
             }
-            _this.selectCurrentTreeNode();
+            _this.selectCurrentTreeNodeByCanvas();
             _this.updateTreeTabBySelection();
         });
         this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.RANGE_CHANGE, function () {
             if (_this.isFullyExpanded) {
                 _this.collapseFull();
             }
-            _this.selectCurrentTreeNode();
+            _this.selectCurrentTreeNodeByRange();
             _this.updateTreeTabBySelection();
+        });
+        this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.TREE_NODE_SELECTED, function () {
+            if (_this.extension.isMetric("sm")) {
+                _this.toggle(true);
+            }
+        });
+        this.extensionHost.subscribe(IIIFEvents_1.IIIFEvents.TOGGLE_EXPAND_LEFT_PANEL, function () {
+            _this.openThumbsView();
         });
         // this.extensionHost.subscribe(
         //   OpenSeadragonExtensionEvents.PAGING_TOGGLED,
@@ -151,10 +159,10 @@ var ContentLeftPanel = /** @class */ (function (_super) {
         this.$treeViewOptions.hide();
         this.onAccessibleClick(this.$treeButton, function () {
             _this.openTreeView();
-        });
+        }, true, true);
         this.onAccessibleClick(this.$thumbsButton, function () {
             _this.openThumbsView();
-        });
+        }, true, true);
         this.setTitle(this.content.title);
         this.$sortByVolumeButton.addClass("on");
         var tabOrderConfig = this.options.tabOrder;
@@ -180,7 +188,7 @@ var ContentLeftPanel = /** @class */ (function (_super) {
     //   );
     // }
     ContentLeftPanel.prototype.createTreeView = function () {
-        this.treeView = new TreeView_1.TreeView(this.$treeView);
+        this.treeView = new TreeView_1.TreeView(this.$treeView, false);
         this.treeView.treeData = this.getTreeData();
         this.treeView.setup();
         this.renderTree();
@@ -208,8 +216,7 @@ var ContentLeftPanel = /** @class */ (function (_super) {
         if (!treeData) {
             return;
         }
-        if (this.isCollection() &&
-            this.extension.helper.treeHasNavDates(treeData)) {
+        if (!this.defaultToThumbsView()) {
             this.$treeViewOptions.show();
         }
         else {
@@ -257,15 +264,15 @@ var ContentLeftPanel = /** @class */ (function (_super) {
     ContentLeftPanel.prototype.getTreeData = function () {
         return {
             autoExpand: this._isTreeAutoExpanded(),
-            branchNodesExpandOnClick: utils_1.Bools.getBool(this.config.options.branchNodesExpandOnClick, true),
-            branchNodesSelectable: utils_1.Bools.getBool(this.config.options.branchNodesSelectable, false),
+            branchNodesExpandOnClick: Utils_1.Bools.getBool(this.config.options.branchNodesExpandOnClick, true),
+            branchNodesSelectable: Utils_1.Bools.getBool(this.config.options.branchNodesSelectable, false),
             helper: this.extension.helper,
             topRangeIndex: this.getSelectedTopRangeIndex(),
             treeSortType: this.treeSortType,
         };
     };
     ContentLeftPanel.prototype._isTreeAutoExpanded = function () {
-        var autoExpandTreeEnabled = utils_1.Bools.getBool(this.config.options.autoExpandTreeEnabled, false);
+        var autoExpandTreeEnabled = Utils_1.Bools.getBool(this.config.options.autoExpandTreeEnabled, false);
         var autoExpandTreeIfFewerThan = this.config.options.autoExpandTreeIfFewerThan || 0;
         if (autoExpandTreeEnabled) {
             // get total number of tree nodes
@@ -373,19 +380,26 @@ var ContentLeftPanel = /** @class */ (function (_super) {
         var paged = !!this.extension.getSettings().pagingEnabled &&
             this.extension.helper.isPaged();
         var selectedIndices = this.extension.getPagedIndices(this.extension.helper.canvasIndex);
-        // console.log("selectedIndeces", selectedIndices);
+        var settings = this.extension.getSettings();
         this.thumbsRoot.render((0, react_1.createElement)(ThumbsView_1.default, {
             thumbs: thumbs,
             paged: paged,
             viewingDirection: viewingDirection || dist_commonjs_1.ViewingDirection.LEFT_TO_RIGHT,
             selected: selectedIndices,
+            thumbnailsLabel: this.content.thumbnails,
+            truncateThumbnailLabels: settings.truncateThumbnailLabels !== undefined
+                ? settings.truncateThumbnailLabels
+                : true,
             onClick: function (thumb) {
+                _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.THUMB_SELECTED, thumb);
+            },
+            onKeyDown: function (thumb) {
                 _this.extensionHost.publish(IIIFEvents_1.IIIFEvents.THUMB_SELECTED, thumb);
             },
         }));
     };
     ContentLeftPanel.prototype.createGalleryView = function () {
-        this.galleryView = new GalleryView_1.GalleryView(this.$galleryView);
+        this.galleryView = new GalleryView_1.GalleryView(this.$galleryView, false);
         this.galleryView.galleryData = this.getGalleryData();
         this.galleryView.setup();
         this.renderGallery();
@@ -399,8 +413,7 @@ var ContentLeftPanel = /** @class */ (function (_super) {
     ContentLeftPanel.prototype.getGalleryData = function () {
         return {
             helper: this.extension.helper,
-            chunkedResizingThreshold: this.config.options
-                .galleryThumbChunkedResizingThreshold,
+            chunkedResizingThreshold: this.config.options.galleryThumbChunkedResizingThreshold,
             content: this.config.content,
             debug: false,
             imageFadeInDuration: 300,
@@ -409,7 +422,7 @@ var ContentLeftPanel = /** @class */ (function (_super) {
             pageModeEnabled: this.isPageModeEnabled(),
             scrollStopDuration: 100,
             searchResults: this.extension.annotations,
-            sizingEnabled: true,
+            sizingEnabled: true, // range API is IE11 up
             thumbHeight: this.config.options.galleryThumbHeight,
             thumbLoadPadding: this.config.options.galleryThumbLoadPadding,
             thumbWidth: this.config.options.galleryThumbWidth,
@@ -420,11 +433,11 @@ var ContentLeftPanel = /** @class */ (function (_super) {
         // todo: checks if the panel is being used in the openseadragon extension.
         // pass a `isPageModeEnabled` function to the panel's constructor instead?
         if (typeof this.extension.getMode === "function") {
-            return (utils_1.Bools.getBool(this.config.options.pageModeEnabled, true) &&
+            return (Utils_1.Bools.getBool(this.config.options.pageModeEnabled, true) &&
                 this.extension.getMode().toString() ===
                     Mode_1.Mode.page.toString());
         }
-        return utils_1.Bools.getBool(this.config.options.pageModeEnabled, true);
+        return Utils_1.Bools.getBool(this.config.options.pageModeEnabled, true);
     };
     ContentLeftPanel.prototype.getSelectedTree = function () {
         return this.$treeSelect.find(":selected");
@@ -443,8 +456,8 @@ var ContentLeftPanel = /** @class */ (function (_super) {
     ContentLeftPanel.prototype.toggleFinish = function () {
         _super.prototype.toggleFinish.call(this);
         if (this.isUnopened) {
-            var treeEnabled = utils_1.Bools.getBool(this.config.options.treeEnabled, true);
-            var thumbsEnabled = utils_1.Bools.getBool(this.config.options.thumbsEnabled, true);
+            var treeEnabled = Utils_1.Bools.getBool(this.config.options.treeEnabled, true);
+            var thumbsEnabled = Utils_1.Bools.getBool(this.config.options.thumbsEnabled, true);
             var treeData = this.getTree();
             if (!treeData || !treeData.nodes.length) {
                 treeEnabled = false;
@@ -461,9 +474,15 @@ var ContentLeftPanel = /** @class */ (function (_super) {
         }
     };
     ContentLeftPanel.prototype.defaultToThumbsView = function () {
-        var defaultToTreeEnabled = utils_1.Bools.getBool(this.config.options.defaultToTreeEnabled, false);
+        var defaultToTreeEnabled = Utils_1.Bools.getBool(this.config.options.defaultToTreeEnabled, false);
         var defaultToTreeIfGreaterThan = this.config.options.defaultToTreeIfGreaterThan || 0;
+        var defaultToTreeIfCollection = Utils_1.Bools.getBool(this.config.options.defaultToTreeIfCollection, false);
         var treeData = this.getTree();
+        if (this.isCollection() &&
+            (defaultToTreeIfCollection ||
+                (treeData && this.extension.helper.treeHasNavDates(treeData)))) {
+            return false;
+        }
         if (defaultToTreeEnabled) {
             if (treeData && treeData.nodes.length > defaultToTreeIfGreaterThan) {
                 return false;
@@ -519,6 +538,7 @@ var ContentLeftPanel = /** @class */ (function (_super) {
         this.extensionHost.publish(IIIFEvents_1.IIIFEvents.OPEN_TREE_VIEW);
     };
     ContentLeftPanel.prototype.openThumbsView = function () {
+        var _this = this;
         this.isTreeViewOpen = false;
         this.isThumbsViewOpen = true;
         // if (!this.$thumbsView) {
@@ -535,11 +555,13 @@ var ContentLeftPanel = /** @class */ (function (_super) {
         this.$treeViewOptions.hide();
         this.resize();
         if (this.isFullyExpanded) {
-            this.$thumbsView.hide();
-            if (this.galleryView)
-                this.galleryView.show();
-            if (this.galleryView)
-                this.galleryView.resize();
+            setTimeout(function () {
+                _this.$thumbsView.hide();
+                if (_this.galleryView)
+                    _this.galleryView.show();
+                if (_this.galleryView)
+                    _this.galleryView.resize();
+            }, 1);
         }
         else {
             if (this.galleryView)
@@ -574,15 +596,14 @@ var ContentLeftPanel = /** @class */ (function (_super) {
     ContentLeftPanel.prototype.selectCurrentTreeNodeByRange = function () {
         if (this.treeView) {
             var range = this.extension.helper.getCurrentRange();
-            var node = null;
             if (range && range.treeNode) {
-                node = this.treeView.getNodeById(range.treeNode.id);
-            }
-            if (node) {
-                this.treeView.selectNode(node);
-            }
-            else {
-                this.selectTreeNodeByManifest();
+                var node = this.treeView.getNodeById(range.treeNode.id);
+                if (node) {
+                    this.treeView.selectNode(node);
+                }
+                else {
+                    this.selectTreeNodeByManifest();
+                }
             }
         }
     };
@@ -645,11 +666,17 @@ var ContentLeftPanel = /** @class */ (function (_super) {
         }
     };
     ContentLeftPanel.prototype.resize = function () {
+        var _this = this;
         _super.prototype.resize.call(this);
-        this.$tabsContent.height(this.$main.height() -
-            ((0, Utils_1.isVisible)(this.$tabs) ? this.$tabs.height() : 0) -
-            this.$tabsContent.verticalPadding());
-        this.$views.height(this.$tabsContent.height() - this.$options.outerHeight());
+        // bit of a race condition happening
+        // timeout gives tabs time to appear and be counted
+        // so the correct height is calc'd
+        setTimeout(function () {
+            _this.$tabsContent.height(_this.$main.height() -
+                ((0, Utils_2.isVisible)(_this.$tabs) ? _this.$tabs.height() : 0) -
+                _this.$tabsContent.verticalPadding());
+            _this.$views.height(_this.$tabsContent.height() - _this.$options.outerHeight());
+        }, 1);
     };
     return ContentLeftPanel;
 }(LeftPanel_1.LeftPanel));

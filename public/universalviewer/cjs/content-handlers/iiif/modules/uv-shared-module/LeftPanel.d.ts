@@ -8,4 +8,7 @@ export declare class LeftPanel<T extends BaseConfig["modules"]["leftPanel"]> ext
     getFullTargetWidth(): number;
     toggleFinish(): void;
     resize(): void;
+    toggle(autoToggled?: boolean): void;
+    expandFull(): void;
+    collapseFull(): void;
 }

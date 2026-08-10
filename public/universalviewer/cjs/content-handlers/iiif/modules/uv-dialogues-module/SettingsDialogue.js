@@ -103,13 +103,27 @@ var SettingsDialogue = /** @class */ (function (_super) {
         this.$reducedAnimation.append(this.$reducedAnimationCheckbox);
         this.$reducedAnimationLabel = $('<label for="reducedAnimation">' + this.content.reducedMotion + "</label>");
         this.$reducedAnimation.append(this.$reducedAnimationLabel);
+        var settings = this.getSettings();
+        if (settings.animationDuration) {
+            document.documentElement.style.setProperty("--uv-animation-duration", "".concat(settings.animationDuration, "ms"));
+        }
+        if (settings.reducedAnimation) {
+            document.documentElement.style.setProperty("--uv-animation", "0");
+            this.$reducedAnimationCheckbox.prop("checked", true);
+        }
+        else {
+            document.documentElement.style.setProperty("--uv-animation", "1");
+            this.$reducedAnimationCheckbox.removeAttr("checked");
+        }
         this.$reducedAnimationCheckbox.change(function () {
             var settings = {};
             if (_this.$reducedAnimationCheckbox.is(":checked")) {
                 settings.reducedAnimation = true;
+                document.documentElement.style.setProperty("--uv-animation", "0");
             }
             else {
                 settings.reducedAnimation = false;
+                document.documentElement.style.setProperty("--uv-animation", "1");
             }
             _this.updateSettings(settings);
         });

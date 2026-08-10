@@ -1,6 +1,6 @@
 import { Annotation } from "@iiif/presentation-3";
 import { SupportedTarget } from "./expand-target";
-export declare type ContentState = string | (Annotation & {
+export type ContentState = string | (Annotation & {
     "@context"?: string;
 }) | (StateSource & {
     "@context"?: string;
@@ -9,7 +9,7 @@ export declare type ContentState = string | (Annotation & {
 }) | (StateSource & {
     "@context"?: string;
 })>;
-export declare type StateSource = {
+export type StateSource = {
     id: string;
     type: "Manifest" | "Canvas" | "Range";
     partOf?: string | {
@@ -20,14 +20,14 @@ export declare type StateSource = {
         type: string;
     }>;
 };
-export declare type NormalisedContentState = {
+export type NormalisedContentState = {
     id: string;
     type: "Annotation";
     motivation: ["contentState", ...string[]];
     target: Array<SupportedTarget>;
     extensions: Record<string, any>;
 };
-declare type ValidationResponse = readonly [false, {
+type ValidationResponse = readonly [false, {
     reason?: string;
 }] | readonly [true];
 export declare function validateContentState(annotation: ContentState, strict?: boolean): ValidationResponse;

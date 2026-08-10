@@ -1,31 +1,8 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ExternalResource = void 0;
 var dist_commonjs_1 = require("@iiif/vocabulary/dist-commonjs");
-var HTTPStatusCode = __importStar(require("@edsilv/http-status-codes"));
+var HTTPStatusCodes_1 = require("../../HTTPStatusCodes");
 var manifesto_js_1 = require("manifesto.js");
 var ExternalResource = /** @class */ (function () {
     function ExternalResource(canvas, options) {
@@ -274,7 +251,7 @@ var ExternalResource = /** @class */ (function () {
                     var contentLocation = unescape(data.contentLocation);
                     that.status = xhr_1.status;
                     if (contentLocation !== that.dataUri) {
-                        that.status = HTTPStatusCode.MOVED_TEMPORARILY;
+                        that.status = HTTPStatusCodes_1.HTTPStatusCode.MOVED_TEMPORARILY;
                     }
                     that.data = data;
                     resolve(that);
@@ -297,7 +274,7 @@ var ExternalResource = /** @class */ (function () {
                     // resources, we need to check info.json for details and can't
                     // short-circuit like this.
                     if (!that.isAccessControlled()) {
-                        that.status = HTTPStatusCode.OK;
+                        that.status = HTTPStatusCodes_1.HTTPStatusCode.OK;
                         resolve(that);
                         return;
                     }
@@ -358,7 +335,7 @@ var ExternalResource = /** @class */ (function () {
                     // if it's a resource without an info.json
                     // todo: if resource doesn't have a @profile
                     if (!xhr_2.responseText) {
-                        that.status = xhr_2.status || HTTPStatusCode.OK;
+                        that.status = xhr_2.status || HTTPStatusCodes_1.HTTPStatusCode.OK;
                         resolve(that);
                     }
                     else {
@@ -377,10 +354,10 @@ var ExternalResource = /** @class */ (function () {
                             dataUri = dataUri.substr(0, dataUri.lastIndexOf("/"));
                         }
                         // if the request was redirected to a degraded version and there's a login service to get the full quality version
-                        if (status_1 === HTTPStatusCode.OK &&
+                        if (status_1 === HTTPStatusCodes_1.HTTPStatusCode.OK &&
                             uri !== dataUri &&
                             (that.loginService || that.kioskService)) {
-                            that.status = HTTPStatusCode.MOVED_TEMPORARILY;
+                            that.status = HTTPStatusCodes_1.HTTPStatusCode.MOVED_TEMPORARILY;
                         }
                         else {
                             that.status = status_1;

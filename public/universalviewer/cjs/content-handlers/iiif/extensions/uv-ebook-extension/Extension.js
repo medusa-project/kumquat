@@ -27,11 +27,9 @@ var EbookCenterPanel_1 = require("../../modules/uv-ebookcenterpanel-module/Ebook
 var FooterPanel_1 = require("../../modules/uv-shared-module/FooterPanel");
 var MobileFooter_1 = require("../../modules/uv-ebookmobilefooterpanel-module/MobileFooter");
 var HeaderPanel_1 = require("../../modules/uv-shared-module/HeaderPanel");
-var MoreInfoDialogue_1 = require("../../modules/uv-dialogues-module/MoreInfoDialogue");
 var MoreInfoRightPanel_1 = require("../../modules/uv-moreinforightpanel-module/MoreInfoRightPanel");
 var SettingsDialogue_1 = require("./SettingsDialogue");
 var ShareDialogue_1 = require("./ShareDialogue");
-var utils_1 = require("@edsilv/utils");
 require("./theme/theme.less");
 var config_json_1 = __importDefault(require("./config/config.json"));
 var Extension = /** @class */ (function (_super) {
@@ -39,9 +37,6 @@ var Extension = /** @class */ (function (_super) {
     function Extension() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.defaultConfig = config_json_1.default;
-        _this.locales = {
-            "en-GB": config_json_1.default,
-        };
         return _this;
     }
     Extension.prototype.create = function () {
@@ -83,9 +78,6 @@ var Extension = /** @class */ (function (_super) {
         else {
             this.shell.$footerPanel.hide();
         }
-        this.$moreInfoDialogue = $('<div class="overlay moreInfo" aria-hidden="true"></div>');
-        this.shell.$overlays.append(this.$moreInfoDialogue);
-        this.moreInfoDialogue = new MoreInfoDialogue_1.MoreInfoDialogue(this.$moreInfoDialogue);
         this.$shareDialogue = $('<div class="overlay share" aria-hidden="true"></div>');
         this.shell.$overlays.append(this.$shareDialogue);
         this.shareDialogue = new ShareDialogue_1.ShareDialogue(this.$shareDialogue);
@@ -116,10 +108,11 @@ var Extension = /** @class */ (function (_super) {
         this.checkForCFIParam();
     };
     Extension.prototype.getEmbedScript = function (template, width, height) {
-        var appUri = this.getAppUri();
-        var iframeSrc = "".concat(appUri, "#?manifest=").concat(this.helper.manifestUri, "&cfi=").concat(this.cfiFragement);
-        var script = utils_1.Strings.format(template, iframeSrc, width.toString(), height.toString());
-        return script;
+        var hashParams = new URLSearchParams({
+            manifest: this.helper.manifestUri,
+            cfi: this.cfiFragement,
+        });
+        return _super.prototype.buildEmbedScript.call(this, template, width, height, hashParams);
     };
     Extension.prototype.checkForCFIParam = function () {
         var cfi = this.data.cfi;

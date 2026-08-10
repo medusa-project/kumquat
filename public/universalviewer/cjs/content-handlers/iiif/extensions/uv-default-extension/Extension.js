@@ -28,7 +28,7 @@ var MoreInfoRightPanel_1 = require("../../modules/uv-moreinforightpanel-module/M
 var ResourcesLeftPanel_1 = require("../../modules/uv-resourcesleftpanel-module/ResourcesLeftPanel");
 var SettingsDialogue_1 = require("./SettingsDialogue");
 var ShareDialogue_1 = require("./ShareDialogue");
-var utils_1 = require("@edsilv/utils");
+var Utils_1 = require("../../Utils");
 require("./theme/theme.less");
 var config_json_1 = __importDefault(require("./config/config.json"));
 var Extension = /** @class */ (function (_super) {
@@ -36,9 +36,6 @@ var Extension = /** @class */ (function (_super) {
     function Extension() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.defaultConfig = config_json_1.default;
-        _this.locales = {
-            "en-GB": config_json_1.default,
-        };
         return _this;
     }
     Extension.prototype.create = function () {
@@ -92,16 +89,19 @@ var Extension = /** @class */ (function (_super) {
         _super.prototype.render.call(this);
     };
     Extension.prototype.isLeftPanelEnabled = function () {
-        return (utils_1.Bools.getBool(this.data.config.options.leftPanelEnabled, true) &&
+        return (Utils_1.Bools.getBool(this.data.config.options.leftPanelEnabled, true) &&
             (this.helper.isMultiCanvas() ||
                 this.helper.isMultiSequence() ||
                 this.helper.hasResources()));
     };
     Extension.prototype.getEmbedScript = function (template, width, height) {
-        var appUri = this.getAppUri();
-        var iframeSrc = "".concat(appUri, "#?manifest=").concat(this.helper.manifestUri, "&c=").concat(this.helper.collectionIndex, "&m=").concat(this.helper.manifestIndex, "&cv=").concat(this.helper.canvasIndex);
-        var script = utils_1.Strings.format(template, iframeSrc, width.toString(), height.toString());
-        return script;
+        var hashParams = new URLSearchParams({
+            manifest: this.helper.manifestUri,
+            c: this.helper.collectionIndex.toString(),
+            m: this.helper.manifestIndex.toString(),
+            cv: this.helper.canvasIndex.toString(),
+        });
+        return _super.prototype.buildEmbedScript.call(this, template, width, height, hashParams);
     };
     return Extension;
 }(BaseExtension_1.BaseExtension));

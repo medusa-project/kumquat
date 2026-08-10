@@ -1,5 +1,5 @@
-import { BaseConfig, CenterPanelContent, CenterPanelOptions, DownloadDialogueContent, DownloadDialogueOptions, ModuleConfig, SettingsDialogueContent, SettingsDialogueOptions, ShareDialogueContent, ShareDialogueOptions } from "@/content-handlers/iiif/BaseConfig";
-declare type AVCenterPanelOptions = CenterPanelOptions & {
+import { BaseConfig, CenterPanelContent, CenterPanelOptions, DownloadDialogueContent, DownloadDialogueOptions, ModuleConfig, SettingsDialogueContent, SettingsDialogueOptions, ShareDialogueContent, ShareDialogueOptions, FooterPanelContent, FooterPanelOptions } from "@/content-handlers/iiif/BaseConfig";
+type AVCenterPanelOptions = CenterPanelOptions & {
     /** Determines if the poster image is expanded */
     posterImageExpanded: boolean;
     /** Determines if media errors are hidden */
@@ -21,38 +21,54 @@ declare type AVCenterPanelOptions = CenterPanelOptions & {
     /** Determines if ranges auto advance */
     autoAdvanceRanges: boolean;
 };
-declare type AVCenterPanelContent = CenterPanelContent & {
+type AVCenterPanelContent = CenterPanelContent & {
     delimiter: string;
 };
-declare type AVCenterPanel = {
+type AVCenterPanel = {
     options: AVCenterPanelOptions;
     content: AVCenterPanelContent;
 };
-declare type AVDownloadDialogueOptions = DownloadDialogueOptions & {};
-declare type AVDownloadDialogueContent = DownloadDialogueContent & {};
-declare type AVDownloadDialogue = ModuleConfig & {
+type AVDownloadDialogueOptions = DownloadDialogueOptions & {};
+type AVDownloadDialogueContent = DownloadDialogueContent & {};
+type AVDownloadDialogue = ModuleConfig & {
     options: AVDownloadDialogueOptions;
     content: AVDownloadDialogueContent;
 };
-declare type AVShareDialogueOptions = ShareDialogueOptions & {};
-declare type AVShareDialogueContent = ShareDialogueContent & {};
-declare type AVShareDialogue = ModuleConfig & {
+type AVShareDialogueOptions = ShareDialogueOptions & {};
+type AVShareDialogueContent = ShareDialogueContent & {};
+type AVShareDialogue = ModuleConfig & {
     options: AVShareDialogueOptions;
     content: AVShareDialogueContent;
 };
-declare type AVSettingsDialogueOptions = SettingsDialogueOptions & {};
-declare type AVSettingsDialogueContent = SettingsDialogueContent & {};
-declare type AVSettingsDialogue = ModuleConfig & {
+type AVSettingsDialogueOptions = SettingsDialogueOptions & {};
+type AVSettingsDialogueContent = SettingsDialogueContent & {};
+type AVSettingsDialogue = ModuleConfig & {
     options: AVSettingsDialogueOptions;
     content: AVSettingsDialogueContent;
 };
-declare type Modules = {
-    centerPanel: AVCenterPanel;
+type MobileFooterPanelOptions = FooterPanelOptions & {};
+type MobileFooterPanelContent = FooterPanelContent & {
+    rotateRight: string;
+    moreInfo: string;
+    openLeftPanel: string;
+    closeLeftPanel: string;
+    openRightPanel: string;
+    closeRightPanel: string;
+    zoomIn: string;
+    zoomOut: string;
+};
+type MobileFooterPanel = ModuleConfig & {
+    options: MobileFooterPanelOptions;
+    content: MobileFooterPanelContent;
+};
+type Modules = {
+    avCenterPanel: AVCenterPanel;
     downloadDialogue: AVDownloadDialogue;
     shareDialogue: AVShareDialogue;
     settingsDialogue: AVSettingsDialogue;
+    mobileFooterPanel: MobileFooterPanel;
 };
-export declare type Config = BaseConfig & {
+export type Config = BaseConfig & {
     modules: Modules;
 };
 export {};

@@ -1,6 +1,7 @@
 export declare class OpenSeadragonExtensionEvents {
     static namespace: string;
     static CURRENT_VIEW_URI: string;
+    static CHOICE_CHANGE: string;
     static DOUBLECLICK: string;
     static IMAGE_SEARCH: string;
     static MODE_CHANGE: string;

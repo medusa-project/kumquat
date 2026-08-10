@@ -20,9 +20,9 @@ var $ = require("jquery");
 var IIIFEvents_1 = require("../../IIIFEvents");
 var RightPanel_1 = require("../uv-shared-module/RightPanel");
 var Utils_1 = require("../../../../Utils");
-var utils_1 = require("@edsilv/utils");
+var Utils_2 = require("../../Utils");
 var manifold_1 = require("@iiif/manifold");
-var iiif_metadata_component_1 = require("@iiif/iiif-metadata-component");
+var MetadataComponent_1 = require("../uv-shared-module/MetadataComponent");
 var MoreInfoRightPanel = /** @class */ (function (_super) {
     __extends(MoreInfoRightPanel, _super);
     function MoreInfoRightPanel($element) {
@@ -39,17 +39,17 @@ var MoreInfoRightPanel = /** @class */ (function (_super) {
             _this.databind();
         });
         this.setTitle(this.config.content.title);
-        this.$metadata = $('<div class="iiif-metadata-component"></div>');
+        this.$metadata = $('<article class="iiif-metadata-component"></article>');
         this.$main.append(this.$metadata);
-        this.metadataComponent = new iiif_metadata_component_1.MetadataComponent({
+        this.metadataComponent = new MetadataComponent_1.MetadataComponent({
             target: this.$metadata[0],
             data: this._getData(),
         });
         this.metadataComponent.on("iiifViewerLinkClicked", function (href) {
             // Range change.
-            var rangeId = utils_1.Urls.getHashParameterFromString("rid", href);
+            var rangeId = Utils_2.Urls.getHashParameterFromString("rid", href);
             // Time change.
-            var time = utils_1.Urls.getHashParameterFromString("t", href);
+            var time = Utils_2.Urls.getHashParameterFromString("t", href);
             if (rangeId && time === null) {
                 var range = _this.extension.helper.getRangeById(rangeId);
                 if (range) {
@@ -96,12 +96,12 @@ var MoreInfoRightPanel = /** @class */ (function (_super) {
             canvasLabels: this.extension.getCanvasLabels(this.content.page),
             content: this.config.content,
             copiedMessageDuration: 2000,
-            copyToClipboardEnabled: utils_1.Bools.getBool(this.config.options.copyToClipboardEnabled, false),
+            copyToClipboardEnabled: Utils_2.Bools.getBool(this.config.options.copyToClipboardEnabled, false),
             helper: this.extension.helper,
             licenseFormatter: new manifold_1.UriLabeller(this.content.license ? this.content.license : {}),
             limit: this.config.options.textLimit || 4,
-            limitType: iiif_metadata_component_1.LimitType.LINES,
-            limitToRange: utils_1.Bools.getBool(this.config.options.limitToRange, false),
+            limitType: MetadataComponent_1.LimitType.LINES,
+            limitToRange: Utils_2.Bools.getBool(this.config.options.limitToRange, false),
             manifestDisplayOrder: this.config.options.manifestDisplayOrder,
             manifestExclude: this.config.options.manifestExclude,
             range: this._getCurrentRange(),
@@ -115,6 +115,17 @@ var MoreInfoRightPanel = /** @class */ (function (_super) {
     MoreInfoRightPanel.prototype.resize = function () {
         _super.prototype.resize.call(this);
         this.$main.height(this.$element.height() - this.$top.height() - this.$main.verticalMargins());
+        // always put tabindex on, so the main is focusable,
+        // just in case there's something wrong with the height
+        // comparison below
+        this.$main.attr("tabindex", 0);
+        this.$main.attr("aria-label", this.config.content.title);
+        // if metadata's height lte main's, no scroll, so no focus needed
+        // and no aria label either
+        if (this.$metadata.height() <= this.$main.height()) {
+            this.$main.removeAttr("tabindex");
+            this.$main.removeAttr("aria-label");
+        }
     };
     return MoreInfoRightPanel;
 }(RightPanel_1.RightPanel));

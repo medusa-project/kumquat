@@ -1,8 +1,6 @@
-import { BaseConfig, CenterPanelContent, CenterPanelOptions, Dialogue, DialogueContent, DialogueOptions, DownloadDialogueContent, DownloadDialogueOptions, FooterPanelContent, FooterPanelOptions, HeaderPanelContent, HeaderPanelOptions, ModuleConfig, SettingsDialogueContent, SettingsDialogueOptions, ShareDialogueContent, ShareDialogueOptions } from "@/content-handlers/iiif/BaseConfig";
+import { AdjustImageDialogue, ChoiceSwitchDialogue, BaseConfig, CenterPanelContent, CenterPanelOptions, DialogueContent, DialogueOptions, DownloadDialogueContent, DownloadDialogueOptions, FooterPanelContent, FooterPanelOptions, HeaderPanelContent, HeaderPanelOptions, ModuleConfig, SettingsDialogueContent, SettingsDialogueOptions, ShareDialogueContent, ShareDialogueOptions } from "@/content-handlers/iiif/BaseConfig";
 import { ContentLeftPanel } from "../../config/ContentLeftPanel";
-declare type MultiSelectDialogueOptions = DialogueOptions & {
-    /** Determines if chunked resizing is enabled for gallery thumbnails */
-    galleryThumbChunkedResizingEnabled: boolean;
+type MultiSelectDialogueOptions = DialogueOptions & {
     /** Threshold for chunked resizing of gallery thumbnails */
     galleryThumbChunkedResizingThreshold: number;
     /** Height of the gallery thumbnail */
@@ -14,24 +12,22 @@ declare type MultiSelectDialogueOptions = DialogueOptions & {
     /** Determines if page mode is enabled */
     pageModeEnabled: boolean;
 };
-declare type MultiSelectDialogueContent = DialogueContent & {
-    select: string;
+type MultiSelectDialogueContent = DialogueContent & {
+    download: string;
     selectAll: string;
     title: string;
 };
-export declare type MultiSelectDialogue = ModuleConfig & {
+export type MultiSelectDialogue = ModuleConfig & {
     options: MultiSelectDialogueOptions;
     content: MultiSelectDialogueContent;
 };
-declare type PagingHeaderPanelOptions = HeaderPanelOptions & {
+type PagingHeaderPanelOptions = HeaderPanelOptions & {
     /** Determines if autocomplete for words is allowed */
     autocompleteAllowWords: boolean;
     /** Determines if autocomplete box is enabled */
     autoCompleteBoxEnabled: boolean;
     /** Determines if gallery button is enabled */
     galleryButtonEnabled: boolean;
-    /** Determines if help is enabled */
-    helpEnabled: boolean;
     /** Determines if image selection box is enabled */
     imageSelectionBoxEnabled: boolean;
     /** Determines if mode options is enabled */
@@ -41,7 +37,7 @@ declare type PagingHeaderPanelOptions = HeaderPanelOptions & {
     /** Determines if paging toggle is enabled */
     pagingToggleEnabled: boolean;
 };
-declare type PagingHeaderPanelContent = HeaderPanelContent & {
+type PagingHeaderPanelContent = HeaderPanelContent & {
     emptyValue: string;
     first: string;
     firstImage: string;
@@ -66,11 +62,11 @@ declare type PagingHeaderPanelContent = HeaderPanelContent & {
     previousPage: string;
     twoUp: string;
 };
-declare type PagingHeaderPanel = ModuleConfig & {
+type PagingHeaderPanel = ModuleConfig & {
     options: PagingHeaderPanelOptions;
     content: PagingHeaderPanelContent;
 };
-declare type OSDCenterPanelOptions = CenterPanelOptions & {
+type OpenSeadragonCenterPanelOptions = CenterPanelOptions & {
     /** Duration of the animation */
     animationTime: number;
     /** Determines if controls are hidden automatically */
@@ -101,26 +97,33 @@ declare type OSDCenterPanelOptions = CenterPanelOptions & {
     pageGap: number;
     /** Determines if home control is shown */
     showHomeControl: boolean;
-    /** Number of attributions to trim */
-    trimAttributionCount: number;
+    /** Determines if adjust image control is shown */
+    showAdjustImageControl: boolean;
     /** Ratio of visibility */
     visibilityRatio: number;
+    /** The maximum amount of time in milliseconds an image operation can take */
+    tileTimeout: number;
+    /** Whether to zoom in to first annotation on load */
+    zoomToInitialAnnotation: boolean;
 };
-declare type OSDCenterPanelContent = CenterPanelContent & {
+type OpenSeadragonCenterPanelContent = CenterPanelContent & {
     attribution: string;
     goHome: string;
     imageUnavailable: string;
-    next: string;
-    previous: string;
+    mediaViewer: string;
+    nextImage: string;
+    previousImage: string;
     rotateRight: string;
     zoomIn: string;
     zoomOut: string;
+    adjustImage: string;
+    layers: string;
 };
-declare type OSDCenterPanel = ModuleConfig & {
-    options: OSDCenterPanelOptions;
-    content: OSDCenterPanelContent;
+type OpenSeadragonCenterPanel = ModuleConfig & {
+    options: OpenSeadragonCenterPanelOptions;
+    content: OpenSeadragonCenterPanelContent;
 };
-declare type SearchFooterPanelOptions = FooterPanelOptions & {
+type SearchFooterPanelOptions = FooterPanelOptions & {
     /** Determines if autocomplete for words is allowed */
     autocompleteAllowWords: boolean;
     /** Number of terms to elide in details */
@@ -134,7 +137,7 @@ declare type SearchFooterPanelOptions = FooterPanelOptions & {
     /** Determines if position marker is enabled */
     positionMarkerEnabled: boolean;
 };
-declare type SearchFooterPanelContent = FooterPanelContent & {
+type SearchFooterPanelContent = FooterPanelContent & {
     clearSearch: string;
     defaultLabel: string;
     displaying: string;
@@ -152,26 +155,33 @@ declare type SearchFooterPanelContent = FooterPanelContent & {
     resultsFoundFor: string;
     searchWithin: string;
 };
-declare type SearchFooterPanel = ModuleConfig & {
+type SearchFooterPanel = ModuleConfig & {
     options: SearchFooterPanelOptions;
     content: SearchFooterPanelContent;
 };
-declare type MobileFooterPanelOptions = FooterPanelOptions & {};
-declare type MobileFooterPanelContent = FooterPanelContent & {
+type MobileFooterPanelOptions = FooterPanelOptions & {
+    helpEnabled: boolean;
+    helpUrl: string;
+};
+type MobileFooterPanelContent = FooterPanelContent & {
     rotateRight: string;
     moreInfo: string;
+    openLeftPanel: string;
+    closeLeftPanel: string;
+    openRightPanel: string;
+    closeRightPanel: string;
     zoomIn: string;
     zoomOut: string;
+    help: string;
+    layers: string;
 };
-declare type MobileFooterPanel = ModuleConfig & {
+type MobileFooterPanel = ModuleConfig & {
     options: MobileFooterPanelOptions;
     content: MobileFooterPanelContent;
 };
-declare type OSDDownloadDialogueOptions = DownloadDialogueOptions & {
+type OSDDownloadDialogueOptions = DownloadDialogueOptions & {
     /** Size of the confined image */
     confinedImageSize: number;
-    /** Percentage of the current view that is disabled */
-    currentViewDisabledPercentage: number;
     /** Determines if download of current view is enabled */
     downloadCurrentViewEnabled: boolean;
     /** Determines if download of whole image in high resolution is enabled */
@@ -180,12 +190,12 @@ declare type OSDDownloadDialogueOptions = DownloadDialogueOptions & {
     downloadWholeImageLowResEnabled: boolean;
     /** Maximum width of the image */
     maxImageWidth: number;
-    /** Determines if explanatory text for options is enabled */
-    optionsExplanatoryTextEnabled: boolean;
+    /** Minimum width of the downloadable image */
+    minImageWidth: number;
     /** Determines if selection is enabled */
     selectionEnabled: boolean;
 };
-declare type OSDDownloadDialogueContent = DownloadDialogueContent & {
+type OSDDownloadDialogueContent = DownloadDialogueContent & {
     allPages: string;
     currentViewAsJpg: string;
     currentViewAsJpgExplanation: string;
@@ -210,35 +220,36 @@ declare type OSDDownloadDialogueContent = DownloadDialogueContent & {
     wholeImagesHighRes: string;
     wholeImagesHighResExplanation: string;
 };
-declare type OSDDownloadDialogue = ModuleConfig & {
+type OSDDownloadDialogue = ModuleConfig & {
     options: OSDDownloadDialogueOptions;
     content: OSDDownloadDialogueContent;
 };
-declare type OSDShareDialogueOptions = ShareDialogueOptions & {};
-declare type OSDShareDialogueContent = ShareDialogueContent & {};
-declare type OSDShareDialogue = ModuleConfig & {
+type OSDShareDialogueOptions = ShareDialogueOptions & {};
+type OSDShareDialogueContent = ShareDialogueContent & {};
+type OSDShareDialogue = ModuleConfig & {
     options: OSDShareDialogueOptions;
     content: OSDShareDialogueContent;
 };
-declare type OSDSettingsDialogueOptions = SettingsDialogueOptions & {};
-declare type OSDSettingsDialogueContent = SettingsDialogueContent & {};
-declare type OSDSettingsDialogue = ModuleConfig & {
+type OSDSettingsDialogueOptions = SettingsDialogueOptions & {};
+type OSDSettingsDialogueContent = SettingsDialogueContent & {};
+type OSDSettingsDialogue = ModuleConfig & {
     options: OSDSettingsDialogueOptions;
     content: OSDSettingsDialogueContent;
 };
-declare type Modules = {
-    centerPanel: OSDCenterPanel;
+type Modules = {
+    contentLeftPanel: ContentLeftPanel;
     downloadDialogue: OSDDownloadDialogue;
-    footerPanel: SearchFooterPanel;
-    leftPanel: ContentLeftPanel;
-    mobileFooterPanel: MobileFooterPanel;
     multiSelectDialogue: MultiSelectDialogue;
-    headerPanel: PagingHeaderPanel;
-    settingsDialogue: OSDSettingsDialogue;
+    pagingHeaderPanel: PagingHeaderPanel;
+    openSeadragonCenterPanel: OpenSeadragonCenterPanel;
+    searchFooterPanel: SearchFooterPanel;
+    mobileFooterPanel: MobileFooterPanel;
     shareDialogue: OSDShareDialogue;
-    externalContentDialogue: Dialogue;
+    settingsDialogue: OSDSettingsDialogue;
+    adjustImageDialogue: AdjustImageDialogue;
+    choiceSwitchDialogue: ChoiceSwitchDialogue;
 };
-export declare type Config = BaseConfig & {
+export type Config = BaseConfig & {
     modules: Modules;
 };
 export {};

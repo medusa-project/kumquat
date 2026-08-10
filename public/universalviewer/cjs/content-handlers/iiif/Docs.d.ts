@@ -6,7 +6,7 @@ import { Config as MediaElementExtensionConfig } from "@/content-handlers/iiif/e
 import { Config as OSDExtensionConfig } from "@/content-handlers/iiif/extensions/uv-openseadragon-extension/config/Config";
 import { Config as DefaultExtensionConfig } from "@/content-handlers/iiif/extensions/uv-default-extension/config/Config";
 import { Config as PDFExtensionConfig } from "@/content-handlers/iiif/extensions/uv-pdf-extension/config/Config";
-export declare type IIIFContentHandlerConfig = {
+export type IIIFContentHandlerConfig = {
     aleph: AlephExtensionConfig;
     av: AVExtensionConfig;
     default: DefaultExtensionConfig;
