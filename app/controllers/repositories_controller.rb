@@ -62,7 +62,7 @@ class RepositoriesController < WebsiteController
       
       # Handle search if query is present
       if @permitted_params[:q].present?
-        @start = [@permitted_params[:start].to_i.abs, max_start].min 
+        @start = @permitted_params[:start].to_i
         @limit = window_size
 
         # Repository-scoped search
@@ -103,9 +103,5 @@ class RepositoriesController < WebsiteController
 
   def window_size
     40 
-  end
-
-  def max_start
-    9960 
   end
 end
