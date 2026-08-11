@@ -18,6 +18,8 @@ class ApplicationController < ActionController::Base
   rescue_from ActiveRecord::RecordNotFound, with: :rescue_not_found
   rescue_from NotAuthorizedError, with: :rescue_unauthorized
 
+  before_action :validate_start_param
+
   protected
 
   ##
@@ -223,6 +225,12 @@ class ApplicationController < ActionController::Base
   def rescue_unknown_format
     render plain: "Sorry, we aren't able to provide the requested format.",
            status: :unsupported_media_type
+  end
+
+  def validate_start_param
+    if params[:start].present? && params[:start].to_i >= OpensearchClient::MAX_RESULT_WINDOW
+      render plain: "The 'start' parameter exceeds the maximum allowed value of #{OpensearchClient::MAX_RESULT_WINDOW}.", status: :bad_request
+    end
   end
 
 end
