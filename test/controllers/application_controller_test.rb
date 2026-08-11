@@ -39,4 +39,41 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
     end
     assert_response :internal_server_error
   end
+
+  test 'validate_start_param returns bad request for start param exceeding max value' do
+
+    # Simulate a GET request to items_path with a start param exceeding the max allowed value by 1
+    # Assert bad request and response message
+
+    get items_path, params: { q: 'test', start: OpensearchClient::MAX_RESULT_WINDOW + 1 }
+    assert_response :bad_request
+    assert_match /The 'start' parameter exceeds the maximum allowed value/, response.body
+  end
+
+  test 'validate_start_param allows start param within max value' do
+
+    # Simulate a GET request to items_path with a valid start param
+    # Assert success response
+    
+    get items_path, params: { q: 'test', start: 10 }
+    assert_response :success
+  end
+
+  test 'validate_start_param allows for start of 0' do
+
+    # Simulate a GET request to items_path with a start param of 0
+    # Assert success response
+    
+    get items_path, params: { q: 'test', start: 0 }
+    assert_response :success
+  end
+
+  test 'validate_start_param handles non numeric strings gracefully' do
+
+    # Simulate a GET request to items_path with a non-numeric start param
+    # Assert success response
+    
+    get items_path, params: { q: 'test', start: 'abc' }
+    assert_response :success
+  end
 end
