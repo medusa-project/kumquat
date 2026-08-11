@@ -9,7 +9,7 @@ class SearchLandingController < WebsiteController
     # Get total available counts for display
     @total_available_count = total_available_dls_count
     
-    @start = [@permitted_params[:start].to_i.abs, max_start].min
+    @start = @permitted_params[:start].to_i
     @limit = window_size
 
     # Use unified search for both collections and items
@@ -52,9 +52,5 @@ class SearchLandingController < WebsiteController
 
   def window_size 
     40 
-  end
-
-  def max_start 
-    9960 
   end
 end
