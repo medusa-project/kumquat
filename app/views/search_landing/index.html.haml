@@ -93,69 +93,34 @@
 
   #advanced-search.tab-pane.fade{class: [('show active' if active_tab == 'advanced-search')], role: "tabpanel"}
     .row.justify-content-md-center.mt-4
-      .col-md-10 
+      .col-md-7
         = form_tag(search_landing_path, method: :get, id: 'advanced-search-form') do
           = hidden_field_tag(:tab, 'advanced-search')
           = hidden_field_tag(:q, '')
           - adv = @permitted_params[:criteria] || {}
-
+          - dynamic_fields = %w[keyword title creator contributor description format spatial_coverage identifier language publisher subject]
+          - default_fields = ['keyword', 'title', 'creator', 'language']
+          - adv_dynamic = adv.select { |k, _| dynamic_fields.include?(k) }.to_a
+          - used_keys = adv_dynamic.map(&:first)
+          - remaining = default_fields.reject { |f| used_keys.include?(f) }
+          - row_data = (adv_dynamic.first(4) + remaining.map { |f| [f, ''] }).first(4)
+          - field_options = [['Keyword (any field)', 'keyword'], ['Title', 'title'], ['Creator', 'creator'], ['Contributor', 'contributor'], ['Description', 'description'], ['Format', 'format'], ['Geographic Coverage', 'spatial_coverage'], ['Identifier', 'identifier'], ['Language', 'language'], ['Publisher', 'publisher'], ['Subject', 'subject']]
+          
           .mb-2
+            - row_data.each do |field_key, field_value|
+              .row.align-items-center.py-2.border-bottom
+                .col-sm-4 
+                  = select_tag "criteria_field_select", options_for_select(field_options, field_key), class: 'form-select', data: { criteria_field_select: true, default: field_key }
+                .col-sm-8
+                  = text_field_tag "criteria[#{field_key}]", field_value, class: 'form-control', data: {criteria_input: true }
             .row.align-items-center.py-2.border-bottom
-              %label.col-sm-3.col-form-label.fw-semibold Keyword
-              .col-sm-9
-                = text_field_tag('criteria[keyword]', adv['keyword'], class: 'form-control', placeholder: 'Search across all fields')
-            .row.align-items-center.py-2.border-bottom
-              %label.col-sm-3.col-form-label.fw-semibold Title
-              .col-sm-9
-                = text_field_tag('criteria[title]', adv['title'], class: 'form-control')
-            .row.align-items-center.py-2.border-bottom
-              %label.col-sm-3.col-form-label.fw-semibold Creator
-              .col-sm-9
-                = text_field_tag('criteria[creator]', adv['creator'], class: 'form-control')
-            .row.align-items-center.py-2.border-bottom
-              %label.col-sm-3.col-form-label.fw-semibold Contributor
-              .col-sm-9
-                = text_field_tag('criteria[contributor]', adv['contributor'], class: 'form-control')
-            .row.align-items-center.py-2.border-bottom
-              %label.col-sm-3.col-form-label.fw-semibold Subject
-              .col-sm-9
-                = text_field_tag('criteria[subject]', adv['subject'], class: 'form-control')
-            .row.align-items-center.py-2.border-bottom
-              %label.col-sm-3.col-form-label.fw-semibold Description
-              .col-sm-9
-                = text_field_tag('criteria[description]', adv['description'], class: 'form-control')
-            .row.align-items-center.py-2.border-bottom
-              %label.col-sm-3.col-form-label.fw-semibold Date
-              .col-sm-9
-                = text_field_tag('criteria[date]', adv['date'], class: 'form-control')
-            .row.align-items-center.py-2.border-bottom
-              %label.col-sm-3.col-form-label.fw-semibold Language
-              .col-sm-9
-                = text_field_tag('criteria[language]', adv['language'], class: 'form-control')
-            .row.align-items-center.py-2.border-bottom
-              %label.col-sm-3.col-form-label.fw-semibold Type
-              .col-sm-9
-                = text_field_tag('criteria[type]', adv['type'], class: 'form-control')
-            .row.align-items-center.py-2.border-bottom
-              %label.col-sm-3.col-form-label.fw-semibold Identifier
-              .col-sm-9
-                = text_field_tag('criteria[identifier]', adv['identifier'], class: 'form-control')
-            .row.align-items-center.py-2.border-bottom
-              %label.col-sm-3.col-form-label.fw-semibold Publisher
-              .col-sm-9
-                = text_field_tag('criteria[publisher]', adv['publisher'], class: 'form-control')
-            .row.align-items-center.py-2.border-bottom
-              %label.col-sm-3.col-form-label.fw-semibold Format
-              .col-sm-9
-                = text_field_tag('criteria[format]', adv['format'], class: 'form-control')
-            .row.align-items-center.py-2.border-bottom
-              %label.col-sm-3.col-form-label.fw-semibold Rights
-              .col-sm-9
-                = text_field_tag('criteria[rights]', adv['rights'], class: 'form-control')
+              %label.col-sm-4.col-form-label.fw-semibold Date
+              .col-sm-8
+                = text_field_tag "criteria[date]", adv['date'], class: 'form-control'
             .row.align-items-center.py-2
-              %label.col-sm-3.col-form-label.fw-semibold Geographic Coverage
-              .col-sm-9
-                = text_field_tag('criteria[spatial_coverage]', adv['spatial_coverage'], class: 'form-control')
+              %label.col-sm-4.col-form-label.fw-semibold Rights
+              .col-sm-8
+                = select_tag "criteria[rights]", options_from_collection_for_select(VocabularyTerm.rights_related, :string, :string, adv['rights']), include_blank: '-- Select --', class: 'form-select'
 
           .d-flex.justify-content-end.gap-2.mt-3
             %button.btn.btn-outline-secondary{type: 'button', id: 'advanced-search-clear'} Clear
