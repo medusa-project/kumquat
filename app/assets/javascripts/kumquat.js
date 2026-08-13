@@ -94,17 +94,57 @@ const Application = {
         if (!form) { return; }
         const clearBtn = document.getElementById('advanced-search-clear');
 
+        // Wire change listener to each field dropdown. 
+        // When fired it traverses up the DOM to find the corresponding .row, 
+        // finds the [data-critera-input] text and updates its name attribute.
+
+        form.querySelectorAll('[data-criteria-field-select]').forEach(function(select) {
+          select.addEventListener('change', function() {
+            const row = this.closest('.row');
+            const input = row.querySelector('[data-criteria-input]');
+            if (input) {
+              input.name = 'criteria[' + this.value + ']';
+            }
+          });
+        });
+
         clearBtn.addEventListener('click', function() {
           form.querySelectorAll('input[name^="criteria["]').forEach(function(input) {
             input.value = '';
           });
+
+          // Reset dropdown select to defaul values and re-sync the input names when clearing the form
+          form.querySelectorAll('[data-criteria-field-select]').forEach(function(select) {
+            const defaultValue = select.dataset.default;
+            select.value = defaultValue;
+            const row = select.closest('.row');
+            const input = row.querySelector('[data-criteria-input]');
+            if (input) {
+              input.name = 'criteria[' + select.value + ']';
+            }
+          });
+
+          // Reset the Rights dropdown to default (select/blank)
+          const rightsSelect = form.querySelector('select[name="criteria[rights]"]');
+          if (rightsSelect) {
+            rightsSelect.value = '';
+          }
         });
 
         form.addEventListener('submit', function(e) {
           e.preventDefault();
-          const hasQuery = Array.from(form.querySelectorAll('input[name^="criteria["]'))
+
+          // Extend the submt logic to check for select in addition to input fields
+          const hasTextQuery = Array.from(form.querySelectorAll('input[name^="criteria["]'))
             .some(function(input) { return input.value.trim() !== ''; });
-          if (!hasQuery) return;
+          
+          const rightsSelect = form.querySelector('select[name="criteria[rights]"]');
+          const hasRightsQuery = rightsSelect && rightsSelect.value.trim() !== '';
+
+          if (!hasTextQuery && !hasRightsQuery) return;
+          form.querySelectorAll('[data-criteria-field-select]').forEach(function(select) {
+              select.disabled = true;
+          });
           form.submit();
         });
     },
