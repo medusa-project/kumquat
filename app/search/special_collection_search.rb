@@ -126,7 +126,7 @@ class SpecialCollectionSearch
     'spatial_coverage' => 'metadata_spatialCoverage'
   }.freeze
 
-  EXACT_MATCH_FIELDS = %w[date language spatial_coverage].freeze
+  EXACT_MATCH_FIELDS = %w[date language spatial_coverage rights].freeze
   ##
   # Converts the @criteria params hash (named field keys) into an array of
   # clause hashes suitable for AbstractRelation#query_clauses.
