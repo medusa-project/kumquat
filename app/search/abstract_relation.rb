@@ -288,10 +288,13 @@ class AbstractRelation
   #
   def build_clause_hash(field, query_text, match_type)
     case match_type.to_s
-    # when 'phrase'
-    #   { 'match_phrase' => { field => query_text } }
-    # when 'any'
-    #   { 'simple_query_string' => { 'query' => query_text, 'fields' => [field], 'default_operator' => 'OR', 'lenient' => true } }
+    
+    # exact match for Rights field, avoids 'stop' words inside opensearch index schema. E.g. "In Copyright" has "in" as a stop word,
+    # so the query becomes just "copyright" and returns all results with "copyright" in the Rights field, instead of just the exact match.
+    # adding a term query fix against the metadata_rights.keyword, bypasses the custom analyzer and returns exact matching without using
+    # tokenization, stemming or stop words. 
+    when 'term'
+      { 'term' => { "#{field}.keyword" => query_text } } 
     when 'exact' # exact match (no fuzziness applied for keys like date, language, spatial_coverage)
       { 'match' => { field => { 'query' => query_text, 'operator' => 'AND', 'lenient' => true } } }
     else # 'all' — fuzzy by default to handle spelling variations and diacritics
