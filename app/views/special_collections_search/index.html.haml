@@ -38,6 +38,37 @@
 %h1.mt-5 Digital Collections  
 %h5 Digitized manuscripts, photographs, maps, and other special collections research materials, as well as personal and organizational digital archives.
 
+.row.justify-content-center.g-4.mt-4
+  -# Browse Repositories Tile
+  .col-12.col-sm-6.col-lg-3
+    = link_to repositories_path, class: "browse-tile-link" do
+      .browse-flip-card
+        .browse-flip-card-inner
+          .browse-flip-card-front
+            %h3 Browse Repositories
+          .browse-flip-card-back
+            %p Placeholder text - briefly describe Repositories and what users can expect to find.
+
+  -# Browse Collections Tile
+  .col-12.col-sm-6.col-lg-3
+    = link_to collections_path, class: "browse-tile-link" do
+      .browse-flip-card
+        .browse-flip-card-inner
+          .browse-flip-card-front
+            %h3 Browse Collections
+          .browse-flip-card-back
+            %p Placeholder text - briefly describe Collections and what users can expect to find.
+
+  -# Browse Items Tile
+  .col-12.col-sm-6.col-lg-3
+    = link_to items_path, class: "browse-tile-link" do
+      .browse-flip-card
+        .browse-flip-card-inner
+          .browse-flip-card-front
+            %h3 Browse Items
+          .browse-flip-card-back
+            %p Placeholder text - briefly describe Items and what users can expect to find.
+
 - if @permitted_params[:q].present?
   :javascript
     $(document).ready(function() {
