@@ -8,6 +8,14 @@
     Application.initFacets();
     Application.initAdvancedSearch();
     
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('tab') === 'advanced-search' && (params.has('criteria') || params.has('q'))) {
+      // Scroll to the advanced search form if the tab is active
+      const anchor  = document.getElementById('search-results-anchor');
+      if (anchor) {
+        anchor.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
     // Re-initialize facets when tab navigation links are clicked
     $('.nav-link').on('click', function() {
       // Use a small delay to ensure tab content is shown before initializing
@@ -126,7 +134,7 @@
             %button.btn.btn-outline-secondary{type: 'button', id: 'advanced-search-clear'} Clear
             = submit_tag('Search', class: 'btn btn-primary', id: 'advanced-search-submit')
 
-    .row.justify-content-md-center.mt-4
+    .row.justify-content-md-center.mt-4#search-results-anchor
       .col-md-auto
         = paginate(@count, @limit, @current_page, SearchLandingController::PERMITTED_PARAMS)
 
