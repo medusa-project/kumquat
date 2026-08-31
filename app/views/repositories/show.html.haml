@@ -1,5 +1,5 @@
 .dls-search-banner 
-  = image_tag('cropped-ihx_header.jpg', :class => 'w-100', :alt => "#{@repository.title} Banner")
+  = image_tag(repository_banner(@repository), :class => 'w-100', :alt => "#{@repository.title} Banner")
   .dls-search-banner-overlay 
     = form_tag(repository_path(@repository.title.parameterize), method: :get, class: 'd-inline-block w-50') do 
       .input-group.input-group-lg
