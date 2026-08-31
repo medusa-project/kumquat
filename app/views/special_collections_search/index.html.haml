@@ -35,7 +35,7 @@
     = link_to("Advanced Search", search_landing_path(tab: "advanced-search"), 
               id: "advanced-search-link")
 = render 'shared/beta_notice'
-%h1.mt-5 Digital Collections  
+%h1.mt-5 Digital Library Collections  
 %h5 Digitized manuscripts, photographs, maps, and other special collections research materials, as well as personal and organizational digital archives.
 
 .row.justify-content-center.g-4.mt-4
@@ -96,7 +96,7 @@
         .col-sm-9.col-lg-10
           #search-results-container
             = render 'search_results'
-            
+
     .row.justify-content-md-center.mt-4
       .col-md-auto
         = paginate(@count, @limit, @current_page, SpecialCollectionsSearchController::PERMITTED_PARAMS)
