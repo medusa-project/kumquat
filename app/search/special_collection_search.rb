@@ -84,8 +84,6 @@ class SpecialCollectionSearch
     item_facets = item_search.facets || []
     @facets = merge_facets(collection_facets, item_facets)
     
-    # Combine and sort results by relevance
-    # This is a simplified approach - you may want more sophisticated merging
     @combined_results = combine_and_sort_results
     
     self

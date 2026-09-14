@@ -32,6 +32,10 @@
                       class: 'nav-link' do 
               = icon_for(:info)
               About
+        = link_to "Advanced Search",
+                  search_landing_path(tab: "advanced-search"),
+                  class: 'btn btn-primary my-2 mr-2 my-lg-0',
+                  id: 'navbar-advanced-search-btn'
         = form_tag(Configuration.instance.metadata_gateway_url + '/search',
                    method: :get,
                    class: 'form-inline my-2 mr-3 my-lg-0') do
