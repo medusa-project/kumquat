@@ -8,9 +8,6 @@ const Application = {
     initFacets: function() {
         const filterForm = $("form.dl-filter:visible");
         const CURRENT_PATH = filterForm.find('[name=dl-current-path]').val();
-        
-        console.log('initFacets called - filterForm length:', filterForm.length, 'CURRENT_PATH:', CURRENT_PATH);
-
         const getSerializedCanonicalFormQuery = function() {
             return filterForm.find(':not([name=collection_id], [name=dl-facet-term])')
                 .serialize();
@@ -21,8 +18,8 @@ const Application = {
         };
         const createHiddenInputs = function() {
             removeHiddenInputs();
-            // Create hidden input counterparts of each checked checkbox.
-            filterForm.find('[name=dl-facet-term]:checked').each(function() {
+            // Create hidden input counterparts of each checked checkbox card facet.
+            filterForm.find('.dl-card-facet [name=dl-facet-term]:checked').each(function() {
                 const input = $('<input type="hidden" name="fq[]">');
                 input.val($(this).data('query'));
                 filterForm.append(input);
@@ -30,8 +27,7 @@ const Application = {
         };
 
         filterForm.find('.dl-card-facet [name="dl-facet-term"]').off().on('change', function() {
-            $(this).prop("checked") ?
-                createHiddenInputs() : removeHiddenInputs();
+            createHiddenInputs();
             const query = getSerializedCanonicalFormQuery();
             $.ajax({
                 url:      CURRENT_PATH + '.js',
@@ -43,10 +39,10 @@ const Application = {
                 },
                 success:  function(result) {
                     window.location.hash = query;
-                    // Don't eval - jQuery already executed the script due to dataType: 'script'
                 }
             });
         });
+
         filterForm.find('.dl-modal-facet .modal-footer button.submit').off().on('click', function(e) {
             e.preventDefault();
             const modal = $(this).parents(".dl-modal-facet");
