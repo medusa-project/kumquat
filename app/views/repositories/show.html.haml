@@ -42,6 +42,10 @@
           #search-results-container
             = render 'search_results'
 
+  .row.justify-content-md-center.mt-4
+    .col-md-auto
+      = paginate(@count, @limit, @current_page, RepositoriesController::PERMITTED_PARAMS)
+
 - else
   .container.mt-4
     .row
