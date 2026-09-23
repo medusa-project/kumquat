@@ -718,6 +718,48 @@ module Admin
       assert_redirected_to admin_collection_item_path(@item.collection, @item)
     end
 
+    # saving any edits to item metadata (both op and no-op) should preserve the order of repeated elements
+    # aka elements that have multiple values for the same field (description: string 1, description: string 2, etc.)
+    
+    test "update() preserves order of elements for repeated metadata values" do 
+      sign_in_as(users(:medusa_admin))
+
+      vocabulary_id = vocabularies(:uncontrolled).id.to_s
+      og_values = ['My Great Description', 'Second Description', 'Third Description']
+
+      params_for = ->(values) do
+        {
+          elements: {
+            title: {
+              vocabulary_id => [ 
+                { string: 'My Great Title', uri: '' }
+              ]
+            },
+            description: {
+              vocabulary_id => values.map do |value|
+                { string: value, uri: '' }
+              end
+            }
+          }
+        }
+      end
+    
+      # assert a no-op patch: submits the same three description values in the same order they are in
+      assert_equal og_values, @item.elements.where(name: 'description').pluck(:value)
+      
+      patch admin_collection_item_path(@item.collection, @item), params: params_for.call(og_values)
+
+      assert_redirected_to admin_collection_item_path(@item.collection, @item)
+      assert_equal og_values, @item.reload.elements.where(name: 'description').pluck(:value)
+
+      # assert an operational patch: submits a new set of description values, preserving their order
+      updated_values = ['Updated Description', 'Another Description', 'Final Description']
+      patch admin_collection_item_path(@item.collection, @item), params: params_for.call(updated_values)
+
+      assert_redirected_to admin_collection_item_path(@item.collection, @item)
+      assert_equal updated_values, @item.reload.elements.where(name: 'description').pluck(:value)
+    end
+
     # update_all()
 
     test "update_all() redirects to sign-in page for signed-out users" do
