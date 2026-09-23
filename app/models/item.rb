@@ -311,7 +311,7 @@ class Item < ApplicationRecord
   has_and_belongs_to_many :item_sets
 
   has_many :binaries, inverse_of: :item, dependent: :destroy
-  has_many :elements, class_name: 'ItemElement', inverse_of: :item,
+  has_many :elements, -> { order(:id) }, class_name: 'ItemElement', inverse_of: :item,
            dependent: :destroy
 
   serialize :allowed_netids, coder: JSON
