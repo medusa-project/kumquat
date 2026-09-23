@@ -724,6 +724,14 @@ module Admin
     test "update() preserves order of elements for repeated metadata values" do 
       sign_in_as(users(:medusa_admin))
 
+      @item.elements.create!(name: 'description',
+                             value: 'Second Description',
+                             vocabulary: vocabularies(:uncontrolled))
+      @item.elements.create!(name: 'description',
+                             value: 'Third Description',
+                             vocabulary: vocabularies(:uncontrolled))
+      @item.reload
+
       vocabulary_id = vocabularies(:uncontrolled).id.to_s
       og_values = ['My Great Description', 'Second Description', 'Third Description']
 
