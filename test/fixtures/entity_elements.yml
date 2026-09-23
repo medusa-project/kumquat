@@ -42,6 +42,22 @@ compound_object_1002_description:
   vocabulary: uncontrolled
   type:       ItemElement
 
+compound_object_1002_description_2:
+  item:       compound_object_1002
+  name:       description
+  value:      Second Description
+  uri:
+  vocabulary: uncontrolled
+  type:       ItemElement
+
+compound_object_1002_description_3:
+  item:       compound_object_1002
+  name:       description
+  value:      Third Description
+  uri:
+  vocabulary: uncontrolled
+  type:       ItemElement
+
 compound_object_1002_title:
   item:       compound_object_1002
   name:       title
