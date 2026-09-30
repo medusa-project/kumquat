@@ -489,11 +489,15 @@ module ApplicationHelper
   # @param permitted_params [ActionController::Parameters,Enumerable<Symbol>]
   # @param remote [Boolean]
   # @param max_links [Integer] (ideally odd)
-  #
+  # @param show_single_page [Boolean] Determines whether to display pagination 
+  #                                   controls even if only one page of results. 
+  #                                   This will be defaulted to false.
+
   def paginate(total_entities, per_page, current_page, permitted_params,
-               remote = false, max_links = MAX_PAGINATION_LINKS)
+               remote = false, max_links = MAX_PAGINATION_LINKS, show_single_page: false)
     total_entities = [total_entities, OpensearchClient::MAX_RESULT_WINDOW].min
-    return '' if total_entities <= per_page
+    return '' if total_entities <= per_page && !show_single_page
+    return '' if total_entities.zero?
     num_pages  = (total_entities / per_page.to_f).ceil
     first_page = [1, current_page - (max_links / 2.0).floor].max
     last_page  = [first_page + max_links - 1, num_pages].min
