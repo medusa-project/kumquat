@@ -86,16 +86,13 @@ class RepositoriesController < WebsiteController
         @current_page = (@start / @limit) + 1
         @num_results_shown = [@results.count, @limit].min
 
-        else
-          @start = @permitted_params[:start].to_i
-          @limit = window_size
-          @count = @collection_count
-          @current_page = (@start / @limit) + 1
-          @collections = @collections.offset(@start).limit(@limit)
-          @num_results_shown = (@count - @start).clamp(0, @limit) # ensures the number of results shown never goes below 0 or above the limit (40)
-        end
-          
-
+      else
+        @start = @permitted_params[:start].to_i
+        @limit = window_size
+        @count = @collection_count
+        @current_page = (@start / @limit) + 1
+        @collections = @collections.offset(@start).limit(@limit)
+        @num_results_shown = (@count - @start).clamp(0, @limit) # ensures the number of results shown never goes below 0 or above the limit (40)
       end
       
     rescue => e
