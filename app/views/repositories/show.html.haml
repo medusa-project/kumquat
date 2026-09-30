@@ -22,7 +22,7 @@
 
   .row.justify-content-md-center.mt-4
     .col-md-auto
-      = paginate(@count, @limit, @current_page, RepositoriesController::PERMITTED_PARAMS)
+      = paginate(@count, @limit, @current_page, RepositoriesController::PERMITTED_PARAMS, show_single_page: true)
 
   = form_tag(@permitted_params.reject{ |k, v| k == 'start' }, method: :get, class: 'dl-filter') do
     = hidden_field_tag 'dl-current-path', request.path
@@ -44,11 +44,26 @@
 
   .row.justify-content-md-center.mt-4
     .col-md-auto
-      = paginate(@count, @limit, @current_page, RepositoriesController::PERMITTED_PARAMS)
+      = paginate(@count, @limit, @current_page, RepositoriesController::PERMITTED_PARAMS, show_single_page: true)
+
 
 - else
+  - first = @count.zero? ? 0 : @start + 1
+  - last = [@count, @start + @num_results_shown].min
+
   .container.mt-4
-    .row
+    .card.dl-results-summary
+      .card-body
+        .row
+          #dl-search-status.col-sm-8
+            = raw(sprintf("Showing %d&ndash;%d of %s results in %s (%d collections, %d items)",
+                  first, last, number_with_delimiter(@count), @repository.title,
+                  @collection_count, @item_count))
+    
+    .row.justify-content-md-center.mt-4 
+      .col-md-auto
+        = paginate(@count, @limit, @current_page, RepositoriesController::PERMITTED_PARAMS, show_single_page: true)
+    .row 
       .col-12
         - if @collections.present?
           .collections-list.mt-4
@@ -60,5 +75,8 @@
                   = link_to collection.title, collection_path(collection), class: 'h5 d-block mb-2'
                   %p.text-muted= truncate(collection.element(:description)&.value, length: 200)
                   %p.small.text-muted= pluralize(collection.num_public_objects, 'item')
+          .row.justify-content-md-center.mt-4
+            .col-md-auto
+              = paginate(@count, @limit, @current_page, RepositoriesController::PERMITTED_PARAMS, show_single_page: true)
         - else
           %p.text-muted No public collections found in this repository.
