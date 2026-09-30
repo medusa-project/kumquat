@@ -58,7 +58,9 @@ class RepositoriesController < WebsiteController
                                .order('entity_elements.value ASC NULLS FIRST')
       
       # Calculate total items count (collections + their items)
-      @total_items_count = @collections.count + @collections.sum(&:num_public_objects)
+      @collection_count = @collections.count 
+      @item_count = @collections.sum(&:num_public_objects)
+      @total_count = @collection_count + @item_count
       
       # Handle search if query is present
       if @permitted_params[:q].present?
@@ -83,6 +85,17 @@ class RepositoriesController < WebsiteController
 
         @current_page = (@start / @limit) + 1
         @num_results_shown = [@results.count, @limit].min
+
+        else
+          @start = @permitted_params[:start].to_i
+          @limit = window_size
+          @count = @collection_count
+          @current_page = (@start / @limit) + 1
+          @collections = @collections.offset(@start).limit(@limit)
+          @num_results_shown = (@count - @start).clamp(0, @limit) # ensures the number of results shown never goes below 0 or above the limit (40)
+        end
+          
+
       end
       
     rescue => e
