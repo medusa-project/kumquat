@@ -7,8 +7,8 @@ module RepositoriesHelper
     31 => 'Sousa_banner_header.jpg',
     44 => 'cropped-bug-mold-and-water-damage_crop.jpg',
     54 => 'cropped-ihx_header.jpg',
-    73 => 'mathematicslibrary-header.jpg'
-    78 => 'aces-header.jpg',
+    73 => 'mathematicslibrary-header.jpg',
+    78 => 'aces-header.jpg'
     # 72 => University Library
     # 24 => Champaign County Historical Archives
     # 28 => Medusa Admin
