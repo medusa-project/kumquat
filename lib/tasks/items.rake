@@ -75,4 +75,75 @@ namespace :items do
     UpdateItemsFromTsvJob.new(tsv_pathname: args[:pathname]).perform_in_foreground
   end
 
+  desc 'Export repeated metadata values for items with bib IDs in a Medusa repository'
+  task :audit_metadata_order, [:medusa_repository_id, :output_path, :batch_size] => :environment do |task, args|
+    require 'csv'
+
+    medusa_repository_id = Integer(args[:medusa_repository_id], 10)
+    output_path = args[:output_path].presence
+    batch_size = args[:batch_size].present? ? Integer(args[:batch_size], 10) : 200
+
+    raise ArgumentError, 'Output path is required' unless output_path
+    raise ArgumentError, 'Batch size must be greater than zero' unless batch_size > 0
+
+    collections = Collection.where(medusa_repository_id: medusa_repository_id)
+    collection_repository_ids = collections.pluck(:repository_id)
+    raise ArgumentError, 'No collections found for Medusa repository' if collection_repository_ids.empty?
+
+    profile_elements_by_collection = collections.includes(:metadata_profile).each_with_object({}) do |collection, profiles|
+      profiles[collection.repository_id] =
+        collection.metadata_profile&.elements&.index_by(&:name) || {}
+    end
+
+    items_with_bib_ids = ItemElement.
+      where(name: 'bibId').
+      where.not(value: [nil, '']).
+      select(:item_id)
+    eligible_item_ids = Item.
+      where(collection_repository_id: collection_repository_ids).
+      where(id: items_with_bib_ids).
+      select(:id)
+
+    output_path = File.expand_path(output_path)
+    FileUtils.mkdir_p(File.dirname(output_path))
+
+    processed_items = 0
+    written_rows = 0
+    headers = %w(collection_repository_id item_repository_id bib_id catalog_record_url
+                 element_name element_label value_position vocabulary_id value)
+
+    CSV.open(output_path, 'wb') do |csv|
+      csv << headers
+
+      Item.where(id: eligible_item_ids).preload(:elements).
+        find_in_batches(batch_size: batch_size) do |items|
+        items.each do |item|
+          processed_items += 1
+          item.elements.group_by(&:name).each do |name, elements|
+            value_elements = elements.select { |element| element.value.present? }
+            values = value_elements.map(&:value)
+            next if values.uniq.length < 2
+
+            profile_element = profile_elements_by_collection.
+              dig(item.collection_repository_id, name)
+            value_elements.each_with_index do |element, index|
+              csv << [item.collection_repository_id,
+                      item.repository_id,
+                      item.bib_id,
+                      item.catalog_record_url,
+                      name,
+                      profile_element&.label || name,
+                      index + 1,
+                      element.vocabulary_id,
+                      element.value]
+              written_rows += 1
+            end
+          end
+        end
+      end
+    end
+
+    puts "Processed #{processed_items} items; wrote #{written_rows} repeated-value rows to #{output_path}"
+  end
+
 end
