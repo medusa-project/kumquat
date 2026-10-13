@@ -161,7 +161,7 @@ namespace :items do
     collections = Collection.where.not(package_profile_id: nil)
     collections = collections.where(medusa_repository_id: medusa_repository_id) if medusa_repository_id
 
-    collection_stats = collections.includes(:elements, :package_profile).
+    collection_stats = collections.includes(:elements).
       each_with_object({}) do |collection, stats|
       stats[collection.repository_id] = {
         title: collection.title,
