@@ -146,4 +146,91 @@ namespace :items do
     puts "Processed #{processed_items} items; wrote #{written_rows} repeated-value rows to #{output_path}"
   end
 
+  desc 'Report collections with repeated metadata values'
+  task :report_repeated_metadata_by_collection, [:output_path, :batch_size, :medusa_repository_id] => :environment do |task, args|
+    require 'csv'
+
+    output_path = args[:output_path].presence
+    batch_size = args[:batch_size].present? ? Integer(args[:batch_size], 10) : 200
+    medusa_repository_id = args[:medusa_repository_id].present? ?
+      Integer(args[:medusa_repository_id], 10) : nil
+
+    raise ArgumentError, 'Output path is required' unless output_path
+    raise ArgumentError, 'Batch size must be greater than zero' unless batch_size > 0
+
+    collections = Collection.where.not(package_profile_id: nil)
+    collections = collections.where(medusa_repository_id: medusa_repository_id) if medusa_repository_id
+
+    collection_stats = collections.includes(:elements, :package_profile).
+      each_with_object({}) do |collection, stats|
+      stats[collection.repository_id] = {
+        title: collection.title,
+        medusa_repository_id: collection.medusa_repository_id,
+        package_profile: collection.package_profile&.name,
+        published_in_dls: collection.published_in_dls,
+        public_in_medusa: collection.public_in_medusa,
+        restricted: collection.restricted,
+        item_count: 0,
+        items_with_repeated_values: 0,
+        repeated_value_groups: 0,
+        repeated_element_names: {}
+      }
+    end
+
+    raise ArgumentError, 'No collections found for the requested scope' if collection_stats.empty?
+
+    processed_items = 0
+    output_path = File.expand_path(output_path)
+    FileUtils.mkdir_p(File.dirname(output_path))
+    headers = %w(collection_repository_id collection_title medusa_repository_id
+                 package_profile published_in_dls public_in_medusa restricted
+                 item_count items_with_repeated_values repeated_value_groups
+                 has_repeated_values repeated_element_names)
+
+    Item.where(collection_repository_id: collection_stats.keys).
+      preload(:elements).
+      find_in_batches(batch_size: batch_size) do |items|
+      items.each do |item|
+        processed_items += 1
+        stats = collection_stats[item.collection_repository_id]
+        stats[:item_count] += 1
+        item_has_repeated_values = false
+
+        item.elements.group_by(&:name).each do |name, elements|
+          values = elements.map(&:value).select(&:present?)
+          next if values.uniq.length < 2
+
+          item_has_repeated_values = true
+          stats[:repeated_value_groups] += 1
+          stats[:repeated_element_names][name] = true
+        end
+
+        stats[:items_with_repeated_values] += 1 if item_has_repeated_values
+      end
+    end
+
+    written_rows = 0
+    CSV.open(output_path, 'wb') do |csv|
+      csv << headers
+      collection_stats.sort_by { |_repository_id, stats| stats[:title].to_s.downcase }.
+        each do |repository_id, stats|
+        csv << [repository_id,
+                stats[:title],
+                stats[:medusa_repository_id],
+                stats[:package_profile],
+                stats[:published_in_dls],
+                stats[:public_in_medusa],
+                stats[:restricted],
+                stats[:item_count],
+                stats[:items_with_repeated_values],
+                stats[:repeated_value_groups],
+                stats[:repeated_value_groups] > 0,
+                JSON.generate(stats[:repeated_element_names].keys.sort)]
+        written_rows += 1
+      end
+    end
+
+    puts "Processed #{processed_items} items across #{written_rows} collections; wrote report to #{output_path}"
+  end
+
 end
