@@ -147,6 +147,18 @@ module AdminHelper
           select{ |e| e.name == e_def.name && (e.value.present? || e.uri.present?) }
       next if elements.empty?
       html << '<tr>'
+      html <<   '<td style="width:1px; white-space:nowrap">'
+      # If the element has 2+ distinct values there should be a 
+      # reverse order button visible next to the label.
+      if elements.map(&:value).select(&:present?).uniq.size >= 2
+        html << button_to('Reverse Order',
+                          reverse_metadata_order_admin_collection_item_path(item.collection, item),
+                          method: :patch,
+                          params: { element_name: e_def.name },
+                          class: 'btn btn-sm btn-primary',
+                          form: { class: 'd-inline' })
+      end
+      html <<   '</td>'
       html <<   "<td>#{e_def.label}</td>"
       html <<   '<td>'
       html <<     '<table class="table table-sm">'
