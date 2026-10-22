@@ -1246,6 +1246,27 @@ class Item < ApplicationRecord
   end
 
   ##
+  # @return [Item] Order of metadata values for a metadata field is reversed.
+  def reverse_metadata_order!(element_name)
+    # Recreated records receive new IDs, which establish the reversed order
+    # for the existing order(:id) association.
+    with_lock do
+      entries = elements.where(name: element_name).order(:id).to_a
+      distinct_values = entries.map(&:value).select(&:present?).uniq
+      if distinct_values.size < 2
+        raise ArgumentError, 'Metadata element must have at least two distinct values.'
+      end
+
+      attributes = entries.map do |entry|
+        entry.attributes.slice('name', 'value', 'uri', 'vocabulary_id')
+      end.reverse
+
+      ItemElement.where(id: entries.map(&:id)).destroy_all
+      attributes.each { |attrs| elements.create!(attrs) }
+    end
+  end
+
+  ##
   # @return [VocabularyTerm, nil]
   # @see effective_rights_term
   #
