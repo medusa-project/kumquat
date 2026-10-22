@@ -768,6 +768,43 @@ module Admin
       assert_equal updated_values, @item.reload.elements.where(name: 'description').pluck(:value)
     end
 
+    # reverse_metadata_order()
+
+    test "reverse_metadata_order() reverses and recreates the selected metadata entries" do
+      sign_in_as(users(:medusa_admin))
+      @item.elements.where(name: 'description').destroy_all
+      original_values = ['First description', 'Second description', 'Third description']
+      original_entries = original_values.map do |value|
+        @item.elements.create!(name: 'description',
+                               value: value,
+                               vocabulary: vocabularies(:uncontrolled))
+      end
+
+      patch reverse_metadata_order_admin_collection_item_path(@collection, @item),
+            params: { element_name: 'description' }
+
+      assert_redirected_to admin_collection_item_path(@collection, @item)
+      assert_equal original_values.reverse,
+                   @item.reload.elements.where(name: 'description').pluck(:value)
+      assert_empty ItemElement.where(id: original_entries.map(&:id))
+      assert_equal 'Reversed the order of values for "description".', flash['success']
+    end
+
+    test "reverse_metadata_order() leaves entries unchanged when fewer than two distinct values exist" do
+      sign_in_as(users(:medusa_admin))
+      @item.elements.where(name: 'description').destroy_all
+      entry = @item.elements.create!(name: 'description',
+                                     value: 'Only description',
+                                     vocabulary: vocabularies(:uncontrolled))
+
+      patch reverse_metadata_order_admin_collection_item_path(@collection, @item),
+            params: { element_name: 'description' }
+
+      assert_redirected_to admin_collection_item_path(@collection, @item)
+      assert_equal [entry.id], @item.reload.elements.where(name: 'description').pluck(:id)
+      assert flash['error'].present?
+    end
+
     # update_all()
 
     test "update_all() redirects to sign-in page for signed-out users" do
