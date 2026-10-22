@@ -123,10 +123,9 @@ Rails.application.routes.draw do
       match '/items/unpublish', to: 'items#unpublish', via: :patch
       match '/items/update', to: 'items#update_all', via: :post
       resources :items, except: :edit do
-                        member do
-                              patch 'reverse-metadata-order', action: :reverse_metadata_order,
-                                                as: :reverse_metadata_order
-                        end
+        member do
+          patch 'reverse-metadata-order', action: :reverse_metadata_order, as: :reverse_metadata_order
+        end
         match '/edit-access', to: 'items#edit_access', via: :get,
               constraints: lambda { |request| request.xhr? }
         match '/edit-info', to: 'items#edit_info', via: :get,
