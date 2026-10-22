@@ -19,6 +19,24 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
       - name: Checkout the repository
         uses: actions/checkout@v2
-      - name: Run the tests
+      - name: Pull images (retry)
         run: |
-          docker compose up --build --exit-code-from kumquat
+          set -euo pipefail
+          pulled=false
+          for i in 1 2 3; do
+            echo "Pull attempt $i..."
+            if docker compose pull --quiet-pull; then 
+              pulled=true
+              break
+            fi
+            if [ "$i" -lt 3 ]; then
+              sleep $((i * 20))
+            fi
+          done
+          if [ "$pulled" != "true" ]; then
+            echo "docker compose pull failed after 3 attempts."
+            exit 1
+          fi
+
+      - name: Run integration stack
+        run: docker compose up --build --exit-code-from kumquat
