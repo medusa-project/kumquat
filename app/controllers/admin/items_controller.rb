@@ -520,6 +520,21 @@ module Admin
       publish_or_unpublish(false)
     end
 
+    def reverse_metadata_order
+      element_name = params.require(:element_name)
+      unless element_name.is_a?(String) &&
+          @item.collection.effective_metadata_profile.elements.any? { |element| element.name == element_name }
+        raise ArgumentError, 'Metadata element is not in this collection profile.'
+      end
+
+      @item.reverse_metadata_order!(element_name)
+      flash['success'] = "Reversed the order of values for \"#{element_name}\"."
+    rescue => e
+      handle_error(e)
+    ensure
+      redirect_to admin_collection_item_path(@item.collection, @item)
+    end
+
     def update
       # If we are updating metadata, we will need to process the elements
       # manually.
