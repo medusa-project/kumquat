@@ -25,7 +25,7 @@ jobs:
           pulled=false
           for i in 1 2 3; do
             echo "Pull attempt $i..."
-            if docker compose pull --quiet-pull; then 
+            if docker compose pull; then 
               pulled=true
               break
             fi
