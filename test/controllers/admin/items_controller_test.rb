@@ -787,7 +787,9 @@ module Admin
       assert_equal original_values.reverse,
                    @item.reload.elements.where(name: 'description').pluck(:value)
       assert_empty ItemElement.where(id: original_entries.map(&:id))
-      assert_equal 'Reversed the order of values for "description".', flash['success']
+      follow_redirect!
+      assert_includes response.body,
+              'Reversed the order of values for "description".'
     end
 
     test "reverse_metadata_order() leaves entries unchanged when fewer than two distinct values exist" do
@@ -802,7 +804,9 @@ module Admin
 
       assert_redirected_to admin_collection_item_path(@collection, @item)
       assert_equal [entry.id], @item.reload.elements.where(name: 'description').pluck(:id)
-      assert flash['error'].present?
+      follow_redirect!
+      assert_includes response.body,
+              'Metadata element must have at least two distinct values.'
     end
 
     # update_all()

@@ -532,6 +532,7 @@ module Admin
     rescue => e
       handle_error(e)
     ensure
+      keep_flash
       redirect_to admin_collection_item_path(@item.collection, @item)
     end
 
