@@ -81,6 +81,10 @@ module Admin
       update?
     end
 
+    def reverse_metadata_order?
+      update?
+    end
+
     def run_ocr?
       update?
     end
