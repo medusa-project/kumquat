@@ -1262,6 +1262,7 @@ class Item < ApplicationRecord
       end.reverse
 
       ItemElement.where(id: entries.map(&:id)).destroy_all
+      association(:elements).reset
       attributes.each { |attrs| elements.create!(attrs) }
     end
   end
