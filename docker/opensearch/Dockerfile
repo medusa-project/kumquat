@@ -1,4 +1,5 @@
-FROM public.ecr.aws/opensearchproject/opensearch:2
+# Mirror of public.ecr.aws/opensearchproject/opensearch:2, which is rate-limited in CI.
+FROM 721945215539.dkr.ecr.us-east-2.amazonaws.com/mockdusa:opensearch-2
 
 ENV discovery.type=single-node
 
