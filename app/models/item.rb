@@ -1261,7 +1261,9 @@ class Item < ApplicationRecord
         entry.attributes.slice('name', 'value', 'uri', 'vocabulary_id')
       end.reverse
 
-      ItemElement.where(id: entries.map(&:id)).destroy_all
+      # delete_all avoids destroy touching separate Item instances whose inverse
+      # target holds frozen rows that ItemElement#== matches against new ones.
+      ItemElement.where(id: entries.map(&:id)).delete_all
       association(:elements).reset
       attributes.each { |attrs| elements.create!(attrs) }
     end
