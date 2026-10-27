@@ -1,4 +1,7 @@
-FROM public.ecr.aws/opensearchproject/opensearch:2
+# FROM public.ecr.aws/opensearchproject/opensearch:2
+# Mirror of public opensearch image to bypass CI rate limits
+FROM 721945215539.dkr.ecr.us-east-2.amazonaws.com/mockdusa:opensearch-2
+
 
 ENV discovery.type=single-node
 
