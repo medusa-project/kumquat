@@ -16,6 +16,8 @@
               %p.form-text.text-muted= voc.name
             %td
               - elements = @item.elements.select{ |e| e.name == profile_elem.name && (e.vocabulary_id == voc.id || (e.vocabulary_id.blank? && voc == Vocabulary.uncontrolled)) }
+              %button.btn.btn-sm.btn-primary.dl-reverse-metadata-order{ type: 'button', style: 'display:none' }
+                Reverse Order
               - if elements.any?
                 - elements.each do |elem|
                   = admin_item_element_edit_tag(profile_elem, elem, voc)
