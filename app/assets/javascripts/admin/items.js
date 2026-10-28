@@ -314,18 +314,62 @@ const DLAdminItemView = function() {
 
         this.init = function() {
             new Application.DirtyFormListener('form').listen();
+          // Scope new handlers with form 
+          // Function to refresh the reverse button reads each element's string value.
+          // Only shows the reverse button when two or more distinct values are present.
+          // This was originally handled server-side and out of the edit modal completely. 
+            const form = $('#dl-edit-metadata-modal form');
 
-            $('button.dl-add-element').on('click', function() {
-                var element = $(this).closest('.dl-element');
-                var clone = element.clone(true);
-                clone.find('input').val('');
+            const refreshReverseButton = function(container) {
+                const values = new Set();
+                container.children('.dl-element').each(function() {
+                    const value = $(this).find('[name$="[string]"]').val();
+                    if (typeof value === 'string' && value.trim().length > 0) {
+                        values.add(value);
+                    }
+                });
+
+                const eligible = values.size >= 2;
+                container.children('button.dl-reverse-metadata-order').toggle(eligible);
+                return eligible;
+            };
+
+            form.find('button.dl-reverse-metadata-order').each(function() {
+                refreshReverseButton($(this).parent());
+            });
+
+            form.on('input change', '[name$="[string]"]', function() {
+                refreshReverseButton($(this).closest('.dl-element').parent());
+            });
+
+            form.on('click', 'button.dl-add-element', function() {
+                const element = $(this).closest('.dl-element');
+                const container = element.parent();
+                const clone = element.clone(true);
+                clone.find('input, textarea').val('');
                 element.after(clone);
+                refreshReverseButton(container);
                 return false;
             });
-            $('button.dl-remove-element').on('click', function() {
-                var element = $(this).closest('.dl-element');
-                if (element.siblings().length > 0) {
+
+            form.on('click', 'button.dl-remove-element', function() {
+                const element = $(this).closest('.dl-element');
+                const container = element.parent();
+                if (element.siblings('.dl-element').length > 0) {
                     element.remove();
+                }
+                refreshReverseButton(container);
+                return false;
+            });
+
+            form.on('click', 'button.dl-reverse-metadata-order', function() {
+              // Reverse the entry blocks into reverse order
+              // Makes sure each blocks retains its string and URI fields so they are paired
+              // No request is actually sent until Save Changes, as with the other edit actions
+                const container = $(this).parent();
+                const entries = container.children('.dl-element').get().reverse();
+                if (refreshReverseButton(container)) {
+                    $(entries).appendTo(container);
                 }
                 return false;
             });
