@@ -31,6 +31,7 @@ class User < ApplicationRecord
   has_and_belongs_to_many :item_sets
   has_many :tasks
   has_many :watches
+  has_many :item_events, dependent: :restrict_with_error 
 
   validates :username, presence: true, length: { maximum: 50 },
             uniqueness: { case_sensitive: false }
