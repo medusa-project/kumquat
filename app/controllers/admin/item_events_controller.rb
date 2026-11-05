@@ -10,7 +10,7 @@ module Admin
     #
     def index 
       authorize(ItemEvent)
-      #todo
+      @item_events = ItemEvent.all 
     end
 
     ##
