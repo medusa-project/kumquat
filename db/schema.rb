@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_03_174302) do
+ActiveRecord::Schema[7.2].define(version: 2026_11_05_210712) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -256,6 +256,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_03_174302) do
     t.index ["item_id"], name: "index_host_groups_items_on_item_id"
   end
 
+  create_table "item_events", force: :cascade do |t|
+    t.string "event_type", null: false
+    t.bigint "item_id", null: false
+    t.bigint "user_id", null: false
+    t.jsonb "changeset", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["item_id"], name: "index_item_events_on_item_id"
+    t.index ["user_id"], name: "index_item_events_on_user_id"
+  end
+
   create_table "item_sets", id: :serial, force: :cascade do |t|
     t.string "name", null: false
     t.string "collection_repository_id", null: false
@@ -439,6 +450,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_03_174302) do
   add_foreign_key "host_groups_items", "host_groups", column: "allowed_host_group_id", on_update: :cascade, on_delete: :restrict
   add_foreign_key "host_groups_items", "host_groups", column: "effective_allowed_host_group_id", on_update: :cascade, on_delete: :restrict
   add_foreign_key "host_groups_items", "items", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "item_events", "items"
+  add_foreign_key "item_events", "users"
   add_foreign_key "item_sets_items", "item_sets", on_update: :cascade, on_delete: :cascade
   add_foreign_key "item_sets_items", "items", on_update: :cascade, on_delete: :cascade
   add_foreign_key "item_sets_users", "item_sets", on_update: :cascade, on_delete: :cascade
