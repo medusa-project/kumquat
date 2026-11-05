@@ -313,6 +313,7 @@ class Item < ApplicationRecord
   has_many :binaries, inverse_of: :item, dependent: :destroy
   has_many :elements, -> { order(:id) }, class_name: 'ItemElement', inverse_of: :item,
            dependent: :destroy
+  has_many :item_events, dependent: :restrict_with_error
 
   serialize :allowed_netids, coder: JSON
 
