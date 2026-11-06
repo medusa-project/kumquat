@@ -55,7 +55,9 @@
               = link_to 'Vocabularies', admin_vocabularies_path, class: 'dropdown-item'
             - if show_metadata_profiles
               = link_to 'Metadata Profiles', admin_metadata_profiles_path, class: 'dropdown-item'
-            - if (show_elements || show_vocabularies || show_metadata_profiles) && (show_agents || show_agent_relation_types || show_agent_rules || show_agent_types)
+            - if show_item_events
+              = link_to 'Metadata Events Log', admin_item_events_path, class: 'dropdown-item'
+            - if (show_elements || show_vocabularies || show_metadata_profiles || show_item_events) && (show_agents || show_agent_relation_types || show_agent_rules || show_agent_types)
               .dropdown-divider
             - if show_agents
               = link_to 'Agents', admin_agents_path, class: 'dropdown-item'
@@ -65,8 +67,6 @@
               = link_to 'Agent Rules', admin_agent_rules_path, class: 'dropdown-item'
             - if show_agent_types
               = link_to 'Agent Types', admin_agent_types_path, class: 'dropdown-item'
-            - if show_item_events
-              = link_to 'Item Events', admin_item_events_path, class: 'dropdown-item'
 
       -# Access menu
       - show_users       = policy(User).index?
