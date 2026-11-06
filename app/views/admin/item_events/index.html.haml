@@ -1,1 +1,30 @@
-METADATA EVENTS HISTORY LOG
+- provide :title, 'Metadata Events Log'
+- provide :body_id, 'admin_item_events'
+- provide :active_nav, 'metadata'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+									 { label: 'Metadata Events Log' })
+
+%h1 Metadata Events Log
+
+- if @item_events.any?
+	.table-responsive
+		%table.table.table-sm
+			%thead
+				%tr
+					%th{scope: 'col'} Date / Time
+					%th{scope: 'col'} Item
+					%th{scope: 'col'} User
+					%th{scope: 'col'} Event Type
+					%th{scope: 'col'} Changed Fields
+			%tbody
+				- @item_events.each do |event|
+					%tr
+						%td= local_time(event.created_at)
+						%td= link_to event.item.title, admin_collection_item_path(event.item.collection, event.item)
+						%td= link_to event.user.username, admin_user_path(event.user)
+						%td= event.event_type.humanize
+						%td= event.changeset.keys.join(', ')
+- else
+	%p No metadata events to show.
+
