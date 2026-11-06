@@ -42,7 +42,8 @@
       - show_agent_relation_types = policy(AgentRelationType).index?
       - show_agent_rules          = policy(AgentRule).index?
       - show_agent_types          = policy(AgentType).index?
-      - if show_elements || show_vocabularies || show_metadata_profiles || show_agents || show_agent_relation_types || show_agent_rules || show_agent_types
+      - show_item_events          = policy(ItemEvent).index?
+      - if show_elements || show_vocabularies || show_metadata_profiles || show_agents || show_agent_relation_types || show_agent_rules || show_agent_types || show_item_events
         %li#metadata-nav.nav-item.dropdown
           %a.nav-link.dropdown-toggle{"data-toggle": "dropdown", href: "#"}
             Metadata
@@ -64,6 +65,8 @@
               = link_to 'Agent Rules', admin_agent_rules_path, class: 'dropdown-item'
             - if show_agent_types
               = link_to 'Agent Types', admin_agent_types_path, class: 'dropdown-item'
+            - if show_item_events
+              = link_to 'Item Events', admin_item_events_path, class: 'dropdown-item'
 
       -# Access menu
       - show_users       = policy(User).index?
