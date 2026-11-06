@@ -10,7 +10,8 @@ module Admin
     #
     def index 
       authorize(ItemEvent)
-      @item_events = ItemEvent.all 
+      @item_events = ItemEvent.preload(:item, :user).
+          order(created_at: :desc, id: :desc)
     end
 
     ##
