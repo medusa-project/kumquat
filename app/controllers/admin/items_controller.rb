@@ -540,22 +540,7 @@ module Admin
       # If we are updating metadata, we will need to process the elements
       # manually.
       if params[:elements].respond_to?(:each)
-        ActiveRecord::Base.transaction do
-          @item.elements.destroy_all
-          params[:elements].each do |name, vocabs|
-            vocabs.each do |vocab_id, occurrences|
-              occurrences.each do |occurrence|
-                if occurrence[:string].present? || occurrence[:uri].present?
-                  @item.elements.build(name:          name,
-                                       value:         occurrence[:string],
-                                       uri:           occurrence[:uri],
-                                       vocabulary_id: vocab_id)
-                end
-              end
-            end
-          end
-          @item.save!
-        end
+        @item.update_metadata!(params[:elements], user: current_user)
       end
 
       if params[:item]
