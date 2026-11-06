@@ -15,7 +15,7 @@
 					%th{scope: 'col'} Date / Time
 					%th{scope: 'col'} Item
 					%th{scope: 'col'} User
-					%th{scope: 'col'} Event Type
+					%th{scope: 'col'} Changes
 					%th{scope: 'col'} Changed Fields
 			%tbody
 				- @item_events.each do |event|
@@ -23,7 +23,7 @@
 						%td= local_time(event.created_at)
 						%td= link_to event.item.title, admin_collection_item_path(event.item.collection, event.item)
 						%td= link_to event.user.username, admin_user_path(event.user)
-						%td= event.event_type.humanize
+						%td= event.change_summary
 						%td= event.changeset.keys.join(', ')
 - else
 	%p No metadata events to show.
