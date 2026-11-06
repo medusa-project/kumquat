@@ -1518,6 +1518,13 @@ class Item < ApplicationRecord
         end
       end
       self.save!
+      after_metadata = metadata_snapshot
+      changeset = metadata_changeset(before_metadata, after_metadata)
+      unless changeset.empty?
+        item_events.create!(user:       user,
+                            event_type: 'metadata_updated',
+                            changeset:  changeset)
+      end
     end
   end
 
@@ -1561,6 +1568,21 @@ class Item < ApplicationRecord
       }
     end
     snapshot
+  end
+
+  def metadata_changeset(before_metadata, after_metadata)
+    changeset = {}
+    (before_metadata.keys | after_metadata.keys).each do |name|
+      before_entries = before_metadata.fetch(name, [])
+      after_entries = after_metadata.fetch(name, [])
+      next if before_entries == after_entries
+
+      changeset[name] = {
+        'before' => before_entries,
+        'after' => after_entries
+      }
+    end
+    changeset
   end
 
   def elements_for_iim_value(iim_elem_label, dest_elem, iim_metadata)
