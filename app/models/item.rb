@@ -1501,6 +1501,13 @@ class Item < ApplicationRecord
     end
   end
 
+  def update_metadata!(submitted_elements, user:)
+    with_lock do
+      before_metadata = metadata_snapshot
+      #todo
+    end
+  end
+
   ##
   # Items don't have filenames because they aren't files, but sometimes it's
   # necessary to present them as if they were. This makes more sense for items
@@ -1529,6 +1536,19 @@ class Item < ApplicationRecord
 
 
   private
+
+  def metadata_snapshot
+    snapshot = {}
+    elements.order(:id).pluck(:name, :value, :uri, :vocabulary_id).each do |name, value, uri, vocabulary_id|
+      snapshot[name] ||= []
+      snapshot[name] << {
+        'value' => value.to_s,
+        'uri' => uri.to_s,
+        'vocabulary_id' => vocabulary_id
+      }
+    end
+    snapshot
+  end
 
   def elements_for_iim_value(iim_elem_label, dest_elem, iim_metadata)
     src_elem = iim_metadata.find{ |e| e[:label] == iim_elem_label }
