@@ -1504,7 +1504,20 @@ class Item < ApplicationRecord
   def update_metadata!(submitted_elements, user:)
     with_lock do
       before_metadata = metadata_snapshot
-      #todo
+      elements.destroy_all
+      submitted_elements.each do |name, vocabs|
+        vocabs.each do |vocab_id, occurrences|
+          occurrences.each do |occurrence|
+            if occurrence[:string].present? || occurrence[:uri].present?
+              elements.build(name:          name,
+                             value:         occurrence[:string],
+                             uri:           occurrence[:uri],
+                             vocabulary_id: vocab_id)
+            end
+          end
+        end
+      end
+      self.save!
     end
   end
 
