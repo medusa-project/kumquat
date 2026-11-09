@@ -3,6 +3,8 @@
 module Admin 
 
   class ItemEventsController < ControlPanelController
+    PERMITTED_SEARCH_PARAMS = [:start]
+
     # read item events with {index} and {show} actions
     
     ## 
@@ -10,8 +12,15 @@ module Admin
     #
     def index 
       authorize(ItemEvent)
-      @item_events = ItemEvent.preload(:item, :user).
+      @limit = Setting::integer(Setting::Keys::DEFAULT_RESULT_WINDOW)
+      @start = params[:start] ? params[:start].to_i : 0
+      @start = 0 if @start < 0
+      @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0
+
+      events = ItemEvent.preload(:item, :user).
           order(created_at: :desc, id: :desc)
+      @count = events.count
+      @item_events = events.offset(@start).limit(@limit)
     end
 
     ##
