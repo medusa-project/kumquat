@@ -22,13 +22,16 @@ module Admin
 
       if params[:q].present?
         query = "%#{Item.sanitize_sql_like(params[:q])}%"
-        events = events.joins(:item).where(
-          "item_events.changeset::text ILIKE :query OR " \
+        events = events.joins(:item, :user).where(
+          "users.username ILIKE :query OR " \
           "items.repository_id ILIKE :query OR " \
           "EXISTS (SELECT 1 FROM entity_elements " \
           "WHERE entity_elements.item_id = items.id " \
           "AND entity_elements.name = 'title' " \
-          "AND entity_elements.value ILIKE :query)",
+          "AND entity_elements.value ILIKE :query) OR " \
+          "EXISTS (SELECT 1 FROM jsonb_object_keys(item_events.changeset) " \
+          "AS changed_fields(field_name) " \
+          "WHERE changed_fields.field_name ILIKE :query)",
           query: query
         )
       end
