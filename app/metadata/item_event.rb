@@ -7,7 +7,17 @@ class ItemEvent < ApplicationRecord
   belongs_to :item
   belongs_to :user
 
+  before_validation :set_summary
+  validates :summary, presence: true
+
+  # Returns a human-readable summary of the changes made in this event, by either using the saved summary
+  # or calculating it from the changeset with summary_for().
   def change_summary
+    summary.presence || self.class.summary_for(changeset || {}, event_type)
+  end
+
+  # Calculates the before/after values and returns human readable text (ie 'Values reversed').
+  def self.summary_for(changeset, event_type)
     actions = changeset.values.flat_map do |change|
       before_groups = change.fetch('before', []).group_by { |entry| entry['vocabulary_id'] }
       after_groups = change.fetch('after', []).group_by { |entry| entry['vocabulary_id'] }
@@ -41,6 +51,14 @@ class ItemEvent < ApplicationRecord
     end
 
     actions.empty? ? event_type.humanize : actions.uniq.join('; ')
+  end
+
+  private
+
+  # Saves the calculated summary, running before validation. If the event's summary is blank
+  # and event_type is present, it calls summary_for() to calculate the summary before saving it.
+  def set_summary
+    self.summary = self.class.summary_for(changeset || {}, event_type) if summary.blank? && event_type.present?
   end
 
 end
