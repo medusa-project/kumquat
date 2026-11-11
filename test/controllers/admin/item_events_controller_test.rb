@@ -18,13 +18,13 @@ module Admin
       sign_in_as(@user)
       
       ItemEvent.create!(item: @item, user: @user, event_type: 'metadata_updated', changeset: {
-        'description' => { 'before' => [], 'after' => [first] }
+        'description' => { 'before' => [first, second], 'after' => [second, first] }
       })
       ItemEvent.create!(item: @item, user: @user, event_type: 'metadata_updated', changeset: {
-        'subject' => { 'before' => [], 'after' => [second] }
+        'subject' => { 'before' => [first], 'after' => [second] }
       })
       
-      get admin_item_events_path, params: { q: 'description' }
+      get admin_item_events_path, params: { q: 'reversed' }
 
       assert_response :success
       assert_includes response.body, 'description'
