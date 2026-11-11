@@ -3,7 +3,7 @@
 module Admin 
 
   class ItemEventsController < ControlPanelController
-    PERMITTED_SEARCH_PARAMS = [:start]
+    PERMITTED_SEARCH_PARAMS = [:start, :q, :commit]
 
     # read item events with {index} and {show} actions
     
@@ -19,6 +19,19 @@ module Admin
 
       events = ItemEvent.preload(:item, :user).
           order(created_at: :desc, id: :desc)
+
+      if params[:q].present?
+        query = "%#{Item.sanitize_sql_like(params[:q])}%"
+        events = events.joins(:item).where(
+          "item_events.changeset::text ILIKE :query OR " \
+          "items.repository_id ILIKE :query OR " \
+          "EXISTS (SELECT 1 FROM entity_elements " \
+          "WHERE entity_elements.item_id = items.id " \
+          "AND entity_elements.name = 'title' " \
+          "AND entity_elements.value ILIKE :query)",
+          query: query
+        )
+      end
       @count = events.count
       @item_events = events.offset(@start).limit(@limit)
     end

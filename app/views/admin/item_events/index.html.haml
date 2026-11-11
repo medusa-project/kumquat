@@ -10,6 +10,16 @@
 - page_links = paginate(@count, @limit, @current_page,
 						Admin::ItemEventsController::PERMITTED_SEARCH_PARAMS,
 						show_single_page: true)
+
+.card
+	.card-body
+		= form_tag admin_item_events_path, method: 'get', class: 'dl-filter' do
+			.form-inline
+				= search_field_tag :q,
+								params[:q],
+								placeholder: 'Search events',
+								class: 'form-control'
+				= submit_tag 'Search', class: 'btn btn-primary ml-2'
 - if @item_events.any?
 	.row.justify-content-md-center
 		.col-md-auto
