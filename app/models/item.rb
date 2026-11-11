@@ -1523,6 +1523,7 @@ class Item < ApplicationRecord
       unless changeset.empty?
         item_events.create!(user:       user,
                             event_type: 'metadata_updated',
+                            summary:    ItemEvent.summary_for(changeset, 'metadata_updated'),
                             changeset:  changeset)
       end
     end
