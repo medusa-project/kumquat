@@ -17,10 +17,10 @@ module Admin
 
     sign_in_as(@user)
     
-    event1 = ItemEvent.create!(item: @item, user: @user, event_type: 'metadata_updated', changeset: {
+    ItemEvent.create!(item: @item, user: @user, event_type: 'metadata_updated', changeset: {
       'description' => { 'before' => [], 'after' => [first] }
     })
-    event2 = ItemEvent.create!(item: @item, user: @user, event_type: 'metadata_updated', changeset: {
+    ItemEvent.create!(item: @item, user: @user, event_type: 'metadata_updated', changeset: {
       'subject' => { 'before' => [], 'after' => [second] }
     })
     
