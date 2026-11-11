@@ -23,6 +23,7 @@ module Admin
       if params[:q].present?
         query = "%#{Item.sanitize_sql_like(params[:q])}%"
         events = events.joins(:item, :user).where(
+          "item_events.summary ILIKE :query OR " \
           "users.username ILIKE :query OR " \
           "items.repository_id ILIKE :query OR " \
           "EXISTS (SELECT 1 FROM entity_elements " \
