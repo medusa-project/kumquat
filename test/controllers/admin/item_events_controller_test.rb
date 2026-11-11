@@ -24,11 +24,16 @@ module Admin
         'subject' => { 'before' => [], 'after' => [second] }
       })
       
-      get admin_item_events_path, params: { q: 'First' }
+      get admin_item_events_path, params: { q: 'description' }
 
       assert_response :success
       assert_includes response.body, 'description'
       assert_not_includes response.body, 'subject'
+
+      get admin_item_events_path, params: { q: 'First' }
+
+      assert_response :success
+      assert_includes response.body, 'No metadata events to show.'
     end
   end
 end
