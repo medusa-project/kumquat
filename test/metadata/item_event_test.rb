@@ -47,4 +47,28 @@ class ItemEventTest < ActiveSupport::TestCase
 
     assert_equal 'Values reversed; Values edited', event.change_summary
   end
+
+  test 'search lets users filter events log based on query' do 
+    first = { 'value' => 'First', 'uri' => '', 'vocabulary_id' => 1 }
+    second = { 'value' => 'Second', 'uri' => '', 'vocabulary_id' => 1 }
+    event1 = ItemEvent.create!(event_type: 'metadata_updated', changeset: {
+      'description' => { 'before' => [], 'after' => [first] }
+    })
+    event2 = ItemEvent.create!(event_type: 'metadata_updated', changeset: {
+      'description' => { 'before' => [], 'after' => [second] }
+    })
+
+    results = ItemEvent.joins(:item).where(
+      "item_events.changeset::text ILIKE :query OR " \
+      "items.repository_id ILIKE :query OR " \
+      "EXISTS (SELECT 1 FROM entity_elements " \
+      "WHERE entity_elements.item_id = items.id " \
+      "AND entity_elements.name = 'title' " \
+      "AND entity_elements.value ILIKE :query)",
+      query: "%First%"
+    )
+
+    assert_includes results, event1
+    assert_not_includes results, event2
+  end
 end
