@@ -46,6 +46,31 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :ok
   end
 
+  test 'iiif_presentation() only returns top-level items' do 
+    get collection_iiif_presentation_path(@collection)
+    assert_response :success 
+
+    json = JSON.parse(response.body)
+
+    actual_ids = json.fetch('members').map do |member|
+      member.fetch('@id')
+    end
+
+    expected_ids = [item_iiif_manifest_url(items(:compound_object_1001)),
+                    item_iiif_manifest_url(items(:compound_object_1002))]
+    
+    excluded_items = [items(:compound_object_1002_page1), 
+                      items(:compound_object_1002_page2), 
+                      items(:compound_object_1002_supplement)]
+
+    excluded_items.each do |item|
+      refute_includes actual_ids, item_iiif_manifest_url(item)
+    end
+
+    assert_equal expected_ids.sort, actual_ids.sort
+  end
+
+    
   # iiif_presentation_list()
 
   test 'iiif_presentation_list() returns HTTP 200' do
