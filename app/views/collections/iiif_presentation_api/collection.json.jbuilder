@@ -42,7 +42,7 @@ json.license license if license.present?
 ers = @collection.rights_statement
 json.attribution ers if ers.present?
 
-json.members(@collection.items.where(parent_repository_id: nil).map do |item| # top-level items only
+json.members(@items.map do |item| # top-level items only
   {
       '@id': item_iiif_manifest_url(item),
       '@type': 'sc:Manifest',
