@@ -47,6 +47,9 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'iiif_presentation() only returns top-level items' do 
+    Item.reindex_all
+    refresh_opensearch
+
     get collection_iiif_presentation_path(@collection)
     assert_response :success 
 
@@ -67,10 +70,66 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
       refute_includes actual_ids, item_iiif_manifest_url(item)
     end
 
-    assert_equal expected_ids.sort, actual_ids.sort
+    assert_equal expected_ids, actual_ids
+  end
+
+  test 'iiif_presentation() excludes unpublished and restricted items' do 
+    unpublished = items(:compound_object_1001).dup
+    unpublished.assign_attributes(repository_id: SecureRandom.uuid, 
+                                  published: false)
+    
+    unpublished.save!
+
+    restricted = items(:compound_object_1001).dup
+    restricted.assign_attributes(repository_id: SecureRandom.uuid, 
+                                  restricted: true, allowed_netids: [{ netid: 'bogus',
+                                                                        expires: Time.now.to_i + 1.year }])
+    
+    restricted.save!
+
+    Item.reindex_all
+    refresh_opensearch
+
+    get collection_iiif_presentation_path(@collection)
+    assert_response :success
+
+    json = JSON.parse(response.body)
+    actual_ids = json.fetch('members').map { |member| member.fetch('@id') }
+
+    refute_includes actual_ids, item_iiif_manifest_url(unpublished)
+    refute_includes actual_ids, item_iiif_manifest_url(restricted)
+    assert_includes actual_ids, item_iiif_manifest_url(items(:compound_object_1001))
   end
 
     
+  test 'iiif_presentation() uses structural sort for free-form collections' do
+    free_form = collections(:free_form)
+    repository_ids = ['00000000-0000-4000-8000-000000000002',
+                      '00000000-0000-4000-8000-000000000001']
+
+    repository_ids.each do |repository_id|
+      item = items(:compound_object_1001).dup
+      item.assign_attributes(repository_id: repository_id,
+                             collection_repository_id: free_form.repository_id)
+      item.save!
+    end
+
+    Item.reindex_all
+    refresh_opensearch
+
+    get collection_iiif_presentation_path(free_form)
+    assert_response :success
+
+    actual_ids = JSON.parse(response.body).fetch('members').map { |m| m.fetch('@id') }
+
+    # Free-form fixture collection also has a top-level directory; only the
+    # relative order of the two added items is asserted.
+    expected_ids = repository_ids.sort.map do |repository_id|
+      item_iiif_manifest_url(Item.find_by!(repository_id: repository_id))
+    end
+    assert_equal expected_ids, actual_ids.select { |id| expected_ids.include?(id) }
+  end
+
   # iiif_presentation_list()
 
   test 'iiif_presentation_list() returns HTTP 200' do
