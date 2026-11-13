@@ -18,6 +18,15 @@ class CollectionsController < WebsiteController
   # @see http://iiif.io/api/presentation/2.1/#collection
   #
   def iiif_presentation
+    @items = Item.search.collection(@collection).
+              host_groups(client_host_groups).
+              search_children(false).
+              aggregations(false)
+
+    if @collection.free_form?
+      @items.order(Item::IndexFields::STRUCTURAL_SORT)
+    end
+
     render 'collections/iiif_presentation_api/collection',
            formats: :json,
            content_type: 'application/json'
