@@ -78,13 +78,14 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
     unpublished.assign_attributes(repository_id: SecureRandom.uuid, 
                                   published: false)
     
+    unpublished.elements.build(name: 'title', value: 'Unpublished')
     unpublished.save!
 
     restricted = items(:compound_object_1001).dup
     restricted.assign_attributes(repository_id: SecureRandom.uuid, 
-                                  restricted: true, allowed_netids: [{ netid: 'bogus',
-                                                                        expires: Time.now.to_i + 1.year }])
-    
+                                  allowed_netids: [{ netid: 'bogus',
+                                                    expires: Time.now.to_i + 1.year }])
+    restricted.elements.build(name: 'title', value: 'Restricted')
     restricted.save!
 
     Item.reindex_all
@@ -111,6 +112,7 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
       item = items(:compound_object_1001).dup
       item.assign_attributes(repository_id: repository_id,
                              collection_repository_id: free_form.repository_id)
+      item.elements.build(name: 'title', value: "Item #{repository_id}")
       item.save!
     end
 
