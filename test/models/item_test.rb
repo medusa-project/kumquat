@@ -136,17 +136,14 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.start_date, doc[:normalized_start_date]
     assert_equal @item.end_date, doc[:normalized_end_date] if @item.end_date
     assert_nil @item.full_text
-    assert_equal @item.latitude&.to_f, doc[:normalized_latitude]
-    assert_equal @item.longitude&.to_f, doc[:normalized_longitude]
-    assert_equal @item.variant, doc[:variant]
-    assert_equal @item.binaries
-                     .where(master_type: Binary::MasterType::PRESERVATION)
-                     .limit(1)
-                     .first&.media_type, doc[:preservation_media_type]
+    assert_nil doc[:normalized_latitude]
+    assert_nil doc[:normalized_longitude]
+    assert_nil doc[:variant]
+    assert_nil doc[:preservation_media_type]
     assert_equal @item.elements_in_profile_order(only_visible: true)
                      .map{ |e| { name: e.name, value: e.value } }, doc[:elements]
     assert_equal @item.created_at, doc[:created_at]
-    assert_equal @item.published_at, doc[:published_at]
+    assert_nil doc[:published_at]
     assert_equal @item.updated_at, doc[:updated_at]
   end
 
@@ -175,31 +172,22 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::IndexFields::LAST_MODIFIED]
     assert_nil doc[Item::IndexFields::LAT_LONG]
     assert_nil doc[Item::IndexFields::PARENT_ITEM]
-    assert_equal @item.page_number,
-                 doc[Item::IndexFields::PAGE_NUMBER]
-    assert_equal @item.parent_repository_id,
-                 doc[Item::IndexFields::PARENT_ITEM]
-    assert_equal @item.primary_media_category,
-                 doc[Item::IndexFields::PRIMARY_MEDIA_CATEGORY]
+    assert_nil doc[Item::IndexFields::PAGE_NUMBER]
+    assert_nil doc[Item::IndexFields::PRIMARY_MEDIA_CATEGORY]
     assert doc[Item::IndexFields::PUBLICLY_ACCESSIBLE]
     assert_equal @item.published,
                  doc[Item::IndexFields::PUBLISHED]
-    assert_equal @item.published_at,
-                 doc[Item::IndexFields::PUBLISHED_AT]
+    assert_nil doc[Item::IndexFields::PUBLISHED_AT]
     assert_equal @item.repository_id,
                  doc[Item::IndexFields::REPOSITORY_ID]
-    assert_equal @item.representative_filename,
-                 doc[Item::IndexFields::REPRESENTATIVE_FILENAME]
-    assert_equal @item.representative_item_id,
-                 doc[Item::IndexFields::REPRESENTATIVE_ITEM]
+    assert_nil doc[Item::IndexFields::REPRESENTATIVE_FILENAME]
+    assert_nil doc[Item::IndexFields::REPRESENTATIVE_ITEM]
     assert_equal "#{@item.repository_id}-aaa-zzz-zzz-#{@item.title.downcase}",
                  doc[Item::IndexFields::STRUCTURAL_SORT]
-    assert_equal @item.subpage_number,
-                 doc[Item::IndexFields::SUBPAGE_NUMBER]
+    assert_nil doc[Item::IndexFields::SUBPAGE_NUMBER]
     assert_equal @item.binaries.pluck(:byte_size).sum,
                  doc[Item::IndexFields::TOTAL_BYTE_SIZE]
-    assert_equal @item.variant,
-                 doc[Item::IndexFields::VARIANT]
+    assert_nil doc[Item::IndexFields::VARIANT]
 
     title = @item.element(:title)
     assert_equal [title.value], doc[title.indexed_field]

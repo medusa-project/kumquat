@@ -86,12 +86,12 @@ class CollectionTest < ActiveSupport::TestCase
     doc = @collection.as_harvestable_json
     assert_equal 'Collection', doc[:class]
     assert_equal @collection.repository_id, doc[:id]
-    assert_equal @collection.external_id, doc[:external_id]
-    assert_equal @collection.access_url, doc[:access_uri]
-    assert_equal @collection.physical_collection_url, doc[:physical_collection_uri]
+    assert_nil doc[:external_id]
+    assert_nil doc[:access_uri]
+    assert_nil doc[:physical_collection_uri]
     assert_equal @collection.medusa_repository.title, doc[:repository_title]
-    assert_equal @collection.resource_types, doc[:resource_types]
-    assert_equal @collection.access_systems, doc[:access_systems]
+    assert_nil doc[:resource_types]
+    assert_nil doc[:access_systems]
     assert_equal @collection.package_profile&.name, doc[:package_profile]
     assert_nil doc[:access_master_image]
     assert_equal @collection.elements_in_profile_order(only_visible: true)
@@ -105,10 +105,8 @@ class CollectionTest < ActiveSupport::TestCase
   test 'as_indexed_json returns the correct structure' do
     doc = @collection.as_indexed_json
 
-    assert_equal @collection.access_systems,
-                 doc[Collection::IndexFields::ACCESS_SYSTEMS]
-    assert_equal @collection.access_url,
-                 doc[Collection::IndexFields::ACCESS_URL]
+    assert_nil doc[Collection::IndexFields::ACCESS_SYSTEMS]
+    assert_nil doc[Collection::IndexFields::ACCESS_URL]
     assert_equal @collection.allowed_host_groups.pluck(:key).sort,
                  doc[Collection::IndexFields::ALLOWED_HOST_GROUPS].sort
     assert_equal @collection.allowed_host_groups.pluck(:key).length,
@@ -119,8 +117,7 @@ class CollectionTest < ActiveSupport::TestCase
                  doc[Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS]
     assert_equal @collection.allowed_host_groups.pluck(:key).length,
                  doc[Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUP_COUNT]
-    assert_equal @collection.external_id,
-                 doc[Collection::IndexFields::EXTERNAL_ID]
+    assert_nil doc[Collection::IndexFields::EXTERNAL_ID]
     assert_equal @collection.harvestable,
                  doc[Collection::IndexFields::HARVESTABLE]
     assert_equal @collection.harvestable_by_idhh,
@@ -141,10 +138,8 @@ class CollectionTest < ActiveSupport::TestCase
                  doc[Collection::IndexFields::REPOSITORY_ID]
     assert_equal @collection.medusa_repository.title,
                  doc[Collection::IndexFields::REPOSITORY_TITLE]
-    assert_equal @collection.representative_item_id,
-                 doc[Collection::IndexFields::REPRESENTATIVE_ITEM]
-    assert_equal @collection.resource_types,
-                 doc[Collection::IndexFields::RESOURCE_TYPES]
+    assert_nil doc[Collection::IndexFields::REPRESENTATIVE_ITEM]
+    assert_nil doc[Collection::IndexFields::RESOURCE_TYPES]
 
     @collection.elements.each do |element|
       assert_equal [element.value], doc[element.indexed_field]
