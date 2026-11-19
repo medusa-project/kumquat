@@ -41,6 +41,11 @@ class CollectionTsvExporterTest < ActiveSupport::TestCase
                  @instance.collections(collection_uuids)
   end
 
+  test 'collections() returns only the header for an empty collection' do
+    assert_equal Collection::TSV_COLUMNS.join("\t") + CollectionTsvExporter::LINE_BREAK,
+                 @instance.collections([])
+  end
+
 
   private
 
