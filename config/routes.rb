@@ -94,7 +94,7 @@ Rails.application.routes.draw do
     match '/collections/items', to: 'collections#items', via: :get
     match '/collections/sync', to: 'collections#sync', via: :patch,
           as: 'collections_sync'
-    resources :collections, except: [:edit, :new, :create, :delete] do
+    resources :collections, except: [:edit, :new, :create, :destroy] do
       match '/edit-access', to: 'collections#edit_access', via: :get,
             constraints: lambda { |request| request.xhr? }
       match '/edit-email-watchers', to: 'collections#edit_email_watchers', via: :get,
