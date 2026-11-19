@@ -11,6 +11,8 @@ module Kumquat
 
     attr_accessor :shibboleth_host
 
+    config.autoload_lib(ignore: %w[assets tasks])
+    
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.0
 
