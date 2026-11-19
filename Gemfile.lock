@@ -189,7 +189,8 @@ GEM
     haml (5.1.2)
       temple (>= 0.8.0)
       tilt
-    hashie (5.0.0)
+    hashie (6.0.0)
+      logger
     httpclient (2.8.3)
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
@@ -261,10 +262,11 @@ GEM
       racc (~> 1.4)
     nokogiri (1.19.7-arm64-darwin)
       racc (~> 1.4)
-    omniauth (2.1.1)
-      hashie (>= 3.4.6)
-      rack (>= 2.2.3)
-      rack-protection
+    omniauth (2.4.2)
+      hashie (>= 3.5.2)
+      logger
+      rack (>= 2.2.8)
+      rack-protection (>= 2.2.0)
     omniauth-rails_csrf_protection (1.0.1)
       actionpack (>= 4.2)
       omniauth (~> 2.0)
@@ -289,7 +291,7 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     rack (3.2.8)
-    rack-protection (4.2.1)
+    rack-protection (4.2.2)
       base64 (>= 0.1.0)
       logger (>= 1.6.0)
       rack (>= 3.0.0, < 4)
