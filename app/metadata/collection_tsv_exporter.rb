@@ -15,15 +15,18 @@ class CollectionTsvExporter
   def collections(collection_uuids)
     # N.B.: The return value must remain in sync with that of
     # Collection::TSV_COLUMNS.
-    ids = collection_uuids.map{ |id| "'#{id}'" }.join(',')
+    collection_uuids = collection_uuids.to_a
+    io = StringIO.new
+    io << Collection::TSV_COLUMNS.join("\t")
+    io << LINE_BREAK
+    return io.string if collection_uuids.empty?
+
+    ids = collection_uuids.map { |id| "'#{id}'" }.join(',')
     sql = select_clause +
       from_clause +
       "WHERE collections.repository_id IN (#{ids}) " +
       order_clause +
       ") a\n"
-    io = StringIO.new
-    io << Collection::TSV_COLUMNS.join("\t")
-    io << LINE_BREAK
     ActiveRecord::Base.connection.exec_query(sql, 'SQL').each do |row|
       io << row.values.join("\t")
       io << LINE_BREAK
