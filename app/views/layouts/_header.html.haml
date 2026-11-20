@@ -32,13 +32,11 @@
                       class: 'nav-link' do 
               = icon_for(:info)
               About
-        = link_to "Advanced Search",
-                  search_landing_path(tab: "advanced-search"),
-                  class: 'btn btn-primary my-2 mr-2 my-lg-0',
-                  id: 'navbar-advanced-search-btn'
+
         = form_tag(Configuration.instance.metadata_gateway_url + '/search',
                    method: :get,
                    class: 'form-inline my-2 mr-3 my-lg-0') do
+
           .input-group
             = search_field_tag(:q,
                                '',
@@ -49,4 +47,10 @@
               %button.btn.btn-outline-secondary{type: "submit"}
                 %i.fa.fa-search
                 %span.sr-only Search
+                
+          = link_to "Advanced Search",
+          search_landing_path(tab: "advanced-search"),
+          style: 'text-decoration: underline;',
+          class: 'ml-2 align-self-center',
+          id: 'navbar-advanced-search-btn'
 = render partial: 'shared/sensitive_content'
